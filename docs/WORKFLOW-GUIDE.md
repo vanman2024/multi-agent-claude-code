@@ -17,21 +17,23 @@
 - Creates sub-tasks for features
 - Responds to slash commands (/implement, /assign-copilot)
 
-### 3. `project-board-v2.yml` 🟡 PARTIALLY WORKING
+### 3. `project-board-v2.yml` ✅ WORKING  
 **Trigger:** Issues/PRs opened, closed
 **What it does:**
-- Uses GitHub's official action to add items to project
-- Auto-labels based on content
-- Updates status labels
-**Problem:** Needs GitHub App token for project access
+- Uses GraphQL mutations to add items to project board  
+- Creates development branches for new issues
+- Updates project fields (status, priority, component)
+- Uses the working PROJECT_ID: PVT_kwHOCu1OR84BA3ip
+- Works with GITHUB_TOKEN (no GitHub App required)
+**Fixed:** Replaced failing `actions/add-to-project` action with direct GraphQL approach
 
 ## 🔴 NOT WORKING / NEEDS FIXES
 
-### 4. `project-automation.yml` ❌ BROKEN
+### 4. `project-automation.yml` ⚠️ COMPLEX (BEING REPLACED)
 **Trigger:** Issues/PRs/comments
 **What it does:** Was supposed to update project board fields
-**Problem:** GraphQL query errors, permission issues
-**Status:** Being replaced by project-board-v2.yml
+**Problem:** GraphQL query errors, permission issues, overly complex
+**Status:** Being replaced by simpler project-board-v2.yml approach
 
 ### 5. `claude.yml` & `claude-code-review.yml` ❌ NOT CONFIGURED
 **Trigger:** PR comments with /review
@@ -108,8 +110,8 @@ Quality Gates → Test Gates → Security → Build → Staging → Approval →
 ### For Development:
 1. **Keep:** `auto-assign.yml` - Works well
 2. **Keep:** `issue-to-implementation.yml` - Creates branches
-3. **Fix:** `project-board-v2.yml` - Needs token
-4. **Delete:** `project-automation.yml` - Broken, replaced
+3. **Use:** `project-board-v2.yml` - Fixed and working with GITHUB_TOKEN ✅
+4. **Keep for now:** `project-automation.yml` - Complex but has some working parts
 
 ### For CI/CD:
 1. **USE:** `full-pipeline.yml` - Most complete with gates
@@ -143,7 +145,7 @@ graph LR
 
 ## Quick Fixes Needed
 
-1. **Project Board:** Need GitHub App token
+1. **Project Board:** ✅ FIXED - project-board-v2.yml now works with GITHUB_TOKEN
 2. **Deployments:** Need Vercel & DigitalOcean tokens
 3. **Cleanup:** Remove duplicate workflows
 4. **Focus:** Use `full-pipeline.yml` as main CI/CD
