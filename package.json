@@ -1,0 +1,42 @@
+{
+  "name": "multi-agent-claude-code",
+  "version": "1.0.0",
+  "description": "GitHub automation and AI agent orchestration platform",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "typecheck": "echo 'No TypeScript files to check'",
+    "build": "echo 'Build complete'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vanman2024/multi-agent-claude-code.git"
+  },
+  "keywords": [
+    "github",
+    "automation",
+    "ai",
+    "claude",
+    "copilot",
+    "mcp"
+  ],
+  "author": "vanman2024",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
