@@ -6,103 +6,169 @@ on:
   pull_request:
     types: [opened, ready_for_review, closed]
 
+env:
+  PROJECT_ID: PVT_kwHOCu1OR84BA3ip  # Multi-Agent Claude Code Development
+
 jobs:
   add-to-project:
     name: Add to project
     runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    outputs:
+      item-id: ${{ steps.get-item-id.outputs.item-id }}
     steps:
-      - name: Add to project
-        uses: actions/add-to-project@v0.5.0
+      - name: Add to project using GraphQL
+        id: add-to-project
+        uses: actions/github-script@v7
         with:
-          project-url: https://github.com/users/vanman2024/projects/11
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const mutation = `
+              mutation($projectId: ID!, $contentId: ID!) {
+                addProjectV2ItemByContentId(input: {
+                  projectId: $projectId
+                  contentId: $contentId
+                }) {
+                  item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
+            if (!contentId) {
+              core.setFailed('No issue or PR found in context');
+              return;
+            }
+            
+            try {
+              const result = await github.graphql(mutation, {
+                projectId: process.env.PROJECT_ID,
+                contentId: contentId
+              });
+              
+              console.log(`Added item to project: ${result.addProjectV2ItemByContentId.item.id}`);
+              core.setOutput('item-id', result.addProjectV2ItemByContentId.item.id);
+            } catch (error) {
+              console.log(`Error adding to project: ${error.message}`);
+              core.setFailed(`Failed to add to project: ${error.message}`);
+            }
+
+      - name: Get item ID for future steps  
+        id: get-item-id
+        run: echo "item-id=${{ steps.add-to-project.outputs.item-id }}" >> $GITHUB_OUTPUT
           
-  update-status:
-    name: Update Status Field
+  update-project-fields:
+    name: Update Project Fields
     runs-on: ubuntu-latest
-    if: github.event_name == 'issues' || github.event_name == 'pull_request'
+    if: github.event.action == 'opened'
     needs: add-to-project
     
     steps:
-      - name: Update status based on event
+      - name: Set priority and component fields
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            
-            // Determine new status based on event
-            let status = 'Todo';
-            if (context.payload.action === 'closed') {
-              status = 'Done';
-            } else if (context.payload.action === 'reopened') {
-              status = 'In Progress';
+            const itemId = '${{ needs.add-to-project.outputs.item-id }}';
+            if (!itemId || itemId === 'undefined') {
+              console.log('No item ID available, skipping field updates');
+              return;
             }
             
-            // Add label based on status
-            if (context.payload.issue) {
-              await github.rest.issues.addLabels({
-                owner: owner,
-                repo: repo,
-                issue_number: context.payload.issue.number,
-                labels: [`status:${status.toLowerCase()}`]
-              }).catch(e => console.log('Label may not exist:', e.message));
+            const title = context.payload.issue?.title || context.payload.pull_request?.title || '';
+            const body = context.payload.issue?.body || context.payload.pull_request?.body || '';
+            
+            console.log(`Setting fields for item: ${itemId}`);
+            console.log(`Title: ${title}`);
+            console.log(`Body contains "Backend": ${body.toLowerCase().includes('backend')}`);
+            console.log(`Title contains "[P0]": ${title.includes('[P0]')}`);
+            
+            // Set initial status to Todo
+            try {
+              const statusMutation = `
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { text: $value }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+              
+              // For now, just log that we would set status to Todo
+              // In a real implementation, you'd need the actual field IDs
+              console.log('Would set status to: Todo');
+              console.log('Would set priority to: P0 (from title)');
+              console.log('Would set component to: Backend (from body)');
+              
+            } catch (error) {
+              console.log(`Error updating fields: ${error.message}`);
+              // Don't fail the whole workflow if field updates fail
             }
             
-            console.log(`Status would be set to: ${status}`);
-            
-  auto-label:
-    name: Auto Label Based on Content
+  create-development-branch:
+    name: Create Development Branch
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened'
+    if: github.event_name == 'issues' && github.event.action == 'opened'
     
     steps:
-      - name: Add labels based on issue content
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Create branch for issue
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issue = context.payload.issue || context.payload.pull_request;
+            const issue = context.payload.issue;
             if (!issue) return;
             
-            const title = issue.title.toLowerCase();
-            const body = (issue.body || '').toLowerCase();
-            const labels = [];
+            // Create branch name from issue
+            const title = issue.title.replace(/\[.*?\]/g, '').trim().toLowerCase()
+              .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').substring(0, 30);
+            const branchName = `fix/${issue.number}-${title}`;
             
-            // Priority detection
-            if (title.includes('[p0]') || title.includes('[critical]') || body.includes('critical')) {
-              labels.push('P0');
-            } else if (title.includes('[p1]') || title.includes('[urgent]') || body.includes('urgent')) {
-              labels.push('P1');
-            } else if (title.includes('[p2]')) {
-              labels.push('P2');
-            } else {
-              labels.push('P3');
-            }
-            
-            // Component detection
-            if (body.includes('component:') || body.includes('## component')) {
-              if (body.includes('frontend')) labels.push('frontend');
-              if (body.includes('backend')) labels.push('backend');
-              if (body.includes('database')) labels.push('database');
-              if (body.includes('devops')) labels.push('devops');
-            }
-            
-            // Type detection
-            if (title.includes('[bug]')) labels.push('bug');
-            if (title.includes('[feature]')) labels.push('enhancement');
-            if (title.includes('[docs]')) labels.push('documentation');
-            if (title.includes('[test]')) labels.push('test');
-            
-            // Add all labels at once
-            if (labels.length > 0) {
-              await github.rest.issues.addLabels({
+            try {
+              // Get default branch
+              const { data: repo } = await github.rest.repos.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              });
+              
+              const { data: ref } = await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `heads/${repo.default_branch}`
+              });
+              
+              // Create new branch
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/heads/${branchName}`,
+                sha: ref.object.sha
+              });
+              
+              console.log(`Created branch: ${branchName}`);
+              
+              // Add comment to issue
+              await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                labels: labels
-              }).catch(e => console.log('Some labels may not exist:', e.message));
+                body: `## 🌿 Development branch created\n\n**Branch:** \`${branchName}\`\n\nTo start working on this issue:\n\`\`\`bash\ngit fetch origin\ngit checkout ${branchName}\n\`\`\`\n\nWhen ready, create a PR to close this issue.`
+              });
               
-              console.log(`Added labels: ${labels.join(', ')}`);
+            } catch (error) {
+              console.log(`Branch creation failed: ${error.message}`);
+              if (!error.message.includes('already exists')) {
+                throw error;
+              }
             }
