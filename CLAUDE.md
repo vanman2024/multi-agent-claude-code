@@ -2,37 +2,31 @@
 
 ## Working with MCP Servers
 
-MCP (Model Context Protocol) servers allow Claude to interact with external tools and services. Here's how to manage them:
+MCP (Model Context Protocol) servers allow Claude to interact with external tools and services. 
 
-### Managing MCP Servers
+📚 **See the complete MCP Servers Guide**: [MCP_SERVERS_GUIDE.md](./MCP_SERVERS_GUIDE.md)
+
+### Quick Reference
 
 ```bash
-# List all configured servers
-claude mcp list
+# Add servers
+claude mcp add <name> -- <command>                    # Local stdio server
+claude mcp add --transport http <name> <url>          # Remote HTTP server
+claude mcp add --transport sse <name> <url>           # Remote SSE server
 
-# Get details for a specific server
-claude mcp get github
-
-# Remove a server
-claude mcp remove github
-
-# (within Claude Code) Check server status
-/mcp
+# Manage servers
+claude mcp list                                       # List all servers
+claude mcp get <name>                                 # Get server details
+claude mcp remove <name>                              # Remove a server
+/mcp                                                  # Check status/authenticate (in Claude Code)
 ```
 
-### Adding MCP Servers
-
-To add a new MCP server, use:
-```bash
-claude mcp add <server-name> <server-url>
-```
-
-### Troubleshooting
-
-If a server shows as "Failed to connect", you can:
-1. Check the server status with `/mcp` within Claude Code
-2. Remove and re-add the server if needed
-3. Verify the server URL is correct and accessible
+The MCP_SERVERS_GUIDE.md contains:
+- Popular MCP servers with installation commands
+- Authentication setup
+- Configuration scopes (local/project/user)
+- Troubleshooting tips
+- Security best practices
 
 ## Reading Windows Files and Screenshots in WSL
 
@@ -41,3 +35,255 @@ When working in WSL and needing to read Windows files (especially screenshots), 
 - WSL path: `/mnt/c/Users/user/Pictures/Screenshots/screenshot.png`
 
 Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude Code to access Windows files from the WSL environment.
+
+## File Management Rules
+
+### Prevent File Bloat
+- NEVER create temporary test files - run tests in memory or use existing test files
+- NEVER create duplicate documentation - always check for existing docs first
+- NEVER create "example" or "sample" files unless explicitly requested
+- ALWAYS clean up temporary files created during debugging
+- ALWAYS prefer modifying existing files over creating new ones
+- NEVER create backup copies (like file.old, file.backup) - rely on git
+- NEVER create scratch/draft files - work directly in target files
+
+### Before Creating Any File
+1. Check if a similar file already exists
+2. Verify the file will be actively used in the codebase
+3. Ensure it's not a one-time use case
+4. Confirm user explicitly requested its creation
+
+### Cleanup Protocol
+- Remove unused imports after refactoring
+- Delete commented-out code blocks
+- Remove console.logs and debug statements
+- Clean up test files that were only for verification
+
+## Documentation Rules
+
+### Core Documentation Only
+During development, maintain ONLY these essential documents:
+- **README.md** - Project overview, setup, and quick start
+- **CLAUDE.md** - AI assistant instructions (this file)
+- **MCP_SERVERS_GUIDE.md** - MCP server reference (if using MCP)
+- **API.md** - API endpoints (only if building an API)
+- **CONTRIBUTING.md** - Contribution guidelines (only for open source)
+
+### Documentation Principles
+- **NO SPRAWL**: Do not create multiple documentation files
+- **NO NOTES FILES**: Never create TODO.md, NOTES.md, thoughts.md, ideas.md
+- **NO DRAFTS**: Never create documentation drafts or WIP docs
+- **NO EXAMPLES**: Do not create example or tutorial documentation during development
+- **NO ARCHITECTURE DOCS**: Until explicitly requested for production
+- **NO CHANGELOG**: Use git commits and PR descriptions instead
+
+### When Asked About Documentation
+- **UPDATE existing docs** rather than creating new ones
+- **USE code comments** for implementation details
+- **RELY on git history** for change tracking
+- **WAIT for explicit request** before creating any new documentation
+
+### Documentation Location Rules
+- Keep all docs in root directory during development
+- Only create /docs folder when transitioning to production
+- Never scatter README files throughout the codebase
+- Never create documentation subfolders until product launch
+
+### User Documentation vs Build Documentation
+- During development: Focus only on build/developer documentation
+- User documentation comes AFTER product is functional
+- Never preemptively create user guides or tutorials
+- API documentation only when API is complete and stable
+
+## Code Style & Conventions
+
+### Language-Specific Rules
+- **TypeScript**: Use strict mode, prefer interfaces over types, explicit return types
+- **Python**: Follow PEP 8, use type hints for all functions, docstrings for public functions
+- **React**: Functional components only, use hooks not classes, memo for expensive components
+- **Node.js**: Use async/await over callbacks, handle Promise rejections
+- **Database**: Always use transactions for multiple operations, parameterized queries
+
+### Naming Conventions
+- Files: kebab-case (user-profile.ts, api-handler.js)
+- React Components: PascalCase file and component (UserProfile.tsx)
+- Functions: camelCase (getUserProfile, calculateTotal)
+- Constants: UPPER_SNAKE_CASE (MAX_RETRY_COUNT, API_BASE_URL)
+- Database: snake_case for tables/columns (user_accounts, created_at)
+- CSS/SCSS: kebab-case for classes (user-profile-card)
+- Environment vars: UPPER_SNAKE_CASE with prefix (REACT_APP_, NEXT_PUBLIC_)
+
+## Common Commands & Scripts
+
+### ALWAYS run these before marking any task complete:
+```bash
+# Check if these commands exist first, then run if available:
+npm run lint        # or: eslint, ruff, flake8, etc.
+npm run typecheck   # or: tsc, mypy, etc.
+npm test           # only if tests exist
+```
+
+### If commands are unknown:
+- Check package.json scripts section
+- Check README.md for commands
+- Ask user for the correct commands
+- Suggest adding them to this section
+
+## Error Handling Patterns
+
+### NEVER:
+- Use empty try-catch blocks
+- Catch errors without logging context
+- Return generic "Something went wrong" messages
+- Ignore Promise rejections
+- Use catch without proper error handling
+
+### ALWAYS:
+- Log error with context (user ID, action, timestamp)
+- Return specific, actionable error messages
+- Use error boundaries in React applications
+- Handle both sync and async errors
+- Preserve error stack traces in development
+
+### Error Pattern:
+```javascript
+try {
+  // operation
+} catch (error) {
+  console.error('Specific context:', { userId, action, error });
+  throw new Error(`Failed to [specific action]: ${error.message}`);
+}
+```
+
+## Security Rules
+
+### NEVER:
+- Log passwords, tokens, API keys, or PII
+- Commit .env files or any secrets
+- Use eval(), Function(), or dynamic code execution
+- Trust user input without validation
+- Store credentials in code or comments
+- Use innerHTML without sanitization
+- Expose internal error details to users
+- Use Math.random() for security purposes
+
+### ALWAYS:
+- Validate and sanitize ALL inputs
+- Use parameterized queries/prepared statements
+- Check file paths for directory traversal (../)
+- Use environment variables for secrets
+- Hash passwords with bcrypt/argon2
+- Use crypto.randomBytes() for tokens
+- Implement rate limiting for APIs
+- Escape output in templates
+
+## Performance Considerations
+
+### AVOID:
+- N+1 database queries (use joins/includes)
+- Synchronous file operations in request handlers
+- Large data processing in main thread
+- Unnecessary re-renders in React
+- Multiple sequential await calls (use Promise.all)
+- Importing entire libraries (use specific imports)
+- Inline function definitions in render methods
+
+### PREFER:
+- Batch database operations
+- Pagination for large datasets (limit/offset)
+- Lazy loading for heavy components
+- useMemo/useCallback for expensive operations
+- Virtual scrolling for long lists
+- Web Workers for CPU-intensive tasks
+- Debouncing/throttling for frequent events
+
+## Git Workflow
+
+### Branch Naming:
+- feature/short-description
+- fix/issue-number-description
+- chore/task-description
+- hotfix/critical-issue
+
+### Commit Messages:
+- Start with verb: Add, Fix, Update, Remove, Refactor
+- Keep under 50 characters
+- No period at end
+- Reference issue: "Fix #123: Login error"
+
+### NEVER Commit:
+- node_modules/, venv/, __pycache__/
+- .env, .env.local, .env.*.local
+- Build outputs (dist/, build/)
+- IDE files (.idea/, .vscode/settings.json)
+- OS files (.DS_Store, Thumbs.db)
+- Log files (*.log, npm-debug.log*)
+- Temporary files (*.tmp, *.swp)
+
+## Testing Approach
+
+### Before Writing Tests:
+1. Check if test infrastructure exists
+2. Look for existing test patterns
+3. Use same test framework as existing tests
+4. Never introduce new test framework
+
+### Test File Naming:
+- *.test.ts, *.spec.ts for unit tests
+- *.e2e.ts for end-to-end tests
+- Place next to file being tested or in __tests__/
+
+### Never:
+- Create test files if no test setup exists
+- Write tests without running them
+- Commit failing tests
+
+## Debug & Development Helpers
+
+### Before Marking Complete:
+- Remove ALL console.log statements
+- Remove debugger statements
+- Remove commented-out code
+- Remove TODO comments (unless intentional)
+- Clean up temporary variables
+- Remove development-only code
+
+### Acceptable Logging:
+- Error logging with context
+- Warning for deprecated features
+- Info for important state changes (in dev only)
+
+## Project-Specific Context
+
+### Tech Stack:
+<!-- Add your stack when known -->
+- Frontend: [TBD]
+- Backend: [TBD]
+- Database: [TBD]
+- Authentication: [TBD]
+
+### Key Patterns in This Codebase:
+<!-- Add patterns as discovered -->
+
+### External Services:
+<!-- Add as integrated -->
+
+### Known Issues/Gotchas:
+<!-- Add quirks as discovered -->
+
+## Response Behavior
+
+### When Starting Tasks:
+1. Use TodoWrite to plan if multiple steps
+2. Search/read relevant files first
+3. Understand existing patterns
+4. Implement solution
+5. Run lint/typecheck
+6. Remove debug code
+7. Verify solution works
+
+### When Task is Complete:
+- Just stop after completing
+- Don't explain what was done
+- Don't summarize changes
+- Don't suggest next steps (unless asked)

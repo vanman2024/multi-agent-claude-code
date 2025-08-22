@@ -1,0 +1,235 @@
+name: Deploy Frontend to Vercel
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'client/**'
+      - 'src/**'
+      - 'components/**'
+      - 'pages/**'
+      - 'app/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '!backend/**'
+      - '!api/**'
+      - '!server/**'
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'frontend/**'
+      - 'client/**'
+      - 'src/**'
+      - 'components/**'
+      - 'pages/**'
+      - 'app/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - production
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  detect-framework:
+    name: Detect Frontend Framework
+    runs-on: ubuntu-latest
+    outputs:
+      framework: ${{ steps.detect.outputs.framework }}
+      directory: ${{ steps.detect.outputs.directory }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Detect framework and directory
+        id: detect
+        run: |
+          # Check for frontend directory structure
+          if [ -d "frontend" ]; then
+            echo "directory=frontend" >> $GITHUB_OUTPUT
+            cd frontend
+          elif [ -d "client" ]; then
+            echo "directory=client" >> $GITHUB_OUTPUT
+            cd client
+          else
+            echo "directory=." >> $GITHUB_OUTPUT
+          fi
+          
+          # Detect framework from package.json
+          if [ -f "package.json" ]; then
+            if grep -q '"next"' package.json; then
+              echo "framework=nextjs" >> $GITHUB_OUTPUT
+            elif grep -q '"react-scripts"' package.json; then
+              echo "framework=create-react-app" >> $GITHUB_OUTPUT
+            elif grep -q '"vite"' package.json; then
+              echo "framework=vite" >> $GITHUB_OUTPUT
+            elif grep -q '"@angular/core"' package.json; then
+              echo "framework=angular" >> $GITHUB_OUTPUT
+            elif grep -q '"vue"' package.json; then
+              echo "framework=vue" >> $GITHUB_OUTPUT
+            else
+              echo "framework=unknown" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "framework=static" >> $GITHUB_OUTPUT
+          fi
+
+  deploy-preview:
+    name: Deploy Preview to Vercel
+    runs-on: ubuntu-latest
+    needs: detect-framework
+    if: github.event_name == 'pull_request'
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+        
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ${{ needs.detect-framework.outputs.directory }}
+        
+      - name: Build Project
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ${{ needs.detect-framework.outputs.directory }}
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.PREVIEW_API_URL }}
+          REACT_APP_API_URL: ${{ secrets.PREVIEW_API_URL }}
+          VITE_API_URL: ${{ secrets.PREVIEW_API_URL }}
+          
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -n 1)
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Preview deployed to: $DEPLOYMENT_URL"
+        working-directory: ${{ needs.detect-framework.outputs.directory }}
+        
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            const framework = '${{ needs.detect-framework.outputs.framework }}';
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 🚀 Frontend Preview Deployed!
+              
+**URL:** ${url}
+**Framework:** ${framework}
+**Environment:** Preview
+              
+### Preview Features:
+- 🔄 Auto-updates with new commits
+- 🔍 Isolated testing environment
+- 📊 Performance metrics available
+- 🔒 Preview-specific environment variables
+
+### Testing Checklist:
+- [ ] Visual regression testing
+- [ ] Mobile responsiveness
+- [ ] API integration
+- [ ] Performance metrics
+              
+[View Deployment](${url}) | [View in Vercel Dashboard](https://vercel.com/${process.env.VERCEL_ORG_ID}/${process.env.VERCEL_PROJECT_ID})`
+            });
+
+  deploy-production:
+    name: Deploy Production to Vercel
+    runs-on: ubuntu-latest
+    needs: detect-framework
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+        
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ${{ needs.detect-framework.outputs.directory }}
+        
+      - name: Build Project
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ${{ needs.detect-framework.outputs.directory }}
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          REACT_APP_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          VITE_API_URL: ${{ secrets.PRODUCTION_API_URL }}
+          
+      - name: Deploy to Vercel Production
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -n 1)
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Production deployed to: $DEPLOYMENT_URL"
+        working-directory: ${{ needs.detect-framework.outputs.directory }}
+        
+      - name: Create Deployment Record
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            
+            // Create deployment
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              production_environment: true,
+              auto_merge: false,
+              required_contexts: [],
+              description: 'Frontend production deployment to Vercel'
+            });
+            
+            // Create deployment status
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: 'success',
+              environment_url: url,
+              description: 'Deployed to Vercel'
+            });
+            
+      - name: Notify Team
+        if: success()
+        run: |
+          echo "🎉 Frontend deployed to production: ${{ steps.deploy.outputs.url }}"
+          # Add Slack/Discord notification here if needed
