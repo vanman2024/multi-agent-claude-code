@@ -12,7 +12,6 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
-  projects: write
 
 env:
   PROJECT_ID: PVT_kwHOCu1OR84BA3ip  # Multi-Agent Claude Code Development
@@ -333,20 +332,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: `## 🌿 Development branch created
-                
-**Branch:** \`${branchName}\`
-
-To start working on this issue:
-\`\`\`bash
-git fetch origin
-git checkout ${branchName}
-\`\`\`
-
-When ready, create a PR with:
-\`\`\`bash
-gh pr create --base main --head ${branchName} --title "Fixes #${issue.number}" --body "Closes #${issue.number}"
-\`\`\``
+                body: `## 🌿 Development branch created\n\n**Branch:** \`${branchName}\`\n\nTo start working on this issue:\n\`\`\`bash\ngit fetch origin\ngit checkout ${branchName}\n\`\`\`\n\nWhen ready, create a PR with:\n\`\`\`bash\ngh pr create --base main --head ${branchName} --title "Fixes #${issue.number}" --body "Closes #${issue.number}"\n\`\`\``
               });
             } catch (error) {
               console.log('Branch creation failed:', error.message);
