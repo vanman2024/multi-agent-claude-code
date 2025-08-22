@@ -1,0 +1,441 @@
+name: Project Board Automation
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled, assigned, closed, reopened]
+  pull_request:
+    types: [opened, edited, labeled, unlabeled, assigned, closed, merged]
+  issue_comment:
+    types: [created]
+
+env:
+  PROJECT_ID: PVT_kwHOCu1OR84BA3ip  # TaskFlow Development Board
+  # Field IDs from our project
+  STATUS_FIELD: PVTSSF_lAHOCu1OR84BA3ipzgziw9A
+  PRIORITY_FIELD: PVTSSF_lAHOCu1OR84BA3ipzgzixBc
+  COMPONENT_FIELD: PVTSSF_lAHOCu1OR84BA3ipzgzixC0
+  
+  # Status option IDs
+  STATUS_TODO: f75ad846
+  STATUS_IN_PROGRESS: 47fc9ee4
+  STATUS_DONE: 98236657
+  
+  # Priority option IDs
+  PRIORITY_P0: 272850f8
+  PRIORITY_P1: 257f709e
+  PRIORITY_P2: 5041f9b5
+  PRIORITY_P3: e6ae2685
+  
+  # Component option IDs
+  COMPONENT_FRONTEND: 83954b68
+  COMPONENT_BACKEND: 8aa84839
+  COMPONENT_DATABASE: eea4cd61
+  COMPONENT_DEVOPS: 82f4b58a
+
+jobs:
+  add-to-project:
+    name: Add Issue/PR to Project
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    
+    steps:
+      - name: Add to project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const projectId = process.env.PROJECT_ID;
+            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
+            
+            // Add item to project
+            const mutation = `
+              mutation($projectId: ID!, $contentId: ID!) {
+                addProjectV2ItemById(input: {
+                  projectId: $projectId
+                  contentId: $contentId
+                }) {
+                  item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            const result = await github.graphql(mutation, {
+              projectId: projectId,
+              contentId: contentId
+            });
+            
+            core.setOutput('itemId', result.addProjectV2ItemById.item.id);
+            
+      - name: Set initial status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const itemId = '${{ steps.add-to-project.outputs.itemId }}';
+            
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: { singleSelectOptionId: $optionId }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: itemId,
+              fieldId: process.env.STATUS_FIELD,
+              optionId: process.env.STATUS_TODO
+            });
+
+  set-priority:
+    name: Auto-set Priority based on labels
+    runs-on: ubuntu-latest
+    if: |
+      (github.event.action == 'opened' || github.event.action == 'labeled') &&
+      (contains(github.event.issue.labels.*.name, 'P0') ||
+       contains(github.event.issue.labels.*.name, 'P1') ||
+       contains(github.event.issue.labels.*.name, 'P2') ||
+       contains(github.event.issue.labels.*.name, 'P3') ||
+       contains(github.event.issue.labels.*.name, 'urgent') ||
+       contains(github.event.issue.labels.*.name, 'critical'))
+    
+    steps:
+      - name: Get item ID
+        id: get-item
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const query = `
+              query($projectId: ID!, $contentId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                          }
+                          ... on PullRequest {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
+            const result = await github.graphql(query, {
+              projectId: process.env.PROJECT_ID,
+              contentId: contentId
+            });
+            
+            const item = result.node.items.nodes.find(i => i.content?.id === contentId);
+            if (item) {
+              core.setOutput('itemId', item.id);
+            }
+            
+      - name: Set priority
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const itemId = '${{ steps.get-item.outputs.itemId }}';
+            if (!itemId) return;
+            
+            const labels = context.payload.issue?.labels || context.payload.pull_request?.labels || [];
+            let priorityId = process.env.PRIORITY_P3; // default
+            
+            // Map labels to priority
+            if (labels.some(l => l.name === 'P0' || l.name === 'critical')) {
+              priorityId = process.env.PRIORITY_P0;
+            } else if (labels.some(l => l.name === 'P1' || l.name === 'urgent')) {
+              priorityId = process.env.PRIORITY_P1;
+            } else if (labels.some(l => l.name === 'P2')) {
+              priorityId = process.env.PRIORITY_P2;
+            } else if (labels.some(l => l.name === 'P3')) {
+              priorityId = process.env.PRIORITY_P3;
+            }
+            
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: { singleSelectOptionId: $optionId }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: itemId,
+              fieldId: process.env.PRIORITY_FIELD,
+              optionId: priorityId
+            });
+
+  set-component:
+    name: Auto-set Component based on labels or files
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened' || github.event.action == 'labeled'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Get item ID
+        id: get-item
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const query = `
+              query($projectId: ID!, $contentId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                          }
+                          ... on PullRequest {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
+            const result = await github.graphql(query, {
+              projectId: process.env.PROJECT_ID,
+              contentId: contentId
+            });
+            
+            const item = result.node.items.nodes.find(i => i.content?.id === contentId);
+            if (item) {
+              core.setOutput('itemId', item.id);
+            }
+            
+      - name: Detect and set component
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const itemId = '${{ steps.get-item.outputs.itemId }}';
+            if (!itemId) return;
+            
+            const labels = context.payload.issue?.labels || context.payload.pull_request?.labels || [];
+            let componentId = null;
+            
+            // Check labels first
+            if (labels.some(l => l.name.toLowerCase().includes('frontend') || l.name.toLowerCase().includes('ui'))) {
+              componentId = process.env.COMPONENT_FRONTEND;
+            } else if (labels.some(l => l.name.toLowerCase().includes('backend') || l.name.toLowerCase().includes('api'))) {
+              componentId = process.env.COMPONENT_BACKEND;
+            } else if (labels.some(l => l.name.toLowerCase().includes('database') || l.name.toLowerCase().includes('db'))) {
+              componentId = process.env.COMPONENT_DATABASE;
+            } else if (labels.some(l => l.name.toLowerCase().includes('devops') || l.name.toLowerCase().includes('ci'))) {
+              componentId = process.env.COMPONENT_DEVOPS;
+            }
+            
+            // For PRs, check changed files
+            if (!componentId && context.payload.pull_request) {
+              const files = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number
+              });
+              
+              const filePaths = files.data.map(f => f.filename);
+              
+              if (filePaths.some(f => f.includes('frontend/') || f.includes('src/components/') || f.endsWith('.tsx') || f.endsWith('.jsx'))) {
+                componentId = process.env.COMPONENT_FRONTEND;
+              } else if (filePaths.some(f => f.includes('backend/') || f.includes('api/') || f.includes('server/'))) {
+                componentId = process.env.COMPONENT_BACKEND;
+              } else if (filePaths.some(f => f.includes('migrations/') || f.includes('schema.') || f.includes('database/'))) {
+                componentId = process.env.COMPONENT_DATABASE;
+              } else if (filePaths.some(f => f.includes('.github/') || f.includes('docker') || f.includes('k8s/'))) {
+                componentId = process.env.COMPONENT_DEVOPS;
+              }
+            }
+            
+            if (componentId) {
+              const mutation = `
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { singleSelectOptionId: $optionId }
+                  }) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+              
+              await github.graphql(mutation, {
+                projectId: process.env.PROJECT_ID,
+                itemId: itemId,
+                fieldId: process.env.COMPONENT_FIELD,
+                optionId: componentId
+              });
+            }
+
+  update-status-on-progress:
+    name: Update Status based on activity
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment' || github.event.action == 'assigned'
+    
+    steps:
+      - name: Update to In Progress
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Logic to move to "In Progress" when work starts
+            // - When someone is assigned
+            // - When a linked branch is created
+            // - When first commit is made
+            
+            const query = `
+              query($projectId: ID!, $contentId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const contentId = context.payload.issue?.node_id;
+            if (!contentId) return;
+            
+            const result = await github.graphql(query, {
+              projectId: process.env.PROJECT_ID,
+              contentId: contentId
+            });
+            
+            const item = result.node.items.nodes.find(i => i.content?.id === contentId);
+            if (!item) return;
+            
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: { singleSelectOptionId: $optionId }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: item.id,
+              fieldId: process.env.STATUS_FIELD,
+              optionId: process.env.STATUS_IN_PROGRESS
+            });
+
+  update-status-on-close:
+    name: Update Status when closed
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+    
+    steps:
+      - name: Move to Done
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const query = `
+              query($projectId: ID!, $contentId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                          }
+                          ... on PullRequest {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
+            const result = await github.graphql(query, {
+              projectId: process.env.PROJECT_ID,
+              contentId: contentId
+            });
+            
+            const item = result.node.items.nodes.find(i => i.content?.id === contentId);
+            if (!item) return;
+            
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: { singleSelectOptionId: $optionId }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: item.id,
+              fieldId: process.env.STATUS_FIELD,
+              optionId: process.env.STATUS_DONE
+            });

@@ -1,3 +1,4 @@
+
 name: Scheduled Maintenance
 
 on:
@@ -9,15 +10,15 @@ on:
 jobs:
   dependency-updates:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Check for outdated dependencies
         run: |
           npm outdated || true
-          
+
       - name: Create issue for updates
         uses: actions/github-script@v7
         with:
@@ -28,19 +29,19 @@ jobs:
               repo: context.repo.repo,
               title: `[MAINTENANCE] Weekly dependency check - ${date}`,
               body: `## Weekly Dependency Review
-              
+
               - [ ] Review npm outdated results
               - [ ] Update minor versions
               - [ ] Test after updates
               - [ ] Update documentation if needed
-              
+
               This issue was automatically created by the scheduled workflow.`,
               labels: ['maintenance', 'dependencies']
             });
-            
+
   cleanup:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Close stale issues
         uses: actions/stale@v9
