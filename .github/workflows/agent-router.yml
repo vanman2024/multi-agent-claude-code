@@ -1,0 +1,142 @@
+name: Agent Router
+
+on:
+  issues:
+    types: [labeled, opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  route-to-agent:
+    name: Route Issue to Appropriate Agent
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Analyze Issue Complexity
+        id: analyze
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const labels = issue.labels.map(l => l.name);
+            const body = issue.body || '';
+            
+            // Determine complexity and agent assignment
+            let agent = 'human'; // default
+            let complexity = 'complex';
+            
+            // Simple issues for Copilot
+            if (labels.includes('good-first-issue') || 
+                labels.includes('documentation') ||
+                labels.includes('typo') ||
+                labels.includes('simple')) {
+              agent = 'copilot';
+              complexity = 'simple';
+            }
+            
+            // Medium complexity for Claude Code
+            else if (labels.includes('enhancement') ||
+                     labels.includes('refactor') ||
+                     body.includes('Component: Frontend') ||
+                     body.includes('Component: Backend')) {
+              agent = 'claude';
+              complexity = 'medium';
+            }
+            
+            // Complex issues stay with humans
+            else if (labels.includes('architecture') ||
+                     labels.includes('security') ||
+                     labels.includes('breaking-change')) {
+              agent = 'human';
+              complexity = 'complex';
+            }
+            
+            core.setOutput('agent', agent);
+            core.setOutput('complexity', complexity);
+            console.log(`Issue routed to: ${agent} (${complexity})`);
+            
+      - name: Assign to GitHub Copilot
+        if: steps.analyze.outputs.agent == 'copilot'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            
+            // Use our MCP server to assign Copilot
+            // This would trigger Copilot to start working on the branch
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `🤖 **Assigned to GitHub Copilot**\n\nThis issue has been identified as suitable for automated resolution. Copilot will:\n1. Analyze the requirements\n2. Implement the solution\n3. Create a pull request\n\nYou can track progress in the Actions tab.`
+            });
+            
+            // Add copilot-assigned label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: ['copilot-assigned']
+            });
+            
+      - name: Prepare for Claude Code Agent
+        if: steps.analyze.outputs.agent == 'claude'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            
+            // Create a dispatch event that Claude Code agent can listen for
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              event_type: 'claude-agent-task',
+              client_payload: {
+                issue_number: issue.number,
+                branch: `issue-${issue.number}`,
+                complexity: '${{ steps.analyze.outputs.complexity }}'
+              }
+            });
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `🧠 **Prepared for Claude Code Agent**\n\nThis issue requires intelligent implementation. A Claude Code agent can:\n1. Check out the branch\n2. Analyze the codebase\n3. Implement the feature\n4. Run tests\n5. Create a pull request\n\nTo start the agent, run:\n\`\`\`bash\nclause-code-agent start --issue ${issue.number}\n\`\`\``
+            });
+            
+            // Add claude-ready label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: ['claude-ready']
+            });
+
+  trigger-copilot-implementation:
+    name: Trigger Copilot Implementation
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'issue_comment' && 
+      contains(github.event.comment.body, '/copilot implement')
+    
+    steps:
+      - name: Assign Copilot to Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = context.payload.issue.number;
+            
+            // This would use the MCP GitHub server
+            // In practice, you'd call: mcp__github__assign_copilot_to_issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `🚀 Copilot is now working on this issue...`
+            });

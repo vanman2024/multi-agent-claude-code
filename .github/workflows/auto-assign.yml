@@ -44,29 +44,3 @@ jobs:
               });
             }
             
-      - name: Create branch for issue
-        if: github.event_name == 'issues'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issue = context.payload.issue;
-            const branchName = `issue-${issue.number}-${issue.title.toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 30)}`;
-            
-            try {
-              await github.rest.git.createRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `refs/heads/${branchName}`,
-                sha: context.payload.repository.default_branch
-              });
-              
-              // Comment on issue with branch name
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: `Branch \`${branchName}\` has been created for this issue.`
-              });
-            } catch (error) {
-              console.log('Branch creation failed:', error);
-            }
