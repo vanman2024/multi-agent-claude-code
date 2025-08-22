@@ -33,3 +33,11 @@ If a server shows as "Failed to connect", you can:
 1. Check the server status with `/mcp` within Claude Code
 2. Remove and re-add the server if needed
 3. Verify the server URL is correct and accessible
+
+## Reading Windows Files and Screenshots in WSL
+
+When working in WSL and needing to read Windows files (especially screenshots), use the WSL mount path:
+- Windows path: `C:/Users/user/Pictures/Screenshots/screenshot.png`
+- WSL path: `/mnt/c/Users/user/Pictures/Screenshots/screenshot.png`
+
+Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude Code to access Windows files from the WSL environment.
