@@ -7,6 +7,11 @@ on:
     types: [opened, edited, labeled, unlabeled, assigned, closed, merged]
   issue_comment:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to add to project'
+        required: false
 
 permissions:
   contents: write
@@ -43,7 +48,7 @@ jobs:
   add-to-project:
     name: Add Issue/PR to Project
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened'
+    if: github.event.action == 'opened' || github.event_name == 'workflow_dispatch'
     outputs:
       item-id: ${{ steps.add-to-project.outputs.itemId }}
     
