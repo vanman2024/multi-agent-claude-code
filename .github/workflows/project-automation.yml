@@ -120,15 +120,13 @@ jobs:
             
             let priorityId = process.env.PRIORITY_P3; // default
             
-            // Check labels for priority
-            if (labels.some(l => l.name === 'P0' || l.name === 'critical')) {
+            // Check labels for priority indicators
+            if (labels.some(l => l.name === 'critical' || l.name === 'urgent')) {
               priorityId = process.env.PRIORITY_P0;
-            } else if (labels.some(l => l.name === 'P1' || l.name === 'urgent')) {
+            } else if (labels.some(l => l.name === 'high-priority')) {
               priorityId = process.env.PRIORITY_P1;
-            } else if (labels.some(l => l.name === 'P2')) {
-              priorityId = process.env.PRIORITY_P2;
-            } else if (labels.some(l => l.name === 'P3')) {
-              priorityId = process.env.PRIORITY_P3;
+            } else {
+              priorityId = process.env.PRIORITY_P3; // Default to P3
             }
             
             // Check title for priority indicators
@@ -176,14 +174,14 @@ jobs:
             
             let componentId = null;
             
-            // Check labels
-            if (labels.some(l => l.name === 'frontend' || l.name === 'ui')) {
+            // Check labels for component hints (using issue type labels, not component labels)
+            if (labels.some(l => l.name === 'ui' || l.name === 'ux')) {
               componentId = process.env.COMPONENT_FRONTEND;
-            } else if (labels.some(l => l.name === 'backend' || l.name === 'api')) {
+            } else if (labels.some(l => l.name === 'api' || l.name === 'server')) {
               componentId = process.env.COMPONENT_BACKEND;
             } else if (labels.some(l => l.name === 'database' || l.name === 'db')) {
               componentId = process.env.COMPONENT_DATABASE;
-            } else if (labels.some(l => l.name === 'devops' || l.name === 'ci' || l.name === 'cd')) {
+            } else if (labels.some(l => l.name === 'ci' || l.name === 'cd' || l.name === 'infrastructure')) {
               componentId = process.env.COMPONENT_DEVOPS;
             }
             
