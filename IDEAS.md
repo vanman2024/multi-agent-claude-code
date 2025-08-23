@@ -6,6 +6,26 @@
 - Agents (Claude/Copilot) should make intelligent decisions
 - Workflows keep the process moving toward deployment
 
+## Key Architecture Insights (Agreed Upon)
+
+### System Roles
+- **Claude Code = The Brain**: Makes decisions, coordinates agents
+- **GitHub Board = The Structure**: Storage and organization, no intelligence
+- **GitHub Automation = The Coordinator**: Handles issue→project→todo→milestone flow
+- **Agents = The Workers**: Prepackaged executors for specific tasks
+
+### Agent Interaction Model
+- Agents DON'T interact with users directly
+- Agents interact with Claude Code (system agent)
+- Agents get context from files they read before starting
+- Agents only need: their steps, their tools, their handoff points
+- Agents hand work to each other through the system
+
+### Coordination Flow
+- GitHub automation handles: issue creation → project linking → todo status → milestone tracking
+- Claude Code handles: which agent to use, complex decisions
+- Automation provides the structure for agents to pick up work
+
 ---
 
 ## 🔴 High Priority Issues to Fix
@@ -13,10 +33,18 @@
 ### 1. Multiple Workflow Duplications
 **Problem**: Same GitHub Action fires 3 times for one issue
 **Example**: Issue #15 triggered Agent Router 3 times
+**Root Cause**: We have 6+ workflows all listening to "issues" event:
+- agent-router.yml
+- project-automation.yml  
+- project-board-v2.yml
+- issue-to-implementation.yml
+- auto-assign.yml
+- claude.yml
+
 **Solution**: 
-- Consolidate workflows
-- Add checks to prevent duplicate runs
-- Use workflow conditions to ensure single execution
+- Consolidate into single `issue-handler.yml`
+- Each workflow does one thing and exits
+- Use job dependencies, not separate workflows
 
 ### 2. Backwards Branch Creation
 **Problem**: Creating branches before work starts
@@ -32,6 +60,69 @@
 - Workflow just applies what Claude decides
 
 ---
+
+## 🎯 FUNDAMENTAL ARCHITECTURE QUESTIONS
+
+### How Do Other Systems Work?
+**Research needed**: How do existing AI coding systems handle this?
+- Cursor IDE - How does it manage issues?
+- Devin - How does it pick up work?
+- GitHub Copilot Workspace - What's their workflow?
+
+### Should GitHub Copilot Make Some Decisions?
+**Idea**: Copilot reads issue → Makes basic decisions → Passes to Claude for complex work
+- Copilot CAN read issues and understand context
+- Maybe Copilot sets initial priority/component?
+- Claude reviews and adjusts if needed?
+
+### Do We Need a Dedicated Project Management Agent?
+**Concept**: One agent JUST for managing issues/boards
+```
+Project Agent responsibilities:
+- Reads all new issues
+- Sets priorities based on context
+- Updates project board fields
+- Assigns to appropriate dev agent
+- Tracks progress
+- NO coding, just management
+```
+
+### The Two-Way Workflow Problem
+
+#### Direction 1: GitHub → Local
+```
+Issue created in GitHub
+    ↓
+Agent sees it (how? webhook? polling?)
+    ↓
+Agent pulls context
+    ↓
+Agent starts work locally
+    ↓
+Pushes back to GitHub
+```
+
+#### Direction 2: Local → GitHub  
+```
+Developer/Agent working locally
+    ↓
+Identifies need/bug/feature
+    ↓
+Creates issue in GitHub
+    ↓
+GitHub automation tracks it
+    ↓
+Continue working locally
+```
+
+### Key Insight: Agents Have No Initial Context
+- Agents must READ to get context
+- Context can come from:
+  - GitHub issue
+  - Another agent
+  - Claude conversation
+  - Local files
+- Need clear context handoff protocol
 
 ## 💡 Ideas for Implementation
 
