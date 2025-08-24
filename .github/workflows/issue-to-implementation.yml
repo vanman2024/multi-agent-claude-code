@@ -148,7 +148,7 @@ jobs:
             --field assignees='["github-copilot"]' \
             || echo "Note: Copilot assignment may need manual action"
             
-      - name: Create sub-tasks
+      - name: Add task checklist to issue
         if: steps.parse.outputs.type == 'feature'
         uses: actions/github-script@v7
         with:
@@ -157,111 +157,46 @@ jobs:
             const parentIssue = context.payload.issue;
             const component = '${{ steps.parse.outputs.component }}';
             
-            // Get parent issue node ID for linking
-            const parentNodeId = parentIssue.node_id;
+            // Add a task checklist as a comment (or update issue body)
+            const taskChecklist = `## 📋 Implementation Tasks
+
+            ### Phase 1: Design
+            - [ ] Create technical design document
+            - [ ] Review architecture with team
+            - [ ] Update project documentation
             
-            // Standard sub-tasks for features
-            const subTasks = [
-              {
-                title: `Design: ${parentIssue.title}`,
-                body: `## 📐 Design Phase\n\nParent issue: #${parentIssue.number}\n\n### Tasks\n- [ ] Create technical design\n- [ ] Review with team\n- [ ] Update documentation\n\n### Links\n- Parent: #${parentIssue.number}`,
-                labels: ['design', 'sub-task']
-              },
-              {
-                title: `Implementation: ${parentIssue.title}`,
-                body: `## 💻 Implementation Phase\n\nParent issue: #${parentIssue.number}\n\n### Tasks\n- [ ] Write code\n- [ ] Add unit tests\n- [ ] Self review\n\n### Links\n- Parent: #${parentIssue.number}`,
-                labels: ['implementation', 'sub-task']
-              },
-              {
-                title: `Testing: ${parentIssue.title}`,
-                body: `## 🧪 Testing Phase\n\nParent issue: #${parentIssue.number}\n\n### Tasks\n- [ ] Write integration tests\n- [ ] Manual testing\n- [ ] Performance testing\n\n### Links\n- Parent: #${parentIssue.number}`,
-                labels: ['testing', 'sub-task']
-              }
-            ];
+            ### Phase 2: Implementation  
+            - [ ] Implement core functionality
+            - [ ] Add unit tests
+            - [ ] Perform self code review
             
-            const createdSubIssues = [];
+            ### Phase 3: Testing
+            - [ ] Write integration tests
+            - [ ] Perform manual testing
+            - [ ] Run performance tests
+            - [ ] Fix any issues found
             
-            for (const task of subTasks) {
-              const subIssue = await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: task.title,
-                body: task.body,
-                labels: task.labels,
-                milestone: parentIssue.milestone?.number
-              });
-              createdSubIssues.push(subIssue.data);
-            }
+            ### Phase 4: Documentation
+            - [ ] Update API documentation
+            - [ ] Add user guide
+            - [ ] Update README if needed
             
-            // Try to link sub-issues using GraphQL API (requires project connection)
-            // This will only work if the parent issue is already in a project
-            try {
-              // First get the project item ID for the parent issue
-              const projectQuery = `
-                query($owner: String!, $repo: String!, $issueNumber: Int!) {
-                  repository(owner: $owner, name: $repo) {
-                    issue(number: $issueNumber) {
-                      projectItems(first: 1) {
-                        nodes {
-                          id
-                          project {
-                            id
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              `;
-              
-              const projectResult = await github.graphql(projectQuery, {
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issueNumber: parentIssue.number
-              });
-              
-              if (projectResult.repository.issue.projectItems.nodes.length > 0) {
-                const parentProjectItem = projectResult.repository.issue.projectItems.nodes[0];
-                
-                // Link each sub-issue
-                for (const subIssue of createdSubIssues) {
-                  // Add sub-issue to project first
-                  const addToProject = await github.graphql(`
-                    mutation($projectId: ID!, $contentId: ID!) {
-                      addProjectV2ItemById(input: {
-                        projectId: $projectId
-                        contentId: $contentId
-                      }) {
-                        item {
-                          id
-                        }
-                      }
-                    }
-                  `, {
-                    projectId: parentProjectItem.project.id,
-                    contentId: subIssue.node_id
-                  });
-                  
-                  // Then link as sub-issue (if API supports it)
-                  // Note: GitHub's sub-issue API might not be publicly available yet
-                  console.log(`Created sub-issue #${subIssue.number} for parent #${parentIssue.number}`);
-                }
-              }
-            } catch (error) {
-              console.log('Could not link sub-issues in project:', error.message);
-            }
+            ### Phase 5: Review & Deploy
+            - [ ] Create pull request
+            - [ ] Address review feedback
+            - [ ] Merge to main
+            - [ ] Deploy to staging
+            - [ ] Verify in production`;
             
-            // Add a comment to the parent issue listing the sub-tasks
-            const subTaskList = createdSubIssues.map(issue => 
-              `- [ ] #${issue.number} - ${issue.title}`
-            ).join('\n');
-            
+            // Add the checklist as a comment
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: parentIssue.number,
-              body: `## 📋 Sub-tasks Created\n\nThe following sub-tasks have been created for this feature:\n\n${subTaskList}\n\nThese tasks track the different phases of implementation.`
+              body: taskChecklist
             });
+            
+            console.log('Added task checklist to issue #' + parentIssue.number);
 
   handle-commands:
     name: Handle Slash Commands
