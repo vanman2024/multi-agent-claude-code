@@ -1097,8 +1097,35 @@ jobs:
               }
             }
             
-            // Assign Copilot to the issue
-            // Note: Copilot can be assigned using the special @copilot-for-prs username
+            // Check for blocking relationships in issue body
+            const blockedByMatch = body.match(/\*\*Blocked by\*\*:\s*([^\\n]+)/i);
+            if (blockedByMatch) {
+              const blockedByText = blockedByMatch[1].trim();
+              const issueNumbers = blockedByText.match(/#(\d+)/g);
+              
+              if (issueNumbers) {
+                // Add blocked label
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.issue.number,
+                  labels: ['blocked']
+                });
+                
+                // Add blocking comment
+                const blockers = issueNumbers.join(', ');
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.issue.number,
+                  body: `⚠️ **This issue is blocked**\\n\\nBlocked by: ${blockers}\\n\\nWork on the blocking issues first before starting this one.`
+                });
+                
+                console.log(`Issue blocked by: ${blockers}`);
+              }
+            }
+            
+            // Assign user and engage Copilot
             try {
               // First assign the issue creator
               await github.rest.issues.addAssignees({
@@ -1107,27 +1134,17 @@ jobs:
                 issue_number: context.payload.issue.number,
                 assignees: [context.payload.issue.user.login]
               });
+              console.log('Assigned issue creator');
               
-              // Try to assign Copilot (may require special permissions or org settings)
-              await github.rest.issues.addAssignees({
+              // Engage Copilot via comment (the correct way for GitHub Copilot in orgs)
+              await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.issue.number,
-                assignees: ['github-copilot', 'copilot-for-prs', 'copilot']
+                body: '🤖 @copilot please help implement this feature following the specifications above.\\n\\nKey requirements:\\n- Follow the acceptance criteria\\n- Use existing patterns from the codebase\\n- Add proper error handling\\n- Include tests for new functionality'
               });
-              console.log('Assigned Copilot to issue');
-            } catch (error) {
-              console.log('Note: Copilot assignment requires manual action or org settings:', error.message);
+              console.log('Added Copilot engagement comment');
               
-              // Add a comment about Copilot
-              try {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.payload.issue.number,
-                  body: '🤖 @copilot Please help implement this feature following the specifications in the issue description.'
-                });
-              } catch (e) {
-                console.log('Could not add Copilot comment');
-              }
+            } catch (error) {
+              console.log('Error with Copilot engagement:', error.message);
             }
