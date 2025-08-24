@@ -10,7 +10,7 @@
 ## 🎯 Project Metadata
 
 **Priority**: P__ *(P0=Critical, P1=High, P2=Medium, P3=Low)*
-**Component**: ________________ *(Frontend/Backend/Database/Auth/API Gateway/etc.)*
+**Component**: ________________ *(Primary area: Frontend/Backend/Database/Auth/API Gateway/Integration/etc.)*
 **Complexity**: ___ *(XS/S/M/L/XL)*
 **Points**: ___ *(Sprint points: 1-13)*
 **Goal**: ________________ *(MVP/Features/Performance/Tech Debt/User Experience)*
