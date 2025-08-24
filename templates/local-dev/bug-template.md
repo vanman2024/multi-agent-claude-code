@@ -39,4 +39,3 @@
 ---
 **Labels:** type:bug
 **Component:** [Frontend/Backend/Database/DevOps]
-**Priority:** [P0/P1/P2/P3]

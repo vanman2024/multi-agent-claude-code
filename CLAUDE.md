@@ -1,5 +1,52 @@
 # Claude Code Documentation
 
+## System Architecture: The House Metaphor 🏗️
+
+Think of our system like building a house:
+
+### The Layers of Construction
+
+1. **Foundation (Database & Data Layer)**
+   - Like concrete foundation - must be solid and unchanging
+   - Tables, schemas, core data structures
+   - Once set, expensive to change
+
+2. **Plumbing (GitHub Automation & CI/CD)**
+   - Carries things from place to place
+   - No intelligence - just moves water (data/issues/code)
+   - Workflows that route, deploy, test
+   - **"Automation = Plumbing, Not Decision Making"**
+
+3. **Framing (Backend Services & APIs)**
+   - The structural support of the house
+   - Load-bearing walls that hold everything up
+   - API endpoints, service layers, business logic
+
+4. **Electrical (Agent System & Intelligence)**
+   - Powers the smart features of the house
+   - Claude Code = Main electrical panel (controls everything)
+   - Agents = Individual circuits (specialized tasks)
+   - Makes intelligent decisions about what to power and when
+
+5. **Drywall & Finishes (Frontend & UI)**
+   - What users see and interact with
+   - Can be changed without affecting structure
+   - React components, UI elements, styling
+
+6. **Smart Home System (Project Board & Orchestration)**
+   - The control center that monitors everything
+   - Doesn't make decisions, just shows status
+   - GitHub Project Board tracks what's happening where
+
+### Key Principle: Each Layer Has Its Role
+
+- **Plumbing doesn't think** - it just moves things
+- **Electrical makes decisions** - turns things on/off intelligently  
+- **Foundation never changes** - or the house collapses
+- **Finishes can be updated** - without touching structure
+
+This is why our GitHub workflows (plumbing) should NEVER make intelligent decisions - they just move issues to boards, run tests, deploy code. The intelligence comes from Claude Code and agents (electrical system).
+
 ## Working with MCP Servers
 
 MCP (Model Context Protocol) servers allow Claude to interact with external tools and services. 
@@ -273,14 +320,37 @@ try {
 
 ## Response Behavior
 
+### Critical Thinking & Decision Making
+
+**Don't Just Agree - Think Critically:**
+- Question approaches that might have issues
+- Point out potential problems BEFORE implementing
+- Suggest alternatives when something seems wrong
+- Explain tradeoffs between different approaches
+- Push back on ideas that violate best practices
+
+**When User Suggests Something:**
+1. First analyze if it makes technical sense
+2. Consider the implications and side effects
+3. Check if it aligns with the established architecture
+4. Propose alternatives if there's a better way
+5. Explain WHY something might not work, don't just agree
+
+**Examples of Healthy Pushback:**
+- "That would work, but it might cause [specific problem]. What about [alternative]?"
+- "I see the goal, but that approach breaks our principle of [X]. Could we instead [Y]?"
+- "That's one way, but it would require changing [A, B, C]. A simpler approach might be..."
+- "Let me make sure I understand the goal correctly before we proceed..."
+
 ### When Starting Tasks:
-1. Use TodoWrite to plan if multiple steps
-2. Search/read relevant files first
-3. Understand existing patterns
-4. Implement solution
-5. Run lint/typecheck
-6. Remove debug code
-7. Verify solution works
+1. **Question the approach first** - Is this the right solution?
+2. Use TodoWrite to plan if multiple steps
+3. Search/read relevant files first
+4. Understand existing patterns
+5. Implement solution
+6. Run lint/typecheck
+7. Remove debug code
+8. Verify solution works
 
 ### When Task is Complete:
 - Just stop after completing
