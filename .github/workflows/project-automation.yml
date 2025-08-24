@@ -965,14 +965,36 @@ jobs:
             }
             
             // Assign Copilot to the issue
+            // Note: Copilot can be assigned using the special @copilot-for-prs username
             try {
+              // First assign the issue creator
               await github.rest.issues.addAssignees({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.issue.number,
-                assignees: ['github-copilot']
+                assignees: [context.payload.issue.user.login]
+              });
+              
+              // Try to assign Copilot (may require special permissions or org settings)
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                assignees: ['github-copilot', 'copilot-for-prs', 'copilot']
               });
               console.log('Assigned Copilot to issue');
             } catch (error) {
-              console.log('Could not assign Copilot:', error.message);
+              console.log('Note: Copilot assignment requires manual action or org settings:', error.message);
+              
+              // Add a comment about Copilot
+              try {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.issue.number,
+                  body: '🤖 @copilot Please help implement this feature following the specifications in the issue description.'
+                });
+              } catch (e) {
+                console.log('Could not add Copilot comment');
+              }
             }
