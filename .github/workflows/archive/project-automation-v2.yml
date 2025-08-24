@@ -1,0 +1,559 @@
+name: Project Board Automation V2
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled, assigned, closed, reopened]
+  pull_request:
+    types: [opened, edited, labeled, unlabeled, assigned, closed, merged]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to add to project'
+        required: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  # PROJECT_NUMBER should be set in repository variables or secrets
+  # This will be different for each repository
+  PROJECT_NUMBER: ${{ vars.PROJECT_NUMBER || secrets.PROJECT_NUMBER || '13' }}
+  
+  # Field IDs from project 13
+  STATUS_FIELD: PVTSSF_lAHOCu1OR84BBVxJzgz3-Vs
+  PRIORITY_FIELD: PVTSSF_lAHOCu1OR84BBVxJzgz3-WM
+  COMPONENT_FIELD: PVTSSF_lAHOCu1OR84BBVxJzgz4AIs
+  COMPLEXITY_FIELD: PVTSSF_lAHOCu1OR84BBVxJzgz3-Wk
+  ITERATION_FIELD: PVTIF_lAHOCu1OR84BBVxJzgz3-Wg
+  CREATED_DATE_FIELD: PVTF_lAHOCu1OR84BBVxJzgz3-WY
+  DUE_DATE_FIELD: PVTF_lAHOCu1OR84BBVxJzgz3-Wc
+  
+  # Status option IDs
+  STATUS_TODO: f75ad846
+  STATUS_IN_PROGRESS: 47fc9ee4
+  STATUS_DONE: 98236657
+  
+  # Priority option IDs
+  PRIORITY_P0: 272850f8
+  PRIORITY_P1: 257f709e
+  PRIORITY_P2: 5041f9b5
+  PRIORITY_P3: e6ae2685
+  
+  # Component option IDs (new from updated field)
+  COMPONENT_FRONTEND: dc3e070c
+  COMPONENT_BACKEND: 6dccfcd6
+  COMPONENT_DATABASE: b110866b
+  COMPONENT_DEVOPS: c6847477
+  COMPONENT_AUTH: 9ad537e3
+  COMPONENT_API_GATEWAY: e78fb41b
+  COMPONENT_TESTING: f525257c
+  COMPONENT_DOCUMENTATION: 7f0b8a4c
+  COMPONENT_INTEGRATION: 1612e731
+  COMPONENT_MESSAGING: 636ed98a
+  COMPONENT_ANALYTICS: 9c08c7a3
+  COMPONENT_STORAGE: 8eecac7d
+  COMPONENT_CICD: e2ead517
+  COMPONENT_MONITORING: 445d7c57
+  COMPONENT_SECURITY: fe6581e0
+  COMPONENT_CONFIGURATION: e845bb2f
+  COMPONENT_CORE_LOGIC: cac4dd1d
+  COMPONENT_WORKFLOW: 4de9dab4
+  COMPONENT_REPORTING: d9efc13e
+  COMPONENT_ADMIN: a97e9d65
+  
+  # Complexity option IDs
+  COMPLEXITY_XS: a56e8eae
+  COMPLEXITY_S: 3db547b1
+  COMPLEXITY_M: 4b2aa1c4
+  COMPLEXITY_L: 70297494
+  COMPLEXITY_XL: 4b5f4d13
+
+jobs:
+  add-to-project:
+    name: Add Issue/PR to Project
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened' || github.event_name == 'workflow_dispatch'
+    outputs:
+      item-id: ${{ steps.add-to-project.outputs.itemId }}
+    
+    steps:
+      - name: Add to project
+        id: add-to-project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/${{ github.repository_owner }}/projects/${{ env.PROJECT_NUMBER }}
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          
+      - name: Get item ID
+        id: get-item
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const query = `
+              query($projectId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                            number
+                          }
+                          ... on PullRequest {
+                            id
+                            number
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
+            const variables = {
+              projectId: process.env.PROJECT_ID
+            };
+            
+            const result = await github.graphql(query, variables);
+            const item = result.node.items.nodes.find(i => i.content?.id === contentId);
+            
+            if (item) {
+              core.setOutput('itemId', item.id);
+              console.log(`Found project item: ${item.id}`);
+            }
+
+  set-initial-fields:
+    name: Set Initial Project Fields
+    runs-on: ubuntu-latest
+    needs: add-to-project
+    if: needs.add-to-project.outputs.item-id
+    
+    steps:
+      - name: Set Status to Todo
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                updateProjectV2ItemFieldValue(
+                  input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: $value
+                  }
+                ) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: '${{ needs.add-to-project.outputs.item-id }}',
+              fieldId: process.env.STATUS_FIELD,
+              value: { singleSelectOptionId: process.env.STATUS_TODO }
+            });
+            
+      - name: Set Created Date
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                updateProjectV2ItemFieldValue(
+                  input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: $value
+                  }
+                ) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: '${{ needs.add-to-project.outputs.item-id }}',
+              fieldId: process.env.CREATED_DATE_FIELD,
+              value: { date: today }
+            });
+
+  handle-priority-label:
+    name: Handle Priority and Set Iteration
+    runs-on: ubuntu-latest
+    needs: add-to-project
+    if: |
+      (github.event.action == 'labeled' || github.event.action == 'opened') &&
+      needs.add-to-project.outputs.item-id
+    
+    steps:
+      - name: Get Priority from Labels
+        id: get-priority
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.issue?.labels || context.payload.pull_request?.labels || [];
+            const priorityLabel = labels.find(l => l.name.startsWith('priority:'));
+            
+            if (priorityLabel) {
+              const priority = priorityLabel.name.split(':')[1].toUpperCase();
+              core.setOutput('priority', priority);
+              console.log(`Found priority: ${priority}`);
+            }
+            
+      - name: Set Priority Field
+        if: steps.get-priority.outputs.priority
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const priority = '${{ steps.get-priority.outputs.priority }}';
+            let priorityId;
+            
+            switch(priority) {
+              case 'P0': priorityId = process.env.PRIORITY_P0; break;
+              case 'P1': priorityId = process.env.PRIORITY_P1; break;
+              case 'P2': priorityId = process.env.PRIORITY_P2; break;
+              case 'P3': priorityId = process.env.PRIORITY_P3; break;
+            }
+            
+            if (priorityId) {
+              const mutation = `
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: $value
+                    }
+                  ) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+              
+              await github.graphql(mutation, {
+                projectId: process.env.PROJECT_ID,
+                itemId: '${{ needs.add-to-project.outputs.item-id }}',
+                fieldId: process.env.PRIORITY_FIELD,
+                value: { singleSelectOptionId: priorityId }
+              });
+            }
+            
+      - name: Set Iteration Based on Priority
+        if: steps.get-priority.outputs.priority
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            // First, get available iterations
+            const query = `
+              query($login: String!, $number: Int!) {
+                user(login: $login) {
+                  projectV2(number: $number) {
+                    field(name: "Iteration") {
+                      ... on ProjectV2IterationField {
+                        id
+                        configuration {
+                          iterations {
+                            id
+                            title
+                            startDate
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const result = await github.graphql(query, {
+              login: context.repo.owner,
+              number: parseInt(process.env.PROJECT_NUMBER)
+            });
+            
+            const iterations = result.user.projectV2.field.configuration.iterations;
+            const priority = '${{ steps.get-priority.outputs.priority }}';
+            let iterationId;
+            
+            // Assign iteration based on priority
+            // P0 -> Current (index 0), P1 -> Next (index 1), P2/P3 -> Future (index 2)
+            switch(priority) {
+              case 'P0':
+                iterationId = iterations[0]?.id;
+                break;
+              case 'P1':
+                iterationId = iterations[1]?.id || iterations[0]?.id;
+                break;
+              case 'P2':
+              case 'P3':
+                iterationId = iterations[2]?.id || iterations[1]?.id || iterations[0]?.id;
+                break;
+            }
+            
+            if (iterationId) {
+              const mutation = `
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: $value
+                    }
+                  ) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+              
+              await github.graphql(mutation, {
+                projectId: process.env.PROJECT_ID,
+                itemId: '${{ needs.add-to-project.outputs.item-id }}',
+                fieldId: process.env.ITERATION_FIELD,
+                value: { iterationId: iterationId }
+              });
+              
+              console.log(`Set iteration ${iterationId} for priority ${priority}`);
+            }
+
+  handle-component-label:
+    name: Handle Component Labels
+    runs-on: ubuntu-latest
+    needs: add-to-project
+    if: |
+      (github.event.action == 'labeled' || github.event.action == 'opened') &&
+      needs.add-to-project.outputs.item-id
+    
+    steps:
+      - name: Get Component from Labels
+        id: get-component
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = context.payload.issue?.labels || context.payload.pull_request?.labels || [];
+            const componentLabel = labels.find(l => l.name.startsWith('component:'));
+            
+            if (componentLabel) {
+              const component = componentLabel.name.split(':')[1].toLowerCase();
+              core.setOutput('component', component);
+              console.log(`Found component: ${component}`);
+            }
+            
+      - name: Set Component Field
+        if: steps.get-component.outputs.component
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const component = '${{ steps.get-component.outputs.component }}';
+            let componentId;
+            
+            // Map component labels to field option IDs
+            const componentMap = {
+              'frontend': process.env.COMPONENT_FRONTEND,
+              'backend': process.env.COMPONENT_BACKEND,
+              'database': process.env.COMPONENT_DATABASE,
+              'devops': process.env.COMPONENT_DEVOPS,
+              'auth': process.env.COMPONENT_AUTH,
+              'api-gateway': process.env.COMPONENT_API_GATEWAY,
+              'testing': process.env.COMPONENT_TESTING,
+              'documentation': process.env.COMPONENT_DOCUMENTATION,
+              'integration': process.env.COMPONENT_INTEGRATION,
+              'messaging': process.env.COMPONENT_MESSAGING,
+              'analytics': process.env.COMPONENT_ANALYTICS,
+              'storage': process.env.COMPONENT_STORAGE,
+              'ci-cd': process.env.COMPONENT_CICD,
+              'cicd': process.env.COMPONENT_CICD,
+              'monitoring': process.env.COMPONENT_MONITORING,
+              'security': process.env.COMPONENT_SECURITY,
+              'configuration': process.env.COMPONENT_CONFIGURATION,
+              'core-logic': process.env.COMPONENT_CORE_LOGIC,
+              'workflow': process.env.COMPONENT_WORKFLOW,
+              'reporting': process.env.COMPONENT_REPORTING,
+              'admin': process.env.COMPONENT_ADMIN
+            };
+            
+            componentId = componentMap[component];
+            
+            if (componentId) {
+              const mutation = `
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: $value
+                    }
+                  ) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+              
+              await github.graphql(mutation, {
+                projectId: process.env.PROJECT_ID,
+                itemId: '${{ needs.add-to-project.outputs.item-id }}',
+                fieldId: process.env.COMPONENT_FIELD,
+                value: { singleSelectOptionId: componentId }
+              });
+            }
+
+  handle-status-change:
+    name: Handle Status Changes
+    runs-on: ubuntu-latest
+    needs: add-to-project
+    if: github.event.action == 'closed' || github.event.action == 'reopened'
+    
+    steps:
+      - name: Update Status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            let statusId;
+            
+            if (context.payload.issue?.state === 'closed' || context.payload.pull_request?.merged) {
+              statusId = process.env.STATUS_DONE;
+            } else if (context.payload.issue?.state === 'open' || context.payload.pull_request?.state === 'open') {
+              statusId = process.env.STATUS_TODO;
+            }
+            
+            if (statusId) {
+              const mutation = `
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: $value
+                    }
+                  ) {
+                    projectV2Item {
+                      id
+                    }
+                  }
+                }
+              `;
+              
+              await github.graphql(mutation, {
+                projectId: process.env.PROJECT_ID,
+                itemId: '${{ needs.add-to-project.outputs.item-id }}',
+                fieldId: process.env.STATUS_FIELD,
+                value: { singleSelectOptionId: statusId }
+              });
+            }
+
+  handle-in-progress:
+    name: Mark as In Progress
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'issue_comment' && 
+      contains(github.event.comment.body, '/working-on-this')
+    
+    steps:
+      - name: Get Project Item
+        id: get-item
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const query = `
+              query($projectId: ID!, $contentId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const result = await github.graphql(query, {
+              projectId: process.env.PROJECT_ID,
+              contentId: context.payload.issue.node_id
+            });
+            
+            const item = result.node.items.nodes.find(i => i.content?.id === context.payload.issue.node_id);
+            if (item) {
+              core.setOutput('itemId', item.id);
+            }
+            
+      - name: Set Status to In Progress
+        if: steps.get-item.outputs.itemId
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                updateProjectV2ItemFieldValue(
+                  input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: $value
+                  }
+                ) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: '${{ steps.get-item.outputs.itemId }}',
+              fieldId: process.env.STATUS_FIELD,
+              value: { singleSelectOptionId: process.env.STATUS_IN_PROGRESS }
+            });
+            
+      - name: Add reaction
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'rocket'
+            });
