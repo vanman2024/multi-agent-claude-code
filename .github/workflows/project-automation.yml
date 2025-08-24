@@ -192,16 +192,44 @@ jobs:
               componentId = process.env.COMPONENT_DEVOPS;
             }
             
-            // Check body content for component mentions
-            if (!componentId && body.includes('Component:')) {
-              if (body.toLowerCase().includes('frontend')) {
-                componentId = process.env.COMPONENT_FRONTEND;
-              } else if (body.toLowerCase().includes('backend')) {
-                componentId = process.env.COMPONENT_BACKEND;
-              } else if (body.toLowerCase().includes('database')) {
-                componentId = process.env.COMPONENT_DATABASE;
-              } else if (body.toLowerCase().includes('devops')) {
-                componentId = process.env.COMPONENT_DEVOPS;
+            // Check body content for component mentions - extract the actual component name
+            if (!componentId) {
+              const componentMatch = body.match(/\*?\*?Component\*?\*?:\s*([A-Za-z\s]+)/i);
+              if (componentMatch) {
+                const componentName = componentMatch[1].trim();
+                
+                // Query for the component field and its options
+                const query = `
+                  query($projectId: ID!) {
+                    node(id: $projectId) {
+                      ... on ProjectV2 {
+                        field(name: "Component") {
+                          ... on ProjectV2SingleSelectField {
+                            options {
+                              id
+                              name
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                `;
+                
+                const result = await github.graphql(query, {
+                  projectId: process.env.PROJECT_ID
+                });
+                
+                // Find the matching component option (case-insensitive)
+                const options = result.node.field.options || [];
+                const matchedOption = options.find(opt => 
+                  opt.name.toLowerCase() === componentName.toLowerCase()
+                );
+                
+                if (matchedOption) {
+                  componentId = matchedOption.id;
+                  console.log(`Found component: ${matchedOption.name} (${matchedOption.id})`);
+                }
               }
             }
             
@@ -339,7 +367,7 @@ jobs:
             
             // Parse sprint points from body (default 3)
             let sprintPoints = 3;
-            const pointsMatch = body.match(/Points?:\s*(\d+)/i);
+            const pointsMatch = body.match(/\*?\*?Points?\*?\*?:\s*(\d+)/i);
             if (pointsMatch) sprintPoints = parseInt(pointsMatch[1]);
             
             // Set Sprint Points
@@ -392,7 +420,7 @@ jobs:
               let complexityName = 'M'; // default
               
               // Check for complexity/size in body
-              const complexityMatch = body.match(/(?:Complexity|Size):\s*(XS|S|M|L|XL)/i);
+              const complexityMatch = body.match(/\*?\*?(?:Complexity|Size)\*?\*?:\s*(XS|S|M|L|XL)/i);
               if (complexityMatch) complexityName = complexityMatch[1].toUpperCase();
               
               const complexity = complexityField.options.find(o => o.name === complexityName);
@@ -422,7 +450,7 @@ jobs:
               let goalName = 'Features'; // default
               
               // Check for goal in body
-              const goalMatch = body.match(/Goal:\s*(MVP|User Experience|Performance|Tech Debt|Features)/i);
+              const goalMatch = body.match(/\*?\*?Goal\*?\*?:\s*(MVP|User Experience|Performance|Tech Debt|Features)/i);
               if (goalMatch) goalName = goalMatch[1];
               
               // Or infer from labels
@@ -461,10 +489,10 @@ jobs:
               let currentIteration = iterations.find(i => i.startDate <= currentDate);
               
               // Override based on priority
-              const priority = issue.title.includes('[P0]') ? 'P0' : 
-                             issue.title.includes('[P1]') ? 'P1' :
-                             body.includes('Priority: P0') ? 'P0' :
-                             body.includes('Priority: P1') ? 'P1' : 'P2';
+              const priorityMatch = body.match(/\*?\*?Priority\*?\*?:\s*(P[0-3])/i);
+              const priority = priorityMatch ? priorityMatch[1] : 
+                             issue.title.includes('[P0]') ? 'P0' : 
+                             issue.title.includes('[P1]') ? 'P1' : 'P2';
               
               // P0 = current iteration, P1 = current or next, P2+ = next
               if (priority === 'P0') {
@@ -697,4 +725,276 @@ jobs:
               });
               
               console.log('Moved to Done');
+            }
+
+  extract-and-set-metadata:
+    name: Extract and Set Metadata from Issue Body
+    runs-on: ubuntu-latest
+    if: github.event.issue && github.event.action == 'opened'
+    needs: add-to-project
+    
+    steps:
+      - name: Parse and Set All Metadata Fields
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const itemId = '${{ needs.add-to-project.outputs.item-id }}';
+            const body = context.payload.issue?.body || '';
+            
+            console.log('Parsing issue body for metadata...');
+            
+            // Parse priority from body - matches **Priority**: P0 format
+            let priority = 'P3';
+            const priorityMatch = body.match(/\*\*Priority\*\*:\s*(P[0-3])/i);
+            if (priorityMatch) {
+              priority = priorityMatch[1];
+              console.log(`Parsed Priority: ${priority}`);
+            }
+            
+            // Parse component from body - matches **Component**: Frontend format
+            let component = null;
+            const componentMatch = body.match(/\*\*Component\*\*:\s*([^\n\*]+)/i);
+            if (componentMatch) {
+              component = componentMatch[1].trim();
+              // Remove any trailing asterisks or parenthetical text
+              component = component.replace(/\s*\*.*$/, '').replace(/\s*\(.*\)$/, '').trim();
+              console.log(`Parsed Component: ${component}`);
+            }
+            
+            // Parse sprint points from body - matches **Points**: 13 format
+            let sprintPoints = 3;
+            const pointsMatch = body.match(/\*\*Points\*\*:\s*(\d+)/i);
+            if (pointsMatch) {
+              sprintPoints = parseInt(pointsMatch[1]);
+              console.log(`Parsed Points: ${sprintPoints}`);
+            }
+            
+            // Parse sprint goal from body - matches **Goal**: MVP format
+            let sprintGoal = 'Features';
+            const goalMatch = body.match(/\*\*Goal\*\*:\s*([^\n\*]+)/i);
+            if (goalMatch) {
+              sprintGoal = goalMatch[1].trim();
+              // Remove any trailing asterisks or parenthetical text
+              sprintGoal = sprintGoal.replace(/\s*\*.*$/, '').replace(/\s*\(.*\)$/, '').trim();
+              console.log(`Parsed Goal: ${sprintGoal}`);
+            }
+            
+            // Parse complexity from body - matches **Complexity**: XL format
+            let complexity = 'M';
+            const complexityMatch = body.match(/\*\*Complexity\*\*:\s*(XS|S|M|L|XL)/i);
+            if (complexityMatch) {
+              complexity = complexityMatch[1].toUpperCase();
+              console.log(`Parsed Complexity: ${complexity}`);
+            }
+            
+            // Query for all project fields and their options
+            const query = `
+              query($projectId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    fields(first: 30) {
+                      nodes {
+                        ... on ProjectV2Field {
+                          id
+                          name
+                          dataType
+                        }
+                        ... on ProjectV2SingleSelectField {
+                          id
+                          name
+                          options {
+                            id
+                            name
+                          }
+                        }
+                        ... on ProjectV2IterationField {
+                          id
+                          name
+                          configuration {
+                            iterations {
+                              id
+                              title
+                              startDate
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const result = await github.graphql(query, {
+              projectId: process.env.PROJECT_ID
+            });
+            
+            const fields = result.node.fields.nodes;
+            
+            // Set Priority field
+            const priorityField = fields.find(f => f.name === 'Priority');
+            if (priorityField && priority) {
+              const priorityOption = priorityField.options?.find(o => o.name === priority);
+              if (priorityOption) {
+                await github.graphql(`
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: { singleSelectOptionId: $optionId }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `, {
+                  projectId: process.env.PROJECT_ID,
+                  itemId: itemId,
+                  fieldId: priorityField.id,
+                  optionId: priorityOption.id
+                });
+                console.log(`Set Priority to ${priority}`);
+              }
+            }
+            
+            // Set Component field - dynamic lookup
+            const componentField = fields.find(f => f.name === 'Component');
+            if (componentField && component) {
+              // Find matching component option (case-insensitive)
+              const componentOption = componentField.options?.find(o => 
+                o.name.toLowerCase() === component.toLowerCase()
+              );
+              if (componentOption) {
+                await github.graphql(`
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: { singleSelectOptionId: $optionId }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `, {
+                  projectId: process.env.PROJECT_ID,
+                  itemId: itemId,
+                  fieldId: componentField.id,
+                  optionId: componentOption.id
+                });
+                console.log(`Set Component to ${component}`);
+              } else {
+                console.log(`Component '${component}' not found in options: ${componentField.options?.map(o => o.name).join(', ')}`);
+              }
+            }
+            
+            // Set Sprint Points field
+            const sprintPointsField = fields.find(f => f.name === 'Sprint Points');
+            if (sprintPointsField) {
+              await github.graphql(`
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: Float!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { number: $value }
+                  }) {
+                    projectV2Item { id }
+                  }
+                }
+              `, {
+                projectId: process.env.PROJECT_ID,
+                itemId: itemId,
+                fieldId: sprintPointsField.id,
+                value: sprintPoints
+              });
+              console.log(`Set Sprint Points to ${sprintPoints}`);
+            }
+            
+            // Set Sprint Goal field
+            const sprintGoalField = fields.find(f => f.name === 'Sprint Goal');
+            if (sprintGoalField && sprintGoal) {
+              const goalOption = sprintGoalField.options?.find(o => o.name === sprintGoal);
+              if (goalOption) {
+                await github.graphql(`
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: { singleSelectOptionId: $optionId }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `, {
+                  projectId: process.env.PROJECT_ID,
+                  itemId: itemId,
+                  fieldId: sprintGoalField.id,
+                  optionId: goalOption.id
+                });
+                console.log(`Set Sprint Goal to ${sprintGoal}`);
+              }
+            }
+            
+            // Set Complexity field
+            const complexityField = fields.find(f => f.name === 'Complexity');
+            if (complexityField && complexity) {
+              const complexityOption = complexityField.options?.find(o => o.name === complexity);
+              if (complexityOption) {
+                await github.graphql(`
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: { singleSelectOptionId: $optionId }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `, {
+                  projectId: process.env.PROJECT_ID,
+                  itemId: itemId,
+                  fieldId: complexityField.id,
+                  optionId: complexityOption.id
+                });
+                console.log(`Set Complexity to ${complexity}`);
+              }
+            }
+            
+            // Assign Copilot to the issue
+            // Note: Copilot can be assigned using the special @copilot-for-prs username
+            try {
+              // First assign the issue creator
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                assignees: [context.payload.issue.user.login]
+              });
+              
+              // Try to assign Copilot (may require special permissions or org settings)
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                assignees: ['github-copilot', 'copilot-for-prs', 'copilot']
+              });
+              console.log('Assigned Copilot to issue');
+            } catch (error) {
+              console.log('Note: Copilot assignment requires manual action or org settings:', error.message);
+              
+              // Add a comment about Copilot
+              try {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.issue.number,
+                  body: '🤖 @copilot Please help implement this feature following the specifications in the issue description.'
+                });
+              } catch (e) {
+                console.log('Could not add Copilot comment');
+              }
             }
