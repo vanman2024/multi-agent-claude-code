@@ -68,7 +68,7 @@
 - [Technical RFC]()
 
 ---
-**Labels:** enhancement, priority:medium
+**Labels:** enhancement
 **Milestone:** v1.0.0
 **Assignee:** @vanman2024
-**Project:** [Project Board Name]
+**Component:** [Frontend/Backend/Database/DevOps]

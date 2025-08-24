@@ -1,10 +1,19 @@
 # Ideas & Improvements Backlog
 
-## Core Philosophy
-**Automation = Plumbing, Not Decision Making**
-- Automation should move things, update statuses, merge code
-- Agents (Claude/Copilot) should make intelligent decisions
-- Workflows keep the process moving toward deployment
+## Core Philosophy: The House Architecture 🏗️
+
+**"Automation = Plumbing, Not Decision Making"**
+
+Like building a house, each system layer has its role:
+- **Foundation (Database):** Solid, unchanging base
+- **Plumbing (Automation):** Moves things without thinking - water doesn't decide where to go
+- **Framing (Backend):** Structural support, load-bearing logic
+- **Electrical (Agents):** Intelligence layer - decides what to power and when
+- **Finishes (Frontend):** What users touch and see
+- **Smart Home (Project Board):** Monitors but doesn't control
+
+Automation is plumbing - it should move issues, update statuses, deploy code.
+Agents are electrical - they should analyze, decide, and control intelligently.
 
 ## Key Architecture Insights (Agreed Upon)
 
@@ -123,6 +132,33 @@ Continue working locally
   - Claude conversation
   - Local files
 - Need clear context handoff protocol
+
+## 💡 Ideas for Implementation
+
+### Mechanical vs Intelligent Decision Making
+**Concept**: Clear distinction between "valve logic" and "brain logic"
+
+#### Mechanical (Good for Automation/Plumbing):
+Simple binary checks that are like valves in plumbing:
+- Is user in TEAM_MEMBERS list? → Can self-assign
+- Is repository private? → Different rules apply
+- Does user have write permissions? → Can be assigned
+- Is file in frontend/* path? → Deploy to Vercel
+- Is PR approved? → Can merge
+- Are all tests passing? → Can deploy
+
+These are **pressure checks** - mechanical thresholds, not intelligence.
+
+#### Intelligent (Requires Agents):
+Nuanced decisions that need understanding:
+- What priority should this issue have?
+- Who is best suited to work on this?
+- Is this a duplicate of another issue?
+- What's the root cause of this bug?
+- Should we refactor or patch?
+- What's the business impact?
+
+**Key Insight**: Automation can be "dumb smart" (if/then/else) but not "intelligent smart" (analysis/context/judgment)
 
 ## 💡 Ideas for Implementation
 
@@ -286,6 +322,50 @@ Issue → Claude reads → Claude assigns to:
 3. Should Claude set dates automatically?
 4. How to coordinate multiple agents on one issue?
 5. What's the handoff between automation and agents?
+
+---
+
+---
+
+## 🚀 Advanced Automation Ideas (Brainstorming)
+
+### Self-Healing Systems
+- **Test Failure Auto-Issue**: When CI fails, automatically create issue with error details
+- **Auto-Reproduction**: For bugs, automation tries to reproduce and adds results
+- **Review Feedback Loop**: PR comments → auto-create sub-tasks → agent fixes
+
+### Context & Memory
+- **Context Cache**: `.context/issue-{number}/` folders storing agent work state
+- **Learning Database**: Store every decision, estimate, error for future reference
+- **Semantic Linking**: Auto-link issues that touch similar files/functions
+
+### Real-Time Intelligence
+- **Agent Heartbeats**: Progress comments on issues ("Analyzing... Found 3 files...")
+- **Environment Drift Detection**: Alert when local is behind GitHub
+- **Proactive Debt Detection**: Scan for complexity, auto-create refactor issues
+
+### Smart Work Management
+- **Dependency Intelligence**: Auto-detect and set "Blocks/Blocked by" relationships
+- **WIP Limits**: Prevent starting new work when too many "In Progress"
+- **Smart Batching**: Group similar issues into single PR
+- **Morning Standup**: Daily automated priority planning
+
+### Continuous Sync
+- **Local-to-GitHub Sync**: File watcher auto-updates draft PRs
+- **Progress Tracking**: Saving files updates issue progress
+- **Time Learning**: Track actual vs estimated time, improve future estimates
+
+### Enhanced Handoffs
+- **Handoff Packages**: Automatic context bundle when passing between agents
+- **Interrupt Handler**: P0 issues trigger local notification to switch context
+- **Context Gathering**: New issues get auto-enriched with related code/issues
+
+### Test-Driven Development
+- **Test-Driven Issues**: Create issues by writing failing tests
+- **Smart Code Review**: "This breaks pattern from issue #5"
+
+### The Missing Feedback Loop
+When tests fail → Create issue → Claude picks up → Fixes → Tests pass → Auto-close
 
 ---
 

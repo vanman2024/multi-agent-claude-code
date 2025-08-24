@@ -43,4 +43,3 @@ So that [some reason]
 ---
 **Labels:** type:enhancement
 **Component:** [Frontend/Backend/Database/DevOps]
-**Priority:** [P0/P1/P2/P3]

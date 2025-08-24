@@ -16,11 +16,40 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Auto assign issue to creator
+      - name: Check if creator is team member
+        id: check-team
         if: github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const creator = context.payload.issue.user.login;
+            
+            // Mechanical check - like a valve checking pressure
+            // These are team members who can self-assign
+            const teamMembers = [
+              'vanman2024',
+              'vanman2025',
+              // Add team members here
+            ];
+            
+            // Simple mechanical logic - not intelligent decision making
+            const isTeamMember = teamMembers.includes(creator);
+            const isBot = creator.includes('[bot]') || creator.includes('bot');
+            
+            // Only auto-assign if:
+            // 1. Creator is in team list AND
+            // 2. Creator is not a bot
+            const shouldAssign = isTeamMember && !isBot;
+            
+            console.log(`Creator: ${creator}, Team member: ${isTeamMember}, Should assign: ${shouldAssign}`);
+            core.setOutput('should-assign', shouldAssign);
+            core.setOutput('creator', creator);
+      
+      - name: Auto assign issue to creator (if team member)
+        if: github.event_name == 'issues' && steps.check-team.outputs.should-assign == 'true'
         uses: pozil/auto-assign-issue@v1
         with:
-          assignees: ${{ github.event.issue.user.login }}
+          assignees: ${{ steps.check-team.outputs.creator }}
           
       - name: Add labels based on title
         uses: actions/github-script@v7
