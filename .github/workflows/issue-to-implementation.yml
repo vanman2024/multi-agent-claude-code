@@ -27,109 +27,119 @@ jobs:
             const issue = context.payload.issue;
             const body = issue.body || '';
             
-            // Extract priority from title or body
+            // Extract priority from body (matches **Priority:** P1 or Priority: P1)
             let priority = 'P3';
-            if (issue.title.includes('[P0]') || body.includes('Priority: Critical')) priority = 'P0';
-            else if (issue.title.includes('[P1]') || body.includes('Priority: High')) priority = 'P1';
-            else if (issue.title.includes('[P2]') || body.includes('Priority: Medium')) priority = 'P2';
+            const priorityMatch = body.match(/\*?\*?Priority:\*?\*?\s*(P[0-3])/i);
+            if (priorityMatch) priority = priorityMatch[1];
             
-            // Extract component from body
-            let component = 'backend';
-            if (body.includes('Component: Frontend')) component = 'frontend';
-            else if (body.includes('Component: Database')) component = 'database';
-            else if (body.includes('Component: DevOps')) component = 'devops';
+            // Extract component from body (matches **Component:** Auth or Component: Auth)
+            let component = 'Backend';
+            const componentMatch = body.match(/\*?\*?Component:\*?\*?\s*([A-Za-z\s]+)/i);
+            if (componentMatch) {
+              component = componentMatch[1].trim();
+              // Map common variations to standard names
+              if (component.toLowerCase() === 'frontend' || component.toLowerCase() === 'ui') component = 'Frontend';
+              else if (component.toLowerCase() === 'backend' || component.toLowerCase() === 'api') component = 'Backend';
+              else if (component.toLowerCase() === 'database' || component.toLowerCase() === 'db') component = 'Database';
+              else if (component.toLowerCase() === 'auth') component = 'Auth';
+            }
             
-            // Check if it's a feature request (from template)
-            const isFeature = issue.title.includes('[FEATURE]');
-            const isBug = issue.title.includes('[BUG]');
+            // Check labels to determine issue type
+            const labels = issue.labels || [];
+            const labelNames = labels.map(l => l.name);
+            
+            let issueType = 'task';
+            if (labelNames.includes('feature')) issueType = 'feature';
+            else if (labelNames.includes('enhancement')) issueType = 'feature';
+            else if (labelNames.includes('bug')) issueType = 'bug';
+            else if (labelNames.includes('refactor')) issueType = 'refactor';
+            
+            // Parse additional metadata from issue body
+            let sprintPoints = 3; // default
+            let sprintGoal = 'Features'; // default
+            let complexity = 'M'; // default
+            
+            // Look for Points in body
+            const pointsMatch = body.match(/\*?\*?Points:\*?\*?\s*(\d+)/i);
+            if (pointsMatch) sprintPoints = parseInt(pointsMatch[1]);
+            
+            // Look for Complexity/Size in body
+            const complexityMatch = body.match(/\*?\*?(?:Complexity|Size):\*?\*?\s*(XS|S|M|L|XL)/i);
+            if (complexityMatch) complexity = complexityMatch[1].toUpperCase();
+            
+            // Look for Goal in body
+            const goalMatch = body.match(/\*?\*?Goal:\*?\*?\s*(MVP|User Experience|Performance|Tech Debt|Features)/i);
+            if (goalMatch) sprintGoal = goalMatch[1]
             
             core.setOutput('priority', priority);
             core.setOutput('component', component);
-            core.setOutput('type', isFeature ? 'feature' : isBug ? 'bug' : 'task');
+            core.setOutput('type', issueType);
+            core.setOutput('sprintPoints', sprintPoints);
+            core.setOutput('sprintGoal', sprintGoal);
+            core.setOutput('complexity', complexity);
             
-      - name: Add labels based on template
+      - name: Set project fields
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             const priority = '${{ steps.parse.outputs.priority }}';
             const component = '${{ steps.parse.outputs.component }}';
             const type = '${{ steps.parse.outputs.type }}';
+            const sprintPoints = '${{ steps.parse.outputs.sprintPoints }}';
+            const sprintGoal = '${{ steps.parse.outputs.sprintGoal }}';
             
-            const labels = [];
+            console.log(`Setting project fields - Priority: ${priority}, Component: ${component}, Type: ${type}`);
             
-            // Add priority label
-            labels.push(priority);
+            // Project fields will be set by project-automation.yml workflow
             
-            // Add component label
-            labels.push(component);
-            
-            // Add type label
-            if (type === 'feature') labels.push('enhancement');
-            else if (type === 'bug') labels.push('bug');
-            
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              labels: labels
-            });
-            
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Create implementation branch
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const issue = context.payload.issue;
-            const type = '${{ steps.parse.outputs.type }}';
-            
-            // Create branch name: type/issue-number-title
-            const title = issue.title.replace(/[^a-z0-9]/gi, '-').toLowerCase().substring(0, 30);
-            const branchName = `${type}/${issue.number}-${title}`;
-            
-            // Get default branch SHA
-            const { data: ref } = await github.rest.git.getRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'heads/main'
-            });
-            
-            // Create new branch
-            try {
-              await github.rest.git.createRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `refs/heads/${branchName}`,
-                sha: ref.object.sha
-              });
-              
-              // Comment on issue
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: `## 🚀 Implementation Started
-                
-                **Branch created:** \`${branchName}\`
-                **Priority:** ${{ steps.parse.outputs.priority }}
-                **Component:** ${{ steps.parse.outputs.component }}
-                
-                ### Next Steps:
-                1. Branch has been created
-                2. Project board updated
-                3. Ready for implementation
-                
-                To work on this issue:
-                \`\`\`bash
-                git fetch origin
-                git checkout ${branchName}
-                \`\`\`
-                
-                @Copilot can help implement this feature.`
-              });
-            } catch (error) {
-              console.log('Branch might already exist');
-            }
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          # Get issue type from parsed output, default to feature if has feature label
+          ISSUE_TYPE="${{ steps.parse.outputs.type }}"
+          if [ -z "$ISSUE_TYPE" ] || [ "$ISSUE_TYPE" == "task" ]; then
+            # Check if issue has feature label
+            HAS_FEATURE=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[] | select(.name == "feature")' | wc -l)
+            if [ "$HAS_FEATURE" -gt 0 ]; then
+              ISSUE_TYPE="feature"
+            fi
+          fi
+          ISSUE_TITLE=$(echo "${{ github.event.issue.title }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-30)
+          BRANCH_NAME="${ISSUE_TYPE}/${ISSUE_NUMBER}-${ISSUE_TITLE}"
+          
+          # Create and link branch using gh CLI
+          gh issue develop ${ISSUE_NUMBER} --name ${BRANCH_NAME} --base main
+          
+          echo "Branch created and linked: ${BRANCH_NAME}"
+          
+          # Comment on the issue
+          gh issue comment ${ISSUE_NUMBER} --body "## 🚀 Development Branch Created
+          
+          **Branch:** \`${BRANCH_NAME}\`
+          **Type:** ${ISSUE_TYPE}
+          
+          The branch has been created and linked to this issue. Check the **Development** section →
+          
+          ### To start working:
+          \`\`\`bash
+          gh issue develop ${ISSUE_NUMBER} --checkout
+          # or
+          git fetch origin
+          git checkout ${BRANCH_NAME}
+          \`\`\`
+          
+          @copilot can help with implementation!"
+          
+          # Assign Copilot to the issue
+          gh api repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/assignees \
+            --method POST \
+            --field assignees='["github-copilot"]' || echo "Could not assign Copilot"
             
       - name: Create sub-tasks
         if: steps.parse.outputs.type == 'feature'
@@ -145,17 +155,17 @@ jobs:
               {
                 title: `[SUB] Design: ${parentIssue.title}`,
                 body: `Design phase for #${parentIssue.number}\n\n- [ ] Create technical design\n- [ ] Review with team\n- [ ] Update documentation`,
-                labels: ['design', component]
+                labels: ['design']
               },
               {
                 title: `[SUB] Implementation: ${parentIssue.title}`,
                 body: `Implementation for #${parentIssue.number}\n\n- [ ] Write code\n- [ ] Add unit tests\n- [ ] Self review`,
-                labels: ['implementation', component]
+                labels: ['implementation']
               },
               {
                 title: `[SUB] Testing: ${parentIssue.title}`,
                 body: `Testing for #${parentIssue.number}\n\n- [ ] Write integration tests\n- [ ] Manual testing\n- [ ] Performance testing`,
-                labels: ['testing', component]
+                labels: ['testing']
               }
             ];
             
