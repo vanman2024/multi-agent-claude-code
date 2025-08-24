@@ -38,15 +38,11 @@ env:
   PRIORITY_P2: 5041f9b5
   PRIORITY_P3: e6ae2685
   
-  # Component option IDs (we only have 4 currently, will add more as needed)
+  # Component option IDs
   COMPONENT_FRONTEND: 83954b68
   COMPONENT_BACKEND: 8aa84839
   COMPONENT_DATABASE: eea4cd61
   COMPONENT_DEVOPS: 82f4b58a
-  # Additional components to be added to project:
-  # API, Authentication, Testing, Documentation, Security, 
-  # Performance, Monitoring, Analytics, Payments, Messaging,
-  # Search, Storage, CDN, ML/AI, Mobile, Desktop
 
 jobs:
   add-to-project:
@@ -266,202 +262,68 @@ jobs:
             });
             
             console.log(`Set status to ${statusId}`);
-            
-      - name: Set Sprint Fields and Iteration
+
+  create-branch:
+    name: Create Development Branch
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Create branch
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.PROJECT_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const itemId = '${{ needs.add-to-project.outputs.item-id }}';
             const issue = context.payload.issue;
-            if (!issue) return; // Skip for PRs
             
-            // Parse Sprint metadata from issue body
-            const body = issue.body || '';
+            // Determine branch type from labels and title
+            let branchType = 'task';
+            if (issue.title.includes('[FEATURE]') || issue.labels.some(l => l.name === 'enhancement')) {
+              branchType = 'feature';
+            } else if (issue.title.includes('[BUG]') || issue.labels.some(l => l.name === 'bug')) {
+              branchType = 'bug';
+            }
             
-            // Get current date to determine iteration
-            const currentDate = new Date().toISOString().split('T')[0];
+            // Create branch name
+            const title = issue.title.replace(/\[.*?\]/g, '').trim().toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 30);
+            const branchName = `${branchType}/${issue.number}-${title}`;
             
-            // Query for available iterations and fields
-            const query = `
-              query($projectId: ID!) {
-                node(id: $projectId) {
-                  ... on ProjectV2 {
-                    fields(first: 30) {
-                      nodes {
-                        ... on ProjectV2Field {
-                          id
-                          name
-                        }
-                        ... on ProjectV2SingleSelectField {
-                          id
-                          name
-                          options {
-                            id
-                            name
-                          }
-                        }
-                        ... on ProjectV2IterationField {
-                          id
-                          name
-                          configuration {
-                            iterations {
-                              id
-                              title
-                              startDate
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            `;
-            
-            const result = await github.graphql(query, {
-              projectId: process.env.PROJECT_ID
-            });
-            
-            const fields = result.node.fields.nodes;
-            
-            // Find Sprint fields
-            const sprintPointsField = fields.find(f => f.name === 'Sprint Points');
-            const sprintStatusField = fields.find(f => f.name === 'Sprint Status');
-            const sprintGoalField = fields.find(f => f.name === 'Sprint Goal');
-            const iterationField = fields.find(f => f.name === 'Iteration');
-            
-            // Parse sprint points from body (default 3)
-            let sprintPoints = 3;
-            const pointsMatch = body.match(/Points?:\s*(\d+)/i);
-            if (pointsMatch) sprintPoints = parseInt(pointsMatch[1]);
-            
-            // Set Sprint Points
-            if (sprintPointsField) {
-              await github.graphql(`
-                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: Float!) {
-                  updateProjectV2ItemFieldValue(input: {
-                    projectId: $projectId
-                    itemId: $itemId
-                    fieldId: $fieldId
-                    value: { number: $value }
-                  }) {
-                    projectV2Item { id }
-                  }
-                }
-              `, {
-                projectId: process.env.PROJECT_ID,
-                itemId: itemId,
-                fieldId: sprintPointsField.id,
-                value: sprintPoints
+            try {
+              // Get default branch
+              const { data: repo } = await github.rest.repos.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo
               });
+              
+              const { data: ref } = await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `heads/${repo.default_branch}`
+              });
+              
+              // Create new branch
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/heads/${branchName}`,
+                sha: ref.object.sha
+              });
+              
+              console.log(`Created branch: ${branchName}`);
+              
+              // Add comment to issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `## 🌿 Development branch created\n\n**Branch:** \`${branchName}\`\n\nTo start working on this issue:\n\`\`\`bash\ngit fetch origin\ngit checkout ${branchName}\n\`\`\`\n\nWhen ready, create a PR with:\n\`\`\`bash\ngh pr create --base main --head ${branchName} --title "Fixes #${issue.number}" --body "Closes #${issue.number}"\n\`\`\``
+              });
+            } catch (error) {
+              console.log('Branch creation failed:', error.message);
             }
-            
-            // Set Sprint Status to "Not Started"
-            if (sprintStatusField) {
-              const notStarted = sprintStatusField.options.find(o => o.name === 'Not Started');
-              if (notStarted) {
-                await github.graphql(`
-                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                    updateProjectV2ItemFieldValue(input: {
-                      projectId: $projectId
-                      itemId: $itemId
-                      fieldId: $fieldId
-                      value: { singleSelectOptionId: $optionId }
-                    }) {
-                      projectV2Item { id }
-                    }
-                  }
-                `, {
-                  projectId: process.env.PROJECT_ID,
-                  itemId: itemId,
-                  fieldId: sprintStatusField.id,
-                  optionId: notStarted.id
-                });
-              }
-            }
-            
-            // Set Sprint Goal based on issue content
-            if (sprintGoalField) {
-              let goalName = 'Features'; // default
-              
-              // Check for goal in body
-              const goalMatch = body.match(/Goal:\s*(MVP|User Experience|Performance|Tech Debt|Features)/i);
-              if (goalMatch) goalName = goalMatch[1];
-              
-              // Or infer from labels
-              const labels = issue.labels || [];
-              if (labels.some(l => l.name === 'performance')) goalName = 'Performance';
-              else if (labels.some(l => l.name === 'tech-debt')) goalName = 'Tech Debt';
-              else if (labels.some(l => l.name === 'ui' || l.name === 'ux')) goalName = 'User Experience';
-              
-              const goal = sprintGoalField.options.find(o => o.name === goalName);
-              if (goal) {
-                await github.graphql(`
-                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                    updateProjectV2ItemFieldValue(input: {
-                      projectId: $projectId
-                      itemId: $itemId
-                      fieldId: $fieldId
-                      value: { singleSelectOptionId: $optionId }
-                    }) {
-                      projectV2Item { id }
-                    }
-                  }
-                `, {
-                  projectId: process.env.PROJECT_ID,
-                  itemId: itemId,
-                  fieldId: sprintGoalField.id,
-                  optionId: goal.id
-                });
-              }
-            }
-            
-            // Set Iteration based on current date and priority
-            if (iterationField && iterationField.configuration) {
-              const iterations = iterationField.configuration.iterations;
-              
-              // Find current iteration
-              let currentIteration = iterations.find(i => i.startDate <= currentDate);
-              
-              // Override based on priority
-              const priority = issue.title.includes('[P0]') ? 'P0' : 
-                             issue.title.includes('[P1]') ? 'P1' :
-                             body.includes('Priority: P0') ? 'P0' :
-                             body.includes('Priority: P1') ? 'P1' : 'P2';
-              
-              // P0 = current iteration, P1 = current or next, P2+ = next
-              if (priority === 'P0') {
-                // Use current iteration
-              } else if (priority === 'P1' && iterations[1]) {
-                currentIteration = iterations[1]; // next iteration
-              } else if (iterations[2]) {
-                currentIteration = iterations[2]; // future iteration
-              }
-              
-              if (currentIteration) {
-                await github.graphql(`
-                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $iterationId: String!) {
-                    updateProjectV2ItemFieldValue(input: {
-                      projectId: $projectId
-                      itemId: $itemId
-                      fieldId: $fieldId
-                      value: { iterationId: $iterationId }
-                    }) {
-                      projectV2Item { id }
-                    }
-                  }
-                `, {
-                  projectId: process.env.PROJECT_ID,
-                  itemId: itemId,
-                  fieldId: iterationField.id,
-                  iterationId: currentIteration.id
-                });
-                
-                console.log(`Set iteration to ${currentIteration.title}`);
-              }
-            }
-
 
   update-status-on-progress:
     name: Update Status on Progress
