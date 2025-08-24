@@ -1,4 +1,4 @@
-name: Project Board Automation
+name: Dynamic Project Board Automation
 
 on:
   issues:
@@ -17,38 +17,141 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
-
-env:
-  PROJECT_ID: PVT_kwHOCu1OR84BA3ip  # Multi-Agent Claude Code Development
-  PROJECT_NUMBER: 11
-  
-  # Field IDs from our project
-  STATUS_FIELD: PVTSSF_lAHOCu1OR84BA3ipzgziw9A
-  PRIORITY_FIELD: PVTSSF_lAHOCu1OR84BA3ipzgzixBc
-  COMPONENT_FIELD: PVTSSF_lAHOCu1OR84BA3ipzgzixC0
-  
-  # Status option IDs
-  STATUS_TODO: f75ad846
-  STATUS_IN_PROGRESS: 47fc9ee4
-  STATUS_DONE: 98236657
-  
-  # Priority option IDs
-  PRIORITY_P0: 272850f8
-  PRIORITY_P1: 257f709e
-  PRIORITY_P2: 5041f9b5
-  PRIORITY_P3: e6ae2685
-  
-  # Component option IDs
-  COMPONENT_FRONTEND: 83954b68
-  COMPONENT_BACKEND: 8aa84839
-  COMPONENT_DATABASE: eea4cd61
-  COMPONENT_DEVOPS: 82f4b58a
+  projects: write
 
 jobs:
+  discover-project:
+    name: Discover Project Configuration
+    runs-on: ubuntu-latest
+    outputs:
+      project-id: ${{ steps.find-project.outputs.project-id }}
+      project-number: ${{ steps.find-project.outputs.project-number }}
+      status-field: ${{ steps.find-project.outputs.status-field }}
+      priority-field: ${{ steps.find-project.outputs.priority-field }}
+      component-field: ${{ steps.find-project.outputs.component-field }}
+      iteration-field: ${{ steps.find-project.outputs.iteration-field }}
+      status-options: ${{ steps.find-project.outputs.status-options }}
+      priority-options: ${{ steps.find-project.outputs.priority-options }}
+      component-options: ${{ steps.find-project.outputs.component-options }}
+      
+    steps:
+      - name: Find Active Project
+        id: find-project
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            // Find the most recent project for this repository
+            // This assumes the project name contains the repo name
+            const repoName = context.repo.repo;
+            
+            const query = `
+              query($login: String!) {
+                user(login: $login) {
+                  projectsV2(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
+                    nodes {
+                      id
+                      number
+                      title
+                      fields(first: 20) {
+                        nodes {
+                          ... on ProjectV2Field {
+                            id
+                            name
+                          }
+                          ... on ProjectV2SingleSelectField {
+                            id
+                            name
+                            options {
+                              id
+                              name
+                            }
+                          }
+                          ... on ProjectV2IterationField {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const result = await github.graphql(query, {
+              login: context.repo.owner
+            });
+            
+            // Find project that matches this repo or use the most recent
+            let project = result.user.projectsV2.nodes.find(p => 
+              p.title.toLowerCase().includes(repoName.toLowerCase())
+            );
+            
+            // If no repo-specific project, use the most recent one
+            if (!project) {
+              project = result.user.projectsV2.nodes[0];
+            }
+            
+            if (project) {
+              core.setOutput('project-id', project.id);
+              core.setOutput('project-number', project.number);
+              
+              // Find field IDs
+              const fields = project.fields.nodes;
+              const statusField = fields.find(f => f.name === 'Status');
+              const priorityField = fields.find(f => f.name === 'Priority');
+              const componentField = fields.find(f => f.name === 'Component');
+              const iterationField = fields.find(f => f.name === 'Iteration');
+              
+              if (statusField) core.setOutput('status-field', statusField.id);
+              if (priorityField) core.setOutput('priority-field', priorityField.id);
+              if (componentField) core.setOutput('component-field', componentField.id);
+              if (iterationField) core.setOutput('iteration-field', iterationField.id);
+              
+              console.log(`Found project: ${project.title} (#${project.number})`);
+              
+              // Store field options for later use
+              if (statusField && statusField.options) {
+                const statusOptions = {};
+                statusField.options.forEach(opt => {
+                  statusOptions[opt.name.toLowerCase().replace(/\s+/g, '-')] = opt.id;
+                });
+                core.setOutput('status-options', JSON.stringify(statusOptions));
+              } else {
+                core.setOutput('status-options', '{}');
+              }
+              
+              if (priorityField && priorityField.options) {
+                const priorityOptions = {};
+                priorityField.options.forEach(opt => {
+                  priorityOptions[opt.name.toLowerCase()] = opt.id;
+                });
+                core.setOutput('priority-options', JSON.stringify(priorityOptions));
+              } else {
+                core.setOutput('priority-options', '{}');
+              }
+              
+              if (componentField && componentField.options) {
+                const componentOptions = {};
+                componentField.options.forEach(opt => {
+                  componentOptions[opt.name.toLowerCase().replace(/\s+/g, '-')] = opt.id;
+                });
+                core.setOutput('component-options', JSON.stringify(componentOptions));
+              } else {
+                core.setOutput('component-options', '{}');
+              }
+            } else {
+              core.setFailed('No project found for this repository');
+            }
+
   add-to-project:
     name: Add Issue/PR to Project
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened' || github.event_name == 'workflow_dispatch'
+    needs: discover-project
+    if: |
+      github.event.action == 'opened' || 
+      github.event_name == 'workflow_dispatch'
     outputs:
       item-id: ${{ steps.add-to-project.outputs.itemId }}
     
@@ -57,7 +160,7 @@ jobs:
         id: add-to-project
         uses: actions/add-to-project@v0.5.0
         with:
-          project-url: https://github.com/users/${{ github.repository_owner }}/projects/${{ env.PROJECT_NUMBER }}
+          project-url: https://github.com/users/${{ github.repository_owner }}/projects/${{ needs.discover-project.outputs.project-number }}
           github-token: ${{ secrets.PROJECT_TOKEN }}
           
       - name: Get item ID
@@ -92,7 +195,7 @@ jobs:
             
             const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
             const variables = {
-              projectId: process.env.PROJECT_ID
+              projectId: '${{ needs.discover-project.outputs.project-id }}'
             };
             
             const result = await github.graphql(query, variables);
@@ -100,324 +203,157 @@ jobs:
             
             if (item) {
               core.setOutput('itemId', item.id);
-              console.log(`Found item ID: ${item.id}`);
+              console.log(`Found project item: ${item.id}`);
             }
-            
-  set-fields:
-    name: Set Project Fields
+
+  set-fields-from-labels:
+    name: Set Project Fields from Labels
     runs-on: ubuntu-latest
-    needs: add-to-project
-    if: needs.add-to-project.outputs.item-id
+    needs: [discover-project, add-to-project]
+    if: |
+      needs.add-to-project.outputs.item-id &&
+      (github.event.action == 'labeled' || github.event.action == 'opened')
     
     steps:
-      - name: Set Priority based on labels
+      - name: Process Labels and Set Fields
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PROJECT_TOKEN }}
           script: |
-            const itemId = '${{ needs.add-to-project.outputs.item-id }}';
             const labels = context.payload.issue?.labels || context.payload.pull_request?.labels || [];
-            
-            let priorityId = process.env.PRIORITY_P3; // default
-            
-            // Check labels for priority indicators
-            if (labels.some(l => l.name === 'critical' || l.name === 'urgent')) {
-              priorityId = process.env.PRIORITY_P0;
-            } else if (labels.some(l => l.name === 'high-priority')) {
-              priorityId = process.env.PRIORITY_P1;
-            } else {
-              priorityId = process.env.PRIORITY_P3; // Default to P3
-            }
-            
-            // Check title for priority indicators
-            const title = context.payload.issue?.title || context.payload.pull_request?.title || '';
-            if (title.includes('[P0]') || title.includes('[CRITICAL]')) {
-              priorityId = process.env.PRIORITY_P0;
-            } else if (title.includes('[P1]') || title.includes('[URGENT]')) {
-              priorityId = process.env.PRIORITY_P1;
-            } else if (title.includes('[P2]')) {
-              priorityId = process.env.PRIORITY_P2;
-            }
-            
-            const mutation = `
-              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                updateProjectV2ItemFieldValue(input: {
-                  projectId: $projectId
-                  itemId: $itemId
-                  fieldId: $fieldId
-                  value: { singleSelectOptionId: $optionId }
-                }) {
-                  projectV2Item {
-                    id
-                  }
-                }
-              }
-            `;
-            
-            await github.graphql(mutation, {
-              projectId: process.env.PROJECT_ID,
-              itemId: itemId,
-              fieldId: process.env.PRIORITY_FIELD,
-              optionId: priorityId
-            });
-            
-            console.log(`Set priority to ${priorityId}`);
-            
-      - name: Set Component based on labels and content
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.PROJECT_TOKEN }}
-          script: |
+            const projectId = '${{ needs.discover-project.outputs.project-id }}';
             const itemId = '${{ needs.add-to-project.outputs.item-id }}';
-            const labels = context.payload.issue?.labels || context.payload.pull_request?.labels || [];
-            const body = context.payload.issue?.body || context.payload.pull_request?.body || '';
             
-            let componentId = null;
-            
-            // Check labels for component hints (using issue type labels, not component labels)
-            if (labels.some(l => l.name === 'ui' || l.name === 'ux')) {
-              componentId = process.env.COMPONENT_FRONTEND;
-            } else if (labels.some(l => l.name === 'api' || l.name === 'server')) {
-              componentId = process.env.COMPONENT_BACKEND;
-            } else if (labels.some(l => l.name === 'database' || l.name === 'db')) {
-              componentId = process.env.COMPONENT_DATABASE;
-            } else if (labels.some(l => l.name === 'ci' || l.name === 'cd' || l.name === 'infrastructure')) {
-              componentId = process.env.COMPONENT_DEVOPS;
-            }
-            
-            // Check body content for component mentions
-            if (!componentId && body.includes('Component:')) {
-              if (body.toLowerCase().includes('frontend')) {
-                componentId = process.env.COMPONENT_FRONTEND;
-              } else if (body.toLowerCase().includes('backend')) {
-                componentId = process.env.COMPONENT_BACKEND;
-              } else if (body.toLowerCase().includes('database')) {
-                componentId = process.env.COMPONENT_DATABASE;
-              } else if (body.toLowerCase().includes('devops')) {
-                componentId = process.env.COMPONENT_DEVOPS;
-              }
-            }
-            
-            if (componentId) {
+            // Helper function to update field
+            async function updateField(fieldId, value) {
+              if (!fieldId) return;
+              
               const mutation = `
-                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                  updateProjectV2ItemFieldValue(input: {
-                    projectId: $projectId
-                    itemId: $itemId
-                    fieldId: $fieldId
-                    value: { singleSelectOptionId: $optionId }
-                  }) {
-                    projectV2Item {
-                      id
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                  updateProjectV2ItemFieldValue(
+                    input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: $value
                     }
+                  ) {
+                    projectV2Item { id }
                   }
                 }
               `;
               
               await github.graphql(mutation, {
-                projectId: process.env.PROJECT_ID,
+                projectId: projectId,
                 itemId: itemId,
-                fieldId: process.env.COMPONENT_FIELD,
-                optionId: componentId
+                fieldId: fieldId,
+                value: value
               });
+            }
+            
+            // Set Status to Todo for new issues
+            if (github.event.action === 'opened') {
+              const statusField = '${{ needs.discover-project.outputs.status-field }}';
+              const statusOptionsStr = '${{ needs.discover-project.outputs.status-options }}';
+              const statusOptions = statusOptionsStr ? JSON.parse(statusOptionsStr) : {};
               
-              console.log(`Set component to ${componentId}`);
-            }
-            
-      - name: Set Initial Status
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.PROJECT_TOKEN }}
-          script: |
-            const itemId = '${{ needs.add-to-project.outputs.item-id }}';
-            
-            // Default to TODO for new items
-            let statusId = process.env.STATUS_TODO;
-            
-            // If it's a PR, set to In Progress
-            if (context.payload.pull_request) {
-              statusId = process.env.STATUS_IN_PROGRESS;
-            }
-            
-            const mutation = `
-              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                updateProjectV2ItemFieldValue(input: {
-                  projectId: $projectId
-                  itemId: $itemId
-                  fieldId: $fieldId
-                  value: { singleSelectOptionId: $optionId }
-                }) {
-                  projectV2Item {
-                    id
-                  }
-                }
+              if (statusField && statusOptions['todo']) {
+                await updateField(statusField, { singleSelectOptionId: statusOptions['todo'] });
               }
-            `;
-            
-            await github.graphql(mutation, {
-              projectId: process.env.PROJECT_ID,
-              itemId: itemId,
-              fieldId: process.env.STATUS_FIELD,
-              optionId: statusId
-            });
-            
-            console.log(`Set status to ${statusId}`);
-
-  create-branch:
-    name: Create Development Branch
-    runs-on: ubuntu-latest
-    if: github.event_name == 'issues' && github.event.action == 'opened'
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        
-      - name: Create branch
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const issue = context.payload.issue;
-            
-            // Determine branch type from labels and title
-            let branchType = 'task';
-            if (issue.title.includes('[FEATURE]') || issue.labels.some(l => l.name === 'enhancement')) {
-              branchType = 'feature';
-            } else if (issue.title.includes('[BUG]') || issue.labels.some(l => l.name === 'bug')) {
-              branchType = 'bug';
+              
+              // Set Created Date
+              const today = new Date().toISOString().split('T')[0];
+              // Note: We'd need to discover date field ID too
             }
             
-            // Create branch name
-            const title = issue.title.replace(/\[.*?\]/g, '').trim().toLowerCase().replace(/[^a-z0-9]/g, '-').substring(0, 30);
-            const branchName = `${branchType}/${issue.number}-${title}`;
-            
-            try {
-              // Get default branch
-              const { data: repo } = await github.rest.repos.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo
-              });
+            // Handle Priority label
+            const priorityLabel = labels.find(l => l.name.startsWith('priority:'));
+            if (priorityLabel) {
+              const priority = priorityLabel.name.split(':')[1].toLowerCase();
+              const priorityField = '${{ needs.discover-project.outputs.priority-field }}';
+              const priorityOptionsStr = '${{ needs.discover-project.outputs.priority-options }}';
+              const priorityOptions = priorityOptionsStr ? JSON.parse(priorityOptionsStr) : {};
               
-              const { data: ref } = await github.rest.git.getRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `heads/${repo.default_branch}`
-              });
-              
-              // Create new branch
-              await github.rest.git.createRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `refs/heads/${branchName}`,
-                sha: ref.object.sha
-              });
-              
-              console.log(`Created branch: ${branchName}`);
-              
-              // Add comment to issue
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: `## 🌿 Development branch created\n\n**Branch:** \`${branchName}\`\n\nTo start working on this issue:\n\`\`\`bash\ngit fetch origin\ngit checkout ${branchName}\n\`\`\`\n\nWhen ready, create a PR with:\n\`\`\`bash\ngh pr create --base main --head ${branchName} --title "Fixes #${issue.number}" --body "Closes #${issue.number}"\n\`\`\``
-              });
-            } catch (error) {
-              console.log('Branch creation failed:', error.message);
-            }
-
-  update-status-on-progress:
-    name: Update Status on Progress
-    runs-on: ubuntu-latest
-    if: |
-      (github.event_name == 'issues' && github.event.action == 'assigned') ||
-      (github.event_name == 'pull_request' && github.event.action == 'opened')
-    
-    steps:
-      - name: Move to In Progress
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.PROJECT_TOKEN }}
-          script: |
-            // Get the issue number
-            let issueNumber;
-            if (context.payload.issue) {
-              issueNumber = context.payload.issue.number;
-            } else if (context.payload.pull_request) {
-              // Extract issue number from PR body or title
-              const prBody = context.payload.pull_request.body || '';
-              const prTitle = context.payload.pull_request.title || '';
-              const match = (prBody + prTitle).match(/#(\d+)/);
-              if (match) {
-                issueNumber = match[1];
-              }
-            }
-            
-            if (!issueNumber) return;
-            
-            // Find the project item
-            const query = `
-              query {
-                repository(owner: "${{ github.repository_owner }}", name: "${{ github.event.repository.name }}") {
-                  issue(number: ${issueNumber}) {
-                    projectItems(first: 10) {
-                      nodes {
-                        id
-                        project {
-                          id
+              if (priorityField && priorityOptions[priority]) {
+                await updateField(priorityField, { singleSelectOptionId: priorityOptions[priority] });
+                
+                // Set Iteration based on priority
+                const iterationField = '${{ needs.discover-project.outputs.iteration-field }}';
+                if (iterationField) {
+                  // Get current iterations
+                  const query = `
+                    query($projectId: ID!) {
+                      node(id: $projectId) {
+                        ... on ProjectV2 {
+                          field(name: "Iteration") {
+                            ... on ProjectV2IterationField {
+                              configuration {
+                                iterations {
+                                  id
+                                  title
+                                  startDate
+                                }
+                              }
+                            }
+                          }
                         }
                       }
                     }
+                  `;
+                  
+                  const result = await github.graphql(query, { projectId: projectId });
+                  const iterations = result.node.field?.configuration?.iterations || [];
+                  
+                  let iterationId;
+                  // P0 -> Current, P1 -> Next, P2/P3 -> Future
+                  switch(priority) {
+                    case 'p0':
+                      iterationId = iterations[0]?.id;
+                      break;
+                    case 'p1':
+                      iterationId = iterations[1]?.id || iterations[0]?.id;
+                      break;
+                    case 'p2':
+                    case 'p3':
+                      iterationId = iterations[2]?.id || iterations[1]?.id || iterations[0]?.id;
+                      break;
+                  }
+                  
+                  if (iterationId) {
+                    await updateField(iterationField, { iterationId: iterationId });
                   }
                 }
               }
-            `;
+            }
             
-            const result = await github.graphql(query);
-            const projectItem = result.repository.issue.projectItems.nodes.find(
-              item => item.project.id === process.env.PROJECT_ID
-            );
-            
-            if (projectItem) {
-              const mutation = `
-                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                  updateProjectV2ItemFieldValue(input: {
-                    projectId: $projectId
-                    itemId: $itemId
-                    fieldId: $fieldId
-                    value: { singleSelectOptionId: $optionId }
-                  }) {
-                    projectV2Item {
-                      id
-                    }
-                  }
-                }
-              `;
+            // Handle Component label
+            const componentLabel = labels.find(l => l.name.startsWith('component:'));
+            if (componentLabel) {
+              const component = componentLabel.name.split(':')[1].toLowerCase().replace(/\s+/g, '-');
+              const componentField = '${{ needs.discover-project.outputs.component-field }}';
+              const componentOptionsStr = '${{ needs.discover-project.outputs.component-options }}';
+              const componentOptions = componentOptionsStr ? JSON.parse(componentOptionsStr) : {};
               
-              await github.graphql(mutation, {
-                projectId: process.env.PROJECT_ID,
-                itemId: projectItem.id,
-                fieldId: process.env.STATUS_FIELD,
-                optionId: process.env.STATUS_IN_PROGRESS
-              });
-              
-              console.log('Moved to In Progress');
+              if (componentField && componentOptions[component]) {
+                await updateField(componentField, { singleSelectOptionId: componentOptions[component] });
+              }
             }
 
-  update-status-on-close:
-    name: Update Status on Close
+  handle-status-commands:
+    name: Handle Status Commands
     runs-on: ubuntu-latest
+    needs: discover-project
     if: |
-      (github.event.action == 'closed') ||
-      (github.event_name == 'pull_request' && github.event.action == 'merged')
+      github.event_name == 'issue_comment' && 
+      contains(github.event.comment.body, '/working-on-this')
     
     steps:
-      - name: Move to Done
+      - name: Update Status to In Progress
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PROJECT_TOKEN }}
           script: |
-            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
-            
+            // Find the project item for this issue
             const query = `
               query($projectId: ID!) {
                 node(id: $projectId) {
@@ -429,9 +365,6 @@ jobs:
                           ... on Issue {
                             id
                           }
-                          ... on PullRequest {
-                            id
-                          }
                         }
                       }
                     }
@@ -440,34 +373,66 @@ jobs:
               }
             `;
             
-            const result = await github.graphql(query, {
-              projectId: process.env.PROJECT_ID
-            });
+            const projectId = '${{ needs.discover-project.outputs.project-id }}';
+            const result = await github.graphql(query, { projectId: projectId });
             
-            const item = result.node.items.nodes.find(i => i.content?.id === contentId);
+            const item = result.node.items.nodes.find(i => 
+              i.content?.id === context.payload.issue.node_id
+            );
             
             if (item) {
-              const mutation = `
-                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                  updateProjectV2ItemFieldValue(input: {
-                    projectId: $projectId
-                    itemId: $itemId
-                    fieldId: $fieldId
-                    value: { singleSelectOptionId: $optionId }
-                  }) {
-                    projectV2Item {
-                      id
+              // Get status field options
+              const statusQuery = `
+                query($projectId: ID!) {
+                  node(id: $projectId) {
+                    ... on ProjectV2 {
+                      field(name: "Status") {
+                        ... on ProjectV2SingleSelectField {
+                          options {
+                            id
+                            name
+                          }
+                        }
+                      }
                     }
                   }
                 }
               `;
               
-              await github.graphql(mutation, {
-                projectId: process.env.PROJECT_ID,
-                itemId: item.id,
-                fieldId: process.env.STATUS_FIELD,
-                optionId: process.env.STATUS_DONE
-              });
+              const statusResult = await github.graphql(statusQuery, { projectId: projectId });
+              const inProgressOption = statusResult.node.field?.options?.find(o => 
+                o.name.toLowerCase() === 'in progress'
+              );
               
-              console.log('Moved to Done');
+              if (inProgressOption) {
+                const mutation = `
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                    updateProjectV2ItemFieldValue(
+                      input: {
+                        projectId: $projectId
+                        itemId: $itemId
+                        fieldId: $fieldId
+                        value: $value
+                      }
+                    ) {
+                      projectV2Item { id }
+                    }
+                  }
+                `;
+                
+                await github.graphql(mutation, {
+                  projectId: projectId,
+                  itemId: item.id,
+                  fieldId: '${{ needs.discover-project.outputs.status-field }}',
+                  value: { singleSelectOptionId: inProgressOption.id }
+                });
+                
+                // Add reaction
+                await github.rest.reactions.createForIssueComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: context.payload.comment.id,
+                  content: 'rocket'
+                });
+              }
             }
