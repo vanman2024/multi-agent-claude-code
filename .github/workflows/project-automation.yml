@@ -330,6 +330,7 @@ jobs:
             const sprintStatusField = fields.find(f => f.name === 'Sprint Status');
             const sprintGoalField = fields.find(f => f.name === 'Sprint Goal');
             const iterationField = fields.find(f => f.name === 'Iteration');
+            const complexityField = fields.find(f => f.name === 'Complexity');
             
             // Parse sprint points from body (default 3)
             let sprintPoints = 3;
@@ -377,6 +378,36 @@ jobs:
                   itemId: itemId,
                   fieldId: sprintStatusField.id,
                   optionId: notStarted.id
+                });
+              }
+            }
+            
+            // Set Complexity based on issue content
+            if (complexityField) {
+              let complexityName = 'M'; // default
+              
+              // Check for complexity/size in body
+              const complexityMatch = body.match(/(?:Complexity|Size):\s*(XS|S|M|L|XL)/i);
+              if (complexityMatch) complexityName = complexityMatch[1].toUpperCase();
+              
+              const complexity = complexityField.options.find(o => o.name === complexityName);
+              if (complexity) {
+                await github.graphql(`
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId
+                      itemId: $itemId
+                      fieldId: $fieldId
+                      value: { singleSelectOptionId: $optionId }
+                    }) {
+                      projectV2Item { id }
+                    }
+                  }
+                `, {
+                  projectId: process.env.PROJECT_ID,
+                  itemId: itemId,
+                  fieldId: complexityField.id,
+                  optionId: complexity.id
                 });
               }
             }
