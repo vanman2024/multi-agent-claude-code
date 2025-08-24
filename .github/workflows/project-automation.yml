@@ -653,6 +653,48 @@ jobs:
               console.log('Moved to In Progress');
             }
 
+  check-unblock-on-close:
+    name: Check and Unblock Related Issues
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed' && github.event.issue
+    
+    steps:
+      - name: Find and unblock dependent issues
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const closedIssue = context.payload.issue;
+            
+            // Search for issues that mention being blocked by this one
+            const searchQuery = `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open "blocked by #${closedIssue.number}"`;
+            
+            const searchResults = await github.rest.search.issuesAndPullRequests({
+              q: searchQuery
+            });
+            
+            for (const issue of searchResults.data.items) {
+              // Remove blocked label if it exists
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: 'blocked'
+                });
+              } catch (e) {
+                // Label might not exist, that's ok
+              }
+              
+              // Add a comment that it's unblocked
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `✅ **Unblocked!** Issue #${closedIssue.number} has been closed.\n\nThis issue is now ready to be worked on.`
+              });
+            }
+
   update-status-on-close:
     name: Update Status on Close
     runs-on: ubuntu-latest

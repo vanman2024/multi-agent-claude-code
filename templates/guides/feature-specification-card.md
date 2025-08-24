@@ -188,11 +188,11 @@ CREATE TABLE ________ (
 
 ## 🔗 Dependencies
 
-**Blocked by**: ________________________________
+**Blocked by**: ________________________________ *(e.g., #12, #15 - Issues that must complete first)*
 
-**Blocks**: ________________________________
+**Blocks**: ________________________________ *(e.g., #45 - Issues waiting for this)*
 
-**Related Features**: ________________________________
+**Related to**: ________________________________ *(e.g., #23 - Related but not blocking)*
 
 ---
 
