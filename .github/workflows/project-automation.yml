@@ -3,8 +3,6 @@ name: Project Board Automation
 on:
   issues:
     types: [opened, edited, labeled, unlabeled, assigned, closed, reopened]
-  pull_request:
-    types: [opened, edited, labeled, unlabeled, assigned, closed, merged]
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -50,9 +48,9 @@ env:
 
 jobs:
   add-to-project:
-    name: Add Issue/PR to Project
+    name: Add Issue to Project
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened' || github.event_name == 'workflow_dispatch'
+    if: (github.event.issue && github.event.action == 'opened') || github.event_name == 'workflow_dispatch'
     outputs:
       item-id: ${{ steps.add-to-project.outputs.itemId }}
     
@@ -94,7 +92,12 @@ jobs:
               }
             `;
             
-            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
+            // Only add issues, not pull requests
+            if (!context.payload.issue) {
+              console.log('Not an issue, skipping project addition');
+              return;
+            }
+            const contentId = context.payload.issue.node_id;
             const variables = {
               projectId: process.env.PROJECT_ID
             };
@@ -635,7 +638,12 @@ jobs:
         with:
           github-token: ${{ secrets.PROJECT_TOKEN }}
           script: |
-            const contentId = context.payload.issue?.node_id || context.payload.pull_request?.node_id;
+            // Only add issues, not pull requests
+            if (!context.payload.issue) {
+              console.log('Not an issue, skipping project addition');
+              return;
+            }
+            const contentId = context.payload.issue.node_id;
             
             const query = `
               query($projectId: ID!) {
