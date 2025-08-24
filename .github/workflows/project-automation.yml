@@ -788,6 +788,27 @@ jobs:
               console.log(`Parsed Complexity: ${complexity}`);
             }
             
+            // Parse milestone from body - matches **Milestone**: v0.1.0 format
+            let milestone = null;
+            const milestoneMatch = body.match(/\*\*Milestone\*\*:\s*([^\n\*]+)/i);
+            if (milestoneMatch) {
+              milestone = milestoneMatch[1].trim();
+              // Remove any trailing text after dash
+              if (milestone.includes(' - ')) {
+                milestone = milestone.split(' - ')[0].trim();
+              }
+              console.log(`Parsed Milestone: ${milestone}`);
+            }
+            
+            // Default milestone based on priority if not specified
+            if (!milestone) {
+              if (priority === 'P0') milestone = 'v0.1.0';
+              else if (priority === 'P1') milestone = 'v0.2.0';
+              else if (priority === 'P2') milestone = 'v0.3.0';
+              else milestone = 'Backlog';
+              console.log(`Using default milestone based on priority: ${milestone}`);
+            }
+            
             // Query for all project fields and their options
             const query = `
               query($projectId: ID!) {
@@ -858,13 +879,50 @@ jobs:
               }
             }
             
-            // Set Component field - dynamic lookup
+            // Set Component field - dynamic lookup with fallback
             const componentField = fields.find(f => f.name === 'Component');
             if (componentField && component) {
               // Find matching component option (case-insensitive)
-              const componentOption = componentField.options?.find(o => 
+              let componentOption = componentField.options?.find(o => 
                 o.name.toLowerCase() === component.toLowerCase()
               );
+              
+              // If not found, try to find a similar component or use a fallback
+              if (!componentOption) {
+                console.log(`Component '${component}' not found in options: ${componentField.options?.map(o => o.name).join(', ')}`);
+                
+                // Map common missing components to existing ones
+                const componentMapping = {
+                  'payments': 'Integration',
+                  'payment': 'Integration',
+                  'billing': 'Integration',
+                  'ui': 'Frontend',
+                  'ux': 'Frontend',
+                  'api': 'API Gateway',
+                  'server': 'Backend',
+                  'db': 'Database',
+                  'cicd': 'CI/CD',
+                  'auth': 'Auth',
+                  'authentication': 'Auth',
+                  'authorization': 'Auth',
+                  'ml': 'Core Logic',
+                  'ai': 'Core Logic',
+                  'search': 'Core Logic'
+                };
+                
+                const mappedComponent = componentMapping[component.toLowerCase()];
+                if (mappedComponent) {
+                  componentOption = componentField.options?.find(o => o.name === mappedComponent);
+                  console.log(`Mapped '${component}' to '${mappedComponent}'`);
+                }
+                
+                // If still not found, use Backend as default
+                if (!componentOption) {
+                  componentOption = componentField.options?.find(o => o.name === 'Backend');
+                  console.log(`Using default component: Backend`);
+                }
+              }
+              
               if (componentOption) {
                 await github.graphql(`
                   mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
@@ -883,9 +941,7 @@ jobs:
                   fieldId: componentField.id,
                   optionId: componentOption.id
                 });
-                console.log(`Set Component to ${component}`);
-              } else {
-                console.log(`Component '${component}' not found in options: ${componentField.options?.map(o => o.name).join(', ')}`);
+                console.log(`Set Component to ${componentOption.name}`);
               }
             }
             
@@ -961,6 +1017,41 @@ jobs:
                   optionId: complexityOption.id
                 });
                 console.log(`Set Complexity to ${complexity}`);
+              }
+            }
+            
+            // Assign milestone to the issue
+            if (milestone) {
+              try {
+                // Get all milestones
+                const milestones = await github.rest.issues.listMilestones({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                });
+                
+                // Find matching milestone (exact match or starts with)
+                const matchingMilestone = milestones.data.find(m => 
+                  m.title === milestone || 
+                  m.title.startsWith(milestone) ||
+                  m.title === `${milestone} - MVP` ||
+                  m.title === `${milestone} - Enhanced Features` ||
+                  m.title === `${milestone} - Performance & Polish` ||
+                  m.title === `${milestone} - Initial Release`
+                );
+                
+                if (matchingMilestone) {
+                  await github.rest.issues.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.payload.issue.number,
+                    milestone: matchingMilestone.number
+                  });
+                  console.log(`Set Milestone to ${matchingMilestone.title}`);
+                } else {
+                  console.log(`Milestone '${milestone}' not found in available milestones`);
+                }
+              } catch (error) {
+                console.log('Could not set milestone:', error.message);
               }
             }
             

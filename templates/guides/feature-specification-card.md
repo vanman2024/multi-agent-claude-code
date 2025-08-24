@@ -14,6 +14,7 @@
 **Complexity**: ___ *(XS/S/M/L/XL)*
 **Points**: ___ *(Sprint points: 1-13)*
 **Goal**: ________________ *(MVP/Features/Performance/Tech Debt/User Experience)*
+**Milestone**: ________________ *(v0.1.0 - MVP / v0.2.0 - Enhanced Features / v0.3.0 - Performance & Polish / v1.0.0 - Initial Release / Backlog)*
 **Iteration**: Sprint ___ *(1/2/3 - Auto-assigned based on priority)*
 
 ---
