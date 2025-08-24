@@ -1,0 +1,128 @@
+.dashboard {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.dashboard-header {
+  background: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.signout-button {
+  padding: 0.5rem 1rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.signout-button:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.signout-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.dashboard-content {
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.user-info, .session-info {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.user-info h2, .session-info h2 {
+  margin: 0 0 1rem 0;
+  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.user-info p {
+  margin: 0.5rem 0;
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.active {
+  background-color: #10b981;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.25rem;
+  }
+  
+  .dashboard-content {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .user-info, .session-info {
+    padding: 1rem;
+  }
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .dashboard-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
