@@ -331,6 +331,8 @@ jobs:
             const sprintGoalField = fields.find(f => f.name === 'Sprint Goal');
             const iterationField = fields.find(f => f.name === 'Iteration');
             const complexityField = fields.find(f => f.name === 'Complexity');
+            const createdDateField = fields.find(f => f.name === 'Created Date');
+            const dueDateField = fields.find(f => f.name === 'Due Date');
             
             // Parse sprint points from body (default 3)
             let sprintPoints = 3;
@@ -491,6 +493,54 @@ jobs:
                 
                 console.log(`Set iteration to ${currentIteration.title}`);
               }
+            }
+            
+            // Set Created Date to today
+            if (createdDateField) {
+              const today = new Date().toISOString().split('T')[0];
+              await github.graphql(`
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { date: $date }
+                  }) {
+                    projectV2Item { id }
+                  }
+                }
+              `, {
+                projectId: process.env.PROJECT_ID,
+                itemId: itemId,
+                fieldId: createdDateField.id,
+                date: today
+              });
+            }
+            
+            // Set Due Date based on iteration
+            if (dueDateField && currentIteration) {
+              // Calculate due date as end of iteration (start + 14 days)
+              const startDate = new Date(currentIteration.startDate);
+              const dueDate = new Date(startDate);
+              dueDate.setDate(startDate.getDate() + 13); // 14 day sprint
+              
+              await github.graphql(`
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId
+                    itemId: $itemId
+                    fieldId: $fieldId
+                    value: { date: $date }
+                  }) {
+                    projectV2Item { id }
+                  }
+                }
+              `, {
+                projectId: process.env.PROJECT_ID,
+                itemId: itemId,
+                fieldId: dueDateField.id,
+                date: dueDate.toISOString().split('T')[0]
+              });
             }
 
 
