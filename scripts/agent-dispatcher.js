@@ -10,11 +10,84 @@
  */
 
 const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 class AgentDispatcher {
   constructor(owner, repo) {
     this.owner = owner;
     this.repo = repo;
+    this.metricsPath = path.join(__dirname, '../data/metrics.json');
+    this.ensureMetricsFile();
+  }
+
+  /**
+   * Ensure metrics file exists and initialize if needed
+   */
+  ensureMetricsFile() {
+    const dataDir = path.dirname(this.metricsPath);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    
+    if (!fs.existsSync(this.metricsPath)) {
+      const initialData = {
+        assignments: [],
+        completions: [],
+        performance: {
+          copilot: { total: 0, completed: 0, failed: 0 },
+          claude: { total: 0, completed: 0, failed: 0 },
+          human: { total: 0, completed: 0, failed: 0 }
+        }
+      };
+      fs.writeFileSync(this.metricsPath, JSON.stringify(initialData, null, 2));
+    }
+  }
+
+  /**
+   * Record agent assignment metrics
+   */
+  recordAssignment(issueNumber, agent, complexity) {
+    const metrics = JSON.parse(fs.readFileSync(this.metricsPath, 'utf8'));
+    
+    const assignment = {
+      timestamp: new Date().toISOString(),
+      issueNumber,
+      agent,
+      complexity,
+      status: 'assigned'
+    };
+    
+    metrics.assignments.push(assignment);
+    metrics.performance[agent].total++;
+    
+    fs.writeFileSync(this.metricsPath, JSON.stringify(metrics, null, 2));
+    console.log(`📊 Recorded assignment: Issue #${issueNumber} → ${agent} (${complexity})`);
+  }
+
+  /**
+   * Record task completion metrics
+   */
+  recordCompletion(issueNumber, agent, success = true) {
+    const metrics = JSON.parse(fs.readFileSync(this.metricsPath, 'utf8'));
+    
+    const completion = {
+      timestamp: new Date().toISOString(),
+      issueNumber,
+      agent,
+      success
+    };
+    
+    metrics.completions.push(completion);
+    
+    if (success) {
+      metrics.performance[agent].completed++;
+    } else {
+      metrics.performance[agent].failed++;
+    }
+    
+    fs.writeFileSync(this.metricsPath, JSON.stringify(metrics, null, 2));
+    console.log(`📊 Recorded completion: Issue #${issueNumber} → ${agent} (${success ? 'success' : 'failed'})`);
   }
 
   /**
@@ -59,7 +132,7 @@ class AgentDispatcher {
   /**
    * Assign issue to GitHub Copilot
    */
-  async assignToCopilot(issueNumber) {
+  async assignToCopilot(issueNumber, complexity = 'simple') {
     console.log(`🤖 Assigning issue #${issueNumber} to GitHub Copilot...`);
     
     try {
@@ -72,6 +145,7 @@ class AgentDispatcher {
       execSync(command, { stdio: 'inherit' });
       
       console.log(`✅ Copilot assigned to issue #${issueNumber}`);
+      this.recordAssignment(issueNumber, 'copilot', complexity);
       return true;
     } catch (error) {
       console.error(`❌ Failed to assign Copilot:`, error.message);
@@ -82,7 +156,7 @@ class AgentDispatcher {
   /**
    * Create task for Claude Code agent
    */
-  async createClaudeTask(issueNumber, branch) {
+  async createClaudeTask(issueNumber, branch, complexity = 'medium') {
     console.log(`🧠 Creating Claude Code task for issue #${issueNumber}...`);
     
     const taskConfig = {
@@ -100,6 +174,9 @@ class AgentDispatcher {
     
     // This would integrate with Claude Code's agent system
     console.log('Task configuration:', JSON.stringify(taskConfig, null, 2));
+    
+    // Record the assignment
+    this.recordAssignment(issueNumber, 'claude', complexity);
     
     // In practice, this would spawn a Claude Code sub-agent
     // that works autonomously on the branch
@@ -135,14 +212,15 @@ class AgentDispatcher {
       if (!hasAgentLabel) {
         switch (agent) {
           case 'copilot':
-            await this.assignToCopilot(issue.number);
+            await this.assignToCopilot(issue.number, complexity);
             break;
           case 'claude':
             const branch = `issue-${issue.number}`;
-            await this.createClaudeTask(issue.number, branch);
+            await this.createClaudeTask(issue.number, branch, complexity);
             break;
           case 'human':
             console.log(`  👤 Requires human review`);
+            this.recordAssignment(issue.number, 'human', complexity);
             break;
         }
       }

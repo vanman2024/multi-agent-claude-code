@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Performance Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>🤖 Agent Performance Dashboard</h1>
+            <div class="refresh-controls">
+                <button onclick="refreshData()" class="btn-refresh">🔄 Refresh</button>
+                <button onclick="exportReport()" class="btn-export">📊 Export Report</button>
+            </div>
+        </header>
+
+        <div class="metrics-overview">
+            <div class="metric-card">
+                <h3>Copilot Agent</h3>
+                <div class="metric-value" id="copilot-total">0</div>
+                <div class="metric-label">Total Assignments</div>
+                <div class="success-rate" id="copilot-rate">0%</div>
+            </div>
+            <div class="metric-card">
+                <h3>Claude Agent</h3>
+                <div class="metric-value" id="claude-total">0</div>
+                <div class="metric-label">Total Assignments</div>
+                <div class="success-rate" id="claude-rate">0%</div>
+            </div>
+            <div class="metric-card">
+                <h3>Human Review</h3>
+                <div class="metric-value" id="human-total">0</div>
+                <div class="metric-label">Total Assignments</div>
+                <div class="success-rate" id="human-rate">0%</div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-section">
+                <h2>📈 Performance Over Time</h2>
+                <div id="performanceChart" class="text-chart"></div>
+            </div>
+            <div class="chart-section">
+                <h2>📊 Task Distribution</h2>
+                <div id="distributionChart" class="distribution-bars"></div>
+            </div>
+        </div>
+
+        <div class="timeline-section">
+            <h2>⏰ Agent Activity Timeline</h2>
+            <div class="timeline-controls">
+                <select id="timeRange">
+                    <option value="24h">Last 24 Hours</option>
+                    <option value="7d">Last 7 Days</option>
+                    <option value="30d">Last 30 Days</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+            <div id="timelineContainer" class="timeline-container"></div>
+        </div>
+
+        <div class="detailed-metrics">
+            <h2>📋 Detailed Metrics</h2>
+            <div class="metrics-table-container">
+                <table id="metricsTable">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Issue #</th>
+                            <th>Agent</th>
+                            <th>Complexity</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metricsTableBody">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
