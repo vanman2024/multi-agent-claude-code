@@ -222,30 +222,6 @@ jobs:
             });
             
             console.log('Added task checklist to issue #' + parentIssue.number);
-            
-            // Check if issue mentions blocking relationships
-            const issueBody = parentIssue.body || '';
-            const blockingMatch = issueBody.match(/blocks?\s+#(\d+)/gi);
-            const blockedByMatch = issueBody.match(/blocked\s+by\s+#(\d+)/gi);
-            
-            if (blockedByMatch) {
-              // Add a comment noting the blocking relationship
-              const blockers = blockedByMatch.map(m => m.match(/#(\d+)/)[1]);
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: parentIssue.number,
-                body: `⚠️ **This issue is blocked**\n\nBlocked by: ${blockers.map(n => `#${n}`).join(', ')}\n\nWork on the blocking issues first before starting this one.`
-              });
-              
-              // Add blocked label
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: parentIssue.number,
-                labels: ['blocked']
-              });
-            }
 
   handle-commands:
     name: Handle Slash Commands
