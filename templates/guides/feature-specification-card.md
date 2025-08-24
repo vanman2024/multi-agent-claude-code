@@ -7,6 +7,17 @@
 
 ---
 
+## 🎯 Project Metadata
+
+**Priority**: P__ *(P0=Critical, P1=High, P2=Medium, P3=Low)*
+**Component**: ________________ *(Frontend/Backend/Database/Auth/API Gateway/etc.)*
+**Complexity**: ___ *(XS/S/M/L/XL)*
+**Points**: ___ *(Sprint points: 1-13)*
+**Goal**: ________________ *(MVP/Features/Performance/Tech Debt/User Experience)*
+**Iteration**: Sprint ___ *(1/2/3 - Auto-assigned based on priority)*
+
+---
+
 ## 📋 Executive Summary
 
 _Provide a 2-3 sentence description of what this feature does, who it serves, and the business value it provides. This will be the main description in the GitHub issue._
