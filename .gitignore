@@ -101,7 +101,7 @@ out/
 
 # Gatsby
 .cache/
-public
+# public - commented out to allow app/public/ for notification system
 
 # Vuepress
 .vuepress/dist
