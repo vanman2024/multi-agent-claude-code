@@ -1,29 +1,10 @@
 name: Deploy Frontend to Vercel
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-      - 'client/**'
-      - 'src/**'
-      - 'components/**'
-      - 'pages/**'
-      - 'app/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '!backend/**'
-      - '!api/**'
-      - '!server/**'
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - 'frontend/**'
-      - 'client/**'
-      - 'src/**'
-      - 'components/**'
-      - 'pages/**'
-      - 'app/**'
+  workflow_run:
+    workflows: ["CI Testing & Quality Pipeline"]
+    types: [completed]
+    branches: [main, develop]
   workflow_dispatch:
     inputs:
       environment:
@@ -40,9 +21,37 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
+  check-changes:
+    name: Check for Frontend Changes
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      should-deploy: ${{ steps.check.outputs.changed }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Check for frontend changes
+        id: check
+        run: |
+          # Check if frontend files changed in the last commit
+          git diff --name-only HEAD^ HEAD > changed_files.txt
+          
+          if grep -qE '^(frontend/|client/|src/|components/|pages/|app/|package\.json)' changed_files.txt; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Frontend files changed, deployment needed"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No frontend changes, skipping deployment"
+          fi
+  
   detect-framework:
     name: Detect Frontend Framework
     runs-on: ubuntu-latest
+    needs: check-changes
+    if: needs.check-changes.outputs.should-deploy == 'true'
     outputs:
       framework: ${{ steps.detect.outputs.framework }}
       directory: ${{ steps.detect.outputs.directory }}

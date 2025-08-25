@@ -1,5 +1,11 @@
 # Claude Code Documentation
 
+## Project Overview: Multi-Agent Development Framework
+
+**📚 Full System Documentation:** [Multi-Agent Development Framework](./docs/Multi-Agent-Development-Framework.md)
+
+We're building a revolutionary Multi-Agent Development Framework that transforms how software is built by orchestrating AI agents, human developers, and automated workflows into a seamless development pipeline. This system enables teams to achieve 10x productivity gains through intelligent task distribution and autonomous development capabilities.
+
 ## System Architecture: The House Metaphor 🏗️
 
 Think of our system like building a house:

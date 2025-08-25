@@ -1,25 +1,10 @@
 name: Deploy Backend to DigitalOcean
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'backend/**'
-      - 'api/**'
-      - 'server/**'
-      - 'src/api/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'Dockerfile'
-      - 'docker-compose.yml'
-      - '!frontend/**'
-      - '!client/**'
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - 'backend/**'
-      - 'api/**'
-      - 'server/**'
+  workflow_run:
+    workflows: ["CI Testing & Quality Pipeline"]
+    types: [completed]
+    branches: [main, develop]
   workflow_dispatch:
     inputs:
       environment:
@@ -37,9 +22,37 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  check-changes:
+    name: Check for Backend Changes
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      should-deploy: ${{ steps.check.outputs.changed }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Check for backend changes
+        id: check
+        run: |
+          # Check if backend files changed in the last commit
+          git diff --name-only HEAD^ HEAD > changed_files.txt
+          
+          if grep -qE '^(backend/|api/|server/|src/api/|Dockerfile|docker-compose\.yml|package\.json)' changed_files.txt; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Backend files changed, deployment needed"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No backend changes, skipping deployment"
+          fi
+
   detect-backend:
     name: Detect Backend Configuration
     runs-on: ubuntu-latest
+    needs: check-changes
+    if: needs.check-changes.outputs.should-deploy == 'true'
     outputs:
       type: ${{ steps.detect.outputs.type }}
       directory: ${{ steps.detect.outputs.directory }}
