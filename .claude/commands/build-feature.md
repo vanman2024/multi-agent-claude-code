@@ -101,7 +101,7 @@ mutation {
 
 ### Step 2: Setup Feature Branch
 Use Task tool with:
-- subagent_type: workspace-manager
+- subagent_type: general-purpose
 - description: Create feature branch and setup
 - prompt: |
   Setup workspace for feature: $ARGUMENTS
@@ -117,7 +117,7 @@ Use Task tool with:
 
 ### Step 3: Build Database Layer
 Use Task tool with:
-- subagent_type: database-build
+- subagent_type: architect
 - description: Implement database schema from spec
 - prompt: |
   Implement database layer for feature: $ARGUMENTS
@@ -134,7 +134,7 @@ Use Task tool with:
 
 ### Step 4: Build Backend Services
 Use Task tool with:
-- subagent_type: backend-build
+- subagent_type: general-purpose
 - description: Implement backend services and APIs
 - prompt: |
   Build backend services for feature: $ARGUMENTS
@@ -151,7 +151,7 @@ Use Task tool with:
 
 ### Step 5: Build Frontend Components
 Use Task tool with:
-- subagent_type: frontend-build
+- subagent_type: frontend-tester
 - description: Implement UI components from spec
 - prompt: |
   Build frontend components for feature: $ARGUMENTS
@@ -169,8 +169,8 @@ Use Task tool with:
 
 ### Step 6: Write Tests
 Use Task tool with:
-- subagent_type: test-writer
-- description: Implement test suite from spec
+- subagent_type: backend-tester
+- description: Implement backend test suite from spec
 - prompt: |
   Write tests for feature: $ARGUMENTS
   
@@ -186,8 +186,8 @@ Use Task tool with:
 
 ### Step 7: Run Tests and Validate
 Use Task tool with:
-- subagent_type: test-runner
-- description: Execute all tests and validate
+- subagent_type: backend-tester
+- description: Execute all backend tests and validate
 - prompt: |
   Run complete test suite for feature: $ARGUMENTS
   
@@ -203,7 +203,7 @@ Use Task tool with:
 
 ### Step 8: Documentation and Integration
 Use Task tool with:
-- subagent_type: documentation-agent
+- subagent_type: general-purpose
 - description: Update documentation and integrate
 - prompt: |
   Complete documentation for feature: $ARGUMENTS
@@ -220,7 +220,7 @@ Use Task tool with:
 
 ### Step 9: Create Pull Request
 Use Task tool with:
-- subagent_type: pr-creator
+- subagent_type: general-purpose
 - description: Create PR for feature
 - prompt: |
   Create pull request for feature: $ARGUMENTS
@@ -237,7 +237,7 @@ Use Task tool with:
 
 ### Step 10: Update Tracking
 Use Task tool with:
-- subagent_type: database-build
+- subagent_type: architect
 - description: Update feature status in database
 - prompt: |
   Update feature tracking for: $ARGUMENTS

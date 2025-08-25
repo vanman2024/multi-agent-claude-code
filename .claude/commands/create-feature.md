@@ -375,7 +375,7 @@ gh issue comment $ISSUE_NUMBER --body "✅ Feature specification complete
 
 #### Step 6: Database Layer
 Use Task tool with:
-- subagent_type: database-build
+- subagent_type: architect
 - description: Create database schema
 - prompt: |
     Create database schema for feature: $ARGUMENTS
@@ -387,7 +387,7 @@ Use Task tool with:
 
 #### Step 7: Backend API
 Use Task tool with:
-- subagent_type: backend-build
+- subagent_type: general-purpose
 - description: Build API endpoints
 - prompt: |
     Create API endpoints for feature: $ARGUMENTS
@@ -399,7 +399,7 @@ Use Task tool with:
 
 #### Step 8: Frontend Components
 Use Task tool with:
-- subagent_type: frontend-build
+- subagent_type: frontend-tester
 - description: Build UI components
 - prompt: |
     Create React components for feature: $ARGUMENTS
@@ -412,7 +412,7 @@ Use Task tool with:
 
 #### Step 9: Integration & Testing
 Use Task tool with:
-- subagent_type: test-writer
+- subagent_type: backend-tester
 - description: Create test suite
 - prompt: |
     Write comprehensive tests for feature: $ARGUMENTS
@@ -425,7 +425,7 @@ Use Task tool with:
 
 #### Step 10: Code Review & Enhancement
 Use Task tool with:
-- subagent_type: enhancement-agent
+- subagent_type: refactor
 - description: Optimize implementation
 - prompt: |
     Review and enhance feature: $ARGUMENTS
@@ -436,7 +436,7 @@ Use Task tool with:
 
 #### Step 11: Documentation
 Use Task tool with:
-- subagent_type: documentation-agent
+- subagent_type: general-purpose
 - description: Create documentation
 - prompt: |
     Document feature: $ARGUMENTS
@@ -466,7 +466,7 @@ gh project item-edit --project-id {project-number} --id {item-id} --field-id {st
 
 #### Step 14: Deploy & Monitor
 Use Task tool with:
-- subagent_type: deploy-manager
+- subagent_type: general-purpose
 - description: Deploy feature
 - prompt: |
     Deploy feature: $ARGUMENTS

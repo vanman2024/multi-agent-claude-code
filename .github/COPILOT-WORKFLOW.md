@@ -1,126 +1,152 @@
-# Copilot Workflow - The Right Way
+# REFERENCES: https://docs.github.com/en/enterprise-cloud@latest/copilot/concepts/coding-agent/coding-agent
 
-## ✅ ALWAYS Start From Issues
+# Multi-Agent Development Workflow
 
-### The Correct Flow:
+## Our Three AI Agents
+
+### 1. GitHub Copilot (Simple Tasks)
+- **Handles**: Tasks with Complexity 1-2 AND Size XS/S
+- **Auto-assigned**: Via MCP at issue creation
+- **Creates**: Draft PRs automatically
+
+### 2. Claude Code (Local) - You
+- **Handles**: Complex tasks (Complexity 3+ OR Size M+)
+- **Runs**: Architecture, security, complex features
+- **Controls**: Overall system orchestration
+
+### 3. Claude Code GitHub App (@claude)
+- **Handles**: PR reviews, code implementation from issues
+- **Triggered**: By @claude mentions in issues/PRs
+- **Reviews**: All Copilot PRs automatically
+
+## The Golden Rule: Size AND Complexity
+
+**Copilot ONLY handles tasks that are BOTH:**
+- **Simple** (Complexity 1-2 out of 5)
+- **AND**
+- **Small** (Size XS or S)
+
+If either is higher → Claude Code handles it.
+
+## Field Definitions
+
+### Complexity (1-5 dropdown in GitHub Project)
+- **1-2**: Simple, straightforward logic (Copilot eligible)
+- **3**: Moderate complexity (Claude only)
+- **4-5**: Complex, architectural decisions (Claude only)
+
+### Size (XS/S/M/L/XL dropdown in GitHub Project)
+- **XS**: < 1 hour (Copilot eligible)
+- **S**: 1-2 hours (Copilot eligible)
+- **M**: 2-4 hours (Claude only)
+- **L**: 4-8 hours (Claude only)
+- **XL**: > 8 hours (Claude only)
+
+## Decision Matrix
+
+| Complexity | Size | Who Handles It | Example |
+|------------|------|---------------|----------|
+| 1-2 | XS-S | **Copilot** | Fix typo, add endpoint, update test |
+| 1-2 | M-XL | **Claude Code** | Large but simple refactor |
+| 3-5 | Any | **Claude Code** | Design patterns, security, architecture |
+| Any | L-XL | **Claude Code** | Multi-file changes, system redesign |
+
+## How Assignment Works
+
+### 1. Automatic Assignment (via /create-feature command)
+```javascript
+// This happens in .claude/commands/create-feature.md
+const isSmallAndSimple = (complexity <= 2) && (size === 'XS' || size === 'S');
+
+if (isSmallAndSimple) {
+  await mcp__github__assign_copilot_to_issue({
+    owner: "vanman2024",
+    repo: "multi-agent-claude-code",
+    issueNumber: issueNumber
+  });
+}
 ```
-1. Issue Created (with clear requirements)
+
+### 2. Manual Assignment (for existing issues)
+```bash
+# Check the issue's complexity and size first
+gh issue view <number> --json projectItems
+
+# Only assign if BOTH complexity ≤ 2 AND size ∈ {XS, S}
+gh issue edit <number> --add-assignee copilot
+```
+
+## The Workflow
+
+```
+1. Issue Created (with Complexity & Size fields)
      ↓
-2. Issue Added to Project Board
+2. Check: Complexity ≤ 2 AND Size ∈ {XS, S}?
+     ↓ Yes              ↓ No
+3. Assign to Copilot    Claude Code handles
      ↓
-3. Issue Assigned to Copilot
-     ↓
-4. Copilot Creates Draft PR
+4. Agent Creates Draft PR
      ↓
 5. PR Links Back to Issue
      ↓
 6. Project Board Tracks Progress
 ```
 
-## How to Use Copilot Properly
+## Critical Rules
 
-### Method 1: Direct Assignment (Best)
-```bash
-# Create issue first
-gh issue create --title "Fix login bug" --body "Details..."
+### ✅ DO:
+- Always create issues first
+- Set Complexity and Size fields
+- Use `mcp__github__assign_copilot_to_issue()` for assignment
+- Let agents create PRs linked to issues
+- Track everything in Project Board
 
-# Then assign to Copilot
-gh issue edit <number> --add-assignee copilot
-```
+### ❌ DON'T:
+- Never use `create_pull_request_with_copilot()` directly
+- Never have two agents on same issue
+- Never assign Copilot to complex (3+) tasks
+- Never assign Copilot to large (M+) tasks
+- Never skip the issue creation step
 
-### Method 2: Assignment via MCP
-```javascript
-// Use this MCP function
-mcp__github__assign_copilot_to_issue({
-  issueNumber: 26
-})
+## Examples
 
-// NOT this one (creates orphan PRs)
-// mcp__github__create_pull_request_with_copilot()
-```
+### Good for Copilot:
+- "Fix typo in README" (Complexity: 1, Size: XS)
+- "Add GET endpoint for user profile" (Complexity: 2, Size: S)
+- "Update test assertion" (Complexity: 1, Size: XS)
+- "Add logging to service" (Complexity: 2, Size: S)
 
-### Method 3: Bulk Assignment
-```bash
-# Label issues for Copilot
-gh issue list --label "copilot-ready" --json number -q '.[].number' | \
-  xargs -I {} gh issue edit {} --add-assignee copilot
-```
+### Must be Claude Code:
+- "Design authentication system" (Complexity: 4, Size: L)
+- "Refactor entire API layer" (Complexity: 2, Size: XL) ← Large!
+- "Implement security middleware" (Complexity: 5, Size: M)
+- "Create database schema" (Complexity: 3, Size: M)
 
-## Why This Matters
+## Monitoring
 
-### When You Assign to Issue:
-- ✅ Shows in Project Board
-- ✅ Tracked in "In Progress"
-- ✅ Visible in sprint planning
-- ✅ Clear ownership
-- ✅ PR automatically linked
-
-### When You Create PR Directly:
-- ❌ Not in Project Board
-- ❌ No progress tracking
-- ❌ Confusion about ownership
-- ❌ Breaks workflow automation
-- ❌ Might duplicate work
-
-## Project Board Integration
-
-The Project Board only tracks issues, not PRs directly:
-```
-Todo → In Progress → In Review → Done
-        ↑
-   Issues move here
-   (PRs are just implementation details)
-```
-
-## Current Status Check
-
-### Properly Tracked (via Issue Assignment):
-- Issue #26 → PR #42 (Copilot assigned, shows in board)
-- Issue #43 → Waiting for Copilot (assigned, shows in board)
-
-### How to Check:
 ```bash
 # See what Copilot is assigned to
 gh issue list --assignee copilot
 
-# See what PRs Copilot created
+# See Copilot's PRs
 gh pr list --author app/copilot
 
 # Check project board
 gh project item-list 1 --owner vanman2024
 ```
 
-## Golden Rules
-
-1. **NEVER use `create_pull_request_with_copilot`** for existing issues
-2. **ALWAYS assign Copilot to issues** not create PRs directly
-3. **ALWAYS check issue assignees** before assigning
-4. **ALWAYS verify in project board** after assignment
-
-## Monitoring Copilot's Work
-
-```bash
-# Watch Copilot's progress
-watch -n 60 'echo "=== Copilot Status ===" && \
-  gh issue list --assignee copilot --state all && \
-  echo && \
-  echo "=== Recent PRs ===" && \
-  gh pr list --author app/copilot'
-```
-
 ## If Things Go Wrong
 
-### Orphan PR Created:
-1. Check if it fixes an issue
-2. Manually link: Edit PR description, add "Fixes #X"
-3. Add issue to project board if missing
+### Issue missing Complexity or Size:
+- Add them via GitHub Project UI
+- Re-evaluate assignment
 
-### Duplicate Work:
-1. Check both assignees
-2. Close duplicate PR
-3. Add `no-overlap` label to issue
+### Wrong agent assigned:
+- Remove incorrect assignee
+- Assign to correct agent
+- Close any orphan PRs
 
-### Not Showing in Project:
-1. Manually add issue to project
-2. Set correct status
-3. Verify assignees
+### Duplicate work:
+- Check assignees first
+- One issue = one agent
+- Close duplicate PR
