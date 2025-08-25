@@ -144,7 +144,7 @@ Configure your stack with `/setup-project`
 | Document | Purpose |
 |----------|---------|  
 | [GETTING-STARTED.md](./GETTING-STARTED.md) | Step-by-step setup guide |
-| [AGENT-SETUP.md](./AGENT-SETUP.md) | Agent capabilities and tools |
+| [AGENT-OVERVIEW.md](./AGENT-OVERVIEW.md) | Pre-configured agents and tools |
 | [SECRETS-SETUP.md](./SECRETS-SETUP.md) | Required API keys and tokens |
 | [COPILOT-WORKFLOW.md](./.github/COPILOT-WORKFLOW.md) | Agent routing rules |
 | [CLAUDE.md](./CLAUDE.md) | AI assistant configuration |

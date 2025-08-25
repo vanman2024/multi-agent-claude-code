@@ -156,7 +156,7 @@ Edit `.claude/commands/project-setup.md` to define your stack:
 
 ### Configure Agents
 
-See [AGENT-SETUP.md](./AGENT-SETUP.md) to understand the 7 core agents:
+See [AGENT-OVERVIEW.md](./AGENT-OVERVIEW.md) for what's included:
 - frontend-tester
 - backend-tester
 - refactor
