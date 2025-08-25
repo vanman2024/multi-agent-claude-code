@@ -1,0 +1,26 @@
+{
+  "name": "notification-system",
+  "version": "1.0.0",
+  "description": "Real-time notification system with WebSocket support",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node tests/notification-tests.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.9",
+    "socket.io": "^4.7.5",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.1"
+  },
+  "keywords": [
+    "notifications",
+    "websocket",
+    "real-time"
+  ],
+  "author": "Claude Code Agent",
+  "license": "MIT"
+}
