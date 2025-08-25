@@ -115,7 +115,51 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         
-      - name: Create implementation branch
+      - name: Check for blocking issues
+        id: check-blocking
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Check if any infrastructure issues are still open
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'infrastructure,blocking',
+              state: 'open'
+            });
+            
+            const hasBlockers = issues.length > 0;
+            const currentIssue = context.payload.issue;
+            const isInfrastructure = currentIssue.labels.some(l => 
+              l.name === 'infrastructure' || l.name === 'blocking'
+            );
+            
+            core.setOutput('has_blockers', hasBlockers);
+            core.setOutput('blocker_count', issues.length);
+            core.setOutput('is_infrastructure', isInfrastructure);
+            
+            if (hasBlockers && !isInfrastructure) {
+              console.log(`Found ${issues.length} blocking infrastructure issues`);
+              
+              // Add blocked label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: currentIssue.number,
+                labels: ['blocked']
+              });
+              
+              // Add comment about blockers
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: currentIssue.number,
+                body: `⚠️ **Development Blocked**\n\nThis issue cannot proceed until infrastructure is complete:\n\n${issues.map(i => `- #${i.number}: ${i.title}`).join('\n')}\n\nA branch and draft PR will be created for planning purposes.`
+              });
+            }
+            
+      - name: Create implementation branch and draft PR
         env:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
@@ -143,13 +187,60 @@ jobs:
           
           echo "Branch created and linked: ${BRANCH_NAME}"
           
-          # Comment on the issue
-          gh issue comment ${ISSUE_NUMBER} --body "## 🚀 Development Branch Created
+          # Create draft PR immediately
+          HAS_BLOCKERS="${{ steps.check-blocking.outputs.has_blockers }}"
+          BLOCKER_COUNT="${{ steps.check-blocking.outputs.blocker_count }}"
+          
+          PR_BODY="## 🎯 Addresses #${ISSUE_NUMBER}
+
+          **Issue:** ${{ github.event.issue.title }}
+          "
+          
+          if [ "$HAS_BLOCKERS" = "true" ]; then
+            PR_BODY="${PR_BODY}
+          > ⚠️ **BLOCKED:** This PR is blocked by ${BLOCKER_COUNT} infrastructure issues. See issue comments for details.
+          "
+          fi
+          
+          PR_BODY="${PR_BODY}
+          ### Description
+          ${{ github.event.issue.body }}
+          
+          ### Checklist
+          - [ ] Implementation complete
+          - [ ] Tests added/updated
+          - [ ] Documentation updated
+          - [ ] Lint and type checks pass
+          - [ ] PR ready for review
+          
+          ### Testing
+          Describe how to test these changes:
+          1. 
+          2. 
+          3. 
+          
+          ---
+          _Auto-generated from issue #${ISSUE_NUMBER}_"
+          
+          # Create the draft PR
+          PR_URL=$(gh pr create \
+            --title "[Draft] ${{ github.event.issue.title }}" \
+            --body "$PR_BODY" \
+            --head "${BRANCH_NAME}" \
+            --base main \
+            --draft \
+            --assignee @me)
+          
+          PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$')
+          
+          # Comment on the issue with branch and PR info
+          gh issue comment ${ISSUE_NUMBER} --body "## 🚀 Development Setup Complete
           
           **Branch:** \`${BRANCH_NAME}\`
+          **Draft PR:** #${PR_NUMBER}
           **Type:** ${ISSUE_TYPE}
           
-          The branch has been created and linked to this issue. Check the **Development** section →
+          The branch and draft PR have been created. Check the **Development** section →
           
           ### To start working:
           \`\`\`bash
@@ -157,7 +248,9 @@ jobs:
           # or
           git fetch origin
           git checkout ${BRANCH_NAME}
-          \`\`\`"
+          \`\`\`
+          
+          $(if [ "$HAS_BLOCKERS" = "true" ]; then echo "⚠️ **Note:** Development is blocked by infrastructure issues."; fi)"
           
           # Assign both the user and Copilot to the issue
           gh issue edit ${ISSUE_NUMBER} --add-assignee @me

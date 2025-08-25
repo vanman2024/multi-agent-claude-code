@@ -26,19 +26,24 @@ Workflows are the plumbing - they move issues to boards, run tests, deploy code.
 ## Workflow Files
 
 ### 1. **project-automation.yml**
-**Trigger:** Issues and PRs (opened, edited, closed, converted)  
-**Purpose:** Manages project board integration  
+**Trigger:** Issues and PRs (opened, edited, closed, converted, milestoned)  
+**Purpose:** Manages comprehensive project board integration  
 **Key Features:**
 - Automatically adds issues/PRs to project board
 - Sets initial Status field to "Todo"
 - Sets Component field based on labels/content
+- Manages Milestone assignments
+- Tracks Sprint/Iteration assignments
+- Updates Story Points from issue body
+- Manages parent-child issue relationships
+- Tracks blocked status and dependencies
 - Uses PROJECT_TOKEN for authentication (requires project scope)
 - Handles issue ↔ PR conversions
 
 **Required Secrets:**
 - `PROJECT_TOKEN`: Personal access token with `project` scope
 - `PROJECT_ID`: Your project board ID
-- Field IDs for Status, Priority, Component
+- Field IDs for Status, Priority, Component, Milestone, Iteration, Points, Blocked, Parent
 
 ### 2. **auto-assign.yml**
 **Trigger:** Issue created  
@@ -137,9 +142,14 @@ Workflows are the plumbing - they move issues to boards, run tests, deploy code.
 - `FIELD_STATUS_ID`: ID of Status field
 - `FIELD_PRIORITY_ID`: ID of Priority field  
 - `FIELD_COMPONENT_ID`: ID of Component field
-- `STATUS_TODO`, `STATUS_IN_PROGRESS`, `STATUS_DONE`: Option IDs
+- `FIELD_MILESTONE_ID`: ID of Milestone field
+- `FIELD_ITERATION_ID`: ID of Iteration/Sprint field
+- `FIELD_POINTS_ID`: ID of Story Points field
+- `FIELD_BLOCKED_ID`: ID of Blocked field
+- `FIELD_PARENT_ID`: ID of Parent Issue field
+- `STATUS_TODO`, `STATUS_IN_PROGRESS`, `STATUS_REVIEW`, `STATUS_DONE`, `STATUS_BLOCKED`: Option IDs
 - `PRIORITY_P0`, `PRIORITY_P1`, `PRIORITY_P2`, `PRIORITY_P3`: Option IDs
-- `COMPONENT_FRONTEND`, `COMPONENT_BACKEND`, etc.: Option IDs
+- `COMPONENT_FRONTEND`, `COMPONENT_BACKEND`, `COMPONENT_INFRA`, `COMPONENT_DOCS`: Option IDs
 
 #### Deployment - Vercel
 - `VERCEL_TOKEN`: Vercel authentication token
@@ -215,14 +225,13 @@ Developer/Agent:
 PR created → Workflows trigger:
 - `ci-cd-pipeline.yml` → Runs all quality gates
 - `test-runner.yml` → Runs project-specific tests
-- `deploy-frontend.yml` → Creates preview (if frontend changes)
-- `deploy-backend.yml` → Creates staging (if backend changes)
+- `label-sync.yml` → Validates and enforces allowed labels
 
 ### Step 4: Merge & Deploy
-PR approved and merged:
+PR approved and merged → After CI passes:
 - `project-automation.yml` → Updates issue status to "Done"
-- `deploy-frontend.yml` → Deploys to Vercel production
-- `deploy-backend.yml` → Deploys to DigitalOcean production
+- `deploy-frontend.yml` → Deploys to Vercel if frontend files changed
+- `deploy-backend.yml` → Deploys to DigitalOcean if backend files changed
 
 ## Getting Field IDs for Project Board
 
@@ -398,10 +407,11 @@ gh secret list
 ```
 .github/workflows/
 ├── auto-assign.yml            # Issue assignment
-├── ci-cd-pipeline.yml         # Complete CI/CD
-├── deploy-backend.yml         # Backend deployment
-├── deploy-frontend.yml        # Frontend deployment
+├── ci-cd-pipeline.yml         # Testing & quality checks
+├── deploy-backend.yml         # Backend deployment (after CI)
+├── deploy-frontend.yml        # Frontend deployment (after CI)
 ├── issue-to-implementation.yml # Development setup
+├── label-sync.yml            # Label management
 ├── project-automation.yml     # Project board sync
 └── test-runner.yml           # Test automation
 ```

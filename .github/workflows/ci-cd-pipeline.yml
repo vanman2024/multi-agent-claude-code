@@ -1,4 +1,4 @@
-name: Complete CI/CD Pipeline
+name: CI Testing & Quality Pipeline
 
 on:
   pull_request:
@@ -276,6 +276,7 @@ jobs:
       needs.unit-tests.outputs.passed == 'true'
     outputs:
       artifact-name: ${{ steps.artifact.outputs.name }}
+      build-status: ${{ steps.status.outputs.status }}
       
     steps:
       - uses: actions/checkout@v4
@@ -313,93 +314,23 @@ jobs:
           retention-days: 7
       
       - name: Set Artifact Name
+        id: artifact
         run: echo "name=build-${{ github.sha }}" >> $GITHUB_OUTPUT
+      
+      - name: Set Build Status
+        id: status
+        run: |
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ Build completed successfully"
+
 
   # ============================================
-  # STAGE 5: DEPLOY TO STAGING
-  # ============================================
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: [build, integration-tests]
-    if: |
-      github.ref == 'refs/heads/main' ||
-      github.ref == 'refs/heads/develop'
-    environment:
-      name: staging
-      url: ${{ steps.deploy.outputs.url }}
-      
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ needs.build.outputs.artifact-name }}
-          path: ./dist
-      
-      - name: Deploy to Staging
-        id: deploy
-        run: |
-          # Deploy based on platform
-          if [ -n "${{ secrets.VERCEL_TOKEN }}" ]; then
-            echo "Deploying to Vercel..."
-            # npx vercel --token=${{ secrets.VERCEL_TOKEN }} --prod=false
-          elif [ -n "${{ secrets.DIGITALOCEAN_TOKEN }}" ]; then
-            echo "Deploying to DigitalOcean..."
-            # doctl apps create-deployment ${{ secrets.DO_APP_ID }}
-          else
-            echo "::warning::No deployment configuration found"
-          fi
-          
-          echo "url=https://staging.example.com" >> $GITHUB_OUTPUT
-      
-      - name: Run Smoke Tests
-        run: |
-          # Basic health check
-          # curl -f ${{ steps.deploy.outputs.url }}/health || exit 1
-          echo "Smoke tests would run here"
-
-  # ============================================
-  # STAGE 6: DEPLOY TO PRODUCTION
-  # ============================================
-  deploy-production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [build, integration-tests, deploy-staging]
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: ${{ steps.deploy.outputs.url }}
-      
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ needs.build.outputs.artifact-name }}
-          path: ./dist
-      
-      - name: Deploy to Production
-        id: deploy
-        run: |
-          echo "🚀 Deploying to production..."
-          # Actual deployment commands here
-          echo "url=https://app.example.com" >> $GITHUB_OUTPUT
-      
-      - name: Verify Deployment
-        run: |
-          echo "✅ Production deployment complete"
-          # Health checks here
-
-  # ============================================
-  # FINAL: Update PR Status
+  # STAGE 5: Update PR Status
   # ============================================
   update-pr:
     name: Update PR Status
     runs-on: ubuntu-latest
-    needs: [quality-check, unit-tests, integration-tests, security-scan]
+    needs: [quality-check, unit-tests, integration-tests, security-scan, build]
     if: always() && github.event_name == 'pull_request'
     
     steps:
@@ -411,8 +342,9 @@ jobs:
             const unitTestsPassed = '${{ needs.unit-tests.outputs.passed }}' === 'true';
             const integrationPassed = '${{ needs.integration-tests.outputs.passed }}' === 'true';
             const securityPassed = '${{ needs.security-scan.outputs.passed }}' === 'true';
+            const buildPassed = '${{ needs.build.outputs.build-status }}' === 'success';
             
-            const allPassed = qualityPassed && unitTestsPassed && integrationPassed && securityPassed;
+            const allPassed = qualityPassed && unitTestsPassed && integrationPassed && securityPassed && buildPassed;
             
             const status = allPassed ? '✅ All checks passed' : '❌ Some checks failed';
             const color = allPassed ? '0x00ff00' : '0xff0000';
@@ -426,6 +358,7 @@ jobs:
             | Unit Tests | ${unitTestsPassed ? '✅' : '❌'} |
             | Integration Tests | ${integrationPassed ? '✅' : '❌'} |
             | Security Scan | ${securityPassed ? '✅' : '❌'} |
+            | Build | ${buildPassed ? '✅' : '❌'} |
             
             Coverage: ${{ needs.unit-tests.outputs.coverage }}%
             `;
