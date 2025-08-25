@@ -38,9 +38,11 @@ Ask the user to assess:
   - 5: Novel solutions, performance challenges
 - "What's the size/effort? (XS=<1 day, S=1-2 days, M=3-5 days, L=1-2 weeks, XL=>2 weeks)"
 
-Based on complexity:
-- **1-2**: Will assign to GitHub Copilot
-- **3-5**: Will be handled by Claude Code/agents
+Assignment decision based on BOTH complexity and size:
+- **Complexity 1-2 AND Size XS/S**: Will assign to GitHub Copilot
+- **Complexity 3+ OR Size M/L/XL**: Will be handled by Claude Code/agents
+
+(Even simple tasks need orchestration if they're medium or larger)
 
 #### Step 3: Create GitHub Issue with MCP
 Use mcp__github__create_issue to create the issue:
@@ -59,11 +61,14 @@ const issue = await mcp__github__create_issue(issueData);
 const issueNumber = issue.number;
 ```
 
-#### Step 4: Assign Based on Complexity
-If complexity is 1 or 2, assign to Copilot:
+#### Step 4: Assign Based on Complexity AND Size
+Check both complexity and size to determine assignment:
 ```javascript
-if (complexity <= 2) {
-  // Simple task - assign to Copilot
+// Copilot can only handle small, simple tasks
+const isSmallAndSimple = (complexity <= 2) && (size === 'XS' || size === 'S');
+
+if (isSmallAndSimple) {
+  // Small AND simple task - assign to Copilot
   await mcp__github__assign_copilot_to_issue({
     owner: "vanman2024",
     repo: "multi-agent-claude-code",
@@ -75,7 +80,9 @@ if (complexity <= 2) {
     owner: "vanman2024",
     repo: "multi-agent-claude-code",
     issue_number: issueNumber,
-    body: `🤖 **Assigned to GitHub Copilot** (Complexity: ${complexity})
+    body: `🤖 **Assigned to GitHub Copilot** (Complexity: ${complexity}, Size: ${size})
+
+This is a small, simple task suitable for Copilot implementation.
 
 @copilot Please implement this feature following the specifications above.
 
@@ -87,14 +94,24 @@ if (complexity <= 2) {
 - Ensure mobile responsiveness for UI components`
   });
 } else {
-  // Complex task - will be handled by Claude Code/agents
+  // Complex OR medium/large task - needs Claude Code/agents
+  const reason = complexity >= 3 
+    ? `high complexity (${complexity})` 
+    : `size ${size} requires orchestration`;
+    
   await mcp__github__add_issue_comment({
     owner: "vanman2024",
     repo: "multi-agent-claude-code", 
     issue_number: issueNumber,
-    body: `🧠 **Requires Advanced Implementation** (Complexity: ${complexity})
+    body: `🧠 **Requires Advanced Implementation** (Complexity: ${complexity}, Size: ${size})
 
-This feature requires architectural decisions and will be handled by Claude Code and specialized agents.
+This feature needs Claude Code orchestration due to ${reason}.
+
+Tasks of size M/L/XL require:
+- Breaking down into subtasks
+- Coordination across components
+- Progress tracking
+- Comprehensive testing
 
 Next step: Run \`/build-feature ${issueNumber}\` when ready to begin implementation.`
   });
