@@ -6,17 +6,22 @@ This is a **template framework** for building AI-powered applications using mult
 
 ## Quick Start (After Cloning)
 
-### 1. Clone and Initialize
+### 1. Get Your Copy
 
 ```bash
-# Clone this template to start your new project
-git clone [this-repo] [your-project-name]
-cd [your-project-name]
+# Clone the template repository
+git clone https://github.com/vanman2024/multi-agent-claude-code.git my-new-project
+cd my-new-project
 
-# Remove template history and start fresh
+# Remove the template's git history and start fresh
 rm -rf .git
 git init
-git remote add origin [your-new-repo-url]
+git add .
+git commit -m "Initial commit from template"
+
+# Add your own GitHub repo as origin
+git remote add origin https://github.com/yourusername/your-new-repo.git
+git push -u origin main
 ```
 
 ### 2. Run Project Setup
