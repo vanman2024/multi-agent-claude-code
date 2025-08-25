@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Center</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔔 Notification Center</h1>
+            <div class="user-controls">
+                <input type="text" id="userId" placeholder="Enter User ID" value="user123">
+                <button id="connectBtn">Connect</button>
+                <span id="connectionStatus" class="status disconnected">Disconnected</span>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="notifications">Notifications</button>
+            <button class="tab-btn" data-tab="preferences">Preferences</button>
+            <button class="tab-btn" data-tab="test">Test</button>
+        </nav>
+
+        <!-- Notifications Tab -->
+        <div id="notifications" class="tab-content active">
+            <div class="controls">
+                <button id="refreshBtn">🔄 Refresh</button>
+                <label>
+                    <input type="checkbox" id="unreadOnly"> Unread only
+                </label>
+                <button id="markAllReadBtn">✓ Mark all read</button>
+            </div>
+            
+            <div id="notificationsList" class="notifications-list">
+                <!-- Notifications will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Preferences Tab -->
+        <div id="preferences" class="tab-content">
+            <div class="preferences-form">
+                <h3>Notification Preferences</h3>
+                
+                <div class="form-group">
+                    <label>Email Address:</label>
+                    <input type="email" id="emailInput" placeholder="your@email.com">
+                </div>
+
+                <div class="form-group">
+                    <h4>Enable Notifications:</h4>
+                    <label>
+                        <input type="checkbox" id="emailNotifications"> Email Notifications
+                    </label>
+                    <label>
+                        <input type="checkbox" id="pushNotifications"> Push Notifications
+                    </label>
+                    <label>
+                        <input type="checkbox" id="inAppNotifications"> In-App Notifications
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>Notification Frequency:</label>
+                    <select id="notificationFrequency">
+                        <option value="immediate">Immediate</option>
+                        <option value="hourly">Hourly digest</option>
+                        <option value="daily">Daily digest</option>
+                    </select>
+                </div>
+
+                <button id="savePreferencesBtn">💾 Save Preferences</button>
+            </div>
+        </div>
+
+        <!-- Test Tab -->
+        <div id="test" class="tab-content">
+            <div class="test-form">
+                <h3>Test Notifications</h3>
+                
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" id="testTitle" placeholder="Test notification" value="System Update">
+                </div>
+
+                <div class="form-group">
+                    <label>Message:</label>
+                    <textarea id="testMessage" placeholder="Notification message">Your system has been updated successfully.</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Type:</label>
+                    <select id="testType">
+                        <option value="info">Info</option>
+                        <option value="success">Success</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Priority:</label>
+                    <select id="testPriority">
+                        <option value="low">Low</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="high">High</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                </div>
+
+                <button id="sendTestBtn">🚀 Send Test Notification</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
