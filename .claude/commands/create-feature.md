@@ -28,36 +28,84 @@ When user runs `/create-feature $ARGUMENTS`, orchestrate the complete feature cr
 4. Save the completed specification to `docs/features/FEAT-{timestamp}-{feature-name}.md`
 5. Show the user the key sections for review before creating the issue
 
-#### Step 2: Create GitHub Issue
-Create issue WITHOUT labels (fields will be set in project board):
-```bash
-# Create issue with proper title format (no component prefix)
-ISSUE_BODY="$(cat docs/features/FEAT-{timestamp}-{feature-name}.md)
+#### Step 2: Determine Complexity and Size
+Ask the user to assess:
+- "What's the complexity? (1=Trivial, 2=Simple, 3=Moderate, 4=Complex, 5=Very Complex)"
+  - 1: Following exact patterns, no decisions
+  - 2: Minor variations, clear requirements  
+  - 3: Multiple components, some design decisions
+  - 4: Architectural decisions, system interactions
+  - 5: Novel solutions, performance challenges
+- "What's the size/effort? (XS=<1 day, S=1-2 days, M=3-5 days, L=1-2 weeks, XL=>2 weeks)"
 
-## Copilot Instructions
-@copilot Please help implement this feature following the specifications above.
+Based on complexity:
+- **1-2**: Will assign to GitHub Copilot
+- **3-5**: Will be handled by Claude Code/agents
+
+#### Step 3: Create GitHub Issue with MCP
+Use mcp__github__create_issue to create the issue:
+```javascript
+const issueData = {
+  owner: "vanman2024",
+  repo: "multi-agent-claude-code", 
+  title: featureName,
+  body: featureSpecification + "\n\n**Complexity:** " + complexity + "\n**Size:** " + size,
+  labels: ["feature"],
+  assignees: ["@me"],
+  milestone: determineMilestone(priority)
+};
+
+const issue = await mcp__github__create_issue(issueData);
+const issueNumber = issue.number;
+```
+
+#### Step 4: Assign Based on Complexity
+If complexity is 1 or 2, assign to Copilot:
+```javascript
+if (complexity <= 2) {
+  // Simple task - assign to Copilot
+  await mcp__github__assign_copilot_to_issue({
+    owner: "vanman2024",
+    repo: "multi-agent-claude-code",
+    issueNumber: issueNumber
+  });
+  
+  // Add comment with Copilot instructions
+  await mcp__github__add_issue_comment({
+    owner: "vanman2024",
+    repo: "multi-agent-claude-code",
+    issue_number: issueNumber,
+    body: `🤖 **Assigned to GitHub Copilot** (Complexity: ${complexity})
+
+@copilot Please implement this feature following the specifications above.
 
 ### Key Requirements:
 - Follow the acceptance criteria exactly
-- Use existing patterns from the codebase
+- Use existing patterns from the codebase  
 - Add proper error handling and validation
 - Include unit tests for new functionality
-- Ensure mobile responsiveness for UI components
-"
+- Ensure mobile responsiveness for UI components`
+  });
+} else {
+  // Complex task - will be handled by Claude Code/agents
+  await mcp__github__add_issue_comment({
+    owner: "vanman2024",
+    repo: "multi-agent-claude-code", 
+    issue_number: issueNumber,
+    body: `🧠 **Requires Advanced Implementation** (Complexity: ${complexity})
 
-gh issue create \
-  --title "{feature-name}" \
-  --body "$ISSUE_BODY" \
-  --assignee "@me" \
-  --milestone "v1.0.0 - Initial Release" \
-  --label "feature"
+This feature requires architectural decisions and will be handled by Claude Code and specialized agents.
+
+Next step: Run \`/build-feature ${issueNumber}\` when ready to begin implementation.`
+  });
+}
 ```
 
 The GitHub workflows will automatically:
 - Assign issue to creator (auto-assign.yml)
 - Create feature branch: `feature/{issue-number}-{feature-name}` (issue-to-implementation.yml)
 
-#### Step 3: Set Project Board Fields
+#### Step 5: Set Project Board Fields
 After issue creation, set all project fields intelligently:
 ```bash
 # Get issue number from creation output
@@ -121,6 +169,8 @@ echo "Using project: #$PROJECT_NUMBER"
 STATUS_FIELD=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Status") | .id')
 PRIORITY_FIELD=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Priority") | .id')
 COMPONENT_FIELD=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Component") | .id')
+SIZE_FIELD=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Size") | .id')
+COMPLEXITY_FIELD=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Complexity") | .id')
 ITERATION_FIELD=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Iteration") | .id')
 CREATED_DATE_FIELD=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Created Date") | .id')
 DUE_DATE_FIELD=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Due Date") | .id')
@@ -174,7 +224,7 @@ mutation {
 }'
 
 # Set Priority based on argument (get option IDs dynamically)
-PRIORITY_OPTION=$(echo "$PROJECT_DATA" | jq -r '.data.user.projectsV2.nodes[0].fields.nodes[] | select(.name == "Priority") | .options[] | select(.name == "'$PRIORITY'") | .id')
+PRIORITY_OPTION=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Priority") | .options[] | select(.name == "'$PRIORITY'") | .id')
 if [ ! -z "$PRIORITY_OPTION" ]; then
   gh api graphql -f query='
   mutation {
@@ -184,6 +234,38 @@ if [ ! -z "$PRIORITY_OPTION" ]; then
         itemId: "'$ITEM_ID'"
         fieldId: "'$PRIORITY_FIELD'"
         value: { singleSelectOptionId: "'$PRIORITY_OPTION'" }
+      }
+    ) { projectV2Item { id } }
+  }'
+fi
+
+# Set Size (XS/S/M/L/XL) based on user input
+SIZE_OPTION=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Size") | .options[] | select(.name == "'$SIZE'") | .id')
+if [ ! -z "$SIZE_OPTION" ]; then
+  gh api graphql -f query='
+  mutation {
+    updateProjectV2ItemFieldValue(
+      input: {
+        projectId: "'$PROJECT_ID'"
+        itemId: "'$ITEM_ID'"
+        fieldId: "'$SIZE_FIELD'"
+        value: { singleSelectOptionId: "'$SIZE_OPTION'" }
+      }
+    ) { projectV2Item { id } }
+  }'
+fi
+
+# Set Complexity (1/2/3/4/5) based on user input
+COMPLEXITY_OPTION=$(echo "$PROJECT_DATA" | jq -r '.data.repository.projectsV2.nodes[0].fields.nodes[] | select(.name == "Complexity") | .options[] | select(.name == "'$COMPLEXITY'") | .id')
+if [ ! -z "$COMPLEXITY_OPTION" ]; then
+  gh api graphql -f query='
+  mutation {
+    updateProjectV2ItemFieldValue(
+      input: {
+        projectId: "'$PROJECT_ID'"
+        itemId: "'$ITEM_ID'"
+        fieldId: "'$COMPLEXITY_FIELD'"
+        value: { singleSelectOptionId: "'$COMPLEXITY_OPTION'" }
       }
     ) { projectV2Item { id } }
   }'
