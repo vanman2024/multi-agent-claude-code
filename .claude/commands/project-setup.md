@@ -164,19 +164,19 @@ When these agents are built, integrate them:
 ```
 ### Step 1: Template Research (Future)
 Use Task tool with:
-- subagent_type: template-researcher
+- subagent_type: general-purpose
 - description: Find relevant project templates
 - prompt: Search for $PROJECT_TYPE templates with $TECH_STACK
 
 ### Step 2: Workflow Generation (Future)
 Use Task tool with:
-- subagent_type: workflow-generator  
+- subagent_type: general-purpose  
 - description: Create GitHub Actions workflows
 - prompt: Generate CI/CD for $PROJECT_TYPE using $TECH_STACK
 
 ### Step 3: Documentation Enhancement (Future)
 Use Task tool with:
-- subagent_type: doc-enhancer
+- subagent_type: general-purpose
 - description: Enhance project documentation
 - prompt: Add detailed setup instructions for $PROJECT_TYPE
 ```

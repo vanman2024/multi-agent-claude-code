@@ -1,10 +1,19 @@
-# Claude Code Documentation
+# Claude Code Documentation - Multi-Agent Template Framework
 
-## Project Overview: Multi-Agent Development Framework
+## THIS IS A TEMPLATE FRAMEWORK
 
-**📚 Full System Documentation:** [Multi-Agent Development Framework](./docs/Multi-Agent-Development-Framework.md)
+**Important**: You are working in a template repository that will be cloned to create new projects. This is NOT the actual project - it's the framework for building projects.
 
-We're building a revolutionary Multi-Agent Development Framework that transforms how software is built by orchestrating AI agents, human developers, and automated workflows into a seamless development pipeline. This system enables teams to achieve 10x productivity gains through intelligent task distribution and autonomous development capabilities.
+## Template Purpose
+
+This Multi-Agent Development Framework template provides:
+- Pre-configured GitHub automation workflows
+- Agent orchestration system (Copilot + Claude Code agents)
+- Slash commands for common development tasks
+- Project board integration with complexity/size routing
+- Automated CI/CD pipelines
+
+When someone clones this template, they get a complete development framework ready to build their actual application.
 
 ## System Architecture: The House Metaphor 🏗️
 
@@ -52,6 +61,37 @@ Think of our system like building a house:
 - **Finishes can be updated** - without touching structure
 
 This is why our GitHub workflows (plumbing) should NEVER make intelligent decisions - they just move issues to boards, run tests, deploy code. The intelligence comes from Claude Code and agents (electrical system).
+
+## Agent Assignment Rules
+
+### The Golden Rule: Copilot Gets Small AND Simple Tasks
+
+**Copilot ONLY handles tasks that are BOTH:**
+- **Complexity**: 1-2 (out of 5) - Simple, straightforward logic
+- **Size**: XS or S - Less than 2 hours of work
+
+If either complexity > 2 OR size > S → Claude Code handles it.
+
+### Quick Decision Matrix
+
+| Complexity | Size | Agent | Example |
+|------------|------|-------|---------|
+| 1-2 | XS-S | Copilot | Fix typo, add endpoint, simple test |
+| 1-2 | M-XL | Claude | Large refactor (too big for Copilot) |
+| 3-5 | Any | Claude | Architecture, security, complex logic |
+
+### How It Works
+
+When creating issues via `/create-feature`:
+```javascript
+const isSmallAndSimple = (complexity <= 2) && (size === 'XS' || size === 'S');
+if (isSmallAndSimple) {
+  // Automatically assign to Copilot via MCP
+  await mcp__github__assign_copilot_to_issue({...});
+}
+```
+
+**See full workflow details:** [.github/COPILOT-WORKFLOW.md](./.github/COPILOT-WORKFLOW.md)
 
 ## Working with MCP Servers
 
