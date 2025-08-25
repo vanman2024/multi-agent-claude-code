@@ -113,7 +113,8 @@ jobs:
             prBody += `**Issue:** ${issue.title}\n\n`;
             
             if (hasBlockers) {
-              prBody += `> ⚠️ **BLOCKED:** This PR is blocked by ${${{ steps.check-blocking.outputs.blocker_count }}} infrastructure issues. See issue comments for details.\n\n`;
+              const blockerCount = '${{ steps.check-blocking.outputs.blocker_count }}';
+              prBody += `> ⚠️ **BLOCKED:** This PR is blocked by ${blockerCount} infrastructure issues. See issue comments for details.\n\n`;
             }
             
             prBody += `### Description\n${issue.body || 'No description provided'}\n\n`;
