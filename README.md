@@ -24,7 +24,21 @@ git remote add origin https://github.com/yourusername/your-new-repo.git
 git push -u origin main
 ```
 
-### 2. Run Project Setup
+### 2. Install Required Tools
+
+```bash
+# Install MCP servers (see MCP-SETUP.md for details)
+claude mcp add github -- npx @modelcontextprotocol/server-github
+claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
+claude mcp add postman -- npx @modelcontextprotocol/server-postman
+claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
+
+# Install CLI tools
+npm install -g newman vercel  # Postman and Vercel CLIs
+brew install gh doctl          # GitHub and DigitalOcean CLIs (or apt install)
+```
+
+### 3. Run Project Setup
 
 ```bash
 # Start Claude Code
@@ -42,7 +56,7 @@ This will:
 - Set up DigitalOcean for backend
 - Create all necessary secrets
 
-### 3. Configure GitHub Secrets
+### 4. Configure GitHub Secrets
 
 Follow [SECRETS-SETUP.md](./SECRETS-SETUP.md) to add required secrets:
 
@@ -55,7 +69,7 @@ gh secret set VERCEL_TOKEN
 gh secret set DIGITALOCEAN_ACCESS_TOKEN
 ```
 
-### 4. Install GitHub Apps
+### 5. Install GitHub Apps
 
 1. **GitHub Copilot** (Required)
    - Install from: https://github.com/apps/copilot
@@ -65,7 +79,7 @@ gh secret set DIGITALOCEAN_ACCESS_TOKEN
    - Install from: https://github.com/apps/claude
    - Provides PR reviews and @claude mentions
 
-### 5. Create Your First Feature
+### 6. Create Your First Feature
 
 ```bash
 # Use the create-feature command
@@ -79,7 +93,7 @@ gh secret set DIGITALOCEAN_ACCESS_TOKEN
 # 5. Update project board
 ```
 
-### 6. Build the Feature
+### 7. Build the Feature
 
 ```bash
 # For complex features requiring local work
@@ -177,12 +191,20 @@ GitHub workflows in `.github/workflows/`:
 - Change test commands
 - Add environment-specific configs
 
+## Documentation
+
+- **[MCP-SETUP.md](./MCP-SETUP.md)** - Essential MCP servers and CLI tools setup
+- **[SECRETS-SETUP.md](./SECRETS-SETUP.md)** - GitHub secrets configuration
+- **[AGENT-OVERVIEW.md](./AGENT-OVERVIEW.md)** - Understanding the 7 agents
+- **[.github/COPILOT-WORKFLOW.md](./.github/COPILOT-WORKFLOW.md)** - Agent routing rules
+
 ## Next Steps
 
-1. **Start with infrastructure**: Create database schema first
-2. **Build incrementally**: Use `/create-feature` for each piece
-3. **Let automation work**: Trust the GitHub workflows
-4. **Monitor progress**: Check project board regularly
+1. **Install MCP servers**: Follow MCP-SETUP.md first
+2. **Start with infrastructure**: Create database schema
+3. **Build incrementally**: Use `/create-feature` for each piece
+4. **Let automation work**: Trust the GitHub workflows
+5. **Monitor progress**: Check project board regularly
 
 ## Support
 
