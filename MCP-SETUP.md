@@ -4,18 +4,18 @@ MCP (Model Context Protocol) servers give Claude Code additional capabilities. T
 
 ## Required MCP Servers
 
-### 1. GitHub MCP Server (Official)
-Provides full GitHub API access for issues, PRs, discussions, and repository management.
+### 1. GitHub MCP Server (Official - HTTP Transport)
+Provides full GitHub API access for issues, PRs, discussions, and repository management via GitHub Copilot's MCP endpoint.
 
 ```bash
-# Install the official GitHub MCP server
-claude mcp add github --github-token $GITHUB_TOKEN
+# Get GitHub token from gh CLI
+GITHUB_TOKEN=$(gh auth token)
+
+# Add the GitHub MCP server with authentication
+claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $GITHUB_TOKEN"
 ```
 
-Or manually:
-```bash
-claude mcp add github -- npx @modelcontextprotocol/server-github
-```
+Note: This uses the official GitHub Copilot MCP endpoint. Requires GitHub CLI (`gh`) to be authenticated first.
 
 ### 2. Playwright MCP Server
 Enables browser automation and testing for frontend development.
@@ -51,19 +51,26 @@ Create this script to add all servers at once:
 
 echo "Setting up MCP servers for Multi-Agent Development..."
 
-# GitHub MCP (requires GITHUB_TOKEN env var)
-echo "Adding GitHub MCP server..."
-claude mcp add github -- npx @modelcontextprotocol/server-github
+# Check gh CLI is authenticated
+if ! gh auth status &>/dev/null; then
+  echo "❌ GitHub CLI not authenticated. Run: gh auth login"
+  exit 1
+fi
 
-# Playwright for browser testing
+# GitHub MCP (HTTP transport with gh token)
+echo "Adding GitHub MCP server..."
+GITHUB_TOKEN=$(gh auth token)
+claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $GITHUB_TOKEN"
+
+# Playwright for browser testing (no key required)
 echo "Adding Playwright MCP server..."
 claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
 
-# Postman for API testing
+# Postman for API testing (requires POSTMAN_API_KEY)
 echo "Adding Postman MCP server..."
 claude mcp add postman -- npx @modelcontextprotocol/server-postman
 
-# Supabase for database
+# Supabase for database (requires SUPABASE_URL and key)
 echo "Adding Supabase MCP server..."
 claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
 

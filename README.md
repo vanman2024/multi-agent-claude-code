@@ -28,7 +28,8 @@ git push -u origin main
 
 ```bash
 # Install MCP servers (see MCP-SETUP.md for details)
-claude mcp add github -- npx @modelcontextprotocol/server-github
+GITHUB_TOKEN=$(gh auth token)
+claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $GITHUB_TOKEN"
 claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
 claude mcp add postman -- npx @modelcontextprotocol/server-postman
 claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
