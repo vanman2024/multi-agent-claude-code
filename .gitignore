@@ -139,6 +139,19 @@ next-env.d.ts
 .claude/settings.local.json
 claude-settings.json
 
+# Documentation files not needed in template
+CUSTOM-MCP-HOSTING.md
+MCP-ARCHITECTURE.md
+TESTING-CHECKLIST.md
+IMPLEMENTATION-CHECKLIST.md
+TEMPLATE-INFO.md
+SECRET-STATUS.md
+*-CHECKLIST.md
+IDEAS.md
+NOTES.md
+TODO.md
+DRAFT-*.md
+
 # Temporary files
 tmp/
 temp/
