@@ -15,11 +15,25 @@ argument-hint: [type] [title] [options]
 
 When user runs `/create-issue $ARGUMENTS`, follow these steps:
 
-### Step 1: Parse Arguments
-Parse $ARGUMENTS for:
-- Issue type (feature, bug, refactor, task, or generic)
-- Title (required)
-- Optional flags: --assign-copilot, --complexity=[1-5], --size=[XS|S|M|L|XL]
+### Step 1: Parse and Analyze Input
+Parse $ARGUMENTS for explicit type indicators or flags:
+- Check for keywords: "bug", "feature", "refactor", "task", "enhancement", "fix"
+- Look for flags: --assign-copilot, --complexity=[1-5], --size=[XS|S|M|L|XL]
+
+**IF TYPE IS UNCLEAR (most common case):**
+1. Analyze the provided text/snippet
+2. **ASK THE USER** what type of issue this should be:
+   ```
+   Based on what you provided, what type of issue should this be?
+   - bug (something is broken)
+   - feature (new functionality) 
+   - refactor (improve existing code)
+   - task (simple work item)
+   - generic (general issue)
+   ```
+3. Also ask for complexity and size if not provided:
+   - Complexity (1-5): How complex is this?
+   - Size (XS/S/M/L/XL): How much work is this?
 
 ### Step 2: Select and Load Template
 **CRITICAL: You MUST read the actual template file and use its EXACT structure**
