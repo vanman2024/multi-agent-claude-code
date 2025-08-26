@@ -21,21 +21,28 @@ Parse $ARGUMENTS for:
 - Title (required)
 - Optional flags: --assign-copilot, --complexity=[1-5], --size=[XS|S|M|L|XL]
 
-### Step 2: Select Template
+### Step 2: Select and Load Template
+**CRITICAL: You MUST read the actual template file and use its EXACT structure**
+
 Based on issue type, read the appropriate template:
-- feature → @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/feature-template.md
-- bug → @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/bug-template.md
-- refactor → @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/refactor-template.md
-- task → @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/task-template.md
-- generic → Use basic format from issue-template.md
+- feature → READ file: @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/feature-template.md
+- bug → READ file: @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/bug-template.md
+- refactor → READ file: @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/refactor-template.md
+- task → READ file: @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/task-template.md
+- generic → READ file: @/home/gotime2022/Projects/multi-agent-claude-code/templates/local_dev/issue-template.md
+
+**IMPORTANT RULES:**
+1. ALWAYS use the Read tool to load the template file
+2. KEEP ALL CHECKBOXES UNCHECKED `[ ]` - they represent work to be done
+3. FOLLOW THE TEMPLATE STRUCTURE EXACTLY - don't add extra sections
+4. PRESERVE the template's markdown formatting
 
 ### Step 3: Gather Issue Details
-Ask the user to fill in key sections based on the template:
-- Description/Problem Statement
-- Acceptance Criteria
-- Priority (P0/P1/P2)
-- Labels to apply
-- Any technical specifications
+Ask the user to fill in ONLY the sections that exist in the loaded template:
+- Fill in placeholders like [What needs to be refactored]
+- Select appropriate checkbox items (but keep them unchecked)
+- Choose options like [Low/Medium/High] for risk level
+- Add specific file paths where indicated
 
 ### Step 4: Create GitHub Issue
 Use mcp__github__create_issue with:
@@ -44,11 +51,17 @@ Use mcp__github__create_issue with:
   owner: "[from git remote]",
   repo: "[from git remote]",
   title: "[provided title]",
-  body: "[formatted from template]",
-  labels: ["[type]", "[priority]", "[any additional]"],
+  body: "[EXACT template structure with user's content filled in]",
+  labels: "[labels from template bottom]",
   assignees: [] // Initially empty
 }
 ```
+
+**TEMPLATE COMPLIANCE CHECK:**
+- ✅ All checkboxes start unchecked `[ ]`
+- ✅ Template structure is preserved exactly
+- ✅ Only template sections are included (no extras)
+- ✅ Labels match those specified at template bottom
 
 ### Step 5: Auto-Assignment Logic
 After creating the issue, check if it should be assigned to Copilot:
