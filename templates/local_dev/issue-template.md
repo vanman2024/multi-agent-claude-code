@@ -1,74 +1,46 @@
-## 📝 Description
-[Brief description of the feature/bug/task]
+# 📋 Issue Template Guide
 
-## 🎯 Objective
-[What problem does this solve? Why is it needed?]
+## Choose the Right Template
 
-## 📋 Tasks
-- [ ] Research and planning
-- [ ] Design/architecture decision
-- [ ] Implementation
-- [ ] Write unit tests
-- [ ] Write integration tests
-- [ ] Update documentation
-- [ ] Code review
-- [ ] Deploy to staging
+This directory contains specialized templates for different types of work:
 
-## ✅ Acceptance Criteria
-- [ ] Feature works as described
-- [ ] All tests pass
-- [ ] No regression in existing features
-- [ ] Performance metrics maintained
-- [ ] Accessible (a11y compliant)
-- [ ] Mobile responsive (if applicable)
+| Template | Use When | Complexity |
+|----------|----------|------------|
+| **feature-template.md** | Building new functionality | High |
+| **bug-template.md** | Reporting and fixing bugs | Variable |
+| **refactor-template.md** | Improving existing code | Medium |
+| **task-template.md** | Simple, one-off tasks | Low |
 
-## 🔧 Technical Details
-**Approach:**
-[Technical approach/solution]
+## Generic Issue Format (if none fit)
 
-**Dependencies:**
-- [ ] No blockers
-- [ ] Depends on #[issue_number]
+If your issue doesn't fit the above templates, use this format:
 
-**Affected Components:**
-- Frontend: [components]
-- Backend: [services]
-- Database: [tables/schemas]
+```markdown
+## Description
+[What needs to be done]
 
-## 🧪 Testing Plan
-**Unit Tests:**
-- [ ] Component tests
-- [ ] Service tests
-- [ ] Utility function tests
+## Why
+[Business or technical justification]
 
-**Integration Tests:**
-- [ ] API endpoint tests
-- [ ] E2E user flow tests
+## Acceptance Criteria
+- [ ] Clear success criteria
+- [ ] Measurable outcomes
 
-**Manual Testing:**
-- [ ] Test on Chrome
-- [ ] Test on Firefox
-- [ ] Test on Safari
-- [ ] Test on mobile
+## Technical Notes
+[Any implementation details]
+```
 
-## 📊 Success Metrics
-- [ ] Page load < 2s
-- [ ] API response < 200ms
-- [ ] Zero console errors
-- [ ] Test coverage > 80%
+## Quick Decision Tree
 
-## 🔗 Related
-- Related to #
-- Blocks #
-- Closes #
+```
+Is it broken? → bug-template.md
+Is it new? → feature-template.md  
+Is it messy? → refactor-template.md
+Is it simple? → task-template.md
+```
 
-## 📎 Resources
-- [Design mockup]()
-- [API spec]()
-- [Technical RFC]()
+## Remember
 
----
-**Labels:** enhancement
-**Milestone:** v1.0.0
-**Assignee:** @vanman2024
-**Component:** [Frontend/Backend/Database/DevOps]
+- **Complexity** and **Size** determine agent assignment
+- **Labels** trigger specific workflows
+- **Clear titles** help with routing
