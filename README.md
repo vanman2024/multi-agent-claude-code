@@ -236,17 +236,26 @@ Configured in `.claude/settings.json` - no manual triggering needed!
 
 ## 📊 Development Workflow
 
-### For Simple Tasks (Automated)
+### For Simple Tasks (Automated by Copilot)
 
 ```
 1. Create Issue → 2. Copilot Assigned → 3. PR Created → 4. Tests Run → 5. Auto Merge
 ```
 
-### For Complex Tasks (With You)
+### For Complex Tasks (With Claude Code)
 
+#### Current Ideal Workflow:
 ```
-1. Create Issue → 2. Claude Agents → 3. Local Dev → 4. Push → 5. CI/CD → 6. Deploy
+1. Create Issue → 2. Assign to Milestone → 3. Start Work → 4. Create Branch → 
+5. Develop → 6. Push Changes → 7. Create PR → 8. Review/Test → 
+9. Merge PR → 10. Auto-close Issue → 11. Delete Branch
 ```
+
+#### Branch Strategy:
+- **Create branches WHEN work starts** (not when issue created)
+- **Name pattern**: `fix/123-description`, `feat/124-name`, `docs/125-update`
+- **Auto-delete** after PR merge
+- **One branch per issue**
 
 ---
 
@@ -276,6 +285,14 @@ MAJOR.MINOR.PATCH
 3. **Decide version** based on changes
 4. **Create tag** and push: `git tag -a v1.1.0 -m "Release notes"`
 5. **GitHub Actions** automatically creates release
+
+### Suggested Starting Milestones
+When starting a project, create these milestones:
+- **MVP Core** - Essential features for launch
+- **Bug Fixes** - Ongoing bug tracking
+- **Enhancements** - Feature improvements
+- **Tech Debt** - Refactoring and cleanup
+- **Backlog** - Future ideas
 
 See [RELEASE-GUIDE.md](./RELEASE-GUIDE.md) and [MILESTONE-STRATEGY.md](./MILESTONE-STRATEGY.md) for details.
 

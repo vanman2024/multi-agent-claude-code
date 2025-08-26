@@ -1,17 +1,17 @@
 # Feature Specification Template
 
 ## Feature Overview
-**Name**: [Feature Name]  
-**Priority**: P0 | P1 | P2  
-**Estimated Effort**: Small (1-2 days) | Medium (3-5 days) | Large (1-2 weeks)  
+**Name**: [Feature Name]
+**Priority**: P0 | P1 | P2
+**Estimated Effort**: Small (1-2 days) | Medium (3-5 days) | Large (1-2 weeks)
 **Target Release**: [Sprint/Version]
 
 ### Problem Statement
 [What problem does this solve?]
 
 ### User Story
-As a [type of user]  
-I want [goal/desire]  
+As a [type of user]
+I want [goal/desire]
 So that [benefit/value]
 
 ## Acceptance Criteria
@@ -194,7 +194,7 @@ FEATURE_CONFIG=          # Configuration settings
 - Related issues: #
 - Design docs: [link]
 - API specs: [link]
-- Previous discussions: [link]
+- Previous discussions: [link] 
 
 ---
 
