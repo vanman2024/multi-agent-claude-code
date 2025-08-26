@@ -131,22 +131,28 @@ Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude 
 
 ## File Naming Conventions
 
-### STRICT RULE: All files use lowercase with hyphens
-- **Markdown files**: `readme.md`, `design-specs.md`, `mcp-setup.md`
+### STRICT RULE: Consistent naming conventions
+
+#### Special Files (UPPERCASE for recognition):
+- `README.md` - GitHub specifically looks for this
+- `CLAUDE.md` - Makes it clear this is for Claude Code  
+- `LICENSE` - Standard convention
+- `CHANGELOG.md` - If you have one
+
+#### All Other Documentation (lowercase with hyphens):
+- **Guide files**: `design-specs.md`, `mcp-setup.md`, `api-guide.md`
 - **Config files**: `package.json`, `tsconfig.json`, `.env.example`
-- **Component files**: Follow language conventions (React: PascalCase.tsx)
-- **Other files**: `user-profile.ts`, `api-handler.js`, `database-schema.sql`
+- **Code files**: `user-profile.ts`, `api-handler.js`, `database-schema.sql`
 
-### ❌ NEVER USE:
-- `README.MD` or `README.md` - use `readme.md`
-- `MCP-SETUP.md` - use `mcp-setup.md`
-- `DESIGN_SPECS.md` - use `design-specs.md`
-- Mixed case in documentation files
+### ✅ ALWAYS:
+- Use lowercase with hyphens for non-special files
+- Be consistent within a project
+- Use `.md` not `.MD` or `.markdown`
 
-### ✅ ALWAYS USE:
-- All lowercase for documentation: `readme.md`, `changelog.md`, `license.md`
-- Hyphens for spaces: `getting-started.md`, `api-guide.md`
-- Consistent extensions: `.md` not `.MD` or `.markdown`
+### ❌ NEVER:
+- Mix naming styles randomly (pick a convention and stick to it)
+- Use underscores in markdown files (use hyphens instead)
+- Create variations like `ReadMe.md` or `Readme.MD`
 
 ## File Management Rules
 
