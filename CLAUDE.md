@@ -179,17 +179,23 @@ Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude 
 
 ## Documentation Rules
 
+### CRITICAL: File Naming Convention
+- **ALL DOCUMENTATION FILES MUST BE UPPERCASE**: README.md, CLAUDE.md, SETUP.md, etc.
+- **NEVER use lowercase for documentation**: No readme.md, setup.md, guide.md
+- **ALWAYS maintain consistency**: If it's documentation, it's UPPERCASE
+- **Exception**: Only code files and configs use lowercase (package.json, index.js, etc.)
+
 ### Core Documentation Only
 During development, maintain ONLY these essential documents:
 - **README.md** - Project overview, setup, and quick start
 - **CLAUDE.md** - AI assistant instructions (this file)
-- **MCP_SERVERS_GUIDE.md** - MCP server reference (if using MCP)
+- **MCP-SERVERS-GUIDE.md** - MCP server reference (if using MCP)
 - **API.md** - API endpoints (only if building an API)
 - **CONTRIBUTING.md** - Contribution guidelines (only for open source)
 
 ### Documentation Principles
 - **NO SPRAWL**: Do not create multiple documentation files
-- **NO NOTES FILES**: Never create TODO.md, NOTES.md, thoughts.md, ideas.md
+- **NO NOTES FILES**: Never create TODO.md, NOTES.md, THOUGHTS.md, IDEAS.md
 - **NO DRAFTS**: Never create documentation drafts or WIP docs
 - **NO EXAMPLES**: Do not create example or tutorial documentation during development
 - **NO ARCHITECTURE DOCS**: Until explicitly requested for production

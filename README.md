@@ -1,218 +1,385 @@
-# Multi-Agent Development Framework
+# 🚀 Multi-Agent Development Framework
 
-## What is this?
+<div align="center">
 
-This is a **template framework** for building AI-powered applications using multiple agents (GitHub Copilot, Claude Code, and custom agents) working together with comprehensive GitHub automation.
+![Version](https://img.shields.io/badge/Version-v1.0.0-purple?style=for-the-badge)
+![GitHub](https://img.shields.io/badge/GitHub-Native-black?style=for-the-badge&logo=github)
+![Copilot](https://img.shields.io/badge/GitHub_Copilot-Orchestrated-blue?style=for-the-badge&logo=github)
+![Claude](https://img.shields.io/badge/Claude_Code-7_Agents-orange?style=for-the-badge)
+![Automation](https://img.shields.io/badge/GitHub_Actions-Automated-green?style=for-the-badge&logo=githubactions)
 
-## Quick Start (After Cloning)
+**Build software 10x faster with AI agents working in perfect harmony**
 
-### 1. Get Your Copy
+[Quick Start](#-quick-start) • [How It Works](#-how-it-works) • [Agents](#-meet-your-team) • [Documentation](#-documentation)
+
+</div>
+
+---
+
+## 🎯 What Makes This Different?
+
+This is a **Claude Code CLI-driven development framework** that orchestrates:
+
+- **⚡ Claude Code CLI** - Central command interface for all development tasks
+- **📝 Custom Commands** - 8 slash commands for project setup, feature creation, deployment
+- **🔄 Hooks** - 3 automated hooks (current-work, auto-commit, test-before-push)
+- **🤖 7 Specialized Agents** - Expert agents working through Claude's Task tool
+- **🔌 MCP Servers** - Tool integrations (GitHub, Playwright, Supabase, Postman)
+- **📊 GitHub Automations** - Issues, PRs, Actions, Project boards all automated
+
+### The Magic Formula
+
+```
+GitHub Issue → Smart Routing → AI Agents → Automated Testing → Deploy
+```
+
+**Simple tasks** (Complexity 1-2, Size XS-S) → GitHub Copilot handles entirely in GitHub  
+**Complex tasks** → Claude Code agents work with you locally using MCP tools
+
+---
+
+## ⚡ Quick Start
+
+### 1️⃣ Clone & Initialize
 
 ```bash
-# Clone the template repository
-git clone https://github.com/vanman2024/multi-agent-claude-code.git my-new-project
-cd my-new-project
+# Get the template
+git clone https://github.com/vanman2024/multi-agent-claude-code.git my-project
+cd my-project
 
-# Remove the template's git history and start fresh
-rm -rf .git
-git init
-git add .
-git commit -m "Initial commit from template"
+# Make it yours
+rm -rf .git && git init
+git add . && git commit -m "Initial commit from template"
 
-# Add your own GitHub repo as origin
-git remote add origin https://github.com/yourusername/your-new-repo.git
+# Connect to your GitHub repo
+git remote add origin https://github.com/YOU/your-repo.git
 git push -u origin main
 ```
 
-### 2. Install Required Tools
+### 2️⃣ Install Essential CLIs
 
 ```bash
-# Install CLI tools first
-npm install -g newman vercel     # Postman and Vercel CLIs
-brew install gh doctl             # GitHub and DigitalOcean CLIs (or apt install)
-npx playwright install            # Download browser binaries for Playwright
-
-# Add MCP servers (see templates/guides/MCP-SETUP.md for full details)
-GITHUB_TOKEN=$(gh auth token)
-claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $GITHUB_TOKEN"
-claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
-claude mcp add postman -- npx @modelcontextprotocol/server-postman
-claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
+# Required CLI tools
+brew install gh doctl                 # GitHub & DigitalOcean  
+npm install -g newman vercel          # Postman & Vercel
+npx playwright install                # Browser automation
 ```
 
-### 3. Run Project Setup
+### 3️⃣ Add MCP Servers (Automated Setup)
 
 ```bash
 # Start Claude Code
 claude
 
-# Run the setup command
-/setup-project
+# Run the MCP setup command - it will:
+# - Walk you through each MCP server
+# - Prompt for API tokens when needed
+# - Save tokens to GitHub secrets automatically
+# - Configure the servers in Claude
+/add-mcp
+
+# The command handles:
+# ✅ GitHub MCP with auth token
+# ✅ Playwright browser automation
+# ✅ Supabase database connection
+# ✅ Postman API testing (prompts for API key)
+# ✅ Any additional MCP servers you need
 ```
 
-This will:
-- Guide you through project type selection
-- Set up GitHub repository and project board
-- Configure Supabase database
-- Link Vercel for frontend
-- Set up DigitalOcean for backend
-- Create all necessary secrets
-
-### 4. Configure GitHub Secrets
-
-Follow [secrets-setup.md](./secrets-setup.md) to add required secrets:
+### 4️⃣ Configure Your Project
 
 ```bash
-# Essential secrets
-gh secret set ANTHROPIC_API_KEY
-gh secret set SUPABASE_URL
-gh secret set SUPABASE_ANON_KEY
-gh secret set VERCEL_TOKEN
-gh secret set DIGITALOCEAN_ACCESS_TOKEN
+# Run the setup wizard
+/project-setup
+
+# This wizard will:
+# - Configure your tech stack (React, Next.js, etc.)
+# - Set up GitHub repository and project board
+# - Initialize Supabase database
+# - Connect Vercel for frontend
+# - Link DigitalOcean for backend
+# - Create all necessary GitHub secrets
 ```
 
-### 5. Install GitHub Apps
-
-1. **GitHub Copilot** (Required)
-   - Install from: https://github.com/apps/copilot
-   - Enables autonomous task completion
-
-2. **Claude Code GitHub App** (Optional)
-   - Install from: https://github.com/apps/claude
-   - Provides PR reviews and @claude mentions
-
-### 6. Create Your First Feature
+### 5️⃣ Create Your First Feature
 
 ```bash
-# Use the create-feature command
+# Create a feature with GitHub issue
 /create-feature user-authentication
 
-# This will:
-# 1. Create a GitHub issue with specs
-# 2. Set complexity and size fields
-# 3. Auto-assign to Copilot (if simple) or flag for agents
-# 4. Create feature branch
-# 5. Update project board
-```
-
-### 7. Build the Feature
-
-```bash
-# For complex features requiring local work
+# Build it with AI agents
 /build-feature
 
-# This orchestrates multiple agents:
-# - architect: Database design
-# - backend-tester: API implementation
-# - frontend-tester: UI components
-# - All working together locally
+# Deploy when ready
+/deploy
 ```
 
-## How The System Works
+---
 
-### Three-Layer Architecture
+## 🤖 Meet Your Team
 
-1. **GitHub Copilot** - Handles simple tasks (Complexity 1-2, Size XS/S)
-2. **Local Agents** - Handle complex work with MCP servers
-3. **GitHub Automation** - CI/CD, deployments, project tracking
+### The 7 Specialist Agents (in `.claude/agents/`)
 
-### Workflow Pattern
+| Agent File | Role | Triggers | Superpower |
+|------------|------|----------|------------|
+| 🎨 **frontend-playwright-tester** | UI/UX Testing | `*.tsx`, `*.css` changes | Playwright automation, visual regression |
+| 🔧 **backend-tester** | API Testing | `*/api/*`, `*.py` changes | API validation, database integrity |
+| 🏗️ **system-architect** | System Design | New features, `design` label | Database schemas, system diagrams |
+| 🔒 **security-auth-compliance** | Security Audit | Auth changes, secrets | Can BLOCK all PRs if critical |
+| ♻️ **code-refactorer** | Code Quality | `tech-debt` label | Performance optimization |
+| 🔌 **integration-architect** | External APIs | `webhook`, `integration` | Third-party connections |
+| 👁️ **pr-reviewer** | Code Review | All PRs (automatic) | Standards compliance |
 
+### Plus GitHub Copilot
+
+Automatically handles tasks that are **BOTH**:
+- ✅ Simple (Complexity 1-2 out of 5)
+- ✅ Small (Size XS or S)
+
+Examples: Fix typos, add comments, simple validations
+
+---
+
+## 🔄 How It Works
+
+### Smart Task Routing
+
+```mermaid
+graph LR
+    A[GitHub Issue] --> B{Complexity?}
+    B -->|Simple + Small| C[GitHub Copilot]
+    B -->|Complex OR Large| D[Claude Agents]
+    C --> E[Auto PR]
+    D --> F[Local Development]
+    E --> G[CI/CD]
+    F --> G
+    G --> H[Deploy]
 ```
-Create Issue → Assign Agent → Local Development → Push → CI/CD → Deploy
-```
 
-### Key Commands
+### Three Execution Environments
 
-- `/setup-project` - Initial project configuration
-- `/create-feature` - Create new feature with issue
-- `/build-feature` - Build feature from issue
-- `/refactor` - Improve existing code
-- `/deploy` - Deploy to staging/production
-- `/test` - Run test suites
+1. **GitHub (Copilot)** - Fully autonomous, no local work needed
+2. **Local (Claude Agents)** - Complex work with MCP tools
+3. **CI/CD (GitHub Actions)** - Automated testing and deployment
 
-## Project Structure
+---
+
+## 📁 Project Structure
 
 ```
 your-project/
-├── .github/
-│   ├── workflows/        # GitHub Actions automation
-│   └── COPILOT-WORKFLOW.md  # Agent assignment rules
-├── .claude/
-│   ├── commands/         # Slash commands
-│   ├── hooks/           # Local automation hooks
-│   └── settings.json    # Hook configuration
-├── src/                 # Your application code
-├── tests/              # Test suites
-└── CLAUDE.md           # AI assistant instructions
+├── 📋 .github/
+│   ├── workflows/              # GitHub Actions CI/CD pipelines
+│   ├── ISSUE_TEMPLATE/         # Smart issue templates with routing
+│   └── COPILOT-WORKFLOW.md     # Agent assignment rules
+├── 🤖 .claude/                # Claude Code configuration
+│   ├── agents/                 # 7 specialized agents
+│   │   ├── frontend-playwright-tester.md
+│   │   ├── backend-tester.md
+│   │   ├── system-architect.md
+│   │   ├── security-auth-compliance.md
+│   │   ├── code-refactorer.md
+│   │   ├── integration-architect.md
+│   │   └── pr-reviewer.md
+│   ├── commands/               # 8 slash commands
+│   │   ├── project-setup.md
+│   │   ├── create-feature.md
+│   │   ├── build-feature.md
+│   │   └── ...
+│   ├── hooks/                  # 3 automation hooks
+│   │   ├── current-work.sh    # Git context injection
+│   │   ├── auto-commit.sh     # Automatic commits
+│   │   └── test-before-push.sh # Pre-push testing
+│   └── settings.json           # Hook configuration
+├── 📚 templates/               # Guides and templates
+│   ├── guides/                 # Setup documentation
+│   └── local_dev/              # Issue templates
+├── 📖 Documentation
+│   ├── README.md               # This file
+│   ├── CLAUDE.md               # AI instructions
+│   └── *.md                    # Other guides
+└── 🚀 Your Project Code        # Added when you clone
+    ├── src/                    # Application source
+    └── tests/                  # Test suites
 ```
 
-## Development Workflow
+---
 
-### For Simple Tasks (Copilot)
-1. Create issue with `/create-feature`
-2. Copilot auto-assigned if Complexity ≤ 2 AND Size ∈ {XS, S}
-3. Copilot creates PR
-4. CI/CD runs tests
-5. Merge and deploy
+## 🛠️ Available Commands (in `.claude/commands/`)
 
-### For Complex Tasks (Local Agents)
-1. Create issue with `/create-feature`
-2. Run `/build-feature` locally
-3. Agents collaborate to implement
-4. Test locally
-5. Push to trigger CI/CD
-6. Deploy automatically
+| Command | What It Does | When to Use |
+|---------|--------------|-------------|
+| `/project-setup` | Configure tech stack & deployment targets | First time setup |
+| `/create-feature` | Create GitHub issue → assign agent → branch | Starting new work |
+| `/build-feature` | Implement feature from issue using agents | Development time |
+| `/refactor` | Improve existing code across multiple files | Code cleanup |
+| `/enhance` | Add capabilities to existing features | Feature improvement |
+| `/test` | Run appropriate test suite | Before pushing |
+| `/deploy` | Deploy to staging or production | Ship it! |
+| `/add-mcp` | Add new MCP servers for additional tools | Extend capabilities |
 
-## Customization
+---
 
-### Add Your Tech Stack
+## 🔄 Automated Hooks (in `.claude/hooks/`)
 
-Edit `.claude/commands/project-setup.md` to define your stack:
-- Frontend framework
-- Backend language
-- Database choice
-- Authentication method
-- Payment processor
+These hooks run automatically to streamline your workflow:
 
-### Configure Agents
+| Hook | When It Runs | What It Does |
+|------|-------------|--------------|
+| **current-work.sh** | Every prompt (UserPromptSubmit) | Injects current git branch & issue context |
+| **auto-commit.sh** | After file edits (PostToolUse) | Creates atomic commits automatically |
+| **test-before-push.sh** | Before git push (PreToolUse) | Runs tests to prevent broken code |
 
-See [agent-overview.md](./agent-overview.md) for what's included:
-- frontend-tester
-- backend-tester
-- refactor
-- architect
-- security
-- integrations
-- reviewer
+Configured in `.claude/settings.json` - no manual triggering needed!
 
-### Modify Workflows
+---
 
-GitHub workflows in `.github/workflows/`:
-- Adjust deployment targets
-- Change test commands
-- Add environment-specific configs
+## 📊 Development Workflow
 
-## Documentation
+### For Simple Tasks (Automated by Copilot)
 
-- **[mcp-setup.md](./templates/guides/mcp-setup.md)** - Essential MCP servers and CLI tools setup
-- **[design-specs.md](./templates/guides/design-specs.md)** - Frontend design specifications template
-- **[secrets-setup.md](./secrets-setup.md)** - GitHub secrets configuration
-- **[agent-overview.md](./agent-overview.md)** - Understanding the 7 agents
-- **[copilot-workflow.md](./.github/copilot-workflow.md)** - Agent routing rules
+```
+1. Create Issue → 2. Copilot Assigned → 3. PR Created → 4. Tests Run → 5. Auto Merge
+```
 
-## Next Steps
+### For Complex Tasks (With Claude Code)
 
-1. **Install MCP servers**: Follow templates/guides/mcp-setup.md first
-2. **Start with infrastructure**: Create database schema
-3. **Build incrementally**: Use `/create-feature` for each piece
-4. **Let automation work**: Trust the GitHub workflows
-5. **Monitor progress**: Check project board regularly
+#### Current Ideal Workflow:
+```
+1. Create Issue → 2. Assign to Milestone → 3. Start Work → 4. Create Branch → 
+5. Develop → 6. Push Changes → 7. Create PR → 8. Review/Test → 
+9. Merge PR → 10. Auto-close Issue → 11. Delete Branch
+```
 
-## Support
+#### Branch Strategy:
+- **Create branches WHEN work starts** (not when issue created)
+- **Name pattern**: `fix/123-description`, `feat/124-name`, `docs/125-update`
+- **Auto-delete** after PR merge
+- **One branch per issue**
 
-- **Issues**: Create in this template repo for framework bugs
-- **Documentation**: See `/docs` folder for detailed guides
-- **Updates**: Pull latest template changes carefully
+---
 
-Remember: This is a framework that orchestrates AI agents to build software faster. Let the automation do the heavy lifting!
+## 🏷️ Version Control & Releases
+
+### Current Version: v1.0.0
+
+This template uses **semantic versioning** with clear separation between feature planning and version releases:
+
+### Concepts
+- **Milestones** = Feature groups (e.g., "Authentication", "Dashboard UI")
+- **Tags** = Version markers (e.g., v1.0.0, v1.1.0)
+- **Releases** = Published versions with changelogs
+
+### Version Rules
+```
+MAJOR.MINOR.PATCH
+
+1.0.0 → 1.0.1 = Bug fixes only (PATCH)
+1.0.0 → 1.1.0 = New features added (MINOR)
+1.0.0 → 2.0.0 = Breaking changes (MAJOR)
+```
+
+### Release Workflow
+1. **Work on features** in descriptive milestones
+2. **Complete milestones** (can be multiple)
+3. **Decide version** based on changes
+4. **Create tag** and push: `git tag -a v1.1.0 -m "Release notes"`
+5. **GitHub Actions** automatically creates release
+
+### Suggested Starting Milestones
+When starting a project, create these milestones:
+- **MVP Core** - Essential features for launch
+- **Bug Fixes** - Ongoing bug tracking
+- **Enhancements** - Feature improvements
+- **Tech Debt** - Refactoring and cleanup
+- **Backlog** - Future ideas
+
+See [RELEASE-GUIDE.md](./RELEASE-GUIDE.md) and [MILESTONE-STRATEGY.md](./MILESTONE-STRATEGY.md) for details.
+
+---
+
+## 🔐 Required GitHub Secrets
+
+After cloning, add these secrets to your repository:
+
+```bash
+gh secret set ANTHROPIC_API_KEY        # Claude API
+gh secret set SUPABASE_URL             # Database URL
+gh secret set SUPABASE_ANON_KEY        # Database key
+gh secret set VERCEL_TOKEN             # Frontend deploy
+gh secret set DIGITALOCEAN_ACCESS_TOKEN # Backend deploy
+```
+
+See [SECRETS-SETUP.md](./SECRETS-SETUP.md) for complete list.
+
+---
+
+## 📚 Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [AGENT-ORCHESTRATION.md](./AGENT-ORCHESTRATION.md) | How agents work together |
+| [AGENT-ROSTER.md](./AGENT-ROSTER.md) | Detailed agent capabilities |
+| [RELEASE-GUIDE.md](./RELEASE-GUIDE.md) | Versioning & release process |
+| [MILESTONE-STRATEGY.md](./MILESTONE-STRATEGY.md) | Feature-based milestone planning |
+| [MCP-SETUP.md](./templates/guides/MCP-SETUP.md) | MCP server configuration |
+| [DESIGN-SPECS.md](./templates/guides/DESIGN-SPECS.md) | Design system template |
+| [COPILOT-WORKFLOW.md](./.github/COPILOT-WORKFLOW.md) | Routing rules |
+
+---
+
+## 🚀 Why This Framework?
+
+### Traditional Development
+- Write code manually
+- Test manually
+- Deploy manually
+- Review manually
+
+### With This Framework
+- **AI writes code** (Copilot for simple, Agents for complex)
+- **AI tests code** (Automated test generation)
+- **GitHub deploys** (Actions automation)
+- **AI reviews** (PR reviewer agent)
+
+### The Result
+- **10x faster** development
+- **Higher quality** (AI never forgets to test)
+- **Consistent standards** (Automated enforcement)
+- **Visual tracking** (GitHub Projects)
+
+---
+
+## 🎯 Perfect For
+
+- ✅ **Startups** - Ship features faster
+- ✅ **Solo Developers** - Full team capability
+- ✅ **Agencies** - Consistent quality across projects
+- ✅ **Enterprise** - Standardized AI development
+
+---
+
+## 🤝 Contributing
+
+This is a template framework - improvements welcome!
+
+1. Fork the template
+2. Create feature branch
+3. Test your changes
+4. Submit PR with description
+
+---
+
+## 📄 License
+
+MIT - Use freely for any project
+
+---
+
+<div align="center">
+
+**Built with ❤️ for developers who ship fast**
+
+[Report Bug](https://github.com/vanman2024/multi-agent-claude-code/issues) • [Request Feature](https://github.com/vanman2024/multi-agent-claude-code/issues) • [Documentation](./templates/guides/)
+
+</div>
