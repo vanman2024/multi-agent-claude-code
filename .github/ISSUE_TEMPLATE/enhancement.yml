@@ -1,0 +1,106 @@
+name: Enhancement
+description: Improve an existing feature
+title: "[ENHANCE]: "
+labels: ["enhancement", "improvement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Enhancing Existing Features
+        Use this for improvements to features that already exist.
+        
+  - type: input
+    id: related_issues
+    attributes:
+      label: Related Feature/Issue
+      description: Link the original feature or related issues
+      placeholder: "Originally implemented in #123"
+    validations:
+      required: false
+      
+  - type: textarea
+    id: current_state
+    attributes:
+      label: Current Implementation
+      description: How does it work now?
+      placeholder: |
+        Currently, the feature...
+        Users have to...
+        The limitation is...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: proposed_improvement
+    attributes:
+      label: Proposed Enhancement
+      description: How should it be improved?
+      placeholder: |
+        The feature should...
+        This would allow...
+        The benefit would be...
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: improvement_type
+    attributes:
+      label: Type of Enhancement
+      description: What kind of improvement is this?
+      options:
+        - "Performance - Make it faster"
+        - "Usability - Make it easier"
+        - "Functionality - Add capabilities"
+        - "Reliability - Make it more stable"
+        - "Security - Make it safer"
+        - "Accessibility - Make it more accessible"
+        - "Code Quality - Refactor/cleanup"
+      default: 2
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: backwards_compatible
+    attributes:
+      label: Backwards Compatible?
+      description: Will this break existing functionality?
+      options:
+        - "Yes - No breaking changes"
+        - "No - Breaking change"
+        - "Partially - Some changes needed"
+      default: 0
+    validations:
+      required: true
+      
+  - type: textarea
+    id: migration
+    attributes:
+      label: Migration Path
+      description: If breaking change, how do users migrate?
+      placeholder: |
+        Users will need to...
+        Provide migration script...
+        
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Success Metrics
+      description: How will we measure improvement?
+      placeholder: |
+        - Performance: X% faster
+        - User satisfaction: Y% increase
+        - Error rate: Z% decrease
+    validations:
+      required: false
+      
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: This improves existing functionality
+          required: true
+        - label: I've considered backwards compatibility
+          required: true
+        - label: I can help implement this
+          required: false

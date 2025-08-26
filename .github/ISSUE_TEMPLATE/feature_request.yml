@@ -1,34 +1,82 @@
 name: Feature Request
-description: Suggest a new feature for this project
+description: Suggest a new feature or capability
 title: "[FEATURE]: "
-labels: ["enhancement", "triage"]
-assignees:
-  - vanman2024
+labels: ["enhancement", "needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to suggest a new feature!
+        ## Before You Submit
+        Please search existing issues to see if this feature has been requested.
+  
+  - type: input
+    id: related_issues
+    attributes:
+      label: Related Issues/PRs
+      description: Link any related issues, PRs, or discussions (use #number)
+      placeholder: "Relates to #123, Depends on #456"
         
   - type: textarea
     id: description
     attributes:
-      label: Description
-      description: Clear and concise description of the feature
-      placeholder: Tell us what you want to happen
+      label: Feature Description
+      description: What do you want to build? Be specific.
+      placeholder: |
+        I want to be able to...
+        This would allow users to...
+        The benefit would be...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem it Solves
+      description: What problem does this feature address?
+      placeholder: |
+        Currently, users have to...
+        This is frustrating because...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this work? Include mockups if you have them.
+      placeholder: |
+        The feature would...
+        Users would interact by...
+        The workflow would be...
     validations:
       required: true
       
   - type: dropdown
-    id: priority
+    id: complexity
     attributes:
-      label: Priority
-      description: How important is this feature?
+      label: Complexity
+      description: How complex is this to implement? (1=Simple, 5=Very Complex)
       options:
-        - Critical
-        - High
-        - Medium
-        - Low
+        - "1 - Trivial (< 1 hour)"
+        - "2 - Simple (few hours)"
+        - "3 - Moderate (1-2 days)"
+        - "4 - Complex (3-5 days)"
+        - "5 - Very Complex (1+ week)"
+      default: 2
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      description: How much code will this touch?
+      options:
+        - "XS - Single file"
+        - "S - Few files"
+        - "M - Multiple components"
+        - "L - Major feature"
+        - "XL - System-wide"
       default: 2
     validations:
       required: true
@@ -36,45 +84,76 @@ body:
   - type: dropdown
     id: component
     attributes:
-      label: Component
-      description: Which part of the system does this affect?
+      label: Affected Components
+      description: Which parts need work? (select all that apply)
       multiple: true
       options:
-        - Frontend
+        - Frontend UI
         - Backend API
-        - Database
+        - Database Schema
         - Authentication
+        - Agent System
+        - GitHub Actions
+        - MCP Servers
         - Documentation
-        - CI/CD
+        - Testing
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: agent_assignment
+    attributes:
+      label: Suggested Agent
+      description: Which agent should handle this?
+      options:
+        - "GitHub Copilot (if Complexity 1-2 AND Size XS/S)"
+        - "frontend-tester"
+        - "backend-tester"
+        - "architect"
+        - "security"
+        - "refactor"
+        - "integrations"
+        - "Multiple agents needed"
+      default: 7
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: What other approaches did you consider?
+      placeholder: |
+        Alternative 1: ...
+        Alternative 2: ...
+        
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How will we know this is complete?
+      value: |
+        - [ ] User can...
+        - [ ] System handles...
+        - [ ] Tests pass for...
+        - [ ] Documentation updated
     validations:
       required: true
       
   - type: textarea
-    id: tasks
+    id: additional
     attributes:
-      label: Implementation Tasks
-      description: Break down the work needed
-      value: |
-        - [ ] Research and planning
-        - [ ] Design/architecture decision
-        - [ ] Backend implementation
-        - [ ] Frontend implementation
-        - [ ] Write unit tests
-        - [ ] Write integration tests
-        - [ ] Update documentation
-        - [ ] Code review
-    validations:
-      required: true
+      label: Additional Context
+      description: Screenshots, mockups, examples, or references
       
   - type: checkboxes
     id: checklist
     attributes:
-      label: Pre-submission Checklist
-      description: Please confirm before submitting
+      label: Checklist
       options:
-        - label: I have searched existing issues to avoid duplicates
+        - label: I searched existing issues and this is not a duplicate
           required: true
-        - label: This feature aligns with the project goals
+        - label: This feature would benefit multiple users
           required: false
-        - label: I am willing to help implement this feature
+        - label: I'm willing to help implement this
+          required: false
+        - label: I can help test this feature
           required: false
