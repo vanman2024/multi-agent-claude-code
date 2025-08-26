@@ -129,6 +129,25 @@ When working in WSL and needing to read Windows files (especially screenshots), 
 
 Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude Code to access Windows files from the WSL environment.
 
+## File Naming Conventions
+
+### STRICT RULE: All files use lowercase with hyphens
+- **Markdown files**: `readme.md`, `design-specs.md`, `mcp-setup.md`
+- **Config files**: `package.json`, `tsconfig.json`, `.env.example`
+- **Component files**: Follow language conventions (React: PascalCase.tsx)
+- **Other files**: `user-profile.ts`, `api-handler.js`, `database-schema.sql`
+
+### ❌ NEVER USE:
+- `README.MD` or `README.md` - use `readme.md`
+- `MCP-SETUP.md` - use `mcp-setup.md`
+- `DESIGN_SPECS.md` - use `design-specs.md`
+- Mixed case in documentation files
+
+### ✅ ALWAYS USE:
+- All lowercase for documentation: `readme.md`, `changelog.md`, `license.md`
+- Hyphens for spaces: `getting-started.md`, `api-guide.md`
+- Consistent extensions: `.md` not `.MD` or `.markdown`
+
 ## File Management Rules
 
 ### Prevent File Bloat

@@ -32,7 +32,7 @@ npm install -g newman vercel     # Postman and Vercel CLIs
 brew install gh doctl             # GitHub and DigitalOcean CLIs (or apt install)
 npx playwright install            # Download browser binaries for Playwright
 
-# Add MCP servers (see MCP-SETUP.md for full details)
+# Add MCP servers (see templates/guides/MCP-SETUP.md for full details)
 GITHUB_TOKEN=$(gh auth token)
 claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $GITHUB_TOKEN"
 claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
@@ -60,7 +60,7 @@ This will:
 
 ### 4. Configure GitHub Secrets
 
-Follow [SECRETS-SETUP.md](./SECRETS-SETUP.md) to add required secrets:
+Follow [secrets-setup.md](./secrets-setup.md) to add required secrets:
 
 ```bash
 # Essential secrets
@@ -177,7 +177,7 @@ Edit `.claude/commands/project-setup.md` to define your stack:
 
 ### Configure Agents
 
-See [AGENT-OVERVIEW.md](./AGENT-OVERVIEW.md) for what's included:
+See [agent-overview.md](./agent-overview.md) for what's included:
 - frontend-tester
 - backend-tester
 - refactor
@@ -195,14 +195,15 @@ GitHub workflows in `.github/workflows/`:
 
 ## Documentation
 
-- **[MCP-SETUP.md](./MCP-SETUP.md)** - Essential MCP servers and CLI tools setup
-- **[SECRETS-SETUP.md](./SECRETS-SETUP.md)** - GitHub secrets configuration
-- **[AGENT-OVERVIEW.md](./AGENT-OVERVIEW.md)** - Understanding the 7 agents
-- **[.github/COPILOT-WORKFLOW.md](./.github/COPILOT-WORKFLOW.md)** - Agent routing rules
+- **[mcp-setup.md](./templates/guides/mcp-setup.md)** - Essential MCP servers and CLI tools setup
+- **[design-specs.md](./templates/guides/design-specs.md)** - Frontend design specifications template
+- **[secrets-setup.md](./secrets-setup.md)** - GitHub secrets configuration
+- **[agent-overview.md](./agent-overview.md)** - Understanding the 7 agents
+- **[copilot-workflow.md](./.github/copilot-workflow.md)** - Agent routing rules
 
 ## Next Steps
 
-1. **Install MCP servers**: Follow MCP-SETUP.md first
+1. **Install MCP servers**: Follow templates/guides/mcp-setup.md first
 2. **Start with infrastructure**: Create database schema
 3. **Build incrementally**: Use `/create-feature` for each piece
 4. **Let automation work**: Trust the GitHub workflows
