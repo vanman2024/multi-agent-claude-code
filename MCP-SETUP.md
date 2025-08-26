@@ -21,9 +21,17 @@ Note: This uses the official GitHub Copilot MCP endpoint. Requires GitHub CLI (`
 Enables browser automation and testing for frontend development.
 
 ```bash
-# Install Playwright MCP server
+# First, install Playwright browsers (Chromium, Firefox, WebKit)
+npx playwright install
+
+# If you get permission errors, you may need:
+npx playwright install-deps  # Install system dependencies
+
+# Then add Playwright MCP server
 claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
 ```
+
+Note: Playwright requires browser binaries. The first command downloads Chromium, Firefox, and WebKit.
 
 ### 3. Postman MCP Server
 Enables API testing and collection management.
@@ -63,6 +71,8 @@ GITHUB_TOKEN=$(gh auth token)
 claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $GITHUB_TOKEN"
 
 # Playwright for browser testing (no key required)
+echo "Installing Playwright browsers..."
+npx playwright install
 echo "Adding Playwright MCP server..."
 claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
 

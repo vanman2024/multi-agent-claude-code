@@ -27,16 +27,17 @@ git push -u origin main
 ### 2. Install Required Tools
 
 ```bash
-# Install MCP servers (see MCP-SETUP.md for details)
+# Install CLI tools first
+npm install -g newman vercel     # Postman and Vercel CLIs
+brew install gh doctl             # GitHub and DigitalOcean CLIs (or apt install)
+npx playwright install            # Download browser binaries for Playwright
+
+# Add MCP servers (see MCP-SETUP.md for full details)
 GITHUB_TOKEN=$(gh auth token)
 claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $GITHUB_TOKEN"
 claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
 claude mcp add postman -- npx @modelcontextprotocol/server-postman
 claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
-
-# Install CLI tools
-npm install -g newman vercel  # Postman and Vercel CLIs
-brew install gh doctl          # GitHub and DigitalOcean CLIs (or apt install)
 ```
 
 ### 3. Run Project Setup
