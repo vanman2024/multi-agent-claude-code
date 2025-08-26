@@ -250,6 +250,37 @@ Configured in `.claude/settings.json` - no manual triggering needed!
 
 ---
 
+## 🏷️ Version Control & Releases
+
+### Current Version: v1.0.0
+
+This template uses **semantic versioning** with clear separation between feature planning and version releases:
+
+### Concepts
+- **Milestones** = Feature groups (e.g., "Authentication", "Dashboard UI")
+- **Tags** = Version markers (e.g., v1.0.0, v1.1.0)
+- **Releases** = Published versions with changelogs
+
+### Version Rules
+```
+MAJOR.MINOR.PATCH
+
+1.0.0 → 1.0.1 = Bug fixes only (PATCH)
+1.0.0 → 1.1.0 = New features added (MINOR)
+1.0.0 → 2.0.0 = Breaking changes (MAJOR)
+```
+
+### Release Workflow
+1. **Work on features** in descriptive milestones
+2. **Complete milestones** (can be multiple)
+3. **Decide version** based on changes
+4. **Create tag** and push: `git tag -a v1.1.0 -m "Release notes"`
+5. **GitHub Actions** automatically creates release
+
+See [RELEASE-GUIDE.md](./RELEASE-GUIDE.md) and [MILESTONE-STRATEGY.md](./MILESTONE-STRATEGY.md) for details.
+
+---
+
 ## 🔐 Required GitHub Secrets
 
 After cloning, add these secrets to your repository:
