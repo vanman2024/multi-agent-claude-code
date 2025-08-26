@@ -76,17 +76,21 @@ jobs:
             const milestoneMatch = body.match(/\*?\*?Milestone:\*?\*?\s*([^\n\*]+)/i);
             if (milestoneMatch) {
               milestone = milestoneMatch[1].trim();
-              // Remove any trailing text after dash
-              if (milestone.includes(' - ')) {
-                milestone = milestone.split(' - ')[0].trim();
-              }
             }
-            // Default milestone based on priority if not specified
+            // Default milestone - now using descriptive names instead of versions
             if (!milestone) {
-              if (priority === 'P0') milestone = 'v0.1.0 - MVP';
-              else if (priority === 'P1') milestone = 'v0.2.0 - Enhanced Features';
-              else if (priority === 'P2') milestone = 'v0.3.0 - Performance & Polish';
-              else milestone = 'Backlog';
+              // Suggest milestone based on issue type and priority
+              if (issueType === 'bug') {
+                milestone = 'Bug Fixes';
+              } else if (priority === 'P0') {
+                milestone = 'Critical Features';
+              } else if (priority === 'P1') {
+                milestone = 'Core Features';  
+              } else if (priority === 'P2') {
+                milestone = 'Enhancements';
+              } else {
+                milestone = 'Backlog';
+              }
             }
             
             core.setOutput('priority', priority);
