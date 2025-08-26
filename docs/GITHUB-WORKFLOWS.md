@@ -129,6 +129,41 @@ Workflows are the plumbing - they move issues to boards, run tests, deploy code.
 - Database migration support
 - Health checks
 
+### 8. **issue-reopen-handler.yml**
+**Trigger:** 
+- Issue reopened
+- Issue comment with `/reopen` or "still broken" on closed issues
+
+**Purpose:** Handle incomplete or broken issues that need additional work  
+**Key Features:**
+- Auto-labels reopened issues with `needs-fix`
+- Detects if bug (`bug` label) or enhancement (`enhancement` label)
+- Responds to `/reopen` commands in comments
+- Permission checking (only author/collaborators can reopen)
+- Provides clear next steps for reopened work
+
+**Workflow for Incomplete Issues:**
+1. Issue found to be incomplete/broken after closing
+2. Original author or maintainer comments `/reopen` or reopens manually
+3. Workflow adds `needs-fix` label plus `bug` or `enhancement`
+4. Developer continues work with full context preserved
+5. Creates new PR referencing the reopened issue
+
+### 9. **release.yml**
+**Trigger:** Push of version tags (v*)
+
+**Purpose:** Automatically create GitHub releases from tags  
+**Key Features:**
+- Generates release notes from commit history
+- Detects pre-releases (tags with `-beta`, `-rc`, etc.)
+- Closes related milestones automatically
+- Creates GitHub release with changelog
+
+**Version Strategy:**
+- Tags trigger releases (e.g., `v1.0.0`)
+- Milestones track features (e.g., "Authentication System")
+- Multiple milestones can contribute to one release
+
 ## Environment Variables & Secrets
 
 ### Required GitHub Secrets
@@ -406,14 +441,16 @@ gh secret list
 ### Workflow Files Location
 ```
 .github/workflows/
-├── auto-assign.yml            # Issue assignment
-├── ci-cd-pipeline.yml         # Testing & quality checks
-├── deploy-backend.yml         # Backend deployment (after CI)
-├── deploy-frontend.yml        # Frontend deployment (after CI)
-├── issue-to-implementation.yml # Development setup
-├── label-sync.yml            # Label management
-├── project-automation.yml     # Project board sync
-└── test-runner.yml           # Test automation
+├── auto-assign.yml              # Issue assignment
+├── ci-cd-pipeline.yml           # Testing & quality checks
+├── deploy-backend.yml           # Backend deployment (after CI)
+├── deploy-frontend.yml          # Frontend deployment (after CI)
+├── issue-reopen-handler.yml     # Reopen issue management
+├── issue-to-implementation.yml  # Development setup
+├── label-sync.yml              # Label management
+├── project-automation.yml       # Project board sync
+├── release.yml                  # Auto-release from tags
+└── test-runner.yml             # Test automation
 ```
 
 ### Key Commands
