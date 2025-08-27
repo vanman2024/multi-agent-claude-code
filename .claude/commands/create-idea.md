@@ -61,15 +61,13 @@ Please enter 1, 2, or 3:
 ### Step 3: Create Discussion via GitHub CLI
 Execute this exact command with filled template:
 
-**IMPORTANT: Add @claude mention at the end of the body to activate GitHub App analysis**
-
 ```bash
 # Escape special characters in title and body for JSON
 TITLE="[FILLED_TITLE]"
-# Add @claude mention to body for GitHub App activation
-BODY="[FILLED_BODY_WITH_ESCAPED_QUOTES_AND_NEWLINES]\n\n---\n@claude Please analyze this idea and provide your assessment."
+BODY="[FILLED_BODY_WITH_ESCAPED_QUOTES_AND_NEWLINES]"
 
-gh api graphql -f query='
+# Create the discussion
+DISCUSSION_RESPONSE=$(gh api graphql -f query='
 mutation {
   createDiscussion(input: {
     repositoryId: "R_kgDOPiMFvA",
@@ -78,21 +76,50 @@ mutation {
     body: "'"$BODY"'"
   }) {
     discussion {
+      id
       url
+      number
     }
   }
-}' --jq '.data.createDiscussion.discussion.url'
+}')
+
+# Extract discussion ID and URL
+DISCUSSION_ID=$(echo $DISCUSSION_RESPONSE | jq -r '.data.createDiscussion.discussion.id')
+DISCUSSION_URL=$(echo $DISCUSSION_RESPONSE | jq -r '.data.createDiscussion.discussion.url')
+DISCUSSION_NUMBER=$(echo $DISCUSSION_RESPONSE | jq -r '.data.createDiscussion.discussion.number')
+```
+
+### Step 3.5: Add @claude Comment for Analysis
+**ALWAYS add this comment to trigger GitHub App analysis:**
+
+```bash
+# Add @claude comment to the discussion
+gh api graphql -f query='
+mutation {
+  addDiscussionComment(input: {
+    discussionId: "'"$DISCUSSION_ID"'",
+    body: "@claude Please provide a comprehensive analysis of this idea:\n\n1. Assess technical feasibility\n2. Identify potential challenges\n3. Suggest implementation approach\n4. Estimate complexity and effort\n5. Recommend if this should become an issue now or needs more exploration\n\nConsider our existing codebase, architecture patterns, and current workflows in your analysis."
+  }) {
+    comment {
+      id
+    }
+  }
+}'
+
+echo "✅ Added @claude for automated analysis"
 ```
 
 ### Step 4: Handle Response
-1. Capture the URL from output
-2. If successful, display:
+1. Display the discussion URL
+2. Confirm @claude comment was added
+3. Show final output:
    ```
    ✅ Created Discussion: [title]
    📍 Category: Ideas
    🔗 URL: [discussion_url]
+   🤖 @claude analysis requested
    ```
-3. If failed, show error and suggest manual creation
+4. If any step failed, show error and suggest manual creation
 
 ### Step 5: Optional Issue Creation
 Ask: "Would you like to create a tracking issue for this idea? (y/n)"
@@ -133,6 +160,7 @@ Recognizes "workflow" category from prefix.
 ✅ Created Discussion: [title]
 📍 Category: Ideas
 🔗 URL: https://github.com/vanman2024/multi-agent-claude-code/discussions/[number]
+🤖 @claude analysis requested (check discussion for AI insights)
 
 Would you like to create a tracking issue? (y/n)
 ```
