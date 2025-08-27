@@ -15,6 +15,25 @@ This Multi-Agent Development Framework template provides:
 
 When someone clones this template, they get a complete development framework ready to build their actual application.
 
+## GitHub App Integration (@claude)
+
+### When to Add @claude Mentions
+- **Discussions**: Add `@claude` at the end to get AI analysis
+- **Issues**: Add `@claude` to request implementation help
+- **PRs**: Add `@claude` for code review or fixes
+
+### What Claude GitHub App Can Do
+- Analyze ideas and provide feasibility assessment
+- Break down large issues into subtasks
+- Create implementation plans with proper templates
+- Generate PR code based on issue requirements
+- Review code and suggest improvements
+
+### Best Practices
+- Always add `@claude Please analyze this idea` to new discussions
+- Use `@claude implement this` for ready-to-code issues
+- Use `@claude review` for PR feedback
+
 ## System Architecture: The House Metaphor 🏗️
 
 Think of our system like building a house:
