@@ -1,10 +1,16 @@
 #!/bin/bash
-# Bash unit tests for shell hooks
-# Run with: bash .claude/hooks/tests/test_hooks.sh
+# Unit tests for Claude Code hooks
+# Tests individual hook functions without Claude Code session
 
 # Test counter
 TESTS_PASSED=0
 TESTS_FAILED=0
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
 # Test helper function
 assert_equals() {
@@ -13,10 +19,10 @@ assert_equals() {
     local test_name="$3"
     
     if [ "$actual" = "$expected" ]; then
-        echo "✓ PASS: $test_name"
+        echo -e "${GREEN}✓ PASS${NC}: $test_name"
         ((TESTS_PASSED++))
     else
-        echo "✗ FAIL: $test_name"
+        echo -e "${RED}✗ FAIL${NC}: $test_name"
         echo "  Expected: $expected"
         echo "  Got: $actual"
         ((TESTS_FAILED++))
@@ -30,10 +36,10 @@ echo ""
 echo "Test: Hook configuration parsing"
 HOOK_COUNT=$(jq '.hooks | to_entries | length' .claude/settings.json 2>/dev/null)
 if [ -n "$HOOK_COUNT" ] && [ "$HOOK_COUNT" -gt 0 ]; then
-    echo "✓ PASS: Found $HOOK_COUNT hook categories"
+    echo -e "${GREEN}✓ PASS${NC}: Found $HOOK_COUNT hook categories"
     ((TESTS_PASSED++))
 else
-    echo "✗ FAIL: Could not parse hooks from settings.json"
+    echo -e "${RED}✗ FAIL${NC}: Could not parse hooks from settings.json"
     ((TESTS_FAILED++))
 fi
 
@@ -45,10 +51,10 @@ for matcher in $MATCHERS; do
     # Test that matcher is valid regex
     echo "test" | grep -E "$matcher" > /dev/null 2>&1
     if [ $? -eq 0 ] || [ $? -eq 1 ]; then
-        echo "✓ PASS: Valid matcher pattern: $matcher"
+        echo -e "${GREEN}✓ PASS${NC}: Valid matcher pattern: $matcher"
         ((TESTS_PASSED++))
     else
-        echo "✗ FAIL: Invalid matcher pattern: $matcher"
+        echo -e "${RED}✗ FAIL${NC}: Invalid matcher pattern: $matcher"
         ((TESTS_FAILED++))
     fi
 done
@@ -74,10 +80,10 @@ export CLAUDE_PROJECT_DIR="$TEST_DIR"
 mkdir -p "$TEST_DIR/.claude/logs"
 
 if [ -d "$TEST_DIR/.claude/logs" ]; then
-    echo "✓ PASS: Environment variable handling"
+    echo -e "${GREEN}✓ PASS${NC}: Environment variable handling"
     ((TESTS_PASSED++))
 else
-    echo "✗ FAIL: Environment variable handling"
+    echo -e "${RED}✗ FAIL${NC}: Environment variable handling"
     ((TESTS_FAILED++))
 fi
 rm -rf "$TEST_DIR"
@@ -87,10 +93,10 @@ echo ""
 echo "Test: Log directory creation"
 LOG_DIR=".claude/logs"
 if [ -d "$LOG_DIR" ] || mkdir -p "$LOG_DIR" 2>/dev/null; then
-    echo "✓ PASS: Log directory accessible"
+    echo -e "${GREEN}✓ PASS${NC}: Log directory accessible"
     ((TESTS_PASSED++))
 else
-    echo "✗ FAIL: Cannot create log directory"
+    echo -e "${RED}✗ FAIL${NC}: Cannot create log directory"
     ((TESTS_FAILED++))
 fi
 
@@ -106,23 +112,37 @@ for script in "${HOOK_SCRIPTS[@]}"; do
     fi
 done
 if $PERMS_OK; then
-    echo "✓ PASS: All hook scripts have correct permissions"
+    echo -e "${GREEN}✓ PASS${NC}: All hook scripts have correct permissions"
     ((TESTS_PASSED++))
 else
-    echo "✗ FAIL: Some scripts missing execute permission"
+    echo -e "${RED}✗ FAIL${NC}: Some scripts missing execute permission"
+    ((TESTS_FAILED++))
+fi
+
+# Test 8: Mock hook execution
+echo ""
+echo "Test: Mock hook execution"
+# Test log-agent-task.sh with mock input
+TEST_INPUT='{"tool_name":"Task","tool_input":{"subagent_type":"test","description":"Test task"},"session_id":"test123"}'
+OUTPUT=$(echo "$TEST_INPUT" | .claude/hooks/log-agent-task.sh 2>&1)
+if echo "$OUTPUT" | grep -q "Logged agent task"; then
+    echo -e "${GREEN}✓ PASS${NC}: Hook executes successfully"
+    ((TESTS_PASSED++))
+else
+    echo -e "${RED}✗ FAIL${NC}: Hook execution failed"
     ((TESTS_FAILED++))
 fi
 
 # Results
 echo ""
 echo "=== Test Results ==="
-echo "Passed: $TESTS_PASSED"
-echo "Failed: $TESTS_FAILED"
+echo -e "${GREEN}Passed: $TESTS_PASSED${NC}"
+echo -e "${RED}Failed: $TESTS_FAILED${NC}"
 
 if [ $TESTS_FAILED -eq 0 ]; then
-    echo "✓ All unit tests passed!"
+    echo -e "${GREEN}✓ All unit tests passed!${NC}"
     exit 0
 else
-    echo "✗ Some tests failed"
+    echo -e "${RED}✗ Some tests failed${NC}"
     exit 1
 fi
