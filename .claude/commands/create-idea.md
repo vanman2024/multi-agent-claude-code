@@ -66,8 +66,8 @@ Execute this exact command with filled template:
 TITLE="[FILLED_TITLE]"
 BODY="[FILLED_BODY_WITH_ESCAPED_QUOTES_AND_NEWLINES]"
 
-# Create the discussion
-DISCUSSION_RESPONSE=$(gh api graphql -f query='
+# Create the discussion and capture response
+gh api graphql -f query='
 mutation {
   createDiscussion(input: {
     repositoryId: "R_kgDOPiMFvA",
@@ -76,35 +76,37 @@ mutation {
     body: "'"$BODY"'"
   }) {
     discussion {
-      id
-      url
       number
+      url
     }
   }
-}')
+}' --jq '.data.createDiscussion.discussion'
 
-# Extract discussion ID and URL
-DISCUSSION_ID=$(echo $DISCUSSION_RESPONSE | jq -r '.data.createDiscussion.discussion.id')
-DISCUSSION_URL=$(echo $DISCUSSION_RESPONSE | jq -r '.data.createDiscussion.discussion.url')
-DISCUSSION_NUMBER=$(echo $DISCUSSION_RESPONSE | jq -r '.data.createDiscussion.discussion.number')
+# Store the discussion number from the output (you'll see it in the response)
+# For example, if output shows {"number": 57, "url": "..."}, use that number
 ```
 
 ### Step 3.5: Add @claude Comment for Analysis
-**ALWAYS add this comment to trigger GitHub App analysis:**
+After creating the discussion, immediately add a comment with @claude:
+
+**Use the discussion number from Step 3 output:**
 
 ```bash
-# Add @claude comment to the discussion
-gh api graphql -f query='
-mutation {
-  addDiscussionComment(input: {
-    discussionId: "'"$DISCUSSION_ID"'",
-    body: "@claude Please provide a comprehensive analysis of this idea:\n\n1. Assess technical feasibility\n2. Identify potential challenges\n3. Suggest implementation approach\n4. Estimate complexity and effort\n5. Recommend if this should become an issue now or needs more exploration\n\nConsider our existing codebase, architecture patterns, and current workflows in your analysis."
-  }) {
-    comment {
-      id
-    }
-  }
-}'
+# Get the discussion number from the previous output (e.g., 57)
+DISCUSSION_NUMBER=[NUMBER_FROM_PREVIOUS_OUTPUT]
+
+# Add @claude comment using the discussion number
+gh api repos/vanman2024/multi-agent-claude-code/discussions/$DISCUSSION_NUMBER/comments \
+  -X POST \
+  -f body="@claude Please provide a comprehensive analysis of this idea:
+
+1. Assess technical feasibility
+2. Identify potential challenges  
+3. Suggest implementation approach
+4. Estimate complexity and effort
+5. Recommend if this should become an issue now or needs more exploration
+
+Consider our existing codebase, architecture patterns, and current workflows in your analysis."
 
 echo "✅ Added @claude for automated analysis"
 ```
