@@ -60,14 +60,36 @@ Using the template structure:
 
 ### Step 4: Create GitHub Issue
 
-Use `mcp__github__create_issue` to create the issue:
+Use `mcp__github__create_issue` to create the issue with testing requirements:
 
 ```javascript
+// Add testing requirements for @claude
+const testingSection = `
+
+## Testing Requirements
+@claude Before this issue can be closed, please verify:
+
+### Pre-Merge Testing Checklist
+- [ ] All requirements from issue description are met
+- [ ] Unit tests written and passing (minimum 80% coverage)
+- [ ] Manual testing completed locally  
+- [ ] No console errors or warnings
+- [ ] Security review completed (if applicable)
+- [ ] Documentation updated (if needed)
+
+### Test Instructions
+1. Run test suite: \`npm test\` or \`pytest\`
+2. Check coverage: \`npm run coverage\`
+3. Manually verify all functionality
+4. Test edge cases and error scenarios
+
+@claude Please provide a test report before approving any PR for this issue.`;
+
 const issueData = {
   owner: "{owner}",
   repo: "{repo}",
   title: title,
-  body: filledTemplate + "\n\n**Complexity:** " + complexity + "\n**Size:** " + size,
+  body: filledTemplate + "\n\n**Complexity:** " + complexity + "\n**Size:** " + size + testingSection,
   labels: [issueType], // 'feature', 'bug', 'enhancement', etc.
   assignees: ["@me"]
 };
