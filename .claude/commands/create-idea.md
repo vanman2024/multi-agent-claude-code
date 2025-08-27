@@ -12,14 +12,35 @@ argument-hint: "idea summary or description"
   - Repo ID: R_kgDOPiMFvA
   - Ideas Category ID: DIC_kwDOPiMFvM4Cui7U
 
+## Important: Context Preservation
+If the user references "what we discussed" or "that idea about X":
+1. Ask ONE clarifying question to confirm understanding
+2. Summarize what you think they mean
+3. Then proceed with the decision question (Issue/Discussion/Skip)
+
 ## Your Task
 
 When user runs `/create-idea $ARGUMENTS`, follow these exact steps:
 
-### Step 1: Parse Input
+### Step 1: Parse Input and Determine Type
 Extract the idea summary from $ARGUMENTS
 - If empty, ask user for a summary
 - If too vague (less than 10 words), ask for more details
+
+**CRITICAL: Ask the user what this should become:**
+```
+Based on what you've described, what should this become?
+
+1. 📝 Issue - Ready to implement now (clear requirements)
+2. 💭 Discussion - Needs exploration first (open questions)
+3. ❌ Skip - Not worth tracking
+
+Please enter 1, 2, or 3:
+```
+
+- If user chooses 1 (Issue): Stop here and suggest using `/create-issue` command instead
+- If user chooses 2 (Discussion): Continue with Step 2
+- If user chooses 3 (Skip): Exit with "Idea not tracked"
 
 ### Step 2: Load and Fill Template
 1. READ file: @/home/gotime2022/Projects/multi-agent-claude-code/templates/discussions/idea-template.md
