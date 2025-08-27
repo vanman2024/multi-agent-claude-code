@@ -61,10 +61,13 @@ Please enter 1, 2, or 3:
 ### Step 3: Create Discussion via GitHub CLI
 Execute this exact command with filled template:
 
+**IMPORTANT: Add @claude mention at the end of the body to activate GitHub App analysis**
+
 ```bash
 # Escape special characters in title and body for JSON
 TITLE="[FILLED_TITLE]"
-BODY="[FILLED_BODY_WITH_ESCAPED_QUOTES_AND_NEWLINES]"
+# Add @claude mention to body for GitHub App activation
+BODY="[FILLED_BODY_WITH_ESCAPED_QUOTES_AND_NEWLINES]\n\n---\n@claude Please analyze this idea and provide your assessment."
 
 gh api graphql -f query='
 mutation {
