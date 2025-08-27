@@ -19,7 +19,13 @@ SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // ""')
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Create log directory if it doesn't exist
-LOG_DIR="$CLAUDE_PROJECT_DIR/.claude/logs"
+# Use CLAUDE_PROJECT_DIR if set, otherwise use script's directory
+if [ -n "$CLAUDE_PROJECT_DIR" ]; then
+  LOG_DIR="$CLAUDE_PROJECT_DIR/.claude/logs"
+else
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  LOG_DIR="$(dirname "$SCRIPT_DIR")/logs"
+fi
 mkdir -p "$LOG_DIR"
 
 # Log to file
