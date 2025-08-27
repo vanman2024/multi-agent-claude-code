@@ -86,42 +86,23 @@ mutation {
 # For example, if output shows {"number": 57, "url": "..."}, use that number
 ```
 
-### Step 3.5: Add @claude Comment for Analysis
-After creating the discussion, immediately add a comment with @claude:
-
-**Use the discussion number from Step 3 output:**
-
-```bash
-# Get the discussion number from the previous output (e.g., 57)
-DISCUSSION_NUMBER=[NUMBER_FROM_PREVIOUS_OUTPUT]
-
-# Add @claude comment using the discussion number
-gh api repos/vanman2024/multi-agent-claude-code/discussions/$DISCUSSION_NUMBER/comments \
-  -X POST \
-  -f body="@claude Please provide a comprehensive analysis of this idea:
-
-1. Assess technical feasibility
-2. Identify potential challenges  
-3. Suggest implementation approach
-4. Estimate complexity and effort
-5. Recommend if this should become an issue now or needs more exploration
-
-Consider our existing codebase, architecture patterns, and current workflows in your analysis."
-
-echo "✅ Added @claude for automated analysis"
-```
+### Step 3.5: Note About @claude
+The Claude GitHub App currently only supports issues and PRs, not discussions. 
+If you need Claude's analysis, you'll need to:
+1. Manually convert the discussion to an issue through the GitHub web UI
+2. Or create a related issue with the `/create-issue` command
 
 ### Step 4: Handle Response
 1. Display the discussion URL
-2. Confirm @claude comment was added
-3. Show final output:
+2. Show final output:
    ```
    ✅ Created Discussion: [title]
    📍 Category: Ideas
    🔗 URL: [discussion_url]
-   🤖 @claude analysis requested
+   
+   Note: To get Claude's analysis, convert this to an issue in the GitHub UI
    ```
-4. If any step failed, show error and suggest manual creation
+3. If any step failed, show error and suggest manual creation
 
 ### Step 5: Optional Issue Creation
 Ask: "Would you like to create a tracking issue for this idea? (y/n)"
@@ -162,7 +143,7 @@ Recognizes "workflow" category from prefix.
 ✅ Created Discussion: [title]
 📍 Category: Ideas
 🔗 URL: https://github.com/vanman2024/multi-agent-claude-code/discussions/[number]
-🤖 @claude analysis requested (check discussion for AI insights)
 
+💡 Tip: Convert to issue in GitHub UI to get @claude analysis
 Would you like to create a tracking issue? (y/n)
 ```
