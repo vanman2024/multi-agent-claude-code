@@ -48,8 +48,17 @@ run_test "Settings file exists" \
     "test -f .claude/settings.json" \
     "Settings file should exist"
 
+all_executable=true
+for script in .claude/hooks/*.sh .claude/hooks/*.py; do
+    if test -x "$script"; then
+        echo -e "${GREEN}✓ $(basename $script) is executable${NC}"
+    else
+        echo -e "${RED}✗ $(basename $script) is NOT executable${NC}"
+        all_executable=false
+    fi
+done
 run_test "All hook scripts are executable" \
-    "test -x .claude/hooks/*.sh && test -x .claude/hooks/*.py" \
+    "$all_executable" \
     "All scripts should be executable"
 
 echo "=== Test 2: Hook Script Validation ==="
@@ -115,7 +124,7 @@ echo -e "${GREEN}Passed: $TESTS_PASSED${NC}"
 echo -e "${RED}Failed: $TESTS_FAILED${NC}"
 echo ""
 
-if [ $TESTS_FAILED -eq 0 elman
+if [ $TESTS_FAILED -eq 0 ]; then
     echo -e "${GREEN}All automated tests passed!${NC}"
     echo "Now complete the manual tests above before marking PR checkboxes."
 else
