@@ -18,6 +18,14 @@
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/current-work.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/verify-sync-before-claude.sh"
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -47,6 +55,15 @@
           {
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/auto-commit.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/sync-to-github.sh"
           }
         ]
       }
