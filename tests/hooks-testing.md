@@ -160,3 +160,7 @@ This tests:
 - No blocking operations in hooks
 - Async operations should be backgrounded
 - Log files should stay < 10MB
+
+## Live Testing Session - 2025-01-29
+Testing if hooks are actually firing after merge to main.
+This edit should trigger the auto-commit hook if it's working.
