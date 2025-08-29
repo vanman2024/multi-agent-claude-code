@@ -1,14 +1,15 @@
 ---
 allowed-tools: mcp__github(*), Read(*), Bash(*), TodoWrite(*)
 description: Create GitHub issues with proper templates and automatic agent assignment
-argument-hint: [title] [description]
+argument-hint: [type] [title]
 ---
 
 # Create Issue
 
 ## Context
 - Current branch: !`git branch --show-current`
-- Repository info: !`git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/' | tr '/' ' '`
+- Open issues: !`gh issue list --state open --limit 5 --json number,title,labels`
+- Current sprint: !`gh issue list --label "sprint:current" --json number,title`
 
 ## Your Task
 
@@ -42,13 +43,13 @@ Also ask for:
 
 ### Step 2: Load Appropriate Template
 
-Based on the type, read the template from `templates/local_dev/`:
-- feature → @templates/local_dev/feature-template.md
-- bug → @templates/local_dev/bug-template.md
-- enhancement → @templates/local_dev/enhancement-template.md
-- refactor → @templates/local_dev/refactor-template.md
-- task → @templates/local_dev/task-template.md
-- generic/other → @templates/local_dev/issue-template.md
+Based on the type, read the template:
+- feature → Read templates/local_dev/feature-template.md
+- bug → Read templates/local_dev/bug-template.md
+- enhancement → Read templates/local_dev/enhancement-template.md
+- refactor → Read templates/local_dev/refactor-template.md
+- task → Read templates/local_dev/task-template.md
+- generic/other → Read templates/local_dev/issue-template.md
 
 ### Step 3: Fill Template
 
@@ -57,103 +58,170 @@ Using the template structure:
 2. Keep all checkboxes unchecked `[ ]` (they represent work to be done)
 3. Add complexity and size metadata
 4. Include acceptance criteria
+5. Add testing requirements section
 
 ### Step 4: Create GitHub Issue
 
-Use `mcp__github__create_issue` to create the issue with testing requirements:
+Use mcp__github__create_issue with:
+- owner: from repository context
+- repo: from repository context
+- title: provided by user
+- body: filled template + complexity/size metadata + testing requirements
+- labels: [issue-type, "complexity-X", "size-Y"]
 
-```javascript
-// Add testing requirements for @claude
-const testingSection = `
+### Step 5: Check Dependencies
 
-## Testing Requirements
-@claude Before this issue can be closed, please verify:
+After creating issue, check if it depends on other work:
+```bash
+# Ask user if this depends on other issues
+# If yes, add dependency note to issue body
+gh issue edit $ISSUE_NUMBER --body-file updated-body.md
 
-### Pre-Merge Testing Checklist
-- [ ] All requirements from issue description are met
-- [ ] Unit tests written and passing (minimum 80% coverage)
-- [ ] Manual testing completed locally  
-- [ ] No console errors or warnings
-- [ ] Security review completed (if applicable)
-- [ ] Documentation updated (if needed)
-
-### Test Instructions
-1. Run test suite: \`npm test\` or \`pytest\`
-2. Check coverage: \`npm run coverage\`
-3. Manually verify all functionality
-4. Test edge cases and error scenarios
-
-@claude Please provide a test report before approving any PR for this issue.`;
-
-const issueData = {
-  owner: "{owner}",
-  repo: "{repo}",
-  title: title,
-  body: filledTemplate + "\n\n**Complexity:** " + complexity + "\n**Size:** " + size + testingSection,
-  labels: [issueType], // 'feature', 'bug', 'enhancement', etc.
-  assignees: ["@me"]
-};
-
-const issue = await mcp__github__create_issue(issueData);
+# Add blocked label if has dependencies
+gh issue edit $ISSUE_NUMBER --add-label "blocked"
 ```
 
-### Step 5: Agent Assignment
+### Step 6: Agent Assignment
 
-Determine assignment based on BOTH complexity AND size:
+Check what Copilot can handle:
+```bash
+# Get the created issue number
+ISSUE_NUMBER={from mcp__github response}
 
-```javascript
-const isSmallAndSimple = (complexity <= 2) && (size === 'XS' || size === 'S');
+# Determine what Copilot can do
+COPILOT_CAPABLE=false
+COPILOT_TASK=""
 
-if (isSmallAndSimple) {
-  // Small AND simple - assign to Copilot
-  await mcp__github__assign_copilot_to_issue({
-    owner: owner,
-    repo: repo,
-    issueNumber: issue.number
-  });
+# Check different Copilot capabilities
+if [[ "$ISSUE_TYPE" == "task" ]] && [[ "$TITLE" =~ "test" || "$TITLE" =~ "unit test" ]]; then
+  # Copilot is great at writing tests
+  COPILOT_CAPABLE=true
+  COPILOT_TASK="write unit tests"
   
-  await mcp__github__add_issue_comment({
-    owner: owner,
-    repo: repo,
-    issue_number: issue.number,
-    body: `🤖 **Assigned to GitHub Copilot** (Complexity: ${complexity}, Size: ${size})
+elif [[ "$ISSUE_TYPE" == "bug" ]] && [[ $COMPLEXITY -le 2 ]]; then
+  # Simple bug fixes with clear reproduction steps
+  COPILOT_CAPABLE=true
+  COPILOT_TASK="fix bug"
+  
+elif [[ "$ISSUE_TYPE" == "task" ]] && [[ "$TITLE" =~ "document" || "$TITLE" =~ "readme" ]]; then
+  # Documentation updates
+  COPILOT_CAPABLE=true
+  COPILOT_TASK="update documentation"
+  
+elif [[ "$ISSUE_TYPE" == "refactor" ]] && [[ $COMPLEXITY -le 2 ]] && [[ "$SIZE" == "XS" || "$SIZE" == "S" ]]; then
+  # Simple refactoring (rename, extract method, etc.)
+  COPILOT_CAPABLE=true
+  COPILOT_TASK="refactor code"
+  
+elif [[ $COMPLEXITY -le 2 ]] && [[ "$SIZE" == "XS" || "$SIZE" == "S" ]]; then
+  # Small AND simple implementation
+  COPILOT_CAPABLE=true
+  COPILOT_TASK="implement feature"
+fi
 
-This task is small and simple enough for Copilot to handle autonomously.
+if [[ "$COPILOT_CAPABLE" == "true" ]]; then
+  echo "Assigning to GitHub Copilot for: $COPILOT_TASK"
+  
+  # ACTUALLY ASSIGN COPILOT using MCP
+  # Use mcp__github__assign_copilot_to_issue to assign Copilot
+  # This triggers Copilot to start working
+  
+  # Add specific instructions for Copilot
+  gh issue comment $ISSUE_NUMBER --body "🤖 **Assigned to GitHub Copilot**
+  
+Task: $COPILOT_TASK
+Complexity: $COMPLEXITY  
+Size: $SIZE
 
-@copilot Please implement this following the specifications above.`
-  });
-} else {
-  // Complex OR larger task - needs Claude Code
-  const reason = complexity >= 3 
-    ? `complexity level ${complexity}` 
-    : `size ${size} requires coordination`;
-    
-  await mcp__github__add_issue_comment({
-    owner: owner,
-    repo: repo,
-    issue_number: issue.number,
-    body: `🧠 **Requires Claude Code/Agent Orchestration** (Complexity: ${complexity}, Size: ${size})
+Copilot Instructions:
+$(case "$COPILOT_TASK" in
+  "write unit tests")
+    echo "- Write comprehensive unit tests"
+    echo "- Aim for 80%+ code coverage"
+    echo "- Include edge cases and error scenarios"
+    echo "- Follow existing test patterns in the codebase"
+    ;;
+  "fix bug")
+    echo "- Fix the bug as described"
+    echo "- Add tests to prevent regression"
+    echo "- Verify the fix doesn't break existing functionality"
+    ;;
+  "update documentation")
+    echo "- Update documentation as requested"
+    echo "- Keep consistent with existing style"
+    echo "- Include code examples if relevant"
+    ;;
+  "refactor code")
+    echo "- Refactor without changing functionality"
+    echo "- Ensure all tests still pass"
+    echo "- Follow project coding standards"
+    ;;
+  *)
+    echo "- Implement as specified in issue description"
+    echo "- Write tests for new functionality"
+    echo "- Follow project patterns and standards"
+    ;;
+esac)
 
-This task needs advanced handling due to ${reason}.
+Copilot has been assigned and will begin work automatically."
+else
+  # Complex OR large - needs Claude Code
+  echo "This requires Claude Code local development"
+  
+  # Add comment with next steps
+  gh issue comment $ISSUE_NUMBER --body "🧠 **Requires Claude Code/Agent Orchestration**
 
-Next step: Run \`/build-issue ${issue.number}\` when ready to begin implementation.`
-  });
-}
+Complexity: $COMPLEXITY
+Size: $SIZE
+Issue Type: $ISSUE_TYPE
+
+Next step: Run \`/work #$ISSUE_NUMBER\` when ready to begin implementation."
+fi
 ```
 
-### Step 6: Summary
+### Step 7: Sprint Assignment (Optional)
+
+Ask if this should be added to current sprint:
+```bash
+# If yes, add sprint label
+gh issue edit $ISSUE_NUMBER --add-label "sprint:current"
+
+# Check sprint capacity
+gh issue list --label "sprint:current" --json number | jq length
+# Warn if sprint has > 10 issues
+```
+
+### Step 8: Priority Setting
+
+Ask for priority (P0/P1/P2/P3):
+```bash
+# Add priority label
+gh issue edit $ISSUE_NUMBER --add-label "P$PRIORITY"
+
+# If P0, also add urgent label
+if [[ $PRIORITY == "0" ]]; then
+  gh issue edit $ISSUE_NUMBER --add-label "urgent"
+fi
+```
+
+### Step 9: Summary
 
 Provide the user with:
-```
-✅ Issue Created: #${issue.number}
-📋 Type: ${issueType}
-🏷️ Labels: ${labels}
-🤖 Assignment: ${isSmallAndSimple ? 'GitHub Copilot' : 'Claude Code Agents'}
-🔗 URL: ${issue.html_url}
+```bash
+# Get the issue URL
+ISSUE_URL=$(gh issue view $ISSUE_NUMBER --json url --jq .url)
 
-${isSmallAndSimple ? 
-  'Copilot will begin work automatically.' : 
-  'Run `/build-issue ' + issue.number + '` to start implementation.'}
+echo "✅ Issue Created: #$ISSUE_NUMBER"
+echo "📋 Type: $ISSUE_TYPE"
+echo "🏷️ Labels: $(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | tr '\n' ', ')"
+echo "🤖 Assignment: $ASSIGNMENT"
+echo "🔗 URL: $ISSUE_URL"
+
+if [[ "$ASSIGNMENT" == "copilot" ]]; then
+  echo "Copilot will begin work automatically."
+else
+  echo "Run '/work #$ISSUE_NUMBER' to start implementation."
+fi
 ```
 
 ## Important Notes
@@ -161,4 +229,15 @@ ${isSmallAndSimple ?
 - GitHub Actions will automatically handle project board updates
 - Feature branches are created automatically by workflows
 - No manual project board management needed
-- Let automation handle the plumbing, focus on the content
+- Dependencies should be tracked with "Depends on #XX" in issue body
+- Sprint labels help with work prioritization in `/work` command
+- **Copilot Capabilities**: 
+  - **Implementation**: Simple features (Complexity ≤2, Size XS/S)
+  - **Unit Tests**: Can write comprehensive test suites
+  - **Bug Fixes**: Simple bugs with clear reproduction steps
+  - **Documentation**: README updates, code comments, docs
+  - **Refactoring**: Simple refactors like renames, extract methods
+  - **PR Reviews**: Use `/copilot-review` to request code review
+- **Assignment Required**: Must use `mcp__github__assign_copilot_to_issue`
+  - Just mentioning @copilot doesn't work
+  - MCP call triggers actual Copilot engagement

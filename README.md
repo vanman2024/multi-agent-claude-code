@@ -60,8 +60,8 @@ git push -u origin main
 
 ```bash
 # Required CLI tools
-brew install gh doctl                 # GitHub & DigitalOcean  
-npm install -g newman vercel          # Postman & Vercel
+brew install gh                       # GitHub CLI
+npm install -g newman vercel          # Postman & Vercel  
 npx playwright install                # Browser automation
 ```
 
@@ -96,8 +96,7 @@ claude
 # - Configure your tech stack (React, Next.js, etc.)
 # - Set up GitHub repository and project board
 # - Initialize Supabase database
-# - Connect Vercel for frontend
-# - Link DigitalOcean for backend
+# - Connect Vercel for deployment
 # - Create all necessary GitHub secrets
 ```
 

@@ -1,0 +1,345 @@
+name: Deploy to Vercel
+
+on:
+  workflow_run:
+    workflows: ["CI Testing & Quality Pipeline"]
+    types: [completed]
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - production
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  check-changes:
+    name: Check for Application Changes
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    outputs:
+      should-deploy: ${{ steps.check.outputs.changed }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Check for deployment-worthy changes
+        id: check
+        run: |
+          # For workflow_dispatch, always deploy
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Manual deployment requested"
+            exit 0
+          fi
+          
+          # Check if any application files changed
+          git diff --name-only HEAD^ HEAD > changed_files.txt
+          
+          # Check for frontend, backend, or config changes
+          if grep -qE '^(frontend/|backend/|api/|src/|app/|pages/|components/|lib/|public/|styles/|package\.json|vercel\.json|next\.config\.|tsconfig\.|\.env\.)' changed_files.txt; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Application files changed, deployment needed"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No application changes, skipping deployment"
+          fi
+
+  detect-stack:
+    name: Detect Application Stack
+    runs-on: ubuntu-latest
+    needs: check-changes
+    if: needs.check-changes.outputs.should-deploy == 'true'
+    outputs:
+      framework: ${{ steps.detect.outputs.framework }}
+      has-api: ${{ steps.detect.outputs.has-api }}
+      build-command: ${{ steps.detect.outputs.build-command }}
+      output-directory: ${{ steps.detect.outputs.output-directory }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Detect framework and configuration
+        id: detect
+        run: |
+          # Check for vercel.json first (takes precedence)
+          if [ -f "vercel.json" ]; then
+            echo "Using vercel.json configuration"
+            # Parse build command and output from vercel.json if present
+            BUILD_CMD=$(jq -r '.buildCommand // ""' vercel.json 2>/dev/null || echo "")
+            OUTPUT_DIR=$(jq -r '.outputDirectory // ""' vercel.json 2>/dev/null || echo "")
+            
+            if [ -n "$BUILD_CMD" ]; then
+              echo "build-command=$BUILD_CMD" >> $GITHUB_OUTPUT
+            fi
+            if [ -n "$OUTPUT_DIR" ]; then
+              echo "output-directory=$OUTPUT_DIR" >> $GITHUB_OUTPUT
+            fi
+          fi
+          
+          # Detect framework
+          if [ -f "next.config.js" ] || [ -f "next.config.mjs" ] || [ -f "next.config.ts" ]; then
+            echo "framework=nextjs" >> $GITHUB_OUTPUT
+            echo "build-command=npm run build" >> $GITHUB_OUTPUT
+            echo "output-directory=.next" >> $GITHUB_OUTPUT
+          elif [ -f "nuxt.config.js" ] || [ -f "nuxt.config.ts" ]; then
+            echo "framework=nuxtjs" >> $GITHUB_OUTPUT
+            echo "build-command=npm run build" >> $GITHUB_OUTPUT
+            echo "output-directory=.output" >> $GITHUB_OUTPUT
+          elif [ -f "vite.config.js" ] || [ -f "vite.config.ts" ]; then
+            echo "framework=vite" >> $GITHUB_OUTPUT
+            echo "build-command=npm run build" >> $GITHUB_OUTPUT
+            echo "output-directory=dist" >> $GITHUB_OUTPUT
+          elif [ -f "angular.json" ]; then
+            echo "framework=angular" >> $GITHUB_OUTPUT
+            echo "build-command=npm run build" >> $GITHUB_OUTPUT
+            echo "output-directory=dist" >> $GITHUB_OUTPUT
+          elif [ -f "gatsby-config.js" ]; then
+            echo "framework=gatsby" >> $GITHUB_OUTPUT
+            echo "build-command=npm run build" >> $GITHUB_OUTPUT
+            echo "output-directory=public" >> $GITHUB_OUTPUT
+          elif [ -f "package.json" ]; then
+            # Check for API routes or serverless functions
+            if [ -d "api" ] || [ -d "pages/api" ] || [ -d "app/api" ]; then
+              echo "framework=node" >> $GITHUB_OUTPUT
+              echo "has-api=true" >> $GITHUB_OUTPUT
+            else
+              echo "framework=static" >> $GITHUB_OUTPUT
+            fi
+            echo "build-command=npm run build" >> $GITHUB_OUTPUT
+            echo "output-directory=dist" >> $GITHUB_OUTPUT
+          else
+            echo "framework=static" >> $GITHUB_OUTPUT
+            echo "build-command=" >> $GITHUB_OUTPUT
+            echo "output-directory=." >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for API/backend
+          if [ -d "api" ] || [ -d "pages/api" ] || [ -d "app/api" ] || [ -d "backend" ] || [ -f "server.js" ] || [ -f "app.py" ]; then
+            echo "has-api=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-api=false" >> $GITHUB_OUTPUT
+          fi
+
+  deploy-preview:
+    name: Deploy Preview to Vercel
+    runs-on: ubuntu-latest
+    needs: [detect-stack]
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'preview')
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.url }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+        
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        
+      - name: Build Project
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ENV: preview
+          
+      - name: Deploy to Vercel Preview
+        id: deploy
+        run: |
+          # Deploy and capture URL
+          DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -n 1)
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOYMENT_URL"
+          
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            const framework = '${{ needs.detect-stack.outputs.framework }}';
+            const hasApi = '${{ needs.detect-stack.outputs.has-api }}' === 'true';
+            
+            let apiSection = '';
+            if (hasApi) {
+              apiSection = `
+            ### API Endpoints:
+            - Health Check: ${url}/api/health
+            - API Docs: ${url}/api/docs
+            - Webhook Testing: ${url}/api/webhooks
+            
+            ### Testing with Postman:
+            - Update your Postman environment to use: \`${url}\`
+            - All API routes are available at \`${url}/api/*\`
+            `;
+            }
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 🚀 Deployed to Vercel Preview!
+            
+            **Preview URL:** ${url}
+            **Framework:** ${framework}
+            **Has API:** ${hasApi ? 'Yes' : 'No'}
+            
+            ### Preview Features:
+            - 🔄 Automatic updates on new commits
+            - 🌍 Global CDN distribution
+            - 📊 Edge analytics enabled
+            - 🔒 HTTPS by default
+            - ⚡ Serverless functions (if applicable)
+            ${apiSection}
+            
+            ### Environment:
+            - Node.js 18.x
+            - Preview environment variables loaded
+            - Branch: \`${{ github.head_ref || github.ref_name }}\`
+            
+            This preview will be automatically updated with each commit to this PR.`
+            });
+
+  deploy-production:
+    name: Deploy Production to Vercel
+    runs-on: ubuntu-latest
+    needs: [detect-stack]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production'))
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+        
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        
+      - name: Build Project
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ENV: production
+          
+      - name: Deploy to Vercel Production
+        id: deploy
+        run: |
+          # Deploy to production
+          DEPLOYMENT_URL=$(vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tail -n 1)
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to production: $DEPLOYMENT_URL"
+          
+      - name: Health Check
+        if: needs.detect-stack.outputs.has-api == 'true'
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          for i in {1..30}; do
+            if curl -f "${URL}/api/health" > /dev/null 2>&1; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            echo "Waiting for service to be healthy... (attempt $i/30)"
+            sleep 10
+          done
+          echo "Warning: Health check endpoint not responding (may not be implemented)"
+        continue-on-error: true
+        
+      - name: Create Deployment Record
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            const framework = '${{ needs.detect-stack.outputs.framework }}';
+            
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              production_environment: true,
+              auto_merge: false,
+              required_contexts: [],
+              description: `Production deployment to Vercel (${framework})`
+            });
+            
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: 'success',
+              environment_url: url,
+              description: 'Deployed to Vercel'
+            });
+            
+      - name: Notify Success
+        if: success()
+        run: |
+          echo "✅ Production deployment successful!"
+          echo "URL: ${{ steps.deploy.outputs.url }}"
+          echo "Framework: ${{ needs.detect-stack.outputs.framework }}"
+          echo "Has API: ${{ needs.detect-stack.outputs.has-api }}"
+
+  rollback:
+    name: Rollback if Failed
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: failure() && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+        
+      - name: Rollback to Previous Production
+        run: |
+          echo "Rolling back to previous production deployment..."
+          vercel rollback --token=${{ secrets.VERCEL_TOKEN }} --yes
+          
+      - name: Create Issue for Failed Deployment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Production Deployment Failed',
+              body: `The production deployment failed and was rolled back.
+            
+            **Commit:** ${context.sha}
+            **Author:** ${context.actor}
+            **Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+            
+            Please investigate and fix the issue before attempting another deployment.`,
+              labels: ['bug', 'deployment', 'urgent']
+            });
