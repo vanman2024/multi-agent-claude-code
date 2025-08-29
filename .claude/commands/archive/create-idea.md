@@ -86,11 +86,11 @@ mutation {
 # For example, if output shows {"number": 57, "url": "..."}, use that number
 ```
 
-### Step 3.5: Note About @claude
-The Claude GitHub App currently only supports issues and PRs, not discussions. 
-If you need Claude's analysis, you'll need to:
-1. Manually convert the discussion to an issue through the GitHub web UI
+### Step 3.5: Note About AI Analysis
+To get AI assistance with the idea:
+1. Convert the discussion to an issue through the GitHub web UI
 2. Or create a related issue with the `/create-issue` command
+3. Then use local Claude Code agents for implementation
 
 ### Step 4: Handle Response
 1. Display the discussion URL
@@ -144,6 +144,6 @@ Recognizes "workflow" category from prefix.
 📍 Category: Ideas
 🔗 URL: https://github.com/vanman2024/multi-agent-claude-code/discussions/[number]
 
-💡 Tip: Convert to issue in GitHub UI to get @claude analysis
+💡 Tip: Convert to issue in GitHub UI for implementation tracking
 Would you like to create a tracking issue? (y/n)
 ```

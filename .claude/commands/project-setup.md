@@ -18,24 +18,74 @@ When user runs `/project-setup $ARGUMENTS`, guide them through an intelligent pr
 
 Start with understanding the project vision:
 
-1. **Ask about the project**:
-   - "What are we building? Give me the elevator pitch."
-   - "Who is this for? (individual developers, teams, enterprises?)"
-   - "What specific problem are you solving?"
+#### Step 1A: Initial Assessment
+Ask: "Are you starting a brand new project or adding to existing code?"
 
-2. **Classify project type** based on their answers:
-   - SaaS Application (full stack with auth, payments)
-   - Integration/Connector (connects systems)
-   - Internal Tool (team utility)
-   - AI Agent/Bot (LLM-powered)
-   - API Service (backend only)
-   - Static Site (marketing/docs)
+#### Step 1B: Gather ALL Reference Materials
+Ask: "Before we dive into details, let me gather any existing materials. Do you have:
+- Screenshots or mockups to share?
+- Documentation or requirements?
+- API documentation or Postman collections?
+- OpenAPI/Swagger specs?
+- Similar projects or examples?
+- Competitor sites to reference?
+- Existing code to review?
+- URLs of services you want to integrate with?
 
-3. **Understand constraints**:
-   - "How many users do you expect? (10, 1K, 10K, 100K+)"
-   - "What's your monthly infrastructure budget? ($0-100, $100-500, $500+)"
-   - "Timeline for MVP? (weeks vs months)"
-   - "Team size and expertise?"
+Please provide paths, URLs, or paste any materials you have, or say 'none' if starting from scratch."
+
+<thinking>
+Wait for response, then analyze EVERYTHING:
+- If materials provided, read and analyze ALL of them
+- If existing code mentioned, use Glob to explore structure
+- If screenshots provided, understand the UI vision
+- If URLs provided, use WebFetch to examine sites/APIs
+- If competitor sites mentioned, analyze interfaces
+- If API docs provided, understand integration capabilities
+- If Postman collections exist, examine API structures
+- Build comprehensive mental model from all materials
+- Only proceed after gathering and analyzing everything
+</thinking>
+
+#### Step 1C: Core Discovery Questions
+Ask all together: 
+"Tell me about your project:
+- What specific problem exists today?
+- Who has this problem? (individual developers, teams, enterprises?)
+- How painful is it (1-10)?
+- What do they use today?
+- Why doesn't it work?"
+
+#### Step 1D: Vision & Solution
+Ask: "Describe your ideal solution:
+- What would it do?
+- What are must-have features?
+- What makes it 10x better than existing options?"
+
+#### Step 1E: Classify Project Type
+Based on their answers, classify as:
+- SaaS Application (full stack with auth, payments)
+- Integration/Connector (connects systems)
+- Internal Tool (team utility)
+- AI Agent/Bot (LLM-powered)
+- API Service (backend only)
+- Static Site (marketing/docs)
+
+#### Step 1F: Business & Technical Context
+Ask all together:
+"Tell me about the business side:
+- B2B or B2C?
+- How will it make money?
+- What's the pricing model?
+- Expected users? (10, 1K, 10K, 100K+)
+- Monthly infrastructure budget? ($0-100, $100-500, $500+)
+- Timeline for MVP? (weeks vs months)
+- Team size and expertise?
+- What should we call this project?"
+
+<thinking>
+If no project name provided, generate 3 options based on everything learned
+</thinking>
 
 ### Phase 2: Technical Stack Recommendations (BUY VS BUILD)
 
@@ -43,8 +93,9 @@ Based on Phase 1, recommend a stack emphasizing EXISTING SOLUTIONS:
 
 1. **Core Framework & Hosting (STANDARD STACK)**
    - Frontend: Next.js 14 → **ALWAYS Vercel** (no alternatives)
-   - Backend: FastAPI/Express → **ALWAYS DigitalOcean Droplets** (for all testing)
-   - Webhooks/Testing: **ALWAYS Postman + DigitalOcean**
+   - Backend: FastAPI/Express → **ALWAYS Vercel** (serverless functions or edge)
+   - Full Application: **Deploy entire app on Vercel** (frontend + backend)
+   - Webhooks/Testing: **ALWAYS Postman for API testing**
    - These are NON-NEGOTIABLE for consistency
 
 2. **CRITICAL: Services to BUY, Not Build**
@@ -91,6 +142,27 @@ GitHub project template (using default template):
 - Default template: Project #13 from vanman2024
 - Ask: "What should we name the new project board? (default: PROJECT_NAME Board)"
 - Ask: "Target organization/owner? (default: vanman2024)"
+
+## ⚠️ CHECKPOINT: DO NOT PROCEED UNTIL YOU HAVE ALL INFORMATION
+
+**CRITICAL**: You CANNOT create documentation until you have gathered:
+- ✅ Complete understanding of existing materials (Phase 1B)
+- ✅ Clear problem definition and solution vision (Phase 1C-D)
+- ✅ Specific tech stack decisions (Phase 2)
+- ✅ Business model and target market (Phase 1F)
+- ✅ Project name (Phase 1F)
+- ✅ External resources and templates (Phase 3)
+
+<thinking>
+Review all information gathered:
+- Verify every documentation section can be filled with specific details
+- Ensure nothing is vague or incomplete
+- Check that tech stack is fully decided
+- Confirm project name and business model are clear
+- If anything is missing, GO BACK and ask more questions
+</thinking>
+
+**If any of these are incomplete, GO BACK and ask more questions.**
 
 ### Phase 4: Generate Documentation
 
@@ -230,17 +302,19 @@ You: ✅ Project setup complete!
 ## Important Notes
 
 - **ALWAYS emphasize BUY vs BUILD** - Calculate time/cost savings
-- **ALWAYS use Vercel for frontend hosting** (no exceptions)
-- **ALWAYS use DigitalOcean Droplets for backend/testing** (no exceptions)
-- **ALWAYS use Postman for webhook testing** (standard tool)
+- **ALWAYS use Vercel for full application deployment** (frontend + backend, no exceptions)
+- **ALWAYS use Postman for API testing** (standard tool)
+- **ALWAYS gather ALL materials BEFORE proceeding** (Phase 1B is critical)
 - **Reference CLAUDE.md** for project configuration when it exists
 - Be conversational and explain reasoning
 - Allow users to override features BUT NOT hosting choices
-- Always use port 3002 for frontend, 8891 for backend
+- Always use port 3002 for frontend, 8891 for backend (local development)
 - List specific services with free tiers when possible
 - Show total development time saved by using external services
-- Default to Supabase for most projects
+- Default to Supabase for most projects (auth, database, storage)
 - Use TodoWrite to track setup progress
 - Create actual files and directories
 - Use gh CLI for project board operations
 - Use mcp__github for issue operations
+- Use <thinking> tags for analysis between conversation steps
+- Never proceed past checkpoint without complete information

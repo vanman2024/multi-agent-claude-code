@@ -4,18 +4,21 @@ MCP (Model Context Protocol) servers give Claude Code additional capabilities. T
 
 ## Required MCP Servers
 
-### 1. GitHub MCP Server (Official - HTTP Transport)
-Provides full GitHub API access for issues, PRs, discussions, and repository management via GitHub Copilot's MCP endpoint.
+### 1. GitHub MCP Server (HTTP Transport)
+Provides full GitHub API access for issues, PRs, discussions, and repository management.
 
 ```bash
 # Get GitHub token from gh CLI
 GITHUB_TOKEN=$(gh auth token)
 
-# Add the GitHub MCP server with authentication
+# Add the GitHub MCP server with HTTP transport and authentication
 claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $GITHUB_TOKEN"
+
+# Or with your personal access token directly:
+claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer YOUR_GITHUB_PAT"
 ```
 
-Note: This uses the official GitHub Copilot MCP endpoint. Requires GitHub CLI (`gh`) to be authenticated first.
+Note: This uses HTTP transport with Bearer token authentication. The endpoint may return 500 on health checks but works for MCP protocol commands.
 
 ### 2. Playwright MCP Server
 Enables browser automation and testing for frontend development.
@@ -76,8 +79,10 @@ npx playwright install
 echo "Adding Playwright MCP server..."
 claude mcp add playwright -- npx @modelcontextprotocol/server-playwright
 
-# Postman for API testing (requires POSTMAN_API_KEY)
+# Postman for API testing (requires POSTMAN_API_KEY in environment)
 echo "Adding Postman MCP server..."
+# Note: Set POSTMAN_API_KEY environment variable first:
+# export POSTMAN_API_KEY="your-postman-api-key"
 claude mcp add postman -- npx @modelcontextprotocol/server-postman
 
 # Supabase for database (requires SUPABASE_URL and key)
@@ -125,22 +130,7 @@ npm install -g vercel
 vercel login
 ```
 
-### 4. DigitalOcean CLI (`doctl`)
-```bash
-# macOS
-brew install doctl
-
-# Linux/WSL
-cd ~
-wget https://github.com/digitalocean/doctl/releases/latest/download/doctl-[VERSION]-linux-amd64.tar.gz
-tar xf doctl-[VERSION]-linux-amd64.tar.gz
-sudo mv doctl /usr/local/bin
-
-# Authenticate
-doctl auth init
-```
-
-### 5. Playwright (for testing)
+### 4. Playwright (for testing)
 ```bash
 # Install in your project
 npm init playwright@latest
@@ -162,7 +152,6 @@ claude mcp list
 gh --version
 newman --version
 vercel --version
-doctl version
 playwright --version
 ```
 
@@ -192,8 +181,20 @@ MCP servers are configured per-project by default. Configuration is stored in:
 
 ### MCP server not working
 1. Check server is running: `claude mcp list`
-2. Restart Claude Code: Exit and run `claude` again
-3. Check authentication: Some servers need API keys
+2. **If MCP won't add to a project**: Run `claude init` first to reinitialize Claude
+3. Restart Claude Code: Exit and run `claude` again
+4. Check authentication: Some servers need API keys
+
+### MCP server shows "incompatible auth server" error
+If you get this error when adding an MCP server to a project:
+```bash
+# Fix: Reinitialize Claude in the project
+cd /your/project/directory
+claude init
+
+# Then try adding the MCP server again
+claude mcp add --transport http github https://api.githubcopilot.com/mcp -H "Authorization: Bearer $(gh auth token)"
+```
 
 ### CLI tool not found
 1. Ensure tool is in PATH
