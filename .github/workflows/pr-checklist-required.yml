@@ -7,6 +7,8 @@ on:
     types: [submitted, edited, dismissed]
   issue_comment:
     types: [created, edited, deleted]
+  issues:
+    types: [opened, edited]  # Also check issue checkboxes
 
 permissions:
   pull-requests: read
