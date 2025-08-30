@@ -15,6 +15,57 @@ argument-hint: [type] [title]
 
 When user runs `/create-issue $ARGUMENTS`, follow these steps:
 
+### Step 0: 🔴 ENFORCE WORKFLOW - MUST BE ON MAIN WITH LATEST
+
+**CRITICAL: Before doing ANYTHING else, check branch and sync status:**
+
+```bash
+# Get current branch
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Check if on main
+if [[ "$CURRENT_BRANCH" != "main" ]]; then
+  echo "❌ ERROR: You must be on main branch to create issues!"
+  echo ""
+  echo "Run these commands first:"
+  echo "  git checkout main"
+  echo "  git pull origin main"
+  echo ""
+  echo "Current branch: $CURRENT_BRANCH"
+  echo "Required branch: main"
+  echo ""
+  echo "See WORKFLOW.md for the required process."
+  exit 1
+fi
+
+# Check if main is up to date
+git fetch origin main --quiet
+LOCAL=$(git rev-parse main)
+REMOTE=$(git rev-parse origin/main)
+
+if [[ "$LOCAL" != "$REMOTE" ]]; then
+  echo "❌ ERROR: Your main branch is not up to date!"
+  echo ""
+  echo "Run this command first:"
+  echo "  git pull origin main"
+  echo ""
+  echo "Local main:  $LOCAL"
+  echo "Remote main: $REMOTE"
+  echo ""
+  echo "See WORKFLOW.md for the required process."
+  exit 1
+fi
+
+echo "✅ On main branch with latest changes - proceeding..."
+```
+
+If not on main or not up to date, STOP and tell the user to:
+1. `git checkout main`
+2. `git pull origin main`
+3. Then retry the command
+
+**DO NOT PROCEED if not on main with latest changes!**
+
 ### Step 1: Determine Issue Type
 
 Ask the user:
