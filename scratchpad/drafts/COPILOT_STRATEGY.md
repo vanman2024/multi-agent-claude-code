@@ -700,6 +700,165 @@ c) **Integration branch pattern**
 - What labels trigger what automation?
 - How to notify local developers of Copilot's work?
 
+## 📋 TESTING SCENARIOS (DRAFT IDEAS)
+
+### Testing Scenario 1: Basic Copilot Assignment Flow
+```bash
+# PURPOSE: Understand exact timing and branch creation
+# SETUP: Clean repository state, no existing branches for issue
+
+1. Start on main branch (following WORKFLOW.md)
+   git checkout main
+   git pull origin main
+
+2. Create simple test issue via /create-issue
+   - Type: bug
+   - Complexity: 1
+   - Size: XS
+   - Include standard checkboxes in description
+
+3. DISABLE issue-to-implementation.yml temporarily
+   # To avoid branch conflicts
+
+4. Assign Copilot via MCP
+   mcp__github__assign_copilot_to_issue
+
+5. Monitor and document:
+   - T+0s: Assignment confirmed?
+   - T+5s: 👀 reaction appears?
+   - T+30s: Branch created? Name format?
+   - T+60s: Draft PR opened?
+   - T+5min: First code commit?
+   - T+15min: Work complete?
+
+6. Check PR contents:
+   - Does it have our standard checkboxes?
+   - Is it marked as draft?
+   - Does it link to the issue correctly?
+```
+
+### Testing Scenario 2: Workflow Conflicts
+```bash
+# PURPOSE: See what happens with duplicate branch/PR creation
+# HYPOTHESIS: Conflicts between issue-to-implementation.yml and Copilot
+
+1. Create issue normally (with issue-to-implementation.yml ENABLED)
+   /create-issue "Test workflow conflict"
+   
+2. Wait for automated branch/PR creation
+   - Should create: feature/[issue-number]-title
+   - Should create draft PR
+
+3. THEN assign Copilot to same issue
+   mcp__github__assign_copilot_to_issue
+
+4. Observe:
+   - Does Copilot create second branch?
+   - Does it create second PR?
+   - Does it use existing branch?
+   - Error messages?
+
+5. Document findings for workflow adjustment
+```
+
+### Testing Scenario 3: Checkbox Validation
+```bash
+# PURPOSE: Test if pr-checklist-required.yml works with Copilot PRs
+# CRITICAL: Our workflow requires ALL checkboxes checked before merge
+
+1. Let Copilot create a PR (from Scenario 1)
+
+2. Examine PR body structure:
+   gh pr view [PR-NUMBER] --json body
+
+3. Test checkbox parsing:
+   - Count [ ] vs [x] in PR body
+   - Check if pr-checklist-required.yml triggers
+   - Verify status check appears
+
+4. Try to merge with unchecked boxes:
+   - Should FAIL due to branch protection
+   - Confirm "Require All Checkboxes" status
+
+5. Check all boxes and retry:
+   - Should now allow merge
+```
+
+### Testing Scenario 4: Local Development Sync
+```bash
+# PURPOSE: How to get Copilot's code locally
+# PROBLEM: Copilot writes on GitHub, developer works locally
+
+1. Developer working on main locally
+2. Copilot creates PR for different issue
+3. Test sync strategies:
+
+   Option A - Pull Copilot's branch:
+   git fetch origin
+   git checkout copilot/feature-123
+   # Review locally
+   
+   Option B - Merge to integration branch:
+   git checkout -b integration
+   git merge copilot/feature-123
+   # Test locally
+   
+   Option C - Wait for main merge:
+   # After Copilot PR approved and merged
+   git checkout main
+   git pull origin main
+
+4. Document which approach causes least friction
+```
+
+### Testing Scenario 5: Complex vs Simple Assignment
+```bash
+# PURPOSE: Verify assignment criteria working correctly
+
+Test Matrix:
+| Complexity | Size | Should Assign? | Test |
+|------------|------|---------------|------|
+| 1 | XS | YES | Create issue, verify auto-assigns |
+| 2 | S | YES | Create issue, verify auto-assigns |
+| 2 | M | NO | Create issue, verify NOT assigned |
+| 3 | XS | NO | Create issue, verify NOT assigned |
+| 1 | L | NO | Create issue, verify NOT assigned |
+
+For each combination:
+1. Create issue with specific complexity/size labels
+2. Run /create-issue command
+3. Verify assignment behavior matches expectation
+```
+
+### Testing Scenario 6: PR Review Iteration
+```bash
+# PURPOSE: Test Copilot's response to review feedback
+
+1. Let Copilot create PR
+2. Request changes via review:
+   gh pr review [PR] --request-changes --body "Please add error handling"
+   
+3. Mention @copilot in review comment
+4. Monitor:
+   - Does Copilot see the review?
+   - Does it make requested changes?
+   - New commits added to PR?
+   - How long does iteration take?
+```
+
+### Key Metrics to Track During Testing
+- Time from assignment to PR creation
+- Success rate (PR mergeable without human fixes)
+- Checkbox compliance rate
+- Branch conflict frequency
+- Local sync friction points
+
+### Decision Points After Testing
+1. Should we disable issue-to-implementation.yml for Copilot issues?
+2. Do we need custom PR template for Copilot?
+3. Should Copilot PRs auto-merge or always need review?
+4. Which local sync strategy works best?
+
 ## Conclusion (DRAFT)
 
 *Note: These are potential benefits IF we implement the proposed strategies*
