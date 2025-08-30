@@ -466,12 +466,35 @@ const copilotMetrics = {
 - [ ] Create Copilot playbooks
 - [ ] Share learnings in README
 
+## Critical Success Factors for Extensive Copilot Usage
+
+### 🎯 Assignment Decision Matrix
+
+| Task Type | Complexity | Size | Time | Assign To | Why |
+|-----------|------------|------|------|-----------|-----|
+| Unit Tests | Any | Any | 10-15m | **Copilot** | Excels at test patterns |
+| Bug Fix | 1-2 | XS-S | 10-15m | **Copilot** | Clear scope, quick fixes |
+| Documentation | Any | Any | 10-15m | **Copilot** | Great at docs |
+| Simple Feature | 1-2 | XS-S | 10-15m | **Copilot** | Follows patterns well |
+| Refactoring | 1-2 | S | 10-15m | **Copilot** | Good at systematic changes |
+| Architecture | 3+ | M+ | >30m | **Claude Code** | Needs design decisions |
+| Security | Any | Any | Any | **Claude Code** | Critical thinking required |
+| Complex Debug | 3+ | Any | >30m | **Claude Code** | Deep analysis needed |
+
+### 📊 Expected Outcomes
+
+With aggressive Copilot assignment:
+- **70% of issues** should go to Copilot (simple tasks dominate backlogs)
+- **50% reduction** in Claude Code time on routine tasks
+- **2x throughput** with parallel AI agents
+- **Higher quality** from specialized agent strengths
+
 ## Conclusion
 
 By extensively using Copilot for appropriate tasks (10-15 min work, complexity 1-2, size XS-S), we can:
 - **Free up Claude Code** for complex architectural work
-- **Accelerate development** with parallel AI agents
-- **Improve code quality** through automated reviews
-- **Reduce manual work** on routine tasks
+- **Accelerate development** with parallel AI agents working simultaneously
+- **Improve code quality** through automated reviews and consistent patterns
+- **Reduce manual work** on routine tasks by 70%+
 
-The key is **aggressive auto-assignment** with clear criteria and **rapid feedback loops** to maximize Copilot's effectiveness within its 10-15 minute work window.
+The key is **IMMEDIATE auto-assignment** at issue creation with clear criteria and **rapid feedback loops** to maximize Copilot's effectiveness within its 10-15 minute work window. Copilot should be the DEFAULT for simple tasks, not the exception.
