@@ -114,6 +114,41 @@ Complex tasks requiring >30 minutes or architectural decisions:
    - Cross-browser issues
    - Production-only bugs
 
+## 🚀 Copilot Assignment Timing & Triggers
+
+### When Copilot Gets Assigned (Based on Official Docs)
+
+1. **IMMEDIATELY upon issue assignment** (via UI, CLI, API, or Mobile)
+   - Copilot leaves 👀 reaction within seconds
+   - Creates branch `copilot/[type]-[number]` immediately
+   - Opens draft PR within 1-2 minutes
+   - Begins implementation session
+
+2. **IMMEDIATELY upon PR request** (via Chat, MCP, Agents panel)
+   - Starts new session without issue assignment
+   - Creates branch and PR directly
+   - Works autonomously for 10-15 minutes
+
+3. **IMMEDIATELY upon @mention in PR comment**
+   - Only responds to users with write access
+   - Adds 👀 reaction to comment
+   - Starts new iteration session
+   - Updates existing PR with changes
+
+### Copilot's Work Timeline (Observed Pattern)
+```
+T+0s     Assignment/Request received
+T+5s     👀 reaction added
+T+30s    Branch created (copilot/feature-123)
+T+60s    Draft PR opened
+T+2min   Status: "Copilot started work"
+T+5min   First commit pushed
+T+10min  Multiple commits with progress
+T+15min  Final commit
+T+16min  Status: "Copilot finished work"
+T+17min  Review requested from assignee
+```
+
 ## Automated Assignment Strategy
 
 ### Stage 1: Immediate Assignment at Issue Creation
@@ -134,14 +169,17 @@ const shouldAutoAssignCopilot = (issue) => {
 
 // Implementation in create-issue.md
 if (shouldAutoAssignCopilot(issueData)) {
-  // Use MCP to assign Copilot
+  // Use MCP to assign Copilot IMMEDIATELY
   await mcp__github__assign_copilot_to_issue({
     owner: 'vanman2024',
     repo: 'multi-agent-claude-code',
     issueNumber: ISSUE_NUMBER
   });
   
-  // Add instructions comment
+  // Copilot starts working within seconds!
+  // No delay needed - it's autonomous
+  
+  // Add instructions comment for clarity
   await gh.issue.comment(ISSUE_NUMBER, COPILOT_INSTRUCTIONS);
 }
 ```
