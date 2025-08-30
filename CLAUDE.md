@@ -197,6 +197,24 @@ Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude 
 
 ## Documentation Rules
 
+### CRITICAL: Prevent Documentation Duplication
+**BEFORE creating ANY documentation:**
+1. **SEARCH for existing docs first**:
+   ```bash
+   find scratchpad -name "*.md" | xargs grep -l -i "topic"
+   ```
+2. **CHECK if topic is already covered**:
+   - AGENTS.md covers ALL agent-related topics
+   - CHECKBOXES.md covers ALL checkbox topics  
+   - PROJECT.md covers ALL project setup topics
+3. **UPDATE existing docs instead of creating new ones**
+4. **CONSOLIDATE similar topics into single documents**
+
+**Examples of what NOT to do:**
+- ❌ Creating AGENT_ROSTER.md when AGENTS.md exists
+- ❌ Creating CHECKBOX_STRATEGY.md when CHECKBOXES.md exists
+- ❌ Creating PROJECT_SETUP.md when PROJECT.md exists
+
 ### CRITICAL: File Naming Convention
 - **ALL DOCUMENTATION FILES MUST BE UPPERCASE**: README.md, CLAUDE.md, SETUP.md, etc.
 - **NEVER use lowercase for documentation**: No readme.md, setup.md, guide.md
