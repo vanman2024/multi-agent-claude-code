@@ -631,9 +631,80 @@ With aggressive Copilot assignment:
 - **Time to merge**: Average time from issue to merged PR
 - **Rework rate**: % of Copilot work requiring Claude Code intervention
 
-## Conclusion
+## 🔴 CRITICAL OPEN QUESTIONS - NEED DISCUSSION
 
-By extensively using Copilot for appropriate tasks (10-15 min work, complexity 1-2, size XS-S), combined with the new Copilot Spaces feature and optimized prompts, we can:
+### 1. PR Checkbox Validation Before Auto-Merge
+**PROBLEM**: Our workflow requires ALL PR checkboxes to be checked before merge
+**QUESTIONS**:
+- How do we validate checkbox completion in GitHub Actions?
+- Can we parse PR body to check `[x]` vs `[ ]` programmatically?
+- Should Copilot be responsible for checking its own boxes?
+- What happens if Copilot creates PR without our standard checkboxes?
+
+**POTENTIAL APPROACHES**:
+- Parse PR description in workflow to count checked boxes
+- Use GitHub API to validate checkbox state
+- Create custom GitHub Action for checkbox validation
+- Block auto-merge until manual checkbox review
+
+### 2. Issue to PR Transition Timing
+**PROBLEM**: Still unclear EXACTLY when Copilot creates the draft PR
+**OBSERVATIONS**:
+- Copilot seems to create PR within 1-2 minutes of assignment
+- PR starts as DRAFT (not ready for review)
+- Unknown: Does it wait for any specific triggers?
+- Unknown: Can we control when it transitions from draft to ready?
+
+**NEED TO TEST**:
+- Create test issue, assign Copilot, monitor exact timing
+- Check if PR creation depends on issue labels/content
+- Verify if Copilot respects our existing branch naming conventions
+- Test what happens with our existing issue-to-implementation.yml workflow
+
+### 3. Getting Copilot's Code Into Local Codebase
+**PROBLEM**: Copilot writes code on GitHub, not locally
+**CURRENT GAP**:
+- Developer working locally doesn't see Copilot's changes
+- Need to pull Copilot's branch or merged changes
+- Risk of conflicts if working on related code
+
+**PROPOSED SOLUTIONS**:
+a) **Auto-merge to main** (for simple PRs)
+   - Developers pull from main regularly
+   - Risk: Breaking changes hit main branch
+   
+b) **Feature branch sync**
+   - Notify developer when Copilot PR is ready
+   - Developer pulls Copilot's branch locally
+   - Review and test before merging
+
+c) **Integration branch pattern**
+   - Copilot merges to `integration` branch
+   - Developers pull from integration
+   - Periodic merge to main after validation
+
+### 4. Workflow Automation Integration
+**The copilot-pr-handler.yml workflow (DRAFT IDEA)**:
+```yaml
+# DRAFT - NOT TESTED OR APPROVED
+# Questions to resolve:
+# 1. How to validate PR checkboxes?
+# 2. When to mark as ready vs keep as draft?
+# 3. How to handle test failures?
+# 4. Should we auto-merge or always require human review?
+```
+
+**Key Decisions Needed**:
+- Should workflow auto-convert draft to ready? Under what conditions?
+- How to enforce checkbox validation before any merge?
+- What labels trigger what automation?
+- How to notify local developers of Copilot's work?
+
+## Conclusion (DRAFT)
+
+*Note: These are potential benefits IF we implement the proposed strategies*
+
+By potentially using Copilot for appropriate tasks (10-15 min work, complexity 1-2, size XS-S), combined with the new Copilot Spaces feature and optimized prompts, we might be able to:
 
 - **Free up Claude Code** for complex architectural work
 - **Accelerate development** with parallel AI agents working simultaneously  
