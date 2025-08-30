@@ -1,7 +1,9 @@
-# GitHub Copilot Coding Agent - Comprehensive Integration Strategy
+# GitHub Copilot Coding Agent - Integration Strategy (DRAFT)
 
-## Executive Summary
-GitHub Copilot coding agent (public preview) is a powerful AI tool that autonomously implements solutions for GitHub issues. It creates branches, writes code, and opens PRs - working for 10-15 minutes per task. This strategy outlines how to extensively leverage Copilot alongside Claude Code agents for maximum development efficiency.
+> ⚠️ **DRAFT DOCUMENT**: This is a working document with ideas and research. Nothing here is finalized or approved for implementation. All strategies, workflows, and automation described are proposals for discussion.
+
+## Executive Summary (DRAFT)
+GitHub Copilot coding agent (public preview) is a powerful AI tool that autonomously implements solutions for GitHub issues. It creates branches, writes code, and opens PRs - working for 10-15 minutes per task. This document explores potential strategies for leveraging Copilot alongside Claude Code agents.
 
 ## How Copilot Coding Agent Works
 
