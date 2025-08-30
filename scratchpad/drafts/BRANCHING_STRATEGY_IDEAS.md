@@ -49,10 +49,38 @@
   - Open PR when: Code complete, ready for review
   - Auto-convert draft → open when: All checkboxes checked?
 
+## REVISED PROPOSAL: Just-In-Time Branch Creation
+
+### The New Strategy (DRAFT)
+**Create branches ONLY when actual implementation begins, not at issue creation**
+
+### Who Creates The Branch?
+
+1. **Human Developer Path:**
+   ```bash
+   /work #123 → Creates branch → Starts coding
+   ```
+
+2. **Copilot Path:**
+   ```bash
+   Assign Copilot → Copilot creates branch → Starts coding immediately
+   ```
+
+3. **Hybrid Path:**
+   ```bash
+   Issue moves to "In Progress" → Triggers branch creation → Developer/Agent pulls it
+   ```
+
+### Key Benefits:
+- No more unused branches cluttering the repo
+- No conflicts between issue-to-implementation.yml and Copilot
+- Clear separation: Issue = planning, PR = implementation
+- Branch name conflicts resolved (only one entity creates the branch)
+
 ## Potential Improvements
 
-### ⭐ PREFERRED OPTION: Project Board Status-Driven Branch Creation
-**Trigger branch creation when issue moves to "In Progress" on project board**
+### ⭐ REVISED PREFERRED OPTION: Implementation-Triggered Branch Creation
+**Branch gets created by whoever/whatever starts the actual work**
 
 **Why this makes sense:**
 - Project board is already our source of truth for workflow status
