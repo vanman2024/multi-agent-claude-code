@@ -171,14 +171,34 @@ Only create branches when issue gets specific labels:
 5. **Ready for review** → Status changes, PR converts from draft
 6. **Merged** → Branch deleted, issue closed
 
+## Implications for Current Workflows
+
+### What Needs to Change (IF WE IMPLEMENT THIS):
+
+1. **issue-to-implementation.yml**
+   - DISABLE automatic branch creation on issue open
+   - OR modify to only create branch when labeled "in-progress"
+   - OR completely remove and let /work command handle it
+
+2. **Copilot Integration**
+   - Let Copilot create its own branches (no conflict)
+   - Copilot assignment = immediate branch + PR creation
+   - No pre-existing branch to conflict with
+
+3. **Developer Workflow**
+   - `/create-issue` → Creates issue ONLY (no branch)
+   - `/work #123` → NOW creates branch and starts work
+   - Clear separation between planning and doing
+
 ## Next Steps (NOT IMPLEMENTED YET)
 
 These are ideas to consider, not decisions made:
 
-1. Test current workflow with multiple issues to see pain points
-2. Consider adding "ready-to-build" label requirement for branch creation
-3. Explore GitHub's auto-merge and draft PR features more
-4. Look into branch protection rules for automatic state transitions
+1. TEST: Disable issue-to-implementation.yml and try manual branch creation
+2. TEST: Assign Copilot without pre-existing branch
+3. DECIDE: Should `/work` command create the branch?
+4. DECIDE: Keep or remove issue-to-implementation.yml?
+5. IMPLEMENT: Chosen strategy after testing
 
 ---
 
