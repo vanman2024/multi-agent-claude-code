@@ -54,15 +54,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/auto-commit.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
             "command": "bash .claude/hooks/sync-to-github.sh"
           }
         ]

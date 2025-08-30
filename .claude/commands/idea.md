@@ -31,31 +31,81 @@ If user chooses Create:
    - If provided in $ARGUMENTS, use it
    - Otherwise: "What idea would you like to explore?"
 
-2. **Create scratchpad file**:
+2. **🔍 CHECK FOR EXISTING DOCS FIRST**:
    ```bash
-   DATE=$(date +%Y%m%d)
-   TOPIC_SLUG=$(echo "$TOPIC" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-   FILEPATH="/home/gotime2022/Projects/multi-agent-claude-code/scratchpad/ideas/${DATE}-${TOPIC_SLUG}.md"
+   # Search all scratchpad folders for similar docs
+   TOPIC_KEYWORDS=$(echo "$TOPIC" | tr ' ' '|')
+   
+   echo "Checking for existing documentation..."
+   find /home/gotime2022/Projects/multi-agent-claude-code/scratchpad -name "*.md" -type f | 
+     xargs grep -l -i -E "$TOPIC_KEYWORDS" 2>/dev/null
+   
+   # Also check filenames
+   find /home/gotime2022/Projects/multi-agent-claude-code/scratchpad -name "*.md" -type f | 
+     grep -i -E "$TOPIC_KEYWORDS"
+   ```
+   
+   **If similar docs found**:
+   ```
+   ⚠️ Found existing related documentation:
+   - AGENTS.md (covers agent orchestration)
+   - CHECKBOXES.md (covers checkbox strategy)
+   
+   Would you like to:
+   1. Update existing doc
+   2. Create new doc anyway
+   3. View existing doc first
    ```
 
-3. **Use template** from `@/home/gotime2022/Projects/multi-agent-claude-code/templates/idea-template.md`
-
-4. **Start collaborative discussion**:
+3. **Determine correct folder**:
    ```
-   📝 Created: scratchpad/ideas/[filename]
+   Based on: scratchpad/README.md structure
+   
+   /scratchpad/
+   ├── drafts/     # New ideas, brainstorming
+   ├── approved/   # Approved concepts, ready to build
+   └── wip/        # Actively being worked on (tied to issues)
+   
+   New ideas go to: /scratchpad/drafts/
+   ```
+
+4. **Create file with proper naming**:
+   ```bash
+   # Use UPPERCASE naming convention
+   TOPIC_UPPER=$(echo "$TOPIC" | tr '[:lower:]' '[:upper:]' | tr ' ' '_')
+   FILEPATH="/home/gotime2022/Projects/multi-agent-claude-code/scratchpad/drafts/${TOPIC_UPPER}.md"
+   
+   # Check if file would duplicate existing concept
+   if [ -f "$FILEPATH" ]; then
+     echo "File already exists! Update instead?"
+   fi
+   ```
+
+5. **Use template** from `@/home/gotime2022/Projects/multi-agent-claude-code/templates/idea-template.md`
+
+6. **Start collaborative discussion**:
+   ```
+   📝 Created: scratchpad/drafts/[filename]
    
    Let's explore this idea. What problem are we trying to solve?
    ```
 
-5. **Build the document through conversation**
+7. **Build the document through conversation**
 
 ## Path 2: Analyze Existing Idea
 
 If user chooses Analyze:
 
-1. **Find existing ideas**:
+1. **Find existing docs across all stages**:
    ```bash
-   ls -la /home/gotime2022/Projects/multi-agent-claude-code/scratchpad/ideas/*.md
+   echo "📝 Drafts (brainstorming):"
+   ls -la /home/gotime2022/Projects/multi-agent-claude-code/scratchpad/drafts/*.md 2>/dev/null
+   
+   echo "✅ Approved (ready to build):"
+   ls -la /home/gotime2022/Projects/multi-agent-claude-code/scratchpad/approved/*.md 2>/dev/null
+   
+   echo "🚧 Work in Progress (being built):"
+   ls -la /home/gotime2022/Projects/multi-agent-claude-code/scratchpad/wip/*.md 2>/dev/null
    ```
 
 2. **Let user select**:

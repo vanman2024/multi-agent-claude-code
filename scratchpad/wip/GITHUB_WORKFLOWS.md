@@ -142,6 +142,55 @@ Workflows are the plumbing - they move issues to boards, run tests, deploy code.
 4. Developer continues work with full context preserved
 5. Creates new PR referencing the reopened issue
 
+**Post-Merge Issue Discovery Workflow:**
+When you discover problems AFTER merging a PR:
+
+**Option 1: Same Issue Number (Reopen)**
+```bash
+# 1. Reopen the original issue
+gh issue reopen [issue-number]
+
+# 2. Start from fresh main branch (CRITICAL!)
+git checkout main
+git pull origin main
+
+# 3. Create new fix branch with -fix suffix
+git checkout -b fix/[issue-number]-[description]-fix
+
+# 4. Make fixes
+# ... edit files ...
+
+# 5. Create new PR referencing same issue
+gh pr create --title "Fix: [Original Issue Title] (#[issue-number])" \
+  --body "Fixes remaining issues in #[issue-number]"
+```
+
+**Option 2: New Issue for Follow-up**
+```bash
+# 1. Create new issue referencing the original
+/create-issue "Follow-up: [Original Issue] - [Specific Problem]"
+# In body: "Follow-up to #[original-issue-number]"
+
+# 2. Follow normal workflow from main
+git checkout main
+git pull origin main
+git checkout -b fix/[new-issue-number]-follow-up
+
+# 3. Complete fix and create PR for new issue
+```
+
+**NEVER:**
+- ❌ Reuse the old merged branch
+- ❌ Create commits on a closed PR's branch
+- ❌ Force push to rewrite history
+- ❌ Work from an outdated main branch
+
+**ALWAYS:**
+- ✅ Start fresh from latest main
+- ✅ Create a new branch for fixes
+- ✅ Create a new PR (even for same issue)
+- ✅ Reference the original issue/PR
+
 ### 9. **pr-checklist-required.yml** (NEW)
 **Trigger:** 
 - Pull requests (opened, edited, synchronize, reopened, ready_for_review)
