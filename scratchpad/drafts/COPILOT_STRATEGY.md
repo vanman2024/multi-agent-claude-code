@@ -40,6 +40,60 @@ GitHub Copilot coding agent (public preview) is a powerful AI tool that autonomo
 - User reports: "does a really good job", "spends 10-15 minutes working"
 - Understands entire project context effectively
 
+## 🎯 NEW CAPABILITIES DISCOVERED (2025)
+
+### Knowledge Bases (Enterprise Only)
+- **What**: Organization-wide Markdown documentation repositories
+- **Who**: Created by org owners, used by all members with Enterprise plan
+- **Context**: Unlimited size but reduced response quality
+- **Best For**: Company-wide documentation, standards, best practices
+- **Limitation**: Only Markdown files, requires Enterprise plan
+
+### Copilot Spaces (Public Preview - Available to ALL)
+- **What**: Task-specific context containers for focused work
+- **Who**: ANY Copilot user can create (Free, Pro, Business, Enterprise)
+- **Context**: Limited size for higher quality responses
+- **Content Types**:
+  - Entire GitHub repositories
+  - Specific files, PRs, and issues
+  - Uploaded files (images, text, documents, spreadsheets)
+  - Free-text content (transcripts, notes, specs)
+- **Sharing**: Can be shared with team members
+- **Best For**: Focused development tasks, onboarding, knowledge sharing
+- **Key Advantage**: Much more flexible than knowledge bases
+
+### Prompt Engineering Best Practices
+Based on official GitHub documentation:
+
+1. **Start General, Then Get Specific**
+   - Begin with broad goal description
+   - List specific requirements after
+
+2. **Give Examples**
+   - Provide example inputs/outputs
+   - Use unit tests as examples
+   - Show multiple format variations
+
+3. **Break Complex Tasks Down**
+   - Divide into simple, small tasks
+   - Ask Copilot to accomplish one by one
+   - Build up to the complete solution
+
+4. **Avoid Ambiguity**
+   - Be specific about "this" references
+   - Name functions/variables explicitly
+   - Specify which library to use
+
+5. **Indicate Relevant Code**
+   - Open relevant files in IDE
+   - Use @workspace or @project keywords
+   - Highlight specific code sections
+
+6. **Iterate and Experiment**
+   - Refine prompts based on responses
+   - Keep relevant history, delete irrelevant
+   - Use threads for new conversations
+
 ## Extensive Usage Strategy: When to Use Copilot
 
 ### 🟢 ALWAYS Use Copilot For
