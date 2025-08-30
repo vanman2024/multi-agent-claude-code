@@ -717,9 +717,10 @@ The key is **IMMEDIATE auto-assignment** at issue creation with clear criteria, 
 
 **Copilot should be the DEFAULT for simple tasks, not the exception.**
 
-### Next Actions
-1. ✅ Review and approve this strategy
-2. 🚀 Implement auto-assignment in `/create-issue`
-3. 📚 Create first Copilot Space for project onboarding
-4. 📊 Set up metrics tracking dashboard
-5. 🔄 Iterate based on results
+### Next Actions (PROPOSED - NOT APPROVED)
+1. ❓ Review and discuss this draft strategy
+2. ❓ Test Copilot assignment timing with real issue
+3. ❓ Prototype checkbox validation mechanism
+4. ❓ Decide on local sync approach (auto-merge vs manual)
+5. ❓ Clarify if we need Enterprise plan for extended capabilities
+6. ❓ Test if existing issue-to-implementation.yml conflicts with Copilot
