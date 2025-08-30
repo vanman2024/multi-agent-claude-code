@@ -1,5 +1,10 @@
 # Claude Code Documentation - Multi-Agent Template Framework
 
+## CRITICAL: GitHub Repository Information
+**Repository Owner**: vanman2024 (NOT gotime2022)
+**Repository Name**: multi-agent-claude-code
+**Full Path**: github.com/vanman2024/multi-agent-claude-code
+
 ## THIS IS A TEMPLATE FRAMEWORK
 
 **Important**: You are working in a template repository that will be cloned to create new projects. This is NOT the actual project - it's the framework for building projects.
