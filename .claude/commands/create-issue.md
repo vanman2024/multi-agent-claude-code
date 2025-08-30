@@ -134,100 +134,144 @@ gh issue edit $ISSUE_NUMBER --add-label "blocked"
 
 ### Step 6: Agent Assignment
 
-Check what Copilot can handle:
-```bash
-# Get the created issue number
-ISSUE_NUMBER={from mcp__github response}
+**IMMEDIATE Copilot Auto-Assignment for Simple Tasks:**
 
-# Determine what Copilot can do
-COPILOT_CAPABLE=false
-COPILOT_TASK=""
+```javascript
+// Determine if Copilot should handle this (BOTH conditions must be true)
+const shouldAutoAssignCopilot = (complexity, size, type, labels) => {
+  // Check complexity (must be simple)
+  const isSimple = complexity <= 2;
+  
+  // Check size (must be small)
+  const isSmall = ['XS', 'S'].includes(size);
+  
+  // Check for blocking labels
+  const hasBlockingLabels = labels.some(l => 
+    ['security', 'architecture', 'blocked'].includes(l)
+  );
+  
+  // Auto-assign if BOTH simple AND small AND no blockers
+  return isSimple && isSmall && !hasBlockingLabels;
+};
 
-# Check different Copilot capabilities
-if [[ "$ISSUE_TYPE" == "task" ]] && [[ "$TITLE" =~ "test" || "$TITLE" =~ "unit test" ]]; then
-  # Copilot is great at writing tests
-  COPILOT_CAPABLE=true
-  COPILOT_TASK="write unit tests"
+// Implementation
+if (shouldAutoAssignCopilot(COMPLEXITY, SIZE, ISSUE_TYPE, LABELS)) {
+  echo "🤖 Auto-assigning to GitHub Copilot (Complexity: $COMPLEXITY, Size: $SIZE)"
   
-elif [[ "$ISSUE_TYPE" == "bug" ]] && [[ $COMPLEXITY -le 2 ]]; then
-  # Simple bug fixes with clear reproduction steps
-  COPILOT_CAPABLE=true
-  COPILOT_TASK="fix bug"
+  // IMMEDIATELY assign Copilot using MCP
+  // This triggers Copilot to start working within seconds!
+  await mcp__github__assign_copilot_to_issue({
+    owner: 'vanman2024',
+    repo: 'multi-agent-claude-code',
+    issueNumber: ISSUE_NUMBER
+  });
   
-elif [[ "$ISSUE_TYPE" == "task" ]] && [[ "$TITLE" =~ "document" || "$TITLE" =~ "readme" ]]; then
-  # Documentation updates
-  COPILOT_CAPABLE=true
-  COPILOT_TASK="update documentation"
+  // Determine task type for instructions
+  let COPILOT_TASK = "";
+  if (TITLE.includes("test")) {
+    COPILOT_TASK = "write unit tests";
+  } else if (ISSUE_TYPE === "bug") {
+    COPILOT_TASK = "fix bug";
+  } else if (TITLE.includes("document") || TITLE.includes("readme")) {
+    COPILOT_TASK = "update documentation";
+  } else if (ISSUE_TYPE === "refactor") {
+    COPILOT_TASK = "refactor code";
+  } else {
+    COPILOT_TASK = "implement feature";
+  }
   
-elif [[ "$ISSUE_TYPE" == "refactor" ]] && [[ $COMPLEXITY -le 2 ]] && [[ "$SIZE" == "XS" || "$SIZE" == "S" ]]; then
-  # Simple refactoring (rename, extract method, etc.)
-  COPILOT_CAPABLE=true
-  COPILOT_TASK="refactor code"
-  
-elif [[ $COMPLEXITY -le 2 ]] && [[ "$SIZE" == "XS" || "$SIZE" == "S" ]]; then
-  # Small AND simple implementation
-  COPILOT_CAPABLE=true
-  COPILOT_TASK="implement feature"
-fi
+  // Add specific instructions comment
+  await mcp__github__add_issue_comment({
+    owner: 'vanman2024',
+    repo: 'multi-agent-claude-code',
+    issue_number: ISSUE_NUMBER,
+    body: `🤖 **GitHub Copilot Auto-Assigned**
 
-if [[ "$COPILOT_CAPABLE" == "true" ]]; then
-  echo "Assigning to GitHub Copilot for: $COPILOT_TASK"
-  
-  # ACTUALLY ASSIGN COPILOT using MCP
-  # Use mcp__github__assign_copilot_to_issue to assign Copilot
-  # This triggers Copilot to start working
-  
-  # Add specific instructions for Copilot
-  gh issue comment $ISSUE_NUMBER --body "🤖 **Assigned to GitHub Copilot**
-  
-Task: $COPILOT_TASK
-Complexity: $COMPLEXITY  
-Size: $SIZE
+**Task**: ${COPILOT_TASK}
+**Complexity**: ${COMPLEXITY}/5 (Simple)
+**Size**: ${SIZE} (Small)
+**Type**: ${ISSUE_TYPE}
 
-Copilot Instructions:
-$(case "$COPILOT_TASK" in
-  "write unit tests")
-    echo "- Write comprehensive unit tests"
-    echo "- Aim for 80%+ code coverage"
-    echo "- Include edge cases and error scenarios"
-    echo "- Follow existing test patterns in the codebase"
-    ;;
-  "fix bug")
-    echo "- Fix the bug as described"
-    echo "- Add tests to prevent regression"
-    echo "- Verify the fix doesn't break existing functionality"
-    ;;
-  "update documentation")
-    echo "- Update documentation as requested"
-    echo "- Keep consistent with existing style"
-    echo "- Include code examples if relevant"
-    ;;
-  "refactor code")
-    echo "- Refactor without changing functionality"
-    echo "- Ensure all tests still pass"
-    echo "- Follow project coding standards"
-    ;;
-  *)
-    echo "- Implement as specified in issue description"
-    echo "- Write tests for new functionality"
-    echo "- Follow project patterns and standards"
-    ;;
-esac)
+**Expected Timeline**:
+- 👀 Copilot acknowledges: ~5 seconds
+- 🌿 Branch created: ~30 seconds
+- 📝 Draft PR opened: ~1 minute
+- 💻 Implementation: 10-15 minutes
+- ✅ PR ready for review: ~17 minutes
 
-Copilot has been assigned and will begin work automatically."
-else
-  # Complex OR large - needs Claude Code
-  echo "This requires Claude Code local development"
+**Copilot Instructions**:
+${getTaskInstructions(COPILOT_TASK)}
+
+Copilot has been assigned and will begin work automatically within seconds.
+Watch for branch: \`copilot/${ISSUE_TYPE}-${ISSUE_NUMBER}\``
+  });
   
-  # Add comment with next steps
-  gh issue comment $ISSUE_NUMBER --body "🧠 **Requires Claude Code/Agent Orchestration**
+  ASSIGNMENT = "copilot";
+  
+} else {
+  // Complex OR large OR has blocking labels - needs Claude Code
+  echo "📋 Requires Claude Code (Complexity: $COMPLEXITY, Size: $SIZE)"
+  
+  let reason = "";
+  if (COMPLEXITY > 2) reason = "High complexity (${COMPLEXITY}/5)";
+  else if (!['XS', 'S'].includes(SIZE)) reason = "Large size (${SIZE})";
+  else if (hasBlockingLabels) reason = "Has blocking labels";
+  
+  await mcp__github__add_issue_comment({
+    owner: 'vanman2024',
+    repo: 'multi-agent-claude-code',
+    issue_number: ISSUE_NUMBER,
+    body: `🧠 **Requires Claude Code/Agent Orchestration**
 
-Complexity: $COMPLEXITY
-Size: $SIZE
-Issue Type: $ISSUE_TYPE
+**Reason**: ${reason}
+**Complexity**: ${COMPLEXITY}/5
+**Size**: ${SIZE}
+**Type**: ${ISSUE_TYPE}
 
-Next step: Run \`/work #$ISSUE_NUMBER\` when ready to begin implementation."
-fi
+This task exceeds Copilot's capabilities (complexity > 2 OR size > S).
+Requires Claude Code agents with full MCP tool access.
+
+**Next step**: Run \`/work #${ISSUE_NUMBER}\` when ready to begin implementation.`
+  });
+  
+  ASSIGNMENT = "claude-code";
+}
+
+// Helper function for task instructions
+function getTaskInstructions(taskType) {
+  switch(taskType) {
+    case "write unit tests":
+      return `- Write comprehensive unit tests
+- Aim for 80%+ code coverage
+- Include edge cases and error scenarios
+- Follow existing test patterns in the codebase
+- Mock external dependencies`;
+      
+    case "fix bug":
+      return `- Fix the bug as described in the issue
+- Add regression tests to prevent recurrence
+- Verify fix doesn't break existing functionality
+- Update any affected documentation`;
+      
+    case "update documentation":
+      return `- Update documentation as requested
+- Keep consistent with existing style
+- Include code examples where relevant
+- Check for broken links`;
+      
+    case "refactor code":
+      return `- Refactor without changing functionality
+- Ensure all tests still pass
+- Follow project coding standards
+- Update imports and exports as needed`;
+      
+    default:
+      return `- Implement as specified in issue description
+- Write tests for new functionality
+- Follow existing project patterns
+- Add appropriate error handling`;
+  }
+}
 ```
 
 ### Step 7: Sprint Assignment (Optional)
