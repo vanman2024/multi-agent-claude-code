@@ -1,8 +1,6 @@
 name: Enforce PR Checkboxes
 
 on:
-  push:
-    branches: [main]  # Temporarily add to register the check
   pull_request:
     types: [opened, edited, synchronize, reopened, ready_for_review]
   pull_request_review:
