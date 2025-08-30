@@ -55,6 +55,10 @@ jobs:
       item-id: ${{ steps.add-to-project.outputs.itemId }}
     
     steps:
+      # Small delay to allow auto-assign workflow to complete first (race condition mitigation)
+      - name: Wait for auto-assign
+        run: sleep 10
+        
       - name: Add to project
         id: add-to-project
         uses: actions/add-to-project@v0.5.0

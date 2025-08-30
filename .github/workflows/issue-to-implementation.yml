@@ -18,6 +18,10 @@ jobs:
     if: github.event.action == 'opened'
     
     steps:
+      # Wait for auto-assign and project-automation workflows to complete (race condition mitigation)
+      - name: Wait for other workflows
+        run: sleep 20
+        
       - name: Parse issue template fields
         id: parse
         uses: actions/github-script@v7
