@@ -1,8 +1,29 @@
-# Branching Strategy Ideas & Considerations
+# Branching Strategy Ideas & Considerations (DRAFT - NOT IMPLEMENTED)
 
-## Current State
+> ⚠️ **DRAFT DOCUMENT**: These are ideas and proposals, not finalized decisions. The current system still creates branches at issue creation time.
+
+## Current State (AS OF NOW)
 - Branches are auto-created when issues are created (via issue-to-implementation.yml)
 - This happens for ALL issues, regardless of whether they'll be worked on immediately
+- **PROBLEM**: This has led to 72+ unused branches
+- **CONFLICT**: Copilot also creates its own branches, leading to duplicates
+
+## NEW UNDERSTANDING: Issue vs PR Separation
+
+### The Fundamental Concept Shift
+- **ISSUE = Planning Stage** (WHAT to do)
+  - Requirements gathering
+  - Discussion
+  - Acceptance criteria
+  - NO CODE YET
+  - NO BRANCH NEEDED YET
+
+- **PR = Implementation Stage** (HOW it's done)
+  - Branch created WHEN work starts
+  - Code written
+  - Tests added
+  - Review happens
+  - This is where actual development occurs
 
 ## Concerns & Questions
 
