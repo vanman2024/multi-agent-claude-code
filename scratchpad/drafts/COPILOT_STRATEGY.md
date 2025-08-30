@@ -377,23 +377,28 @@ mcp__github__request_copilot_review({
    - Include examples and edge cases
    - Specify exact file paths when known
    - Add "Definition of Done" section
+   - Include test requirements in issue description
 
 2. **Leverage Copilot Strengths**
    - Assign ALL test writing to Copilot
    - Use for repetitive refactoring
    - Let it handle documentation updates
    - Assign configuration/setup tasks
+   - Batch simple bugs for Copilot sprints
 
 3. **Quick Feedback Loop**
    - Review Copilot PRs within 2 hours
-   - Provide specific change requests
-   - Use "Approve and Merge" for good work
-   - Let Copilot iterate on feedback
+   - Batch review comments (use "Start a review")
+   - Mention @copilot for changes
+   - Click "Approve and run workflows" for CI
+   - Let Copilot iterate based on feedback
 
-4. **Track Success Patterns**
-   - Note which issues Copilot handles well
-   - Document common instruction templates
-   - Build library of successful patterns
+4. **Repository Setup for Success**
+   - Add `.github/copilot-instructions.md` for repo-wide guidance
+   - Include build/test commands in instructions
+   - Add path-specific instructions for different file types
+   - Use `copilot-setup-steps.yml` to pre-install dependencies
+   - Enable MCP servers for extended capabilities
 
 ### ❌ DON'T - Common Pitfalls
 1. **Don't Assign Vague Issues**
