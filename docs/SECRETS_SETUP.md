@@ -21,19 +21,12 @@ gh secret set SUPABASE_ANON_KEY --body "your-anon-key"
 gh secret set SUPABASE_SERVICE_KEY --body "your-service-key"
 ```
 
-### 3. Frontend Deployment (Vercel)
+### 3. Deployment (Vercel)
 ```bash
 # From Vercel account settings
 gh secret set VERCEL_TOKEN --body "your-vercel-token"
 gh secret set VERCEL_ORG_ID --body "your-org-id"
 gh secret set VERCEL_PROJECT_ID --body "your-project-id"
-```
-
-### 4. Backend Deployment (DigitalOcean)
-```bash
-# From DigitalOcean API settings
-gh secret set DIGITALOCEAN_ACCESS_TOKEN --body "your-do-token"
-gh secret set DO_APP_ID --body "your-app-id"
 ```
 
 ## Optional Secrets (Add as Needed)
@@ -78,7 +71,8 @@ SUPABASE_URL=https://...
 SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_KEY=eyJ...
 VERCEL_TOKEN=...
-DIGITALOCEAN_ACCESS_TOKEN=dop_...
+VERCEL_ORG_ID=...
+VERCEL_PROJECT_ID=...
 ```
 
 Then run this script to set all secrets at once:

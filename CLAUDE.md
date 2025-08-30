@@ -20,24 +20,18 @@ This Multi-Agent Development Framework template provides:
 
 When someone clones this template, they get a complete development framework ready to build their actual application.
 
-## GitHub App Integration (@claude)
+## AI Agent Integration
 
-### When to Add @claude Mentions
-- **Discussions**: Add `@claude` at the end to get AI analysis
-- **Issues**: Add `@claude` to request implementation help
-- **PRs**: Add `@claude` for code review or fixes
-
-### What Claude GitHub App Can Do
-- Analyze ideas and provide feasibility assessment
-- Break down large issues into subtasks
-- Create implementation plans with proper templates
-- Generate PR code based on issue requirements
-- Review code and suggest improvements
+### How AI Agents Work in This Framework
+- **GitHub Copilot**: Handles simple tasks (Complexity 1-2, Size XS-S) directly in GitHub
+- **Claude Code Agents**: Handle complex tasks locally with full MCP tool access
+- **No @claude App**: We avoid the @claude GitHub App to prevent usage costs
 
 ### Best Practices
-- Always add `@claude Please analyze this idea` to new discussions
-- Use `@claude implement this` for ready-to-code issues
-- Use `@claude review` for PR feedback
+- Use `/create-issue` to create issues with proper routing
+- Simple tasks auto-assign to GitHub Copilot (free with GitHub Pro)
+- Complex tasks require local Claude Code agents
+- Use `/build-feature` to start local implementation
 
 ## System Architecture: The House Metaphor 🏗️
 

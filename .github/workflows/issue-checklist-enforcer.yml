@@ -1,0 +1,113 @@
+name: Issue Checklist Enforcer
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  check-issue-checkboxes:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'ready-to-build') || contains(github.event.issue.labels.*.name, 'in-progress')
+    steps:
+      - name: Check Issue Checkboxes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            
+            // Count checkboxes
+            const checkboxRegex = /- \[([ x])\]/gi;
+            const matches = [...body.matchAll(checkboxRegex)];
+            
+            const total = matches.length;
+            const checked = matches.filter(m => m[1].toLowerCase() === 'x').length;
+            
+            // Create status comment
+            const percentage = total > 0 ? Math.round((checked / total) * 100) : 0;
+            const statusMessage = `## 📊 Issue Progress: ${checked}/${total} tasks (${percentage}%)
+            
+            ${percentage === 100 ? '✅ All tasks complete! Ready for PR.' : 
+              percentage >= 75 ? '🔄 Almost done! Keep going.' :
+              percentage >= 50 ? '⚡ Halfway there!' :
+              percentage >= 25 ? '🚀 Good start!' :
+              '📝 Just getting started...'}
+            
+            ${percentage < 100 ? `**Remaining tasks:** ${total - checked}` : '**Ready to create PR!**'}`;
+            
+            // Find or create progress comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number
+            });
+            
+            const botComment = comments.data.find(c => 
+              c.user.type === 'Bot' && 
+              c.body.includes('Issue Progress:')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: statusMessage
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: statusMessage
+              });
+            }
+            
+            // Add labels based on completion
+            const labels = issue.labels.map(l => l.name);
+            
+            if (percentage === 100 && !labels.includes('ready-for-pr')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['ready-for-pr']
+              });
+              
+              // Remove in-progress if exists
+              if (labels.includes('in-progress')) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: 'in-progress'
+                });
+              }
+            } else if (percentage > 0 && percentage < 100) {
+              if (!labels.includes('in-progress')) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['in-progress']
+                });
+              }
+              
+              // Remove ready-for-pr if it exists
+              if (labels.includes('ready-for-pr')) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  name: 'ready-for-pr'
+                });
+              }
+            }
+            
+            console.log(`Issue #${issue.number}: ${checked}/${total} checkboxes (${percentage}%)`);

@@ -19,7 +19,7 @@ When user runs `/create-feature $ARGUMENTS`, orchestrate the complete feature cr
 ### Phase 1: Feature Specification & Planning
 
 #### Step 1: Create Feature Specification
-1. Read the template: @templates/feature-specification-card.md (or fallback to @/home/gotime2022/Projects/mcp-kernel-new/.claude/templates/feature-specification-card.md)
+1. Read the template: @local-dev/feature-template.md
 2. Ask the user: 
    - "What feature do you want to build? Please describe what it should do, who will use it, and what problem it solves."
    - "What priority is this? (P0=Critical, P1=High, P2=Medium, P3=Low)"
