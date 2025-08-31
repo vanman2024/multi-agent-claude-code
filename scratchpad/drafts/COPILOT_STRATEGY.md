@@ -42,6 +42,32 @@ GitHub Copilot coding agent (public preview) is a powerful AI tool that autonomo
 - User reports: "does a really good job", "spends 10-15 minutes working"
 - Understands entire project context effectively
 
+## ⚠️ CRITICAL: The Divergence Problem
+
+### The Issue
+When Copilot works in GitHub while you work locally, dangerous divergence can occur:
+1. **Copilot creates PR** → Merges to main in GitHub
+2. **You don't pull** → Working on outdated code locally
+3. **Result**: Duplicate work, conflicts, or fixing already-fixed issues
+
+### The Solution: Mandatory Pull Points
+**ALWAYS run `git pull` at these critical points:**
+- Before creating any issue
+- After ANY PR merges (yours, Copilot's, anyone's)
+- Before running `/work` command
+- Before making ANY commits
+- Start of each work session
+
+### Slash Commands Auto-Pull
+Both `/create-issue` and `/work` now include automatic `git pull` to prevent divergence:
+```bash
+# Built into commands:
+if [[ "$LOCAL" != "$REMOTE" ]]; then
+  echo "🔄 Auto-pulling latest changes..."
+  git pull origin main
+fi
+```
+
 ## 🎯 NEW CAPABILITIES DISCOVERED (2025)
 
 ### Knowledge Bases (Enterprise Only)
