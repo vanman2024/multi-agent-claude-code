@@ -42,7 +42,8 @@ jobs:
             // Define allowed labels directly (simpler than reading file)
             const allowedLabels = [
               'bug', 'feature', 'enhancement', 'refactor', 
-              'documentation', 'test', 'chore', 'dependencies'
+              'documentation', 'test', 'chore', 'dependencies',
+              'draft', 'exploration', 'research', 'not-ready', 'quick-fix'
             ];
             
             // Get current labels
