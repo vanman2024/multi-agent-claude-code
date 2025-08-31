@@ -90,7 +90,7 @@ claude
 ### Everything Starts with an Issue
 
 ```bash
-# Create any type of work item
+# Create any type of work item (auto-pulls latest changes)
 /create-issue
 
 # Choose type: feature, bug, task, enhancement, refactor
@@ -101,7 +101,7 @@ claude
 ### Then Work on It
 
 ```bash
-# Work on specific issue
+# Work on specific issue (auto-pulls + creates branch/PR)
 /work #123
 
 # Or let AI pick the next priority
@@ -111,6 +111,9 @@ claude
 /work --deploy    # Deploy to Vercel
 /work --test      # Run test suite
 ```
+
+### ⚠️ Auto-Sync Protection
+Both commands automatically `git pull` to prevent divergence between GitHub (where Copilot works) and your local environment. No more working on stale code!
 
 ---
 
