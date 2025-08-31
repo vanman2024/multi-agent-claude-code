@@ -167,7 +167,15 @@ jobs:
               });
             }
             
+      # DISABLED: Branch/PR creation moved to /work command (Track 1 workflow)
+      # Issues should NOT create branches automatically
+      - name: Skip automatic branch creation
+        run: |
+          echo "Branch and PR creation happens via /work command, not automatically"
+          echo "This prevents unused branches from accumulating"
+          
       - name: Create implementation branch and draft PR
+        if: false  # DISABLED - keeping code for reference
         env:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
