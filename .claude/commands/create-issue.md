@@ -44,16 +44,20 @@ LOCAL=$(git rev-parse main)
 REMOTE=$(git rev-parse origin/main)
 
 if [[ "$LOCAL" != "$REMOTE" ]]; then
-  echo "❌ ERROR: Your main branch is not up to date!"
+  echo "⚠️ Your main branch is not up to date!"
+  echo "Local:  $LOCAL"
+  echo "Remote: $REMOTE"
   echo ""
-  echo "Run this command first:"
-  echo "  git pull origin main"
-  echo ""
-  echo "Local main:  $LOCAL"
-  echo "Remote main: $REMOTE"
-  echo ""
-  echo "See WORKFLOW.md for the required process."
-  exit 1
+  echo "🔄 Auto-pulling latest changes..."
+  git pull origin main
+  
+  if [ $? -ne 0 ]; then
+    echo "❌ ERROR: Failed to pull latest changes"
+    echo "Please resolve any conflicts and try again"
+    exit 1
+  fi
+  
+  echo "✅ Successfully pulled latest changes"
 fi
 
 echo "✅ On main branch with latest changes - proceeding..."
