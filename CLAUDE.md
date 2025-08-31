@@ -111,6 +111,81 @@ if (isSmallAndSimple) {
 
 **See full workflow details:** [.github/COPILOT-WORKFLOW.md](./.github/COPILOT-WORKFLOW.md)
 
+## CRITICAL WORKFLOW: Issue → PR → Merge → Deploy
+
+### ⚠️ NEVER Skip Steps in This Workflow
+
+**The Golden Rule**: ALWAYS create an issue BEFORE creating a PR
+
+### 🔄 MANDATORY PULL POINTS (Prevent Divergence)
+
+**ALWAYS run `git pull` at these points:**
+1. **Before creating any issue** - Start from latest code
+2. **After ANY PR merges** (yours, Copilot's, anyone's) - Stay synced
+3. **Before running `/work`** - Start implementation from latest
+4. **Before making ANY commits** - Ensure you're not duplicating work
+5. **Start of each work session** - Always begin fresh
+
+**Why this matters:**
+- Copilot works in GitHub, you work locally
+- Without pulling, you're working on OLD code
+- You could be fixing things already fixed
+- Massive conflicts and wasted work
+
+1. **Research Phase** (Scratchpad)
+   - Use scratchpad/drafts for exploration
+   - Use TodoWrite to plan tasks
+   - Don't create issues until strategy is solid
+
+2. **Issue Creation** (Planning)
+   ```bash
+   git pull  # MANDATORY: Sync before creating issue
+   /create-issue "Clear description of WHAT needs to be built"
+   ```
+   - Issues are planning documents (NO code yet)
+   - Use labels: bug, feature, enhancement, refactor, etc.
+   - For exploration: draft, research, exploration, not-ready
+   - NO branches created at this point
+   - NO PRs created at this point
+
+3. **Start Work** (Implementation)
+   ```bash
+   git pull  # MANDATORY: Sync before starting work
+   /work #123  # This creates branch AND draft PR
+   ```
+   - NOW branch is created
+   - NOW draft PR is created with "Closes #123" link
+   - All commits go in the PR
+
+4. **Complete Work**
+   - Check all PR checkboxes
+   - Run tests and linting
+   - Convert draft to ready
+   - Request review if needed
+
+5. **Merge**
+   ```bash
+   gh pr merge --squash --delete-branch
+   ```
+   - Issue auto-closes via "Closes #123"
+   - Branch is deleted
+   - Deployment triggers (if configured)
+
+### ❌ Common Mistakes to AVOID
+
+**NEVER DO THIS:**
+- Create PR without issue first (like I did with PR #73)
+- Create branches when issues are created
+- Make commits without a PR
+- Work without an issue number
+- Skip the research/planning phase
+
+**ALWAYS DO THIS:**
+- Issue first, then PR
+- Use `/work` command to start implementation
+- Keep issues as planning docs only
+- Put all code/commits in PRs
+
 ## Working with MCP Servers
 
 MCP (Model Context Protocol) servers allow Claude to interact with external tools and services. 
