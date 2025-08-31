@@ -42,7 +42,8 @@ jobs:
             // Define allowed labels directly (simpler than reading file)
             const allowedLabels = [
               'bug', 'feature', 'enhancement', 'refactor', 
-              'documentation', 'test', 'chore', 'dependencies'
+              'documentation', 'test', 'chore', 'dependencies',
+              'draft', 'exploration', 'research', 'not-ready'
             ];
             
             // Get current labels
@@ -73,6 +74,6 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: item.number,
-                body: `🏷️ **Removed unauthorized labels:** ${unauthorized.join(', ')}\n\nOnly these labels are allowed: bug, feature, enhancement, refactor, documentation, test, chore, dependencies`
+                body: `🏷️ **Removed unauthorized labels:** ${unauthorized.join(', ')}\n\nOnly these labels are allowed: bug, feature, enhancement, refactor, documentation, test, chore, dependencies, draft, exploration, research, not-ready`
               });
             }
