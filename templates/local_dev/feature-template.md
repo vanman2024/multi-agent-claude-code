@@ -90,71 +90,31 @@ CREATE TABLE feature_table (
 ```
 
 ## Testing Requirements
-
-### Unit Tests
-- [ ] Component tests for [components]
-- [ ] API endpoint tests
-- [ ] Utility function tests
-- [ ] State management tests
-
-### Integration Tests
-- [ ] Full user flow test
-- [ ] Database transaction tests
-- [ ] External API mocking
-- [ ] Error scenario handling
-
-### E2E Tests
-- [ ] Critical path: [Main flow]
-- [ ] Edge cases: [Scenarios]
-- [ ] Cross-browser compatibility
-- [ ] Mobile responsiveness
+- [ ] Unit tests needed for new components
+- [ ] Integration tests for user flows
+- [ ] E2E tests for critical paths
+- [ ] Performance testing if applicable
+- [ ] Accessibility testing required
 
 ## Deployment Considerations
+- [ ] Feature flag needed for gradual rollout
+- [ ] Database migrations required
+- [ ] Environment variables needed
+- [ ] Backward compatibility considerations
+- [ ] Rollback strategy defined
 
-### Environment Variables
-```env
-FEATURE_FLAG_NAME=false  # Enable/disable feature
-API_KEY_NEEDED=          # External service keys
-FEATURE_CONFIG=          # Configuration settings
-```
+## Risk & Dependencies
 
-### Migration Requirements
-- [ ] Database migrations needed?
-- [ ] Backward compatibility required?
-- [ ] Feature flag implementation?
-- [ ] Data backfill needed?
+### Technical Risks
+- [ ] Database schema changes may require migration
+- [ ] External API dependencies could fail
+- [ ] Performance impact on existing features
+- [ ] Browser compatibility issues
 
-### Rollback Plan
-1. Disable feature flag
-2. Revert deployment
-3. Restore database if needed
-4. Notify affected users
-
-## Implementation Phases
-
-### Phase 1: Foundation (Day 1)
-- [ ] Set up database schema
-- [ ] Create basic API endpoints
-- [ ] Initial component structure
-- [ ] Basic routing setup
-
-### Phase 2: Core Functionality (Day 2-3)
-- [ ] Implement business logic
-- [ ] Connect frontend to backend
-- [ ] Add validation
-- [ ] Implement state management
-
-### Phase 3: Polish (Day 4)
-- [ ] Error handling
-- [ ] Loading states
-- [ ] Testing
-- [ ] Performance optimization
-
-### Phase 4: Review & Deploy (Day 5)
-- [ ] Code review
-- [ ] Documentation
-- [ ] Production deployment
-- [ ] Monitor metrics
+### Project Dependencies
+- [ ] Dependent on [other feature/service]
+- [ ] Requires [approval/resource]
+- [ ] Blocked by [issue/limitation]
 
 ## Success Metrics
 
@@ -185,10 +145,7 @@ FEATURE_CONFIG=          # Configuration settings
 - [ ] Developer notes
 - [ ] Troubleshooting guide
 
-## Dependencies & Blockers
-- [ ] Dependent on [other feature/service]
-- [ ] Requires [approval/resource]
-- [ ] Blocked by [issue/limitation]
+
 
 ## Notes & References
 - Related issues: #
@@ -198,30 +155,30 @@ FEATURE_CONFIG=          # Configuration settings
 
 ---
 
-## How to Use This Template
+## Planning Guidelines
 
-1. **Copy this template** for each new feature
-2. **Fill in all sections** before starting development
-3. **Create GitHub issue** with the completed specification:
-   ```bash
-   gh issue create --title "Feature: [Name]" --body "[spec content]" --label "feature"
-   ```
-4. **Save locally** in project:
-   ```bash
-   mkdir -p docs/features
-   cp feature-template.md docs/features/[feature-name].md
-   ```
-5. **Update during development** as requirements change
-6. **Use for PR description** when creating pull request
+### Before Creating This Issue:
+1. **Validate the problem** - Does this solve a real user need?
+2. **Check for alternatives** - Are there existing solutions?
+3. **Define success clearly** - What does "done" look like?
+4. **Consider impact** - Who will this affect and how?
 
-## Quick Command Reference
+### This Issue Should Answer:
+- **WHAT** needs to be built (not HOW)
+- **WHY** it's needed (business value)
+- **WHO** will use it (target users)
+- **WHEN** it's needed (priority/timeline)
+
+### Implementation Details Go In:
+- **Pull Request** - Step-by-step implementation plan
+- **Code Comments** - Technical decisions and reasoning
+- **Documentation** - User guides and API docs
+
+### Quick Commands:
 ```bash
-# Create new feature from template
-cp feature-template.md docs/features/new-feature.md
+# Create feature issue from template
+gh issue create --title "Feature: [Name]" --template feature-template.md --label feature
 
-# Create GitHub issue
-gh issue create --title "Feature: Authentication" --body "$(cat docs/features/authentication.md)"
-
-# Link to PR
-gh pr create --title "Implements #123" --body "Closes #123"
+# Reference this issue in PRs
+gh pr create --title "Implement [feature name]" --body "Closes #[issue-number]"
 ```
