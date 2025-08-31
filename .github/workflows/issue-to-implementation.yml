@@ -18,6 +18,10 @@ jobs:
     if: github.event.action == 'opened'
     
     steps:
+      # Wait for auto-assign and project-automation workflows to complete (race condition mitigation)
+      - name: Wait for other workflows
+        run: sleep 20
+        
       - name: Parse issue template fields
         id: parse
         uses: actions/github-script@v7
@@ -256,19 +260,12 @@ jobs:
           
           $(if [ "$HAS_BLOCKERS" = "true" ]; then echo "⚠️ **Note:** Development is blocked by infrastructure issues."; fi)"
           
-          # Assign both the user and Copilot to the issue
+          # Assign the user to the issue
           gh issue edit ${ISSUE_NUMBER} --add-assignee @me
           
-          # Try different methods to assign Copilot
-          # Method 1: Direct assignee add
-          gh issue edit ${ISSUE_NUMBER} --add-assignee github-copilot || true
-          
-          # Method 2: Using API with proper format
-          gh api \
-            --method POST \
-            /repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/assignees \
-            --field assignees='["github-copilot"]' \
-            || echo "Note: Copilot assignment may need manual action"
+          # Note: Copilot assignment is handled by Claude Code agents via MCP tools
+          # GitHub workflows cannot directly assign the github-copilot user
+          echo "Issue assigned to creator. Copilot assignment will be handled by Claude Code agents."
             
       - name: Add task checklist to issue
         if: steps.parse.outputs.type == 'feature'

@@ -55,6 +55,10 @@ jobs:
       item-id: ${{ steps.add-to-project.outputs.itemId }}
     
     steps:
+      # Small delay to allow auto-assign workflow to complete first (race condition mitigation)
+      - name: Wait for auto-assign
+        run: sleep 10
+        
       - name: Add to project
         id: add-to-project
         uses: actions/add-to-project@v0.5.0
@@ -842,11 +846,11 @@ jobs:
               console.log(`Parsed Milestone: ${milestone}`);
             }
             
-            // Default milestone based on priority if not specified
+            // Default milestone based on priority if not specified (feature-based, not version-based)
             if (!milestone) {
-              if (priority === 'P0') milestone = 'v0.1.0';
-              else if (priority === 'P1') milestone = 'v0.2.0';
-              else if (priority === 'P2') milestone = 'v0.3.0';
+              if (priority === 'P0') milestone = 'Critical Features';
+              else if (priority === 'P1') milestone = 'Core Features';
+              else if (priority === 'P2') milestone = 'Enhancements';
               else milestone = 'Backlog';
               console.log(`Using default milestone based on priority: ${milestone}`);
             }
@@ -921,49 +925,13 @@ jobs:
               }
             }
             
-            // Set Component field - dynamic lookup with fallback
+            // Set Component field - simple case-insensitive matching only (plumbing operation)
             const componentField = fields.find(f => f.name === 'Component');
             if (componentField && component) {
-              // Find matching component option (case-insensitive)
-              let componentOption = componentField.options?.find(o => 
+              // Simple direct match only - no intelligent mapping
+              const componentOption = componentField.options?.find(o => 
                 o.name.toLowerCase() === component.toLowerCase()
               );
-              
-              // If not found, try to find a similar component or use a fallback
-              if (!componentOption) {
-                console.log(`Component '${component}' not found in options: ${componentField.options?.map(o => o.name).join(', ')}`);
-                
-                // Map common missing components to existing ones
-                const componentMapping = {
-                  'payments': 'Integration',
-                  'payment': 'Integration',
-                  'billing': 'Integration',
-                  'ui': 'Frontend',
-                  'ux': 'Frontend',
-                  'api': 'API Gateway',
-                  'server': 'Backend',
-                  'db': 'Database',
-                  'cicd': 'CI/CD',
-                  'auth': 'Auth',
-                  'authentication': 'Auth',
-                  'authorization': 'Auth',
-                  'ml': 'Core Logic',
-                  'ai': 'Core Logic',
-                  'search': 'Core Logic'
-                };
-                
-                const mappedComponent = componentMapping[component.toLowerCase()];
-                if (mappedComponent) {
-                  componentOption = componentField.options?.find(o => o.name === mappedComponent);
-                  console.log(`Mapped '${component}' to '${mappedComponent}'`);
-                }
-                
-                // If still not found, use Backend as default
-                if (!componentOption) {
-                  componentOption = componentField.options?.find(o => o.name === 'Backend');
-                  console.log(`Using default component: Backend`);
-                }
-              }
               
               if (componentOption) {
                 await github.graphql(`
@@ -984,6 +952,8 @@ jobs:
                   optionId: componentOption.id
                 });
                 console.log(`Set Component to ${componentOption.name}`);
+              } else {
+                console.log(`Component '${component}' not found - no fallback logic (plumbing only)`);
               }
             }
             
@@ -1125,9 +1095,9 @@ jobs:
               }
             }
             
-            // Assign user and engage Copilot
+            // Assign user and add standard engagement comment
             try {
-              // First assign the issue creator
+              // Assign the issue creator (simple plumbing operation)
               await github.rest.issues.addAssignees({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -1136,15 +1106,15 @@ jobs:
               });
               console.log('Assigned issue creator');
               
-              // Engage Copilot via comment (the correct way for GitHub Copilot in orgs)
+              // Add standard issue comment (plumbing only, no intelligence)
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.issue.number,
-                body: '🤖 @copilot please help implement this feature following the specifications above.\\n\\nKey requirements:\\n- Follow the acceptance criteria\\n- Use existing patterns from the codebase\\n- Add proper error handling\\n- Include tests for new functionality'
+                body: '✅ **Issue processed** - Added to project board and assigned.\n\n**Next Steps:**\n- Review the generated branch and draft PR\n- Agent assignment will be handled by Claude Code orchestration system'
               });
-              console.log('Added Copilot engagement comment');
+              console.log('Added standard issue comment');
               
             } catch (error) {
-              console.log('Error with Copilot engagement:', error.message);
+              console.log('Error with issue assignment:', error.message);
             }
