@@ -82,21 +82,12 @@ jobs:
             if (milestoneMatch) {
               milestone = milestoneMatch[1].trim();
             }
-            // Default milestone - now using descriptive names instead of versions
-            if (!milestone) {
-              // Suggest milestone based on issue type and priority
-              if (issueType === 'bug') {
-                milestone = 'Bug Fixes';
-              } else if (priority === 'P0') {
-                milestone = 'Critical Features';
-              } else if (priority === 'P1') {
-                milestone = 'Core Features';  
-              } else if (priority === 'P2') {
-                milestone = 'Enhancements';
-              } else {
-                milestone = 'Backlog';
-              }
-            }
+            // REMOVED: Static milestone assignment
+            // Milestones should be:
+            // 1. Explicitly set in issue body, OR
+            // 2. Set manually by maintainers, OR  
+            // 3. Intelligently determined by AI agents (not static rules)
+            // DO NOT auto-assign milestones based on priority/type
             
             core.setOutput('priority', priority);
             core.setOutput('component', component);
@@ -193,10 +184,14 @@ jobs:
           ISSUE_TITLE=$(echo "${{ github.event.issue.title }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-30)
           BRANCH_NAME="${ISSUE_TYPE}/${ISSUE_NUMBER}-${ISSUE_TITLE}"
           
-          # Assign milestone to the issue
+          # Only assign milestone if explicitly provided in issue body
+          # DO NOT auto-assign based on static rules
           MILESTONE="${{ steps.parse.outputs.milestone }}"
           if [ ! -z "$MILESTONE" ]; then
+            echo "Milestone explicitly set in issue body: $MILESTONE"
             gh issue edit ${ISSUE_NUMBER} --milestone "$MILESTONE" || echo "Could not set milestone: $MILESTONE"
+          else
+            echo "No milestone specified - leaving unset for manual assignment"
           fi
           
           # Create and link branch using gh CLI
