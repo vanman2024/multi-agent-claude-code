@@ -1,0 +1,154 @@
+name: Task
+description: Create a specific task (usually part of a larger feature)
+title: "[TASK]: "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Task Definition
+        Use this for specific, actionable tasks that are part of a larger feature.
+        
+  - type: input
+    id: parent_issue
+    attributes:
+      label: Parent Issue/Feature
+      description: Which feature or epic does this belong to?
+      placeholder: "Part of #123"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: Task Description
+      description: What needs to be done?
+      placeholder: |
+        Implement...
+        Create...
+        Update...
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task Type
+      description: What kind of work is this?
+      options:
+        - "Implementation - Write new code"
+        - "Testing - Write tests"
+        - "Documentation - Update docs"
+        - "Refactoring - Improve code"
+        - "Bug Fix - Fix specific issue"
+        - "Configuration - Update settings"
+        - "Research - Investigate solution"
+        - "Review - Code review needed"
+      default: 0
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: assigned_agent
+    attributes:
+      label: Assigned Agent
+      description: Which agent should handle this?
+      options:
+        - "TBD - To be determined"
+        - "GitHub Copilot (Complexity 1-2, Size XS/S)"
+        - "frontend-tester"
+        - "backend-tester"
+        - "architect"
+        - "security"
+        - "refactor"
+        - "integrations"
+        - "Human developer"
+      default: 0
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Complexity
+      description: How complex is this task? (for agent routing)
+      options:
+        - "1 - Trivial"
+        - "2 - Simple"
+        - "3 - Moderate"
+        - "4 - Complex"
+        - "5 - Very Complex"
+      default: 1
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      description: How much code? (for agent routing)
+      options:
+        - "XS - Few lines"
+        - "S - Single file"
+        - "M - Multiple files"
+        - "L - Multiple components"
+        - "XL - System-wide"
+      default: 1
+    validations:
+      required: true
+      
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Definition of Done
+      description: When is this task complete?
+      value: |
+        - [ ] Code implemented
+        - [ ] Tests written
+        - [ ] Tests passing
+        - [ ] Documentation updated
+        - [ ] Code reviewed
+    validations:
+      required: true
+      
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: What must be done first?
+      placeholder: |
+        Depends on #456
+        Blocked by #789
+        
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this task?
+      options:
+        - "P0 - Critical (Do now)"
+        - "P1 - High (Do this sprint)"
+        - "P2 - Medium (Do soon)"
+        - "P3 - Low (Do eventually)"
+      default: 2
+    validations:
+      required: true
+      
+  - type: input
+    id: estimated_time
+    attributes:
+      label: Time Estimate
+      description: How long will this take?
+      placeholder: "2 hours, 1 day, 3 days"
+      
+  - type: checkboxes
+    id: ready
+    attributes:
+      label: Ready to Start?
+      options:
+        - label: Requirements are clear
+          required: true
+        - label: Dependencies are resolved
+          required: false
+        - label: Agent/developer assigned
+          required: false

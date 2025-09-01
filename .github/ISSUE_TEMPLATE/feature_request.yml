@@ -1,0 +1,159 @@
+name: Feature Request
+description: Suggest a new feature or capability
+title: "[FEATURE]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Before You Submit
+        Please search existing issues to see if this feature has been requested.
+  
+  - type: input
+    id: related_issues
+    attributes:
+      label: Related Issues/PRs
+      description: Link any related issues, PRs, or discussions (use #number)
+      placeholder: "Relates to #123, Depends on #456"
+        
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      description: What do you want to build? Be specific.
+      placeholder: |
+        I want to be able to...
+        This would allow users to...
+        The benefit would be...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem it Solves
+      description: What problem does this feature address?
+      placeholder: |
+        Currently, users have to...
+        This is frustrating because...
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this work? Include mockups if you have them.
+      placeholder: |
+        The feature would...
+        Users would interact by...
+        The workflow would be...
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Complexity
+      description: How complex is this to implement? (1=Simple, 5=Very Complex)
+      options:
+        - "1 - Trivial (< 1 hour)"
+        - "2 - Simple (few hours)"
+        - "3 - Moderate (1-2 days)"
+        - "4 - Complex (3-5 days)"
+        - "5 - Very Complex (1+ week)"
+      default: 2
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      description: How much code will this touch?
+      options:
+        - "XS - Single file"
+        - "S - Few files"
+        - "M - Multiple components"
+        - "L - Major feature"
+        - "XL - System-wide"
+      default: 2
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Components
+      description: Which parts need work? (select all that apply)
+      multiple: true
+      options:
+        - Frontend UI
+        - Backend API
+        - Database Schema
+        - Authentication
+        - Agent System
+        - GitHub Actions
+        - MCP Servers
+        - Documentation
+        - Testing
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: agent_assignment
+    attributes:
+      label: Suggested Agent
+      description: Which agent should handle this?
+      options:
+        - "GitHub Copilot (if Complexity 1-2 AND Size XS/S)"
+        - "frontend-tester"
+        - "backend-tester"
+        - "architect"
+        - "security"
+        - "refactor"
+        - "integrations"
+        - "Multiple agents needed"
+      default: 7
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: What other approaches did you consider?
+      placeholder: |
+        Alternative 1: ...
+        Alternative 2: ...
+        
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: How will we know this is complete?
+      value: |
+        - [ ] User can...
+        - [ ] System handles...
+        - [ ] Tests pass for...
+        - [ ] Documentation updated
+    validations:
+      required: true
+      
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Screenshots, mockups, examples, or references
+      
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate
+          required: true
+        - label: This feature would benefit multiple users
+          required: false
+        - label: I'm willing to help implement this
+          required: false
+        - label: I can help test this feature
+          required: false
