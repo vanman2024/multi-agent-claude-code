@@ -14,6 +14,13 @@ This document ties together all our workflow documentation:
 
 ## 🔄 The Complete Flow
 
+### 🤖 Automated vs Manual
+- **Phase 1 (Issue)**: Manual via `/create-issue`
+- **Phase 2 (Implementation)**: Manual coding
+- **Phase 3 (Testing)**: AUTOMATIC on every PR push
+- **Phase 4 (Review)**: Manual approval required
+- **Phase 5 (Deploy)**: AUTOMATIC on merge to main
+
 ### Phase 1: ISSUE CREATION
 **Command**: `/create-issue`
 **Docs**: See [WORKFLOW.md](./drafts/WORKFLOW.md#1-issue-planning-phase)
@@ -64,23 +71,52 @@ This document ties together all our workflow documentation:
    - Tests must pass
    - Linting must pass
 
-### Phase 3: REVIEW & MERGE
+### Phase 3: TESTING (CI/CD Pipeline)
+**Triggers**: AUTOMATIC on:
+- PR opened
+- PR updated (new commits)
+- PR reopened
+- Push to main/develop
+
+**Workflow**: [ci-cd-pipeline.yml](./../.github/workflows/ci-cd-pipeline.yml)
+
+1. **Quality Gates** (Stage 1)
+   - Linting (ESLint/Flake8)
+   - Type checking
+   - Code formatting (Prettier)
+
+2. **Unit Tests** (Stage 2)
+   - Run test suites
+   - Coverage reporting
+   - Must pass for merge
+
+3. **Integration Tests** (Stage 3)
+   - API endpoint testing
+   - Database migrations
+   - E2E tests (if configured)
+
+4. **Security Scans** (Stage 4)
+   - Dependency vulnerabilities
+   - Code security analysis
+   - Secret scanning
+
+### Phase 4: REVIEW & MERGE
 **Docs**: See [GITHUB_WORKFLOWS.md](./wip/GITHUB_WORKFLOWS.md)
 
 1. **Check all boxes**
    - Implementation complete
-   - Tests passing
+   - Tests passing (from CI/CD)
    - Documentation updated
    - See [CHECKBOXES.md](./wip/CHECKBOXES.md)
 
 2. **Convert draft to ready**
 
-3. **Merge**
+3. **Merge** (only if CI/CD passes)
    ```bash
    gh pr merge --squash --delete-branch
    ```
 
-### Phase 4: DEPLOYMENT
+### Phase 5: DEPLOYMENT
 **Docs**: See [DEPLOY.md](./wip/DEPLOY.md)
 
 1. **Automatic deployment** (if configured)
