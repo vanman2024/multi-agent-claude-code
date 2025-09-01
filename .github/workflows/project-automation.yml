@@ -50,7 +50,8 @@ jobs:
   add-to-project:
     name: Add Issue to Project
     runs-on: ubuntu-latest
-    if: (github.event.issue && github.event.action == 'opened') || github.event_name == 'workflow_dispatch'
+    # DISABLED: Running manual workflow for now
+    if: false  # Was: (github.event.issue && github.event.action == 'opened') || github.event_name == 'workflow_dispatch'
     outputs:
       item-id: ${{ steps.add-to-project.outputs.itemId }}
     
