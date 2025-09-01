@@ -111,7 +111,16 @@ Based on the type, read the template:
 Using the template structure:
 1. Replace placeholders with actual content
 2. Keep all checkboxes unchecked `[ ]` (they represent work to be done)
-3. Add complexity and size metadata
+3. Add metadata section at the bottom:
+   ```markdown
+   ---
+   **Metadata** (for automation parsing):
+   - **Priority**: P0/P1/P2/P3 (ask user)
+   - **Complexity**: 1-5 (from Step 1)
+   - **Size**: XS/S/M/L/XL (from Step 1)
+   - **Component**: Frontend/Backend/Database/Auth/Infra
+   - **Milestone**: (Optional - ask user: MVP Core/Beta/v1.0 or leave blank)
+   ```
 4. Include acceptance criteria
 5. Add testing requirements section
 
@@ -278,7 +287,29 @@ function getTaskInstructions(taskType) {
 }
 ```
 
-### Step 7: Sprint Assignment (Optional)
+### Step 7: Milestone Assignment (Optional)
+
+Ask user if they want to assign a milestone:
+```bash
+# List available milestones
+echo "Available milestones:"
+gh api repos/vanman2024/multi-agent-claude-code/milestones --jq '.[] | "\(.number): \(.title)"'
+
+# Ask user to select milestone (or skip)
+echo "Select milestone number (or press Enter to skip):"
+read MILESTONE_NUMBER
+
+if [[ ! -z "$MILESTONE_NUMBER" ]]; then
+  # Get milestone title for confirmation
+  MILESTONE_TITLE=$(gh api repos/vanman2024/multi-agent-claude-code/milestones --jq ".[] | select(.number==$MILESTONE_NUMBER) | .title")
+  echo "Assigning to milestone: $MILESTONE_TITLE"
+  gh issue edit $ISSUE_NUMBER --milestone $MILESTONE_NUMBER
+else
+  echo "No milestone assigned - can be set manually later"
+fi
+```
+
+### Step 8: Sprint Assignment (Optional)
 
 Ask if this should be added to current sprint:
 ```bash
@@ -290,7 +321,7 @@ gh issue list --label "sprint:current" --json number | jq length
 # Warn if sprint has > 10 issues
 ```
 
-### Step 8: Priority Setting
+### Step 9: Priority Setting
 
 Ask for priority (P0/P1/P2/P3):
 ```bash
@@ -303,7 +334,7 @@ if [[ $PRIORITY == "0" ]]; then
 fi
 ```
 
-### Step 9: Summary
+### Step 10: Summary
 
 Provide the user with:
 ```bash
@@ -330,6 +361,11 @@ fi
 - No manual project board management needed
 - Dependencies should be tracked with "Depends on #XX" in issue body
 - Sprint labels help with work prioritization in `/work` command
+- **Milestones**: 
+  - Used for high-level release goals (MVP Core, Beta, v1.0)
+  - NOT automatically assigned based on priority/type
+  - Can be set manually or left blank for later assignment
+  - Different from Projects (which track sprints/when work happens)
 - **Copilot Capabilities**: 
   - **Implementation**: Simple features (Complexity ≤2, Size XS/S)
   - **Unit Tests**: Can write comprehensive test suites
