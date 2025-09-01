@@ -134,8 +134,8 @@ Use mcp__github__create_issue with:
 - owner: from repository context
 - repo: from repository context
 - title: provided by user
-- body: filled template + complexity/size metadata + testing requirements
-- labels: [issue-type, "complexity-X", "size-Y"]
+- body: filled template with metadata section + testing requirements
+- labels: [issue-type] (ONLY the type: bug, feature, enhancement, refactor, task)
 
 ### Step 5: Check Dependencies
 
@@ -327,16 +327,8 @@ gh issue list --label "sprint:current" --json number | jq length
 
 ### Step 9: Priority Setting
 
-Ask for priority (P0/P1/P2/P3):
-```bash
-# Add priority label
-gh issue edit $ISSUE_NUMBER --add-label "P$PRIORITY"
-
-# If P0, also add urgent label
-if [[ $PRIORITY == "0" ]]; then
-  gh issue edit $ISSUE_NUMBER --add-label "urgent"
-fi
-```
+Ask for priority (P0/P1/P2/P3) and add it to the metadata section in issue body.
+DO NOT add priority as a label - it's tracked in the metadata and project board fields.
 
 ### Step 10: Summary
 

@@ -46,11 +46,18 @@ jobs:
     # For PRs: only if not from a fork
     # For comments: only if user types @gemini-cli and is OWNER/MEMBER/COLLABORATOR
     # For issues: only on open/reopen
-    # Only trigger on manual @gemini-cli invocation, not automatically
     if: |-
-      github.event.sender.type == 'User' &&
-      startsWith(github.event.comment.body || github.event.review.body || github.event.issue.body || github.event.pull_request.body || '', '@gemini-cli') &&
-      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association || github.event.pull_request.author_association)
+      (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.fork == false
+      ) || (
+        github.event.sender.type == 'User' &&
+        startsWith(github.event.comment.body || github.event.review.body || github.event.issue.body, '@gemini-cli') &&
+        contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association)
+      ) || (
+        github.event_name == 'issues' &&
+        contains(fromJSON('["opened", "reopened"]'), github.event.action)
+      )
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
@@ -86,7 +93,6 @@ jobs:
             const eventType = process.env.EVENT_TYPE
             core.setOutput('request', request);
 
-            // Only process manual @gemini-cli invocations
             if (request.startsWith("@gemini-cli /review")) {
               core.setOutput('command', 'review');
               const additionalContext = request.replace(/^@gemini-cli \/review/, '').trim();
@@ -97,6 +103,10 @@ jobs:
               core.setOutput('command', 'invoke');
               const additionalContext = request.replace(/^@gemini-cli/, '').trim();
               core.setOutput('additional_context', additionalContext);
+            } else if (eventType === 'pull_request.opened') {
+              core.setOutput('command', 'review');
+            } else if (['issues.opened', 'issues.reopened'].includes(eventType)) {
+              core.setOutput('command', 'triage');
             } else {
               core.setOutput('command', 'fallthrough');
             }

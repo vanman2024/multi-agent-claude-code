@@ -40,7 +40,7 @@
 **Points**: 2
 **Goal**: Features
 **Component**: Backend
-**Milestone**: 
+**Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]
 
 ---
 **Labels:** type:task

@@ -161,7 +161,7 @@ CREATE TABLE feature_table (
 **Points**: 5
 **Goal**: Features
 **Component**: Frontend
-**Milestone**: 
+**Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]
 
 ---
 

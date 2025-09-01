@@ -46,7 +46,7 @@
 **Points**: 3
 **Goal**: Tech Debt
 **Component**: Backend
-**Milestone**: 
+**Milestone**: [Optional for bugs]
 
 ---
 **Labels:** type:bug

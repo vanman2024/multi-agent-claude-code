@@ -57,7 +57,7 @@ Files affected:
 **Points**: 8
 **Goal**: Tech Debt
 **Component**: Backend
-**Milestone**: 
+**Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]
 
 ---
 **Labels:** type:refactor, technical-debt
