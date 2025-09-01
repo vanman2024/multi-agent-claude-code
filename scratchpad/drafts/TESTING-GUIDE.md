@@ -1,8 +1,8 @@
-# Claude Code Hooks Testing Guide
+# Complete Testing Guide
 
 ## Testing Strategy
 
-Our testing approach is divided into three layers:
+Our testing approach is divided into automated and specialized testing:
 
 ### 1. CI/CD Automated Tests (GitHub Actions)
 **What**: Code quality, syntax, type checking, coverage
@@ -37,7 +37,55 @@ Tests cover:
 - Environment variable handling
 - Error conditions
 
-### 3. Integration Testing (Local Manual)
+### 3. Frontend Testing (Playwright Agent)
+**What**: UI/UX testing, browser automation, E2E flows
+**When**: After frontend changes, before PR ready
+**Where**: Uses `frontend-playwright-tester` agent
+**Agent**: `.claude/agents/frontend-playwright-tester.md`
+
+Tests cover:
+- User interaction flows (login, checkout, navigation)
+- Cross-browser compatibility
+- Responsive design (mobile, tablet, desktop)
+- Form validation and submission
+- Error states and loading states
+- Accessibility compliance
+- Visual regression testing
+
+Run frontend tests:
+```bash
+# Ensure frontend is running
+npm run dev  # Should be on http://localhost:3002
+
+# Use the agent
+/task frontend-playwright-tester "Test the login flow"
+```
+
+### 4. Backend Testing (Backend-Tester Agent)
+**What**: API testing, database operations, business logic
+**When**: After backend changes, before deployment
+**Where**: Uses `backend-tester` agent
+**Agent**: `.claude/agents/backend-tester.md`
+
+Tests cover:
+- API endpoint functionality
+- Database CRUD operations
+- Authentication/authorization
+- Data validation and sanitization
+- Error handling and edge cases
+- Performance and load testing
+- Integration with external services
+
+Run backend tests:
+```bash
+# Run unit tests
+npm test  # or pytest for Python
+
+# Use the agent for comprehensive testing
+/task backend-tester "Test the user registration API"
+```
+
+### 5. Integration Testing (Local Manual)
 **What**: End-to-end hook behavior in Claude Code
 **When**: Before marking PR complete
 **Where**: Local Claude Code session

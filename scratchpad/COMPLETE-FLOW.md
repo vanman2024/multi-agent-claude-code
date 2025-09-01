@@ -71,34 +71,34 @@ This document ties together all our workflow documentation:
    - Tests must pass
    - Linting must pass
 
-### Phase 3: TESTING (CI/CD Pipeline)
-**Triggers**: AUTOMATIC on:
-- PR opened
-- PR updated (new commits)
-- PR reopened
-- Push to main/develop
+### Phase 3: TESTING (Multiple Layers)
+**Docs**: See [TESTING-GUIDE.md](./drafts/TESTING-GUIDE.md)
 
+#### 3A. Automated CI/CD Tests
+**Triggers**: AUTOMATIC on PR events
 **Workflow**: [ci-cd-pipeline.yml](./../.github/workflows/ci-cd-pipeline.yml)
 
-1. **Quality Gates** (Stage 1)
-   - Linting (ESLint/Flake8)
-   - Type checking
-   - Code formatting (Prettier)
+- **Quality Gates**: Linting, type checking, formatting
+- **Unit Tests**: Test suites with coverage
+- **Security Scans**: Vulnerabilities, secrets
 
-2. **Unit Tests** (Stage 2)
-   - Run test suites
-   - Coverage reporting
-   - Must pass for merge
+#### 3B. Frontend Testing (When Needed)
+**Agent**: `frontend-playwright-tester`
+**When**: After UI changes
 
-3. **Integration Tests** (Stage 3)
-   - API endpoint testing
-   - Database migrations
-   - E2E tests (if configured)
+- Browser automation with Playwright
+- User flow testing (login, checkout, etc.)
+- Cross-browser & responsive testing
+- Visual regression testing
 
-4. **Security Scans** (Stage 4)
-   - Dependency vulnerabilities
-   - Code security analysis
-   - Secret scanning
+#### 3C. Backend Testing (When Needed)
+**Agent**: `backend-tester`
+**When**: After API/database changes
+
+- API endpoint testing
+- Database operations
+- Authentication testing
+- Performance testing
 
 ### Phase 4: REVIEW & MERGE
 **Docs**: See [GITHUB_WORKFLOWS.md](./wip/GITHUB_WORKFLOWS.md)
