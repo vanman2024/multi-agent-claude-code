@@ -1,10 +1,26 @@
 # GitHub Development Workflow - AUTHORITATIVE VERSION
 
-## ⚠️ THIS IS THE ONLY WORKFLOW - NO EXCEPTIONS
+## ⚠️ TWO-TRACK WORKFLOW SYSTEM
 
-### Core Principle: Issues → PRs → Merge → Deploy
+### Core Principle: Balance Between Process and Pragmatism
 
-## 🔴 CRITICAL: The Standard Flow
+## 🚦 Two Tracks for Different Work
+
+### Track 1: REAL WORK (Issue → PR → Merge)
+**When to use**: Features, bugs, enhancements, anything > 5 minutes
+- Requires planning and discussion
+- Needs tracking and visibility
+- Multiple commits expected
+- May involve multiple files
+
+### Track 2: QUICK FIXES (Direct PR → Merge)  
+**When to use**: Typos, cleanup, tiny fixes < 5 minutes
+- No planning needed
+- Single obvious change
+- Usually single commit
+- Low risk of breaking anything
+
+## 🔴 Track 1: Standard Flow (REAL WORK)
 
 ### 1. ISSUE (Planning Phase)
 **Purpose**: Define WHAT needs to be built

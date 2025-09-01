@@ -50,15 +50,6 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/sync-to-github.sh"
-          }
-        ]
-      },
-      {
         "matcher": "TodoWrite",
         "hooks": [
           {

@@ -14,6 +14,8 @@ permissions:
 jobs:
   auto-assign:
     runs-on: ubuntu-latest
+    # DISABLED: Running manual workflow for now
+    if: false  # Manual assignment for now
     
     steps:
       - name: Check if creator is team member
