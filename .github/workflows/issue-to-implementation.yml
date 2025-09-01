@@ -5,11 +5,6 @@ on:
     types: [opened]
   issue_comment:
     types: [created]
-  workflow_dispatch:  # Allow manual trigger for testing
-
-# DISABLED: Running manual workflow for now
-# Remove this line to re-enable
-if: false
 
 permissions:
   contents: write
