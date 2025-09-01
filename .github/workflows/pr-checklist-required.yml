@@ -3,12 +3,6 @@ name: Enforce PR Checkboxes
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened, ready_for_review]
-  pull_request_review:
-    types: [submitted, edited, dismissed]
-  issue_comment:
-    types: [created, edited, deleted]
-  issues:
-    types: [opened, edited]  # Also check issue checkboxes
 
 permissions:
   pull-requests: read
