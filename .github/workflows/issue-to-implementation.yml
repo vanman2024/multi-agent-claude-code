@@ -329,12 +329,8 @@ jobs:
   handle-commands:
     name: Handle Slash Commands
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'issue_comment' && 
-      github.event.action == 'created' &&
-      (contains(github.event.comment.body, '/implement') ||
-       contains(github.event.comment.body, '/assign-copilot') ||
-       contains(github.event.comment.body, '/status'))
+    # DISABLED: Running manual workflow for now
+    if: false  # Commands handled manually for now
     
     steps:
       - name: Process command
