@@ -27,11 +27,38 @@ When someone clones this template, they get a complete development framework rea
 - **Claude Code Agents**: Handle complex tasks locally with full MCP tool access
 - **No @claude App**: We avoid the @claude GitHub App to prevent usage costs
 
+### Simplified Slash Commands (Only 2!)
+
+We've simplified everything to just TWO commands:
+
+#### 1. `/create-issue` - Universal Issue Creation
+Creates ANY type of work item with automatic routing:
+```bash
+/create-issue "Add user authentication"
+```
+- Handles: features, bugs, enhancements, refactors, tasks
+- Auto-assigns to Copilot for simple work (Complexity ≤2, Size XS/S)
+- Routes complex work to Claude Code agents
+- Applies proper labels and milestones
+
+#### 2. `/work` - Universal Work Implementation  
+One command for ALL implementation needs:
+```bash
+/work #123           # Work on specific issue
+/work                # Auto-pick next issue from sprint
+/work --deploy       # Deploy current work
+/work --test         # Run tests for current work
+```
+- Intelligently selects next task based on priorities
+- Analyzes dependencies and blockers
+- Creates branches and PRs automatically
+- Updates issue status throughout
+
 ### Best Practices
 - Use `/create-issue` to create issues with proper routing
 - Simple tasks auto-assign to GitHub Copilot (free with GitHub Pro)
 - Complex tasks require local Claude Code agents
-- Use `/build-feature` to start local implementation
+- Use `/work` to start local implementation
 
 ## System Architecture: The House Metaphor 🏗️
 
@@ -137,25 +164,28 @@ if (isSmallAndSimple) {
    - Use TodoWrite to plan tasks
    - Don't create issues until strategy is solid
 
-2. **Issue Creation** (Planning)
+2. **Issue Creation** (Planning) - Use `/create-issue`
    ```bash
    git pull  # MANDATORY: Sync before creating issue
    /create-issue "Clear description of WHAT needs to be built"
    ```
+   - Universal command for ALL issue types
    - Issues are planning documents (NO code yet)
-   - Use labels: bug, feature, enhancement, refactor, etc.
-   - For exploration: draft, research, exploration, not-ready
+   - Automatically determines complexity and routing
+   - Auto-assigns to Copilot for simple tasks
    - NO branches created at this point
    - NO PRs created at this point
 
-3. **Start Work** (Implementation)
+3. **Start Work** (Implementation) - Use `/work`
    ```bash
    git pull  # MANDATORY: Sync before starting work
    /work #123  # This creates branch AND draft PR
    ```
-   - NOW branch is created
+   - Universal command for ALL implementation
+   - NOW branch is created  
    - NOW draft PR is created with "Closes #123" link
    - All commits go in the PR
+   - Also supports: `/work` (auto-select), `/work --test`, `/work --deploy`
 
 4. **Complete Work**
    - Check all PR checkboxes
