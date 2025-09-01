@@ -13,7 +13,7 @@ jobs:
   require-checkboxes:
     name: Require All Checkboxes
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event.issue.pull_request
+    if: github.event_name == 'pull_request'
     steps:
       - name: Require Checklist
         uses: mheap/require-checklist-action@v2
