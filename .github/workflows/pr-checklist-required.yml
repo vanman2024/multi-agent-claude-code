@@ -19,8 +19,6 @@ jobs:
         uses: mheap/require-checklist-action@v2
         with:
           requireChecklist: true  # Fail if no checklists found
-          skipDescriptionRegex: .*\(optional\).*  # Skip items marked as optional
-          skipDescriptionRegexFlags: i
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
