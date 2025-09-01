@@ -15,7 +15,8 @@ jobs:
   process-new-issue:
     name: Process New Issue
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened'
+    # DISABLED: Running manual workflow for now
+    if: false  # Was: github.event.action == 'opened'
     
     steps:
       # Wait for auto-assign and project-automation workflows to complete (race condition mitigation)
