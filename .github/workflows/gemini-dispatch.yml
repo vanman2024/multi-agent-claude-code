@@ -86,6 +86,7 @@ jobs:
             const eventType = process.env.EVENT_TYPE
             core.setOutput('request', request);
 
+            // Only process manual @gemini-cli invocations
             if (request.startsWith("@gemini-cli /review")) {
               core.setOutput('command', 'review');
               const additionalContext = request.replace(/^@gemini-cli \/review/, '').trim();
@@ -96,10 +97,6 @@ jobs:
               core.setOutput('command', 'invoke');
               const additionalContext = request.replace(/^@gemini-cli/, '').trim();
               core.setOutput('additional_context', additionalContext);
-            } else if (eventType === 'pull_request.opened') {
-              core.setOutput('command', 'review');
-            } else if (['issues.opened', 'issues.reopened'].includes(eventType)) {
-              core.setOutput('command', 'triage');
             } else {
               core.setOutput('command', 'fallthrough');
             }
