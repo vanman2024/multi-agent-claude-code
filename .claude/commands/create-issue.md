@@ -111,15 +111,19 @@ Based on the type, read the template:
 Using the template structure:
 1. Replace placeholders with actual content
 2. Keep all checkboxes unchecked `[ ]` (they represent work to be done)
-3. Add metadata section at the bottom:
+3. Add metadata section at the bottom (EXACTLY as shown):
    ```markdown
    ---
-   **Metadata** (for automation parsing):
-   - **Priority**: P0/P1/P2/P3 (ask user)
-   - **Complexity**: 1-5 (from Step 1)
-   - **Size**: XS/S/M/L/XL (from Step 1)
-   - **Component**: Frontend/Backend/Database/Auth/Infra
-   - **Milestone**: (Optional - ask user: MVP Core/Beta/v1.0 or leave blank)
+   
+   ## Metadata
+   *For automation parsing - DO NOT REMOVE*
+   
+   **Priority**: P0/P1/P2/P3 (ask user)
+   **Size**: XS/S/M/L/XL (from Step 1)
+   **Points**: [1-13 based on size: XS=1-2, S=2-3, M=5, L=8, XL=13]
+   **Goal**: Features/User Experience/Performance/Tech Debt/MVP (ask user)
+   **Component**: Frontend/Backend/Database/Auth/Infra
+   **Milestone**: (Optional - ask user or leave blank)
    ```
 4. Include acceptance criteria
 5. Add testing requirements section
