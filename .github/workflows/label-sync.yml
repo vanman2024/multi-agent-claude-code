@@ -43,7 +43,8 @@ jobs:
             const allowedLabels = [
               'bug', 'feature', 'enhancement', 'refactor', 
               'documentation', 'test', 'chore', 'dependencies',
-              'draft', 'exploration', 'research', 'not-ready', 'quick-fix'
+              'draft', 'exploration', 'research', 'not-ready', 'quick-fix',
+              'infra', 'architecture'
             ];
             
             // Get current labels
