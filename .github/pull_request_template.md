@@ -3,6 +3,12 @@
 ### Required Checks ✅
 **ALL checkboxes must be checked before merge:**
 
+- [ ] **Local Pre-Commit Testing**
+  - [ ] Ran `./scripts/testing/local-pre-commit.sh` successfully
+  - [ ] All critical stages passed (0 failed stages)
+  - [ ] Addressed any critical warnings found
+  - [ ] Local testing matches GitHub Actions pipeline
+
 - [ ] **Code Quality**
   - [ ] Lint passes (`npm run lint` or equivalent)
   - [ ] Type checking passes (`npm run typecheck` or equivalent)
@@ -85,6 +91,16 @@
 - [ ] Cross-browser compatibility (if applicable)
 - [ ] Mobile responsiveness (if applicable)
 - [ ] Performance tested under load
+
+### Local Pre-Commit Testing
+- [ ] **Local testing script completed**: `./scripts/testing/local-pre-commit.sh`
+- [ ] **All GitHub Actions checks verified locally**:
+  - [ ] Code quality (linting, type checking, formatting)
+  - [ ] Unit tests passed
+  - [ ] Security scanning completed
+  - [ ] Build test passed
+  - [ ] Git status verified
+- [ ] **Warnings addressed**: Any non-critical warnings were reviewed and addressed if necessary
 
 ### Test Results
 <!-- Describe specific test results and any issues found/resolved -->

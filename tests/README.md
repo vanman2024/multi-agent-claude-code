@@ -50,7 +50,14 @@ This directory contains documentation and guides for testing the Multi-Agent Cla
 
 ## Quick Start
 
-### Run All Tests
+### Pre-Commit Testing (RECOMMENDED)
+Run the same tests as GitHub Actions locally:
+```bash
+./scripts/testing/local-pre-commit.sh
+```
+**This is now required for all PRs.** See [Local Testing Workflow](../docs/LOCAL_TESTING_WORKFLOW.md)
+
+### Run All Framework Tests
 ```bash
 ./scripts/testing/run-all-tests.sh
 ```
@@ -69,7 +76,8 @@ This directory contains documentation and guides for testing the Multi-Agent Cla
 
 ## Testing Philosophy
 
-### What to Test Locally
+### What to Test Locally (NEW: Pre-Commit Testing)
+- **ALL GitHub Actions checks locally** - Use `./scripts/testing/local-pre-commit.sh`
 - **Hooks execution** - Must verify in Claude Code transcript mode
 - **Slash commands** - Manual execution required
 - **Agent behavior** - Observe task assignment and coordination
@@ -77,7 +85,7 @@ This directory contains documentation and guides for testing the Multi-Agent Cla
 
 ### What Gets Automated
 - **Code quality** - ESLint, ruff, type checking (CI/CD)
-- **Unit tests** - Individual function testing (CI/CD)
+- **Unit tests** - Individual function testing (CI/CD) 
 - **Build verification** - Compilation and bundling (CI/CD)
 - **Security scans** - Dependency and code scanning (GitHub)
 
@@ -99,11 +107,19 @@ This directory contains documentation and guides for testing the Multi-Agent Cla
 ## Required Tools
 
 - `bash` - Shell scripting
-- `jq` - JSON processing
+- `jq` - JSON processing  
 - `git` - Version control
 - `gh` - GitHub CLI
 - `claude` - Claude Code CLI (for hook testing)
 - `act` - GitHub Actions local runner (optional)
+- `shellcheck` - Shell script linting (recommended)
+
+## Local Pre-Commit Testing Setup
+
+To enable git hook reminders (optional):
+```bash
+cp scripts/testing/install-git-hooks.sh .git/hooks/pre-commit
+```
 
 ## Debugging Tips
 
