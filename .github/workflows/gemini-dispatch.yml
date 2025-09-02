@@ -52,7 +52,7 @@ jobs:
         github.event.pull_request.head.repo.fork == false
       ) || (
         github.event.sender.type == 'User' &&
-        startsWith(github.event.comment.body || github.event.review.body || github.event.issue.body, '@gemini-cli') &&
+        (startsWith(github.event.comment.body || github.event.review.body || github.event.issue.body, '@gemini-cli') || startsWith(github.event.comment.body || github.event.review.body || github.event.issue.body, '@gemini ')) &&
         contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association)
       ) || (
         github.event_name == 'issues' &&
@@ -93,15 +93,16 @@ jobs:
             const eventType = process.env.EVENT_TYPE
             core.setOutput('request', request);
 
-            if (request.startsWith("@gemini-cli /review")) {
+            // Support both @gemini and @gemini-cli formats
+            if (request.startsWith("@gemini-cli /review") || request.startsWith("@gemini /review")) {
               core.setOutput('command', 'review');
-              const additionalContext = request.replace(/^@gemini-cli \/review/, '').trim();
+              const additionalContext = request.replace(/^@gemini(-cli)? \/review/, '').trim();
               core.setOutput('additional_context', additionalContext);
-            } else if (request.startsWith("@gemini-cli /triage")) {
+            } else if (request.startsWith("@gemini-cli /triage") || request.startsWith("@gemini /triage")) {
               core.setOutput('command', 'triage');
-            } else if (request.startsWith("@gemini-cli")) {
+            } else if (request.startsWith("@gemini-cli") || request.startsWith("@gemini ")) {
               core.setOutput('command', 'invoke');
-              const additionalContext = request.replace(/^@gemini-cli/, '').trim();
+              const additionalContext = request.replace(/^@gemini(-cli)?/, '').trim();
               core.setOutput('additional_context', additionalContext);
             } else if (eventType === 'pull_request.opened') {
               core.setOutput('command', 'review');

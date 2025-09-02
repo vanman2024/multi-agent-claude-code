@@ -22,12 +22,14 @@ Gemini works automatically when you:
 Comment these in any issue or PR to invoke Gemini:
 
 ```bash
-@gemini-cli /review              # Full code review (PRs only)
-@gemini-cli /review security     # Security-focused review  
-@gemini-cli /triage              # Triage and label issue
-@gemini-cli analyze this code    # Custom analysis
-@gemini-cli help                 # Show available commands
+@gemini /review              # Full code review (PRs only)
+@gemini /review security     # Security-focused review  
+@gemini /triage              # Triage and label issue
+@gemini analyze this code    # Custom analysis
+@gemini help                 # Show available commands
 ```
+
+**Note**: You can also use `@gemini-cli` instead of `@gemini` - both work identically.
 
 ## 💡 How to Tell if Gemini is Working
 
@@ -50,20 +52,20 @@ Comment these in any issue or PR to invoke Gemini:
 3. Issue gets labeled with relevant tags (e.g., `bug`, `frontend`)
 
 ### Example 2: Manual Code Review
-1. Comment in a PR: `@gemini-cli /review security`
+1. Comment in a PR: `@gemini /review security`
 2. GitHub Actions bot acknowledges the request
 3. Gemini analyzes code and posts review comments
 4. Check Actions tab to see workflow execution
 
 ### Example 3: Custom Analysis
-1. Comment: `@gemini-cli check this function for potential memory leaks`
+1. Comment: `@gemini check this function for potential memory leaks`
 2. Gemini analyzes the code with your specific request
 3. Results appear as a reply comment
 
 ## ⚡ Best Practices
 
 ### Effective Commands
-- **Be specific**: `@gemini-cli check for SQL injection vulnerabilities`
+- **Be specific**: `@gemini check for SQL injection vulnerabilities`
 - **Context matters**: Include relevant details in your request
 - **One command per comment**: Don't mix multiple commands
 
@@ -76,7 +78,7 @@ Comment these in any issue or PR to invoke Gemini:
 
 ### No Response to Commands?
 1. Check Actions tab for workflow runs
-2. Verify command syntax: `@gemini-cli /command`
+2. Verify command syntax: `@gemini /command` or `@gemini-cli /command`
 3. Wait 60 seconds and try again (rate limiting)
 
 ### Labels Not Applied?
@@ -93,10 +95,12 @@ Comment these in any issue or PR to invoke Gemini:
 
 | Command | Usage | Result |
 |---------|-------|---------|
-| `/review` | `@gemini-cli /review` | Full code review of PR |
-| `/review security` | `@gemini-cli /review security` | Security-focused review |
-| `/triage` | `@gemini-cli /triage` | Label and categorize issue |
-| Custom prompt | `@gemini-cli analyze performance` | Custom analysis request |
+| `/review` | `@gemini /review` | Full code review of PR |
+| `/review security` | `@gemini /review security` | Security-focused review |
+| `/triage` | `@gemini /triage` | Label and categorize issue |
+| Custom prompt | `@gemini analyze performance` | Custom analysis request |
+
+**Alternative**: All commands also work with `@gemini-cli` prefix (e.g., `@gemini-cli /review`)
 
 ---
 

@@ -29,7 +29,7 @@ Look at newly created issues - they should be automatically labeled by Gemini:
 ### Method 3: Manual Test
 Create a comment in any issue or PR:
 ```
-@gemini-cli /triage
+@gemini /triage
 ```
 
 You should see:
@@ -37,12 +37,14 @@ You should see:
 2. A new workflow run in the Actions tab
 3. Labels applied to the issue (for triage commands)
 
+**Note**: Both `@gemini` and `@gemini-cli` work identically.
+
 ## 🐛 Actual Problems to Look For
 
 ### Problem 1: Missing API Key
 **Symptoms:**
 - Workflow runs fail with authentication errors
-- No response to @gemini-cli commands
+- No response to @gemini commands
 
 **Solution:**
 ```bash
@@ -80,7 +82,7 @@ Use this checklist to confirm Gemini is working:
 - [ ] **Workflows Present**: Check `.github/workflows/` for gemini-*.yml files
 - [ ] **Recent Workflow Runs**: Check Actions tab for recent "Gemini Dispatch" runs  
 - [ ] **Auto-labeling Works**: Create a test issue and verify it gets labeled
-- [ ] **Manual Commands Work**: Try `@gemini-cli /triage` in an issue comment
+- [ ] **Manual Commands Work**: Try `@gemini /triage` in an issue comment
 - [ ] **Permissions Correct**: Workflows can read repos and write issues/PRs
 
 ## 🔧 Debug Commands
@@ -100,10 +102,12 @@ gh run list --workflow=gemini-dispatch.yml --status=failure
 ### Test Manual Invocation
 Try these commands in issue comments:
 ```bash
-@gemini-cli /triage              # Should add appropriate labels
-@gemini-cli /review              # In PRs, should provide code review
-@gemini-cli help                 # Should respond with available commands
+@gemini /triage              # Should add appropriate labels
+@gemini /review              # In PRs, should provide code review
+@gemini help                 # Should respond with available commands
 ```
+
+**Alternative**: All commands also work with `@gemini-cli` prefix.
 
 ## 💡 Understanding Gemini's Behavior
 
@@ -113,7 +117,7 @@ Try these commands in issue comments:
 - **Issue Updates**: May re-triage if content changes significantly
 
 ### What Gemini Does On-Demand
-When you comment `@gemini-cli [command]`:
+When you comment `@gemini [command]` or `@gemini-cli [command]`:
 - Triggers the gemini-dispatch workflow
 - Routes to appropriate sub-workflow (review, triage, invoke)
 - Executes the requested action

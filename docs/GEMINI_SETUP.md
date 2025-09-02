@@ -14,7 +14,7 @@
 
 3. **Test It**:
    - Create a PR
-   - Comment: `@gemini-cli /review`
+   - Comment: `@gemini /review` or `@gemini-cli /review`
    - Gemini will respond with code review
 
 ## What Gemini Does
@@ -27,11 +27,13 @@
 ### Manual Commands
 ```bash
 # In any PR or issue comment:
-@gemini-cli /review              # Full code review
-@gemini-cli /review security     # Security-focused review
-@gemini-cli /triage              # Triage and label issue
-@gemini-cli check for bugs       # Custom prompt
+@gemini /review              # Full code review
+@gemini /review security     # Security-focused review
+@gemini /triage              # Triage and label issue
+@gemini check for bugs       # Custom prompt
 ```
+
+**Note**: You can use either `@gemini` or `@gemini-cli` - both work the same way.
 
 ## Workflows Included
 
