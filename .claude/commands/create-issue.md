@@ -75,11 +75,9 @@ If not on main or not up to date, STOP and tell the user to:
 Ask the user:
 ```
 What type of issue should this be?
-- **feature**: New functionality to be added
+- **feature**: New functionality, enhancements, or refactoring
 - **bug**: Something is broken or not working
-- **enhancement**: Improve existing functionality  
-- **refactor**: Code cleanup/restructuring
-- **task**: Simple work item
+- **task**: Simple work item or chore
 ```
 
 Also ask for:
@@ -99,12 +97,9 @@ Also ask for:
 ### Step 2: Load Appropriate Template
 
 Based on the type, read the template:
-- feature → Read templates/local_dev/feature-template.md
+- feature/enhancement/refactor → Read templates/local_dev/feature-template.md
 - bug → Read templates/local_dev/bug-template.md
-- enhancement → Read templates/local_dev/enhancement-template.md
-- refactor → Read templates/local_dev/refactor-template.md
 - task → Read templates/local_dev/task-template.md
-- generic/other → Read templates/local_dev/issue-template.md
 
 ### Step 3: Fill Template
 
