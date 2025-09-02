@@ -31,5 +31,16 @@
 [Any additional context or considerations]
 
 ---
+
+## Metadata
+*For automation parsing - DO NOT REMOVE*
+
+**Priority**: P2
+**Size**: S
+**Points**: 2
+**Goal**: Features
+**Component**: Backend
+**Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]
+
+---
 **Labels:** type:task
-**Component:** [Frontend/Backend/Database/DevOps]

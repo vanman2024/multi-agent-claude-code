@@ -37,5 +37,16 @@
 [Any other relevant information]
 
 ---
+
+## Metadata
+*For automation parsing - DO NOT REMOVE*
+
+**Priority**: P1
+**Size**: S
+**Points**: 3
+**Goal**: Tech Debt
+**Component**: Backend
+**Milestone**: [Optional for bugs]
+
+---
 **Labels:** type:bug
-**Component:** [Frontend/Backend/Database/DevOps]

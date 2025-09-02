@@ -2,8 +2,6 @@
 
 ## Feature Overview
 **Name**: [Feature Name]
-**Priority**: P0 | P1 | P2
-**Estimated Effort**: Small (1-2 days) | Medium (3-5 days) | Large (1-2 weeks)
 **Target Release**: [Sprint/Version]
 
 ### Problem Statement
@@ -152,6 +150,18 @@ CREATE TABLE feature_table (
 - Design docs: [link]
 - API specs: [link]
 - Previous discussions: [link] 
+
+---
+
+## Metadata
+*For automation parsing - DO NOT REMOVE*
+
+**Priority**: P2
+**Size**: M
+**Points**: 5
+**Goal**: Features
+**Component**: Frontend
+**Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]
 
 ---
 

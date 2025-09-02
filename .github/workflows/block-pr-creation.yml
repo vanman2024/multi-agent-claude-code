@@ -1,4 +1,4 @@
-name: Block PR Creation Without Issue Completion
+name: Block PR Without Issue
 
 on:
   pull_request:
