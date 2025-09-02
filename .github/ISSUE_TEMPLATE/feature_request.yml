@@ -1,6 +1,6 @@
 name: Feature / Enhancement
 description: Suggest a new feature or improvement
-title: ""
+title: "[FEATURE]: "
 labels: ["enhancement"]
 body:
   - type: dropdown
