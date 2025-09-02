@@ -1,18 +1,14 @@
 name: Feature / Enhancement
 description: Suggest a new feature or improvement
 title: "[FEATURE]: "
-labels: ["feature"]
+labels: ["enhancement"]
 body:
   - type: textarea
     id: all_details
     attributes:
-      label: Feature Request
+      label: Details
       description: Fill out all sections below
       value: |
-        ## Type
-        <!-- Choose one: New Feature / Enhancement / Refactor -->
-        New Feature
-        
         ## Description
         <!-- What do you want to build/improve? -->
         
@@ -21,5 +17,17 @@ body:
         - [ ] 
         - [ ] 
         - [ ] 
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: What kind of change is this?
+      options:
+        - "New Feature"
+        - "Enhancement"
+        - "Refactor"
     validations:
       required: true
