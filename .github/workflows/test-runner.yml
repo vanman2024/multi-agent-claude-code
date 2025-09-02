@@ -152,7 +152,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Environment
+      - name: Setup Node.js
+        if: needs.detect-language.outputs.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Setup Python
+        if: needs.detect-language.outputs.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Dependencies
         run: |
           if [ -f "package.json" ]; then
             npm ci || npm install
