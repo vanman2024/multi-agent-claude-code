@@ -1,17 +1,6 @@
 {
   "name": "multi-agent-framework-test",
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
+  "framework": "nextjs",
   "github": {
     "enabled": true,
     "autoAlias": true
