@@ -48,9 +48,11 @@ body:
       label: Acceptance Criteria
       description: How will we know when this is complete?
       value: |
-        - [ ] 
-        - [ ] 
-        - [ ] 
+        - [ ] Design and plan implementation approach
+        - [ ] Implement core functionality
+        - [ ] Add necessary tests
+        - [ ] Update documentation if needed
+        - [ ] Verify feature works as expected
     validations:
       required: false
       

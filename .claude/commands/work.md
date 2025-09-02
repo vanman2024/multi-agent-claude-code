@@ -191,12 +191,42 @@ fi
 # Push branch
 git push -u origin $BRANCH_NAME
 
-# Create PR linked to issue
+# Get issue title
+ISSUE_TITLE=$(gh issue view $ISSUE_NUMBER --json title --jq .title)
+
+# Create DRAFT PR linked to issue
 gh pr create \
-  --title "$ISSUE_TYPE: Issue Title (#$ISSUE_NUMBER)" \
-  --body "Closes #$ISSUE_NUMBER" \
+  --title "$ISSUE_TYPE: $ISSUE_TITLE" \
+  --body "## Summary
+
+Working on issue #$ISSUE_NUMBER
+
+**Closes:** #$ISSUE_NUMBER
+
+## What Changed
+
+[Implementation details will be added as work progresses]
+
+## Type of Change
+
+- [ ] 🐛 Bug fix
+- [ ] ✨ New feature  
+- [ ] ♻️ Refactoring
+- [ ] 📝 Documentation
+- [ ] 🎨 Style/UI
+- [ ] 🔧 Configuration
+- [ ] ⚡ Performance
+
+## Testing Done
+
+[Testing details will be added]" \
   --base main \
-  --head $BRANCH_NAME
+  --head $BRANCH_NAME \
+  --draft
+
+# Update issue with PR link
+PR_NUMBER=$(gh pr list --head $BRANCH_NAME --json number --jq .[0].number)
+gh issue comment $ISSUE_NUMBER --body "📝 Draft PR created: #$PR_NUMBER"
 ```
 
 ### Step 10: Merge and Cleanup
