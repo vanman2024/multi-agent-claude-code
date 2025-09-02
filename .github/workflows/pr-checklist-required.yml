@@ -13,7 +13,7 @@ jobs:
   require-checkboxes:
     name: Require All Checkboxes
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'hotfix-')
     steps:
       - name: Require Checklist
         uses: mheap/require-checklist-action@v2
@@ -34,3 +34,15 @@ jobs:
               issue_number: pr_number,
               body: '❌ **PR cannot be merged**: Not all required checkboxes are checked. Please complete all checklist items before merging.'
             });
+            
+  hotfix-bypass:
+    name: Hotfix Bypass
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'hotfix-')
+    steps:
+      - name: Auto-pass for hotfix
+        run: |
+          echo "🚨 HOTFIX DETECTED - Bypassing checkbox requirements"
+          echo "Branch: ${{ github.head_ref }}"
+          echo "This is a critical fix that needs immediate deployment"
+          exit 0

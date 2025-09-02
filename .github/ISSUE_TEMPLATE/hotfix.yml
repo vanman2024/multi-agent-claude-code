@@ -1,0 +1,24 @@
+name: Hotfix
+description: Critical bug that needs immediate attention
+title: "[HOTFIX]: "
+labels: ["bug", "hotfix", "urgent"]
+body:
+  - type: textarea
+    id: all_details
+    attributes:
+      label: Hotfix Required
+      description: Fill out all sections below
+      value: |
+        ## Critical Issue
+        <!-- What's broken that needs immediate fix? -->
+        
+        
+        ## Impact
+        <!-- Who/what is affected? -->
+        
+        
+        ## Quick Fix
+        <!-- What's the fastest solution? -->
+        
+    validations:
+      required: true
