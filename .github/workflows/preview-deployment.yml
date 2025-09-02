@@ -96,36 +96,5 @@ jobs:
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Preview deployed to: $DEPLOYMENT_URL"
       
-      - name: Comment PR with Preview URL
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const url = '${{ steps.deploy.outputs.url }}';
-            const comment = `## 🚀 Preview Deployment Ready!
-            
-            Your preview deployment is available at: ${url}
-            
-            ### Deployment Details
-            - **Environment**: Preview
-            - **Branch**: \`${{ github.head_ref }}\`
-            - **Commit**: \`${context.sha.substring(0, 7)}\`
-            - **Tests**: ✅ All tests passed
-            
-            ### What's Deployed
-            - ✅ Application code (src/, pages/, api/)
-            - ✅ Static assets (public/)
-            - ✅ Configuration files
-            
-            ### What's NOT Deployed
-            - ❌ Framework files (.claude/, .github/)
-            - ❌ Documentation (docs/, *.md)
-            - ❌ Templates
-            
-            This preview will be automatically updated when you push new commits.`;
-            
-            await github.rest.issues.createComment({
-              issue_number: context.payload.pull_request.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+      # Vercel bot handles deployment comments automatically
+      # No need for custom comment - it creates duplicate noise
