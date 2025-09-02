@@ -167,6 +167,57 @@ PRs only describe what was implemented, not requirements.
 
 **Why?** Single source of truth. Check boxes in issues, describe implementation in PRs.
 
+## 💡 Work in Progress Pattern
+
+You don't have to finish everything at once! PRs can stay open as you work:
+
+### Multi-Day Development Example
+```bash
+# Day 1: Start work
+/create-issue feature "Add user authentication"
+/work #120
+# Creates branch: feature-120-user-auth
+# Creates DRAFT PR linked to issue #120
+git add . && git commit -m "WIP: Started auth setup"
+git push
+
+# Day 2: Continue work
+git checkout feature-120-user-auth  # Just checkout same branch!
+# Do more work...
+git add . && git commit -m "feat: Add login endpoint"
+git push  # Updates the same PR
+
+# Day 5: Add tests
+git checkout feature-120-user-auth
+git add . && git commit -m "test: Add auth tests"
+git push  # Still updating same PR
+
+# Day 7: Finally ready
+# Check all boxes in issue #120
+gh pr ready  # Convert from draft to ready
+gh pr merge --squash  # NOW merge
+```
+
+### Multiple Active PRs
+```bash
+# You can have several PRs in progress:
+# PR #121 - Working on auth (feature-120-auth branch)
+# PR #122 - Fixing bug (bug-125-login branch)  
+# PR #123 - Adding docs (task-130-docs branch)
+
+# Switch between them:
+git checkout feature-120-auth  # Work on auth
+git checkout bug-125-login     # Switch to bug fix
+git checkout task-130-docs     # Switch to docs
+```
+
+### Benefits
+- **PR is your "save point"** - All work backed up on GitHub
+- **Others can see progress** - PR shows what you're working on
+- **CI runs on each push** - Tests run, catching issues early
+- **No local accumulation** - Everything pushed, no drift
+- **Easy context switching** - Just checkout different branch
+
 ## 🚨 Hotfix Process
 
 For critical production issues:
@@ -242,7 +293,7 @@ mypy .
 ## 🚫 Common Mistakes to Avoid
 
 ### DON'T
-- Create PR without issue first
+- Create PR without issue first (except minor doc updates)
 - Work without being on latest main
 - Check boxes in PRs (only in issues)
 - Skip tests before marking ready
@@ -250,12 +301,29 @@ mypy .
 - Forget to pull after merges
 
 ### DO
-- Always start with an issue
+- Always start with an issue (except for typos/examples)
 - Keep main branch updated
 - Use draft PRs while working
 - Check requirements in issues
 - Run tests locally first
 - Document your changes
+
+### When Full Workflow is Optional
+
+**Direct updates OK for:**
+- Fixing typos or grammar
+- Adding examples to docs
+- Clarifying existing documentation  
+- Updating code comments
+- Formatting improvements (no logic changes)
+
+**Full workflow REQUIRED for:**
+- Any functional changes
+- New features or enhancements
+- Bug fixes
+- Refactoring code
+- Adding/removing files
+- Configuration changes
 
 ## 🛠️ Slash Commands Reference
 

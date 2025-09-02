@@ -27,9 +27,9 @@ When someone clones this template, they get a complete development framework rea
 - **Claude Code Agents**: Handle complex tasks locally with full MCP tool access
 - **No @claude App**: We avoid the @claude GitHub App to prevent usage costs
 
-### Simplified Slash Commands (Only 2!)
+### Primary Slash Commands
 
-We've simplified everything to just TWO commands:
+The two main commands you'll use 90% of the time:
 
 #### 1. `/create-issue` - Universal Issue Creation
 Creates ANY type of work item with automatic routing:
@@ -53,6 +53,15 @@ One command for ALL implementation needs:
 - Analyzes dependencies and blockers
 - Creates branches and PRs automatically
 - Updates issue status throughout
+
+#### Other Available Commands
+- `/hotfix` - Emergency fixes that bypass normal workflow
+- `/deploy` - Deploy to production
+- `/copilot-review` - Request Copilot code review
+- `/pr-comments` - Manage PR review comments
+- `/add-mcp` - Add new MCP servers
+- `/project-setup` - Initialize new project from template
+- `/idea` - Capture ideas for future consideration
 
 ### Best Practices
 - Use `/create-issue` to create issues with proper routing
@@ -127,7 +136,7 @@ If either complexity > 2 OR size > S → Claude Code handles it.
 
 ### How It Works
 
-When creating issues via `/create-feature`:
+When creating issues via `/create-issue`:
 ```javascript
 const isSmallAndSimple = (complexity <= 2) && (size === 'XS' || size === 'S');
 if (isSmallAndSimple) {
@@ -140,9 +149,18 @@ if (isSmallAndSimple) {
 
 ## CRITICAL WORKFLOW: Issue → PR → Merge → Deploy
 
-### ⚠️ NEVER Skip Steps in This Workflow
+### ⚠️ NEVER Skip Steps in This Workflow (Except for Minor Doc Updates)
 
 **The Golden Rule**: ALWAYS create an issue BEFORE creating a PR
+
+**EXCEPTIONS - Direct commits OK for:**
+- Adding examples to existing documentation
+- Fixing typos or grammar
+- Clarifying existing documentation
+- Updating comments in code
+- Formatting improvements (no logic changes)
+
+These are typically ignored by git history anyway and creating issues/PRs for every typo would be counterproductive.
 
 ### 🔄 MANDATORY PULL POINTS (Prevent Divergence)
 
@@ -159,9 +177,9 @@ if (isSmallAndSimple) {
 - You could be fixing things already fixed
 - Massive conflicts and wasted work
 
-1. **Research Phase** (Scratchpad)
-   - Use scratchpad/drafts for exploration
-   - Use TodoWrite to plan tasks
+1. **Research Phase** (Planning)
+   - Use TodoWrite to plan complex tasks
+   - Think through the approach first
    - Don't create issues until strategy is solid
 
 2. **Issue Creation** (Planning) - Use `/create-issue`
@@ -306,19 +324,20 @@ Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude 
 **BEFORE creating ANY documentation:**
 1. **SEARCH for existing docs first**:
    ```bash
-   find scratchpad -name "*.md" | xargs grep -l -i "topic"
+   find . -name "*.md" | xargs grep -l -i "topic"
    ```
 2. **CHECK if topic is already covered**:
-   - AGENTS.md covers ALL agent-related topics
+   - WORKFLOW.md covers ALL workflow-related topics
    - CHECKBOXES.md covers ALL checkbox topics  
-   - PROJECT.md covers ALL project setup topics
+   - CLAUDE.md covers ALL AI assistant instructions
+   - MCP_SERVERS_GUIDE.md covers ALL MCP server topics
 3. **UPDATE existing docs instead of creating new ones**
 4. **CONSOLIDATE similar topics into single documents**
 
 **Examples of what NOT to do:**
-- ❌ Creating AGENT_ROSTER.md when AGENTS.md exists
+- ❌ Creating WORKFLOW_GUIDE.md when WORKFLOW.md exists
 - ❌ Creating CHECKBOX_STRATEGY.md when CHECKBOXES.md exists
-- ❌ Creating PROJECT_SETUP.md when PROJECT.md exists
+- ❌ Creating MCP_SETUP.md when MCP_SERVERS_GUIDE.md exists
 
 ### CRITICAL: File Naming Convention
 - **ALL DOCUMENTATION FILES MUST BE UPPERCASE**: README.md, CLAUDE.md, SETUP.md, etc.
@@ -521,11 +540,14 @@ try {
 ## Project-Specific Context
 
 ### Tech Stack:
-<!-- Add your stack when known -->
-- Frontend: [TBD]
-- Backend: [TBD]
-- Database: [TBD]
-- Authentication: [TBD]
+<!-- Current template includes -->
+- Frontend: Next.js, React, TypeScript, Tailwind CSS
+- Backend: Next.js API Routes
+- Database: [Configure based on project needs]
+- Authentication: [Configure based on project needs]
+- Deployment: Vercel
+- CI/CD: GitHub Actions
+- Testing: Jest, React Testing Library
 
 ### Key Patterns in This Codebase:
 <!-- Add patterns as discovered -->
