@@ -38,3 +38,17 @@ body:
       placeholder: "List any testing done to verify the fix..."
     validations:
       required: false
+      
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Hotfix Requirements
+      description: Minimal steps to resolve this critical issue
+      value: |
+        - [ ] Implement immediate fix
+        - [ ] Test fix in staging/dev
+        - [ ] Deploy to production
+        - [ ] Verify issue is resolved
+        - [ ] Document root cause for future prevention
+    validations:
+      required: false
