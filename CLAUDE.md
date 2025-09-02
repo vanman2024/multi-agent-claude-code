@@ -571,13 +571,14 @@ try {
 
 ### When Starting Tasks:
 1. **Question the approach first** - Is this the right solution?
-2. Use TodoWrite to plan if multiple steps
-3. Search/read relevant files first
-4. Understand existing patterns
-5. Implement solution
-6. Run lint/typecheck
-7. Remove debug code
-8. Verify solution works
+2. **READ ALL ISSUE COMMENTS** - Critical context lives there!
+3. Use TodoWrite to plan if multiple steps
+4. Search/read relevant files first
+5. Understand existing patterns
+6. Implement solution
+7. Run lint/typecheck
+8. Remove debug code
+9. Verify solution works
 
 ### When Task is Complete:
 - Just stop after completing

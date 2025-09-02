@@ -131,8 +131,25 @@ Use mcp__github__get_issue to get full details:
 - Title and full description
 - All labels (type, priority, size, etc.)
 - Current state and assignees
-- Comments for additional context
 - Linked PRs if any
+
+**CRITICAL: Always read ALL issue comments!**
+```bash
+# Read all comments on the issue - THIS IS MANDATORY
+gh issue view $ISSUE_NUMBER --comments
+
+# Or use MCP tool
+mcp__github__get_issue_comments(owner, repo, issue_number: $ISSUE_NUMBER)
+```
+
+Comments often contain:
+- **Clarifications** on requirements
+- **Design decisions** already made
+- **Problems encountered** by others
+- **Links to related** issues/PRs
+- **Updates** that change the approach
+
+⚠️ **Never skip reading comments** - they contain critical context!
 
 ### Step 5: Create Feature Branch
 
