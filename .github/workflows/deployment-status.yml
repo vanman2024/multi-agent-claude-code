@@ -1,0 +1,94 @@
+name: Deployment Status Monitor
+
+on:
+  deployment_status:
+
+jobs:
+  notify-deployment-failure:
+    name: Notify on Deployment Failure
+    runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'failure' || github.event.deployment_status.state == 'error'
+    steps:
+      - name: Comment on PR about Deployment Failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find PRs associated with this deployment
+            const deployment = context.payload.deployment;
+            const status = context.payload.deployment_status;
+            
+            // Get the commit SHA
+            const sha = deployment.sha;
+            
+            // Find PRs with this commit
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: sha
+            });
+            
+            if (prs.length > 0) {
+              const pr = prs[0];
+              
+              const message = `## ⚠️ Deployment Failed
+              
+              **Environment:** ${deployment.environment}
+              **Status:** ${status.state}
+              **Details:** ${status.description || 'Build or deployment failed'}
+              
+              ### What This Means:
+              - ❌ Your new changes are NOT deployed
+              - ⚠️ Preview URL shows OLD/previous deployment
+              - 🔍 Check the [deployment logs](${status.target_url}) for details
+              
+              ### Next Steps:
+              1. Review the error logs
+              2. Fix the issue locally
+              3. Push a new commit to trigger re-deployment
+              
+              **Note:** The preview URL may still work but it's showing outdated code!`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: message
+              });
+            }
+
+  notify-deployment-success:
+    name: Notify on Deployment Success
+    runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'success'
+    steps:
+      - name: Comment on PR about Deployment Success
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployment = context.payload.deployment;
+            const status = context.payload.deployment_status;
+            const sha = deployment.sha;
+            
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: sha
+            });
+            
+            if (prs.length > 0) {
+              const pr = prs[0];
+              
+              const message = `## ✅ Deployment Successful
+              
+              **Environment:** ${deployment.environment}
+              **Preview URL:** ${status.target_url}
+              
+              Your changes are now live in the preview environment!`;
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: message
+              });
+            }
