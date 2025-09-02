@@ -4,32 +4,23 @@ title: "[BUG]: "
 labels: ["bug"]
 body:
   - type: textarea
-    id: description
+    id: all_details
     attributes:
-      label: What's broken?
-      description: Describe the bug clearly
-      placeholder: |
-        When I try to...
-        I expect...
-        But instead...
-    validations:
-      required: true
-      
-  - type: textarea
-    id: reproduce
-    attributes:
-      label: Steps to Reproduce
-      description: How can we reproduce this?
+      label: Bug Report
+      description: Fill out all sections below
       value: |
+        ## What's broken?
+        <!-- Describe the bug clearly -->
+        
+        
+        ## Steps to Reproduce
         1. 
         2. 
         3. 
+        
+        ## Error Logs (if any)
+        ```
+        
+        ```
     validations:
       required: true
-      
-  - type: textarea
-    id: error_logs
-    attributes:
-      label: Error Logs (if any)
-      description: Paste any error messages
-      render: shell

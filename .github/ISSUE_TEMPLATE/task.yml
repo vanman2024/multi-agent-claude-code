@@ -4,30 +4,17 @@ title: "[TASK]: "
 labels: ["task"]
 body:
   - type: textarea
-    id: description
+    id: all_details
     attributes:
-      label: What needs to be done?
-      description: Describe the task clearly
-    validations:
-      required: true
-      
-  - type: textarea
-    id: steps
-    attributes:
-      label: Steps
-      description: Break it down if needed
+      label: Task
+      description: Fill out all sections below
       value: |
+        ## What needs to be done?
+        <!-- Describe the task clearly -->
+        
+        
+        ## Steps
         - [ ] 
         - [ ] 
-      
-  - type: dropdown
-    id: milestone
-    attributes:
-      label: Target Milestone
-      description: When should this be completed?
-      options:
-        - "Current Sprint"
-        - "Next Sprint"
-        - "Backlog"
     validations:
       required: true
