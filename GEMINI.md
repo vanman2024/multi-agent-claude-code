@@ -59,13 +59,61 @@ gh variable set GEMINI_CLI_VERSION --body "latest"
 gh variable set DEBUG --body "false"
 ```
 
+## Workflow Architecture
+
+The Gemini integration uses several GitHub Actions workflows:
+
+### Core Workflows
+- **`gemini-dispatch.yml`** - Routes all Gemini requests to appropriate handlers
+- **`gemini-invoke.yml`** - Handles general `@gemini` commands and questions
+- **`gemini-triage.yml`** - Analyzes and labels individual issues
+- **`gemini-pr-review.yml`** - Provides code review for pull requests
+
+### Automation Workflows
+- **`gemini-scheduled-triage.yml`** - Automatically triages unlabeled issues every 4 hours
+- **`gemini-test-mode.yml`** - Safe testing environment for validating the integration
+
 ## Testing the Setup
+
+### Safe Testing Mode
+
+Before using Gemini in production, test the integration safely:
+
+1. **Create a test issue** 
+2. **Add the `test-gemini` label** to the issue
+3. **The test mode workflow will run automatically**
+4. **Check the issue for test results**
+
+You can also trigger a manual test:
+```bash
+# Go to Actions tab > Gemini Test Mode > Run workflow
+# Enter an issue number and test command
+```
+
+### Production Testing
 
 1. Create a new issue or PR
 2. Comment: `@gemini-cli are you there?`
 3. Gemini should respond within a few minutes
 
 If you don't see a response, check the [Actions tab](../../actions) for error logs.
+
+## Automated Triage
+
+The system includes **scheduled triage** that automatically:
+- Runs every 4 hours
+- Finds unlabeled issues
+- Analyzes and applies appropriate labels
+- Helps keep your repository organized
+
+## Security Features
+
+The integration includes several security measures:
+- **Input validation** on all user requests
+- **Restricted shell commands** (read-only operations only)
+- **No write access** to system files
+- **Safe command allowlist** (echo, ls, grep, etc.)
+- **No network access** from shell commands
 
 ## Official Google Implementation
 

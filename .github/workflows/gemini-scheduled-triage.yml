@@ -1,0 +1,160 @@
+name: '📋 Gemini Scheduled Issue Triage'
+
+on:
+  schedule:
+    - cron: '0 */4 * * *' # Runs every 4 hours (reduced frequency)
+  pull_request:
+    branches:
+      - 'main'
+      - 'release/**/*'
+    paths:
+      - '.github/workflows/gemini-scheduled-triage.yml'
+  push:
+    branches:
+      - 'main'
+      - 'release/**/*'
+    paths:
+      - '.github/workflows/gemini-scheduled-triage.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}'
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: 'bash'
+
+jobs:
+  triage:
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 10
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+      issues: 'write'
+      pull-requests: 'read'
+    outputs:
+      available_labels: '${{ steps.get_labels.outputs.available_labels }}'
+      triaged_issues: '${{ env.TRIAGED_ISSUES }}'
+    steps:
+      - name: 'Get repository labels'
+        id: 'get_labels'
+        uses: 'actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea' # ratchet:actions/github-script@v7.0.1
+        with:
+          # NOTE: we intentionally do not use the minted token. The default
+          # GITHUB_TOKEN provided by the action has enough permissions to read
+          # the labels.
+          script: |-
+            const { data: labels } = await github.rest.issues.listLabelsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            if (!labels || labels.length === 0) {
+              core.setFailed('There are no issue labels in this repository.')
+            }
+
+            const labelNames = labels.map(label => label.name).sort();
+            core.setOutput('available_labels', labelNames.join(','));
+            core.info(`Found ${labelNames.length} labels: ${labelNames.join(', ')}`);
+            return labelNames;
+
+      - name: 'Find untriaged issues'
+        id: 'find_issues'
+        env:
+          GITHUB_REPOSITORY: '${{ github.repository }}'
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN || github.token }}'
+        run: |-
+          echo '🔍 Finding unlabeled issues and issues marked for triage...'
+          ISSUES="$(gh issue list \
+            --state 'open' \
+            --search 'no:label OR label:"status/needs-triage"' \
+            --json number,title,body \
+            --limit '20' \
+            --repo "${GITHUB_REPOSITORY}"
+          )"
+
+          echo '📝 Setting output for GitHub Actions...'
+          echo "issues_to_triage=${ISSUES}" >> "${GITHUB_OUTPUT}"
+
+          # Count issues for logging
+          ISSUE_COUNT=$(echo "${ISSUES}" | jq '. | length')
+          echo "Found ${ISSUE_COUNT} issues that need triage"
+
+          if [ "${ISSUE_COUNT}" -eq 0 ]; then
+            echo "No issues need triage, skipping..."
+            echo "skip_triage=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "skip_triage=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: 'Run Gemini batch triage'
+        id: 'gemini_triage'
+        if: steps.find_issues.outputs.skip_triage != 'true'
+        uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
+        env:
+          GITHUB_TOKEN: '' # Do NOT pass any auth tokens for security
+          ISSUES_TO_TRIAGE: '${{ steps.find_issues.outputs.issues_to_triage }}'
+          AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
+        with:
+          gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION || "latest" }}'
+          gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
+          gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+          gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
+          gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
+          google_api_key: '${{ secrets.GOOGLE_API_KEY }}'
+          use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
+          gemini_debug: '${{ fromJSON(vars.DEBUG || vars.ACTIONS_STEP_DEBUG || false) }}'
+          gemini_model: '${{ vars.GEMINI_MODEL || "gemini-1.5-pro" }}'
+          settings: |-
+            {
+              "maxSessionTurns": 25,
+              "telemetry": {
+                "enabled": ${{ vars.GOOGLE_CLOUD_PROJECT != '' }},
+                "target": "gcp"
+              },
+              "coreTools": [
+                "run_shell_command(echo)"
+              ]
+            }
+          prompt: |-
+            ## Role
+
+            You are an automated issue triage system. Analyze multiple GitHub issues and determine appropriate labels for each.
+
+            ## Guidelines
+
+            - Use "echo" shell command to retrieve environment variables
+            - Only use labels from the available labels list
+            - Process issues in batch for efficiency
+            - Output results as structured JSON
+
+            ## Steps
+
+            1. Get available labels: `echo "${AVAILABLE_LABELS}"`
+            2. Get issues to triage: `echo "${ISSUES_TO_TRIAGE}"`
+            3. For each issue, analyze title and body
+            4. Select appropriate labels from available list
+            5. Output result as JSON using echo command:
+
+            ```bash
+            echo 'TRIAGED_ISSUES=[{"number": 123, "labels": ["bug", "priority/high"]}, {"number": 124, "labels": ["enhancement"]}]' >> "${GITHUB_ENV}"
+            ```
+
+      - name: 'Apply labels to triaged issues'
+        if: env.TRIAGED_ISSUES != ''
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN || github.token }}'
+          GITHUB_REPOSITORY: '${{ github.repository }}'
+          TRIAGED_ISSUES: '${{ env.TRIAGED_ISSUES }}'
+        run: |-
+          echo "Applying labels to triaged issues..."
+          echo "${TRIAGED_ISSUES}" | jq -r '.[] | "\(.number) \(.labels | join(","))"' | while read -r issue_number labels; do
+            if [ -n "${labels}" ] && [ "${labels}" != "null" ]; then
+              echo "Applying labels '${labels}' to issue #${issue_number}"
+              gh issue edit "${issue_number}" --add-label "${labels}" --repo "${GITHUB_REPOSITORY}" || true
+            fi
+          done

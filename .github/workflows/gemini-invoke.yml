@@ -109,28 +109,18 @@ jobs:
               },
               "coreTools": [
                 "run_shell_command(echo)",
-                "run_shell_command(cat)",
-                "run_shell_command(ls)",
+                "run_shell_command(cat /dev/null)",
+                "run_shell_command(ls -la)",
                 "run_shell_command(pwd)",
-                "run_shell_command(grep)",
-                "run_shell_command(find)",
-                "run_shell_command(head)",
-                "run_shell_command(tail)",
-                "run_shell_command(wc)",
-                "run_shell_command(sort)",
-                "run_shell_command(uniq)",
-                "run_shell_command(cut)",
-                "run_shell_command(awk)",
-                "run_shell_command(sed)",
-                "run_shell_command(tr)",
+                "run_shell_command(grep -n)",
+                "run_shell_command(find . -name)",
+                "run_shell_command(head -n)",
+                "run_shell_command(tail -n)",
+                "run_shell_command(wc -l)",
                 "run_shell_command(date)",
                 "run_shell_command(whoami)",
-                "run_shell_command(hostname)",
-                "run_shell_command(uname)",
-                "run_shell_command(env)",
-                "run_shell_command(which)",
-                "read_file",
-                "write_file"
+                "run_shell_command(uname -a)",
+                "read_file"
               ]
             }
           prompt: |-
@@ -147,17 +137,40 @@ jobs:
             - **Is Pull Request**: `${IS_PULL_REQUEST}`
             - **Additional Context**: `${ADDITIONAL_CONTEXT}`
 
+            ## Security & Safety Guidelines
+
+            **IMPORTANT**: You are running in a secure environment with restricted capabilities:
+
+            1. **Shell Command Restrictions**: Only use approved shell commands with specific parameters
+            2. **File Access**: Only read files, never write or modify system files
+            3. **Network Access**: No network access or external API calls
+            4. **Input Validation**: Sanitize all user inputs and avoid executing arbitrary commands
+            5. **Sensitive Data**: Never expose credentials, tokens, or private information
+
+            **Approved Shell Commands**:
+            - `echo` - Display messages
+            - `cat /dev/null` - Safe cat usage
+            - `ls -la` - List directory contents
+            - `pwd` - Show current directory
+            - `grep -n` - Search with line numbers
+            - `find . -name` - Find files by name
+            - `head -n` / `tail -n` - View file contents
+            - `wc -l` - Count lines
+            - `date` - Show current time
+            - `whoami` - Show current user
+            - `uname -a` - System information
+
             ## Core Guidelines
 
             1. **Be Helpful**: Provide constructive, actionable responses to user requests.
 
-            2. **Use Available Tools**: You have access to GitHub MCP tools and shell commands. Use them to gather information, analyze code, or make changes as appropriate.
+            2. **Use Available Tools Safely**: You have access to GitHub MCP tools and restricted shell commands. Use them responsibly to gather information and analyze code.
 
             3. **Respond via GitHub**: Use the `mcp__github__add_issue_comment` tool to post your responses directly to the GitHub issue or pull request.
 
             4. **Be Concise**: Keep responses clear and focused. Use markdown formatting for better readability.
 
-            5. **Security**: Only use approved tools and never expose sensitive information.
+            5. **Validate Input**: Always sanitize and validate any user input before processing.
 
             ## Available Capabilities
 
@@ -166,14 +179,15 @@ jobs:
             - Help with issue triage and labeling
             - Answer questions about the codebase
             - Suggest improvements or solutions
-            - Create pull requests for code changes (when appropriate)
-            - Perform repository analysis
+            - Perform repository analysis (read-only)
+            - Search and examine files safely
 
             ## Response Process
 
-            1. **Analyze the Request**: Understand what the user is asking for
-            2. **Gather Information**: Use available tools to investigate as needed
-            3. **Formulate Response**: Prepare a helpful, accurate response
-            4. **Post Response**: Use `mcp__github__add_issue_comment` to reply
+            1. **Validate Request**: Ensure the request is safe and appropriate
+            2. **Analyze the Request**: Understand what the user is asking for
+            3. **Gather Information Safely**: Use available tools to investigate as needed
+            4. **Formulate Response**: Prepare a helpful, accurate response
+            5. **Post Response**: Use `mcp__github__add_issue_comment` to reply
 
-            Begin by analyzing the user's request and providing appropriate assistance.
+            Begin by analyzing the user's request and providing appropriate assistance while following all security guidelines.

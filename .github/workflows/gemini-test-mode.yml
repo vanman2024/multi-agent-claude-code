@@ -1,0 +1,134 @@
+name: '🧪 Gemini Test Mode'
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to test with'
+        required: true
+        type: string
+      test_command:
+        description: 'Test command to run'
+        required: false
+        type: choice
+        options:
+          - 'help'
+          - 'analyze'
+          - 'triage'
+        default: 'help'
+
+concurrency:
+  group: '${{ github.workflow }}-test-${{ github.event.issue.number || inputs.issue_number }}'
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: 'bash'
+
+jobs:
+  test-gemini:
+    # Only run if labeled with test-gemini or triggered manually
+    if: |-
+      (github.event_name == 'issues' && github.event.label.name == 'test-gemini') ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 5
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+      issues: 'write'
+      pull-requests: 'read'
+    
+    steps:
+      - name: 'Mint identity token'
+        id: 'mint_identity_token'
+        if: |-
+          ${{ vars.APP_ID }}
+        uses: 'actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b'
+        with:
+          app-id: '${{ vars.APP_ID }}'
+          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
+          permission-contents: 'read'
+          permission-issues: 'write'
+
+      - name: 'Add test mode comment'
+        env:
+          GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
+          ISSUE_NUMBER: '${{ github.event.issue.number || inputs.issue_number }}'
+          REPOSITORY: '${{ github.repository }}'
+        run: |-
+          gh issue comment "${ISSUE_NUMBER}" \
+            --body "🧪 **Test Mode Activated** - This is a safe test of the Gemini integration. No production changes will be made." \
+            --repo "${REPOSITORY}"
+
+      - name: 'Run Gemini Test'
+        id: 'run_gemini_test'
+        uses: 'google-github-actions/run-gemini-cli@v0'
+        env:
+          GITHUB_TOKEN: '' # No auth for security in test mode
+          TEST_COMMAND: '${{ inputs.test_command || "help" }}'
+          ISSUE_TITLE: '${{ github.event.issue.title }}'
+          ISSUE_BODY: '${{ github.event.issue.body }}'
+          ISSUE_NUMBER: '${{ github.event.issue.number || inputs.issue_number }}'
+        with:
+          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION || "latest" }}'
+          gemini_model: '${{ vars.GEMINI_MODEL || "gemini-1.5-pro" }}'
+          gemini_debug: true
+          settings: |-
+            {
+              "maxSessionTurns": 3,
+              "telemetry": {
+                "enabled": false
+              },
+              "coreTools": [
+                "run_shell_command(echo)",
+                "run_shell_command(date)",
+                "run_shell_command(whoami)"
+              ]
+            }
+          prompt: |-
+            ## Test Mode - Gemini Integration
+
+            You are running in **TEST MODE**. This is a safe testing environment for the Gemini integration.
+
+            ### Available Test Commands:
+            - `help` - Show available capabilities
+            - `analyze` - Analyze the current issue
+            - `triage` - Suggest appropriate labels
+
+            ### Current Test:
+            - **Command**: `${TEST_COMMAND}`
+            - **Issue**: #${ISSUE_NUMBER}
+            - **Title**: `${ISSUE_TITLE}`
+
+            ### Instructions:
+            1. Acknowledge you're in test mode
+            2. Execute the requested test command
+            3. Provide a summary of what you can do
+            4. Use only safe, read-only commands (echo, date, whoami)
+
+            ### Response Format:
+            ```bash
+            echo "Test completed successfully - Gemini integration is working!" >> "${GITHUB_ENV}"
+            ```
+
+            Please run the test and report your capabilities.
+
+      - name: 'Report test results'
+        env:
+          GITHUB_TOKEN: '${{ steps.mint_identity_token.outputs.token || secrets.GITHUB_TOKEN || github.token }}'
+          ISSUE_NUMBER: '${{ github.event.issue.number || inputs.issue_number }}'
+          REPOSITORY: '${{ github.repository }}'
+          TEST_RESULT: '${{ env.TEST_RESULT || "Test completed" }}'
+        run: |-
+          gh issue comment "${ISSUE_NUMBER}" \
+            --body "✅ **Test Results**: ${TEST_RESULT}
+
+          🔧 **Next Steps**: 
+          - Remove the \`test-gemini\` label to stop test mode
+          - Use \`@gemini\` or \`@gemini-cli\` for normal operations
+          - Check [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details" \
+            --repo "${REPOSITORY}"
