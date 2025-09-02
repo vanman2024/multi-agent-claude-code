@@ -1,52 +1,25 @@
 name: Feature / Enhancement
 description: Suggest a new feature or improvement
 title: "[FEATURE]: "
-labels: ["enhancement"]
+labels: ["feature"]
 body:
-  - type: dropdown
-    id: type
-    attributes:
-      label: Type
-      description: What kind of change is this?
-      options:
-        - "New Feature"
-        - "Enhancement"
-        - "Refactor"
-    validations:
-      required: true
-      
   - type: textarea
-    id: description
+    id: all_details
     attributes:
-      label: What do you want to build/improve?
-      description: Be clear and specific
-      placeholder: |
-        I want to...
-        This would allow...
-        The benefit is...
-    validations:
-      required: true
-      
-  - type: textarea
-    id: acceptance
-    attributes:
-      label: Acceptance Criteria
-      description: How will we know this is done?
+      label: Feature Request
+      description: Fill out all sections below
       value: |
+        ## Type
+        <!-- Choose one: New Feature / Enhancement / Refactor -->
+        New Feature
+        
+        ## Description
+        <!-- What do you want to build/improve? -->
+        
+        
+        ## Acceptance Criteria
         - [ ] 
         - [ ] 
         - [ ] 
-    validations:
-      required: true
-      
-  - type: dropdown
-    id: milestone
-    attributes:
-      label: Target Milestone
-      description: When should this be completed?
-      options:
-        - "Current Sprint"
-        - "Next Sprint"
-        - "Backlog"
     validations:
       required: true

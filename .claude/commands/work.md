@@ -138,7 +138,12 @@ Use mcp__github__get_issue to get full details:
 
 ```bash
 # Get issue type from labels
-ISSUE_TYPE=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -E "feature|bug|enhancement|refactor|task" | head -1)
+ISSUE_TYPE=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -E "feature|bug|enhancement|refactor|task|hotfix" | head -1)
+
+# Special handling for critical/urgent issues
+if gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -q "urgent\|critical\|P0"; then
+  ISSUE_TYPE="hotfix"
+fi
 
 # Create branch name
 BRANCH_NAME="$ISSUE_TYPE-$ISSUE_NUMBER-short-description"
@@ -199,12 +204,23 @@ gh pr create \
   --head $BRANCH_NAME
 ```
 
-### Step 10: Update Issue and Dependencies
+### Step 10: Merge and Cleanup
+
+When PR is approved and ready:
+```bash
+# Merge the PR (this auto-closes the issue via "Closes #XX")
+gh pr merge $PR_NUMBER --squash --delete-branch
+
+# Or if merging manually, clean up after:
+git checkout main
+git pull origin main
+git branch -d $BRANCH_NAME
+git push origin --delete $BRANCH_NAME
+```
+
+### Step 11: Update Dependencies
 
 ```bash
-# Update issue status
-gh issue edit $ISSUE_NUMBER --add-label "status:review" --remove-label "status:in-progress"
-
 # Check if this unblocks other issues
 gh issue list --label "blocked" --state open --json number,body | \
   grep -l "Depends on #$ISSUE_NUMBER"
@@ -250,3 +266,5 @@ The `/work` command intelligently:
 - ✅ Respects assignments and priorities
 - ✅ Updates issue status throughout
 - ✅ Manages dependency chains
+- ✅ Cleans up branches after merge
+- ✅ Auto-deploys when configured
