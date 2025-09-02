@@ -1,0 +1,149 @@
+name: '🏷️ Gemini Issue Triage'
+
+on:
+  issues:
+    types:
+      - 'opened'
+      - 'reopened'
+  issue_comment:
+    types:
+      - 'created'
+
+defaults:
+  run:
+    shell: 'bash'
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
+  issues: 'write'
+
+jobs:
+  gemini-issue-triage:
+    if: |-
+      (
+        github.event_name == 'issues' &&
+        contains(fromJSON('["opened", "reopened"]'), github.event.action)
+      ) || (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.pull_request == null &&
+        (
+          contains(github.event.comment.body, '@gemini-cli /triage') ||
+          contains(github.event.comment.body, '@gemini /triage')
+        ) &&
+        (
+          github.event.sender.type == 'User' && (
+            github.event.comment.author_association == 'OWNER' ||
+            github.event.comment.author_association == 'MEMBER' ||
+            github.event.comment.author_association == 'COLLABORATOR'
+          )
+        )
+      )
+    timeout-minutes: 10
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - name: 'Generate GitHub App Token'
+        id: 'generate_token'
+        if: |-
+          ${{ vars.APP_ID }}
+        uses: 'actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b'
+        with:
+          app-id: '${{ vars.APP_ID }}'
+          private-key: '${{ secrets.APP_PRIVATE_KEY }}'
+
+      - name: 'Get issue context'
+        id: 'get_context'
+        env:
+          EVENT_PAYLOAD: '${{ toJSON(github.event) }}'
+        run: |-
+          set -euo pipefail
+
+          ISSUE_NUMBER=$(echo "${EVENT_PAYLOAD}" | jq -r .issue.number)
+          
+          {
+            echo "issue_number=${ISSUE_NUMBER}"
+            echo "comment_command=gh issue comment \"${ISSUE_NUMBER}\" --body-file response.md"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: 'Checkout repository'
+        uses: 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683'
+        with:
+          token: '${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}'
+          fetch-depth: 0
+
+      - name: 'Run Gemini Issue Triage'
+        uses: 'google-github-actions/run-gemini-cli@v0'
+        env:
+          GITHUB_TOKEN: '${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}'
+          REPOSITORY: '${{ github.repository }}'
+          ISSUE_NUMBER: '${{ steps.get_context.outputs.issue_number }}'
+          COMMENT_COMMAND: '${{ steps.get_context.outputs.comment_command }}'
+        with:
+          gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
+          gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
+          gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
+          gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
+          use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
+          use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
+          settings: |-
+            {
+              "maxSessionTurns": 10,
+              "coreTools": [
+                "run_shell_command(gh issue view)",
+                "run_shell_command(gh issue edit)",
+                "run_shell_command(gh issue comment)",
+                "run_shell_command(gh label list)",
+                "run_shell_command(cat)",
+                "run_shell_command(grep)",
+                "run_shell_command(find)",
+                "write_file"
+              ],
+              "telemetry": {
+                "enabled": false
+              }
+            }
+          prompt: |-
+            ## Role & Goal
+
+            You are an AI assistant for GitHub issue triage. Your goal is to analyze issues and apply appropriate labels and categorization.
+
+            ## Context
+
+            - **Repository**: '${{ github.repository }}'
+            - **Issue Number**: '${{ env.ISSUE_NUMBER }}'
+            - **Comment Command**: '${{ env.COMMENT_COMMAND }}'
+
+            ## Instructions
+
+            1. **Analyze the issue** using `gh issue view` command
+            2. **Review the repository structure** to understand the project context
+            3. **Determine appropriate labels** based on:
+               - Issue type (bug, feature, documentation, etc.)
+               - Component affected (frontend, backend, api, etc.)
+               - Priority level
+               - Complexity/effort required
+            4. **Apply labels** using `gh issue edit` command with `--add-label` flag
+            5. **Write a triage summary** to `response.md` explaining:
+               - What the issue is about
+               - Labels applied and why
+               - Any recommendations or next steps
+            6. **Execute the comment command** to post your triage summary
+
+            ## Available Label Categories
+
+            Based on this repository, typical labels include:
+            - **Type**: bug, feature, documentation, refactor, testing
+            - **Component**: frontend, backend, api, database, devops, ui
+            - **Priority**: P0 (critical), P1 (high), P2 (medium), P3 (low)
+            - **Status**: needs-review, blocked, wip, ready
+            - **Complexity**: XS, S, M, L, XL
+
+            ## Triage Guidelines
+
+            - Read the issue description carefully
+            - Apply relevant labels to help with organization
+            - Be helpful and welcoming in your response
+            - Ask for clarification if the issue is unclear
+            - Suggest templates or additional information if needed
