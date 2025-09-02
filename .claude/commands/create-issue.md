@@ -70,7 +70,25 @@ If not on main or not up to date, STOP and tell the user to:
 
 **DO NOT PROCEED if not on main with latest changes!**
 
-### Step 1: Determine Issue Type
+### Step 1: Check for Existing Similar Issues
+
+Before creating a new issue, check if similar work is already tracked:
+
+```bash
+# Show all open issues
+echo "📋 Checking existing open issues..."
+gh issue list --state open --limit 20 --json number,title,labels | jq -r '.[] | "#\(.number): \(.title)"'
+
+# Ask user to confirm
+echo ""
+echo "❓ Is your issue already covered by any of the above?"
+echo "   If yes, work on that existing issue instead."
+echo "   If no, proceed to create a new issue."
+```
+
+If a similar issue exists, suggest using `/work #[existing-issue]` instead.
+
+### Step 2: Determine Issue Type
 
 Ask the user:
 ```
@@ -94,14 +112,14 @@ Also ask for:
   - L: 3-5 days
   - XL: > 1 week
 
-### Step 2: Load Appropriate Template
+### Step 3: Load Appropriate Template
 
 Based on the type, read the template:
 - feature/enhancement/refactor → Read templates/local_dev/feature-template.md
 - bug → Read templates/local_dev/bug-template.md
 - task → Read templates/local_dev/task-template.md
 
-### Step 3: Fill Template
+### Step 4: Fill Template
 
 Using the template structure:
 1. Replace placeholders with actual content
@@ -123,7 +141,7 @@ Using the template structure:
 4. Include acceptance criteria
 5. Add testing requirements section
 
-### Step 4: Create GitHub Issue
+### Step 5: Create GitHub Issue
 
 Use mcp__github__create_issue with:
 - owner: from repository context
@@ -132,7 +150,7 @@ Use mcp__github__create_issue with:
 - body: filled template with metadata section + testing requirements
 - labels: [issue-type] (ONLY the type: bug, feature, enhancement, refactor, task)
 
-### Step 5: Check Dependencies
+### Step 6: Check Dependencies
 
 After creating issue, check if it depends on other work:
 ```bash
@@ -144,7 +162,7 @@ gh issue edit $ISSUE_NUMBER --body-file updated-body.md
 gh issue edit $ISSUE_NUMBER --add-label "blocked"
 ```
 
-### Step 6: Agent Assignment
+### Step 7: Agent Assignment
 
 **IMMEDIATE Copilot Auto-Assignment for Simple Tasks:**
 
@@ -286,7 +304,7 @@ function getTaskInstructions(taskType) {
 }
 ```
 
-### Step 7: Milestone Assignment (Optional)
+### Step 8: Milestone Assignment (Optional)
 
 Ask user if they want to assign a milestone:
 ```bash
@@ -308,7 +326,7 @@ else
 fi
 ```
 
-### Step 8: Sprint Assignment (Optional)
+### Step 9: Sprint Assignment (Optional)
 
 Ask if this should be added to current sprint:
 ```bash
@@ -320,12 +338,12 @@ gh issue list --label "sprint:current" --json number | jq length
 # Warn if sprint has > 10 issues
 ```
 
-### Step 9: Priority Setting
+### Step 10: Priority Setting
 
 Ask for priority (P0/P1/P2/P3) and add it to the metadata section in issue body.
 DO NOT add priority as a label - it's tracked in the metadata and project board fields.
 
-### Step 10: Summary
+### Step 11: Summary
 
 Provide the user with:
 ```bash
