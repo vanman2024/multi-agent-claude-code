@@ -216,6 +216,15 @@ if (isSmallAndSimple) {
 - Keep issues as planning docs only
 - Put all code/commits in PRs
 
+### 🤖 Automatic Project Board Updates
+
+**What happens automatically:**
+- New issues → Added to project board as "To Do"
+- PR created → Linked issue moves to "In Progress" 
+- PR merged → Issue closes and moves to "Done"
+
+**No manual status updates needed!** The project-automation workflow handles everything.
+
 ## Working with MCP Servers
 
 MCP (Model Context Protocol) servers allow Claude to interact with external tools and services. 
