@@ -3,6 +3,12 @@ name: Deployment Status Monitor
 on:
   deployment_status:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  deployments: read
+
 jobs:
   notify-deployment-failure:
     name: Notify on Deployment Failure
