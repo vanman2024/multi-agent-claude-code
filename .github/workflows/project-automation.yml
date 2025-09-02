@@ -3,6 +3,8 @@ name: Project Board Automation
 on:
   issues:
     types: [opened, edited, labeled, unlabeled, assigned, closed, reopened]
+  pull_request:
+    types: [opened, synchronize, reopened]
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -1113,4 +1115,110 @@ jobs:
               
             } catch (error) {
               console.log('Error with issue assignment:', error.message);
+            }
+
+  update-issue-on-pr:
+    name: Update Issue Status When PR Created
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    
+    steps:
+      - name: Extract linked issue and update status
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) return;
+            
+            // Extract issue number from PR body (Closes #123, Fixes #123, etc.)
+            const body = pr.body || '';
+            const issueMatch = body.match(/(?:closes|fixes|resolves|addresses)\s+#(\d+)/i);
+            
+            if (!issueMatch) {
+              console.log('No linked issue found in PR body');
+              return;
+            }
+            
+            const issueNumber = parseInt(issueMatch[1]);
+            console.log(`Found linked issue: #${issueNumber}`);
+            
+            // Get the issue to find its project item
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            
+            // Query for the issue's project item
+            const query = `
+              query($projectId: ID!, $contentId: ID!) {
+                node(id: $projectId) {
+                  ... on ProjectV2 {
+                    items(first: 100) {
+                      nodes {
+                        id
+                        content {
+                          ... on Issue {
+                            id
+                            number
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const result = await github.graphql(query, {
+              projectId: process.env.PROJECT_ID,
+              contentId: issue.node_id
+            });
+            
+            const item = result.node.items.nodes.find(i => 
+              i.content?.id === issue.node_id
+            );
+            
+            if (!item) {
+              console.log('Issue not found in project');
+              return;
+            }
+            
+            console.log(`Found project item: ${item.id}`);
+            
+            // Update the status to In Progress
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: { singleSelectOptionId: $optionId }
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: item.id,
+              fieldId: process.env.STATUS_FIELD,
+              optionId: process.env.STATUS_IN_PROGRESS
+            });
+            
+            console.log(`Updated issue #${issueNumber} status to In Progress`);
+            
+            // Add a comment to the issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `🚀 **Status Update**: Issue moved to "In Progress" as PR #${pr.number} has been created.`
+            });
+            
+            console.log('Added status update comment to issue');
             }
