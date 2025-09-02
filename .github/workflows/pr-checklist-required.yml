@@ -1,4 +1,4 @@
-name: Enforce PR Checkboxes
+name: Enforce Issue Checkboxes
 
 on:
   pull_request:
@@ -6,34 +6,75 @@ on:
 
 permissions:
   pull-requests: read
+  issues: read
   checks: write
   statuses: write
 
 jobs:
-  require-checkboxes:
-    name: Require All Checkboxes
+  require-issue-checkboxes:
+    name: Require Issue Checkboxes Complete
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'hotfix-')
     steps:
-      - name: Require Checklist
-        uses: mheap/require-checklist-action@v2
-        with:
-          requireChecklist: true  # Fail if no checklists found
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Comment Status
-        if: failure()
+      - name: Check Issue Checkboxes
         uses: actions/github-script@v7
         with:
           script: |
-            const pr_number = context.issue.number || context.payload.pull_request.number;
-            await github.rest.issues.createComment({
+            const pr = context.payload.pull_request;
+            
+            // Find linked issue from PR body (Closes #123)
+            const issueMatch = pr.body?.match(/(?:Closes|Fixes|Resolves)\s+#(\d+)/i);
+            
+            if (!issueMatch) {
+              core.setFailed('❌ PR must be linked to an issue using "Closes #XXX"');
+              return;
+            }
+            
+            const issueNumber = issueMatch[1];
+            console.log(`Found linked issue: #${issueNumber}`);
+            
+            // Get the issue
+            const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: pr_number,
-              body: '❌ **PR cannot be merged**: Not all required checkboxes are checked. Please complete all checklist items before merging.'
+              issue_number: parseInt(issueNumber)
             });
+            
+            // Check for unchecked checkboxes in issue body
+            const uncheckedBoxes = (issue.body?.match(/- \[ \]/g) || []).length;
+            const checkedBoxes = (issue.body?.match(/- \[x\]/gi) || []).length;
+            const totalBoxes = uncheckedBoxes + checkedBoxes;
+            
+            console.log(`Issue #${issueNumber}: ${checkedBoxes}/${totalBoxes} checkboxes complete`);
+            
+            if (totalBoxes === 0) {
+              console.log('⚠️ No checkboxes found in issue - skipping check');
+              return;
+            }
+            
+            if (uncheckedBoxes > 0) {
+              core.setFailed(`❌ Issue #${issueNumber} has ${uncheckedBoxes} unchecked requirements. Complete all checkboxes before merging.`);
+              
+              // Add comment to PR
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `## ❌ Cannot merge: Issue requirements incomplete
+                
+**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirements.
+                
+**Progress:** ${checkedBoxes}/${totalBoxes} checkboxes complete (${Math.round(checkedBoxes/totalBoxes * 100)}%)
+                
+Please complete all requirements in the linked issue before this PR can be merged.
+                
+[View Issue #${issueNumber}](${issue.html_url})`
+              });
+            } else {
+              console.log(`✅ All ${totalBoxes} requirements complete in issue #${issueNumber}`);
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             
   hotfix-bypass:
     name: Hotfix Bypass
