@@ -1,7 +1,7 @@
 name: Hotfix
-description: Critical bug that needs immediate attention
+description: Critical issue that needs immediate attention
 title: "[HOTFIX]: "
-labels: ["bug", "hotfix", "urgent"]
+labels: ["hotfix", "urgent"]
 body:
   - type: textarea
     id: all_details
