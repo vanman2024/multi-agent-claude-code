@@ -191,6 +191,9 @@ All docs use UPPERCASE with underscores:
 - `docs/AGENT_ORCHESTRATION.md` - How agents work together
 - `docs/SECRETS_SETUP.md` - GitHub secrets configuration
 - `docs/HOOKS_GUIDE.md` - Local development automation
+- `docs/GEMINI_SETUP.md` - **Gemini AI initial setup guide**
+- `docs/GEMINI_USER_GUIDE.md` - **How to use Gemini AI assistant**
+- `docs/GEMINI_TROUBLESHOOTING.md` - **Gemini debugging and verification**
 - `templates/guides/MCP_SETUP.md` - MCP server reference
 
 ---
