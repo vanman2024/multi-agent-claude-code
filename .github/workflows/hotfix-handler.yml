@@ -52,5 +52,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: '🚨 **URGENT ISSUE DETECTED**\n\n### Quick Fix Process:\n1. Run `/work #${{ github.event.issue.number }}` locally\n2. This will create a `hotfix-*` branch automatically\n3. PR will bypass normal checkbox requirements\n4. Merge and deploy immediately\n\n⚡ Fast-track enabled for this issue.'
+              body: '🚨 **URGENT ISSUE DETECTED**\n\n### Quick Fix Process:\n1. Run `/hotfix #${{ github.event.issue.number }}` locally\n2. This will create a `hotfix-*` branch\n3. PR will bypass normal checkbox requirements\n4. Merge and deploy immediately\n\n⚡ Fast-track enabled for this issue.'
             });

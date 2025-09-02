@@ -138,12 +138,7 @@ Use mcp__github__get_issue to get full details:
 
 ```bash
 # Get issue type from labels
-ISSUE_TYPE=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -E "feature|bug|enhancement|refactor|task|hotfix" | head -1)
-
-# Special handling for critical/urgent issues
-if gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -q "urgent\|critical\|P0"; then
-  ISSUE_TYPE="hotfix"
-fi
+ISSUE_TYPE=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -E "feature|bug|enhancement|refactor|task" | head -1)
 
 # Create branch name
 BRANCH_NAME="$ISSUE_TYPE-$ISSUE_NUMBER-short-description"
