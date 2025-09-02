@@ -1,16 +1,12 @@
 name: '🔍 Gemini PR Review'
 
 on:
-  pull_request:
-    types:
-      - 'opened'
-      - 'synchronize'
-  issue_comment:
-    types:
-      - 'created'
-  pull_request_review_comment:
-    types:
-      - 'created'
+  workflow_call:
+    inputs:
+      additional_context:
+        type: 'string'
+        description: 'Any additional context from the request'
+        required: false
 
 defaults:
   run:
@@ -24,38 +20,6 @@ permissions:
 
 jobs:
   gemini-pr-review:
-    if: |-
-      (
-        github.event_name == 'pull_request' &&
-        github.event.pull_request.head.repo.fork == false
-      ) || (
-        github.event_name == 'issue_comment' &&
-        github.event.issue.pull_request != null &&
-        (
-          contains(github.event.comment.body, '@gemini-cli /review') ||
-          contains(github.event.comment.body, '@gemini /review')
-        ) &&
-        (
-          github.event.sender.type == 'User' && (
-            github.event.comment.author_association == 'OWNER' ||
-            github.event.comment.author_association == 'MEMBER' ||
-            github.event.comment.author_association == 'COLLABORATOR'
-          )
-        )
-      ) || (
-        github.event_name == 'pull_request_review_comment' &&
-        (
-          contains(github.event.comment.body, '@gemini-cli /review') ||
-          contains(github.event.comment.body, '@gemini /review')
-        ) &&
-        (
-          github.event.sender.type == 'User' && (
-            github.event.comment.author_association == 'OWNER' ||
-            github.event.comment.author_association == 'MEMBER' ||
-            github.event.comment.author_association == 'COLLABORATOR'
-          )
-        )
-      )
     timeout-minutes: 10
     runs-on: 'ubuntu-latest'
 
@@ -109,12 +73,14 @@ jobs:
           COMMENT_COMMAND: '${{ steps.get_context.outputs.comment_command }}'
         with:
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
+          gemini_cli_version: '${{ vars.GEMINI_CLI_VERSION || "latest" }}'
           gcp_workload_identity_provider: '${{ vars.GCP_WIF_PROVIDER }}'
           gcp_project_id: '${{ vars.GOOGLE_CLOUD_PROJECT }}'
           gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
           gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
           use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
           use_gemini_code_assist: '${{ vars.GOOGLE_GENAI_USE_GCA }}'
+          gemini_model: '${{ vars.GEMINI_MODEL || "gemini-1.5-pro" }}'
           settings: |-
             {
               "maxSessionTurns": 20,

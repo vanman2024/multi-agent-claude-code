@@ -22,6 +22,51 @@ To use Gemini in this repository, simply mention `@gemini-cli` or `@gemini` in:
 @gemini explain this code    # Alternative format
 ```
 
+## Required Configuration
+
+For the Gemini integration to work properly, you need to set up the following secrets and variables:
+
+### Required Secrets
+- `GEMINI_API_KEY` - Your Google AI Studio API key (get from https://makersuite.google.com/app/apikey)
+
+### Required Variables  
+- `GEMINI_MODEL` - Set to `"gemini-1.5-pro"` (required for Linux compatibility)
+- `GEMINI_CLI_VERSION` - Set to `"latest"` or specific version
+
+### Optional GitHub App Variables (for enhanced authentication)
+- `APP_ID` - GitHub App ID
+- `APP_PRIVATE_KEY` - GitHub App private key
+
+### Optional Google Cloud Variables (for advanced features)
+- `GCP_WIF_PROVIDER` - Workload Identity Provider
+- `GOOGLE_CLOUD_PROJECT` - GCP Project ID  
+- `GOOGLE_CLOUD_LOCATION` - GCP Region
+- `SERVICE_ACCOUNT_EMAIL` - GCP Service Account
+- `GOOGLE_GENAI_USE_VERTEXAI` - Use Vertex AI (true/false)
+- `GOOGLE_GENAI_USE_GCA` - Use Gemini Code Assist (true/false)
+
+## Setting Up Variables
+
+```bash
+# Required secrets
+gh secret set GEMINI_API_KEY --body "your-api-key-here"
+
+# Required variables  
+gh variable set GEMINI_MODEL --body "gemini-1.5-pro"
+gh variable set GEMINI_CLI_VERSION --body "latest"
+
+# Optional debugging
+gh variable set DEBUG --body "false"
+```
+
+## Testing the Setup
+
+1. Create a new issue or PR
+2. Comment: `@gemini-cli are you there?`
+3. Gemini should respond within a few minutes
+
+If you don't see a response, check the [Actions tab](../../actions) for error logs.
+
 ## Official Google Implementation
 
 This integration uses Google's official `google-github-actions/run-gemini-cli@v0` action, which provides:
