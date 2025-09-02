@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     environment:
-      name: Preview
+      name: preview
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v4
@@ -103,7 +103,7 @@ jobs:
             ### Deployment Details
             - **Environment**: Preview
             - **Branch**: \`${{ github.head_ref }}\`
-            - **Commit**: \`${{ github.sha.substring(0, 7) }}\`
+            - **Commit**: \`${context.sha.substring(0, 7)}\`
             - **Tests**: ✅ All tests passed
             
             ### What's Deployed

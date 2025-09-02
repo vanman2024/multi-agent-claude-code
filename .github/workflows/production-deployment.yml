@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     environment:
-      name: Production
+      name: production
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v4
