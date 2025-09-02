@@ -3,6 +3,10 @@
   "framework": "nextjs",
   "github": {
     "enabled": true,
-    "autoAlias": true
+    "autoAlias": true,
+    "deploymentEnabled": {
+      "main": true,
+      "preview": true
+    }
   }
 }
