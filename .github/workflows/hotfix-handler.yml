@@ -1,0 +1,56 @@
+name: Hotfix Handler
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  detect-hotfix-pr:
+    name: Detect Hotfix PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'hotfix-')
+    steps:
+      - name: Label as hotfix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['hotfix', 'urgent']
+            });
+            
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '🚨 **HOTFIX DETECTED**\n\nThis PR has been marked as a critical hotfix:\n- ✅ Checkbox requirements bypassed\n- ✅ Fast-track review process\n- ✅ Ready for immediate deployment\n\nPlease review and merge ASAP.'
+            });
+            
+  detect-hotfix-issue:
+    name: Detect Hotfix Issue
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'issues' && 
+      (contains(github.event.issue.labels.*.name, 'hotfix') || 
+       contains(github.event.issue.labels.*.name, 'urgent') ||
+       contains(github.event.issue.labels.*.name, 'critical'))
+    steps:
+      - name: Comment instructions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '🚨 **URGENT ISSUE DETECTED**\n\n### Quick Fix Process:\n1. Run `/work #${{ github.event.issue.number }}` locally\n2. This will create a `hotfix-*` branch automatically\n3. PR will bypass normal checkbox requirements\n4. Merge and deploy immediately\n\n⚡ Fast-track enabled for this issue.'
+            });
