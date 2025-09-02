@@ -846,13 +846,9 @@ jobs:
               console.log(`Parsed Milestone: ${milestone}`);
             }
             
-            // Default milestone based on priority if not specified (feature-based, not version-based)
+            // Only set milestone if explicitly provided in issue body
             if (!milestone) {
-              if (priority === 'P0') milestone = 'Critical Features';
-              else if (priority === 'P1') milestone = 'Core Features';
-              else if (priority === 'P2') milestone = 'Enhancements';
-              else milestone = 'Backlog';
-              console.log(`Using default milestone based on priority: ${milestone}`);
+              console.log('No milestone specified in issue body - leaving unassigned');
             }
             
             // Query for all project fields and their options

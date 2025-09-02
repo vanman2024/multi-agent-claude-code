@@ -52,3 +52,15 @@
 
 ## Notes
 [Any additional context or considerations]
+
+---
+
+## Metadata
+*For automation parsing - DO NOT REMOVE*
+
+**Priority**: P2
+**Size**: M
+**Points**: 5
+**Goal**: User Experience
+**Component**: Frontend
+**Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]

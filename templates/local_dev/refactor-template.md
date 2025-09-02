@@ -48,5 +48,16 @@ Files affected:
 - [ ] Easier to maintain and extend
 
 ---
+
+## Metadata
+*For automation parsing - DO NOT REMOVE*
+
+**Priority**: P3
+**Size**: L
+**Points**: 8
+**Goal**: Tech Debt
+**Component**: Backend
+**Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]
+
+---
 **Labels:** type:refactor, technical-debt
-**Component:** [Frontend/Backend/Database/DevOps]

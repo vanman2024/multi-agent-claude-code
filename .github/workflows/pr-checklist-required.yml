@@ -3,12 +3,6 @@ name: Enforce PR Checkboxes
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened, ready_for_review]
-  pull_request_review:
-    types: [submitted, edited, dismissed]
-  issue_comment:
-    types: [created, edited, deleted]
-  issues:
-    types: [opened, edited]  # Also check issue checkboxes
 
 permissions:
   pull-requests: read
@@ -19,14 +13,12 @@ jobs:
   require-checkboxes:
     name: Require All Checkboxes
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event.issue.pull_request
+    if: github.event_name == 'pull_request'
     steps:
       - name: Require Checklist
         uses: mheap/require-checklist-action@v2
         with:
           requireChecklist: true  # Fail if no checklists found
-          skipDescriptionRegex: .*\(optional\).*  # Skip items marked as optional
-          skipDescriptionRegexFlags: i
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
