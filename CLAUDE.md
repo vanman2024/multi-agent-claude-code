@@ -61,7 +61,7 @@ One command for ALL implementation needs:
 - `/pr-comments` - Manage PR review comments
 - `/add-mcp` - Add new MCP servers
 - `/project-setup` - Initialize new project from template
-- `/idea` - Capture ideas for future consideration
+- `/idea` - Manage ideas using GitHub Discussions (see examples below)
 
 ### Best Practices
 - Use `/create-issue` to create issues with proper routing
@@ -79,6 +79,37 @@ One command for ALL implementation needs:
   - Examples showing usage (not implementation code)
 - Follow the templates in `/templates/slash-command-templates.md`
 - Use `/work` to start local implementation
+
+### /idea Command Examples
+
+**Interactive Menu** (no arguments):
+```bash
+/idea
+# Shows menu with 4 options:
+# 1. Create new discussion
+# 2. List existing discussions
+# 3. Convert discussion to issue
+# 4. View specific discussion
+```
+
+**Quick Create** (with topic):
+```bash
+/idea "Add OAuth authentication support"
+# Creates discussion directly with that title
+```
+
+**Quick View** (with number):
+```bash
+/idea 125
+# Views Discussion #125 directly
+```
+
+**Conversion Flow**:
+- Analyzes discussion content for keywords
+- Suggests type: bug (if has "fix/broken"), feature (if has "new/add"), or task
+- User can override suggestion
+- Creates issue using appropriate template
+- Adds comment to discussion linking to new issue
 
 ## System Architecture: The House Metaphor 🏗️
 
