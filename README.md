@@ -1,4 +1,4 @@
-# 🚀 Multi-Agent Development Framework
+# 🚀 Multi-Agent Development Framework (Template)
 
 <div align="center">
 
@@ -7,6 +7,8 @@
 ![Copilot](https://img.shields.io/badge/GitHub_Copilot-Free-blue?style=for-the-badge&logo=github)
 ![Claude](https://img.shields.io/badge/Claude_Code-Local-orange?style=for-the-badge)
 ![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)
+
+**⚠️ TEMPLATE FRAMEWORK: Clone this to bootstrap your AI-driven development**
 
 **Simplified AI-driven development: Two commands, infinite possibilities**
 
@@ -19,8 +21,8 @@
 ## 🎯 What's New in v2.0
 
 **SIMPLIFIED**: Just two main commands for everything:
-- `/create-issue` - Create any type of work item
-- `/work` - Intelligently implement any issue
+- `/create-issue` - Create any type of work item with auto-routing
+- `/work` - Intelligently implement any issue (auto-pulls latest)
 
 **COST-FREE**: No paid @claude GitHub App - uses free GitHub Copilot + local Claude Code
 
@@ -117,7 +119,7 @@ Both commands automatically `git pull` to prevent divergence between GitHub (whe
 
 ---
 
-## 🤖 AI Agent Routing
+## 🤖 AI Agent Routing (When Activated)
 
 ### GitHub Copilot Handles (FREE)
 - ✅ Simple implementations (Complexity ≤2, Size XS-S)
@@ -135,6 +137,8 @@ Both commands automatically `git pull` to prevent divergence between GitHub (whe
 - 🧠 Integration work
 - 🧠 Large tasks (Size M+)
 
+**Note**: Auto-routing to Copilot requires GitHub Actions to be fully operational (see issue #120)
+
 ---
 
 ## 📁 Project Structure
@@ -145,14 +149,14 @@ your-project/
 │   ├── workflows/         # GitHub Actions CI/CD
 │   └── ISSUE_TEMPLATE/    # Smart issue templates
 ├── 🤖 .claude/
-│   ├── commands/          # Just 6 commands now!
+│   ├── commands/          # Core slash commands
 │   │   ├── create-issue.md
 │   │   ├── work.md
 │   │   ├── project-setup.md
 │   │   ├── add-mcp.md
 │   │   ├── deploy.md
 │   │   └── copilot-review.md
-│   ├── agents/            # 7 specialized agents
+│   ├── agents/            # Specialized sub-agents
 │   └── hooks/             # Auto-sync & testing
 ├── 📚 docs/               # All documentation
 ├── 📖 Core Files
@@ -186,12 +190,12 @@ Everything deploys to **Vercel** automatically:
 
 ## 📚 Documentation
 
-All docs use UPPERCASE with underscores:
+Key documentation files:
 
-- `docs/AGENT_ORCHESTRATION.md` - How agents work together
-- `docs/SECRETS_SETUP.md` - GitHub secrets configuration
-- `docs/HOOKS_GUIDE.md` - Local development automation
-- `templates/guides/MCP_SETUP.md` - MCP server reference
+- `docs/WORKFLOW.md` - Complete development workflow
+- `docs/guides/TEMPLATE_PHILOSOPHY.md` - Core design principles  
+- `INFRASTRUCTURE_REQUIREMENTS.md` - Current implementation status
+- `CLAUDE.md` - AI assistant instructions
 
 ---
 

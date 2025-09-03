@@ -1,7 +1,7 @@
 ---
 allowed-tools: mcp__github(*), Read(*), Bash(*), TodoWrite(*)
 description: Create GitHub issues with proper templates and automatic agent assignment
-argument-hint: [type] [title]
+argument-hint: [type] [title] [issue_number]
 ---
 
 # Create Issue
@@ -50,13 +50,13 @@ if [[ "$LOCAL" != "$REMOTE" ]]; then
   echo ""
   echo "🔄 Auto-pulling latest changes..."
   git pull origin main
-  
+
   if [ $? -ne 0 ]; then
     echo "❌ ERROR: Failed to pull latest changes"
     echo "Please resolve any conflicts and try again"
     exit 1
   fi
-  
+
   echo "✅ Successfully pulled latest changes"
 fi
 
@@ -102,7 +102,7 @@ Also ask for:
 - **Complexity** (1-5): How complex is this?
   - 1: Trivial - Following exact patterns
   - 2: Simple - Minor variations
-  - 3: Moderate - Multiple components  
+  - 3: Moderate - Multiple components
   - 4: Complex - Architectural decisions
   - 5: Very Complex - Novel solutions
 - **Size** (XS/S/M/L/XL): How much work?
@@ -127,10 +127,10 @@ Using the template structure:
 3. Add metadata section at the bottom (EXACTLY as shown):
    ```markdown
    ---
-   
+
    ## Metadata
    *For automation parsing - DO NOT REMOVE*
-   
+
    **Priority**: P0/P1/P2/P3 (ask user)
    **Size**: XS/S/M/L/XL (from Step 1)
    **Points**: [1-13 based on size: XS=1-2, S=2-3, M=5, L=8, XL=13]
@@ -171,15 +171,15 @@ gh issue edit $ISSUE_NUMBER --add-label "blocked"
 const shouldAutoAssignCopilot = (complexity, size, type, labels) => {
   // Check complexity (must be simple)
   const isSimple = complexity <= 2;
-  
+
   // Check size (must be small)
   const isSmall = ['XS', 'S'].includes(size);
-  
+
   // Check for blocking labels
-  const hasBlockingLabels = labels.some(l => 
+  const hasBlockingLabels = labels.some(l =>
     ['security', 'architecture', 'blocked'].includes(l)
   );
-  
+
   // Auto-assign if BOTH simple AND small AND no blockers
   return isSimple && isSmall && !hasBlockingLabels;
 };
@@ -187,7 +187,7 @@ const shouldAutoAssignCopilot = (complexity, size, type, labels) => {
 // Implementation
 if (shouldAutoAssignCopilot(COMPLEXITY, SIZE, ISSUE_TYPE, LABELS)) {
   echo "🤖 Auto-assigning to GitHub Copilot (Complexity: $COMPLEXITY, Size: $SIZE)"
-  
+
   // IMMEDIATELY assign Copilot using MCP
   // This triggers Copilot to start working within seconds!
   await mcp__github__assign_copilot_to_issue({
@@ -195,7 +195,7 @@ if (shouldAutoAssignCopilot(COMPLEXITY, SIZE, ISSUE_TYPE, LABELS)) {
     repo: 'multi-agent-claude-code',
     issueNumber: ISSUE_NUMBER
   });
-  
+
   // Determine task type for instructions
   let COPILOT_TASK = "";
   if (TITLE.includes("test")) {
@@ -209,7 +209,7 @@ if (shouldAutoAssignCopilot(COMPLEXITY, SIZE, ISSUE_TYPE, LABELS)) {
   } else {
     COPILOT_TASK = "implement feature";
   }
-  
+
   // Add specific instructions comment
   await mcp__github__add_issue_comment({
     owner: 'vanman2024',
@@ -235,18 +235,18 @@ ${getTaskInstructions(COPILOT_TASK)}
 Copilot has been assigned and will begin work automatically within seconds.
 Watch for branch: \`copilot/${ISSUE_TYPE}-${ISSUE_NUMBER}\``
   });
-  
+
   ASSIGNMENT = "copilot";
-  
+
 } else {
   // Complex OR large OR has blocking labels - needs Claude Code
   echo "📋 Requires Claude Code (Complexity: $COMPLEXITY, Size: $SIZE)"
-  
+
   let reason = "";
   if (COMPLEXITY > 2) reason = "High complexity (${COMPLEXITY}/5)";
   else if (!['XS', 'S'].includes(SIZE)) reason = "Large size (${SIZE})";
   else if (hasBlockingLabels) reason = "Has blocking labels";
-  
+
   await mcp__github__add_issue_comment({
     owner: 'vanman2024',
     repo: 'multi-agent-claude-code',
@@ -263,7 +263,7 @@ Requires Claude Code agents with full MCP tool access.
 
 **Next step**: Run \`/work #${ISSUE_NUMBER}\` when ready to begin implementation.`
   });
-  
+
   ASSIGNMENT = "claude-code";
 }
 
@@ -276,25 +276,25 @@ function getTaskInstructions(taskType) {
 - Include edge cases and error scenarios
 - Follow existing test patterns in the codebase
 - Mock external dependencies`;
-      
+
     case "fix bug":
       return `- Fix the bug as described in the issue
 - Add regression tests to prevent recurrence
 - Verify fix doesn't break existing functionality
 - Update any affected documentation`;
-      
+
     case "update documentation":
       return `- Update documentation as requested
 - Keep consistent with existing style
 - Include code examples where relevant
 - Check for broken links`;
-      
+
     case "refactor code":
       return `- Refactor without changing functionality
 - Ensure all tests still pass
 - Follow project coding standards
 - Update imports and exports as needed`;
-      
+
     default:
       return `- Implement as specified in issue description
 - Write tests for new functionality
@@ -370,12 +370,12 @@ fi
 - No manual project board management needed
 - Dependencies should be tracked with "Depends on #XX" in issue body
 - Sprint labels help with work prioritization in `/work` command
-- **Milestones**: 
+- **Milestones**:
   - Used for high-level release goals (MVP Core, Beta, v1.0)
   - NOT automatically assigned based on priority/type
   - Can be set manually or left blank for later assignment
   - Different from Projects (which track sprints/when work happens)
-- **Copilot Capabilities**: 
+- **Copilot Capabilities**:
   - **Implementation**: Simple features (Complexity ≤2, Size XS/S)
   - **Unit Tests**: Can write comprehensive test suites
   - **Bug Fixes**: Simple bugs with clear reproduction steps
