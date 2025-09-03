@@ -63,6 +63,18 @@ One command for ALL implementation needs:
 - `/project-setup` - Initialize new project from template
 - `/discussions` - Manage GitHub Discussions (see examples below)
 
+#### 3. `/discussions` - GitHub Discussions Management
+Manage ideas and discussions without cluttering the codebase:
+```bash
+/discussions                    # Show menu with 6 options
+/discussions "new feature idea" # Quick create discussion
+/discussions 125                # View discussion #125
+```
+- Create, list, and view GitHub Discussions
+- Convert discussions to actionable issues
+- Find overlapping discussions and issues
+- Consolidate related discussions into unified work items
+
 ### Best Practices
 - Use `/create-issue` to create issues with proper routing
 - Simple tasks auto-assign to GitHub Copilot (free with GitHub Pro)
