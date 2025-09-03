@@ -1,262 +1,302 @@
 ---
-allowed-tools: Read(*), Write(*), Bash(gh *, ls), TodoWrite(*), Glob(*)
-description: Create new ideas or analyze existing scratchpad discussions
-argument-hint: "[optional: topic or existing file name]"
+allowed-tools: Bash(gh api *, gh issue *), mcp__github(*), Read(*), TodoWrite(*)
+description: Create and manage ideas using GitHub Discussions
+argument-hint: "[create|list|convert|view] [topic or discussion number]"
 ---
 
-# Idea - Create or Analyze Discussion Framework
+# Idea - GitHub Discussions Integration
 
 ## Purpose
-Either start a new idea discussion OR analyze an existing scratchpad idea to determine next steps (feature, bug fix, etc.)
+Manage ideas through GitHub Discussions to keep the codebase clean and enable team collaboration.
 
-## Initial Flow
+## Command Syntax
 
-When user runs `/idea $ARGUMENTS`:
+When user runs `/idea $ARGUMENTS`, parse the command:
 
-```
-What would you like to do?
-
-1. 💡 Create - Start a new idea discussion
-2. 🔍 Analyze - Review existing scratchpad idea for next steps
-3. 📋 List - Show all existing idea discussions
-
-Choose [1/2/3]:
+### 1. Create New Discussion
+```bash
+/idea "topic name"
+/idea create "topic name"
 ```
 
-## Path 1: Create New Idea
+### 2. List All Discussions
+```bash
+/idea list
+/idea
+```
 
-If user chooses Create:
+### 3. Convert Discussion to Issue
+```bash
+/idea convert 121
+```
 
-1. **Get the topic**:
-   - If provided in $ARGUMENTS, use it
-   - Otherwise: "What idea would you like to explore?"
+### 4. View Specific Discussion
+```bash
+/idea view 121
+```
 
-2. **🔍 CHECK FOR EXISTING DOCS FIRST**:
+## Implementation
+
+### Create New Discussion
+
+When creating a new discussion:
+
+1. **Parse the topic**:
    ```bash
-   # Search all scratchpad folders for similar docs
-   TOPIC_KEYWORDS=$(echo "$TOPIC" | tr ' ' '|')
-   
-   echo "Checking for existing documentation..."
-   find /home/gotime2022/Projects/multi-agent-claude-code/scratchpad -name "*.md" -type f | 
-     xargs grep -l -i -E "$TOPIC_KEYWORDS" 2>/dev/null
-   
-   # Also check filenames
-   find /home/gotime2022/Projects/multi-agent-claude-code/scratchpad -name "*.md" -type f | 
-     grep -i -E "$TOPIC_KEYWORDS"
-   ```
-   
-   **If similar docs found**:
-   ```
-   ⚠️ Found existing related documentation:
-   - AGENTS.md (covers agent orchestration)
-   - CHECKBOXES.md (covers checkbox strategy)
-   
-   Would you like to:
-   1. Update existing doc
-   2. Create new doc anyway
-   3. View existing doc first
-   ```
-
-3. **Determine correct folder**:
-   ```
-   Based on: scratchpad/README.md structure
-   
-   /scratchpad/
-   ├── drafts/     # New ideas, brainstorming
-   ├── approved/   # Approved concepts, ready to build
-   └── wip/        # Actively being worked on (tied to issues)
-   
-   New ideas go to: /scratchpad/drafts/
-   ```
-
-4. **Create file with proper naming**:
-   ```bash
-   # Use UPPERCASE naming convention
-   TOPIC_UPPER=$(echo "$TOPIC" | tr '[:lower:]' '[:upper:]' | tr ' ' '_')
-   FILEPATH="/home/gotime2022/Projects/multi-agent-claude-code/scratchpad/drafts/${TOPIC_UPPER}.md"
-   
-   # Check if file would duplicate existing concept
-   if [ -f "$FILEPATH" ]; then
-     echo "File already exists! Update instead?"
+   # Extract topic from arguments
+   if [[ "$1" == "create" ]]; then
+     TOPIC="${@:2}"  # Everything after 'create'
+   elif [[ "$1" != "list" && "$1" != "convert" && "$1" != "view" ]]; then
+     TOPIC="$@"  # Entire argument is the topic
    fi
    ```
 
-5. **Use template** from `@/home/gotime2022/Projects/multi-agent-claude-code/templates/idea-template.md`
-
-6. **Start collaborative discussion**:
-   ```
-   📝 Created: scratchpad/drafts/[filename]
-   
-   Let's explore this idea. What problem are we trying to solve?
-   ```
-
-7. **Build the document through conversation**
-
-## Path 2: Analyze Existing Idea
-
-If user chooses Analyze:
-
-1. **Find existing docs across all stages**:
+2. **Create the discussion using GraphQL**:
    ```bash
-   echo "📝 Drafts (brainstorming):"
-   ls -la /home/gotime2022/Projects/multi-agent-claude-code/scratchpad/drafts/*.md 2>/dev/null
+   # Get repository node ID
+   REPO_ID=$(gh api graphql -f query='
+     query {
+       repository(owner: "vanman2024", name: "multi-agent-claude-code") {
+         id
+       }
+     }' --jq '.data.repository.id')
    
-   echo "✅ Approved (ready to build):"
-   ls -la /home/gotime2022/Projects/multi-agent-claude-code/scratchpad/approved/*.md 2>/dev/null
+   # Get Ideas category ID
+   CATEGORY_ID=$(gh api graphql -f query='
+     query {
+       repository(owner: "vanman2024", name: "multi-agent-claude-code") {
+         discussionCategories(first: 10) {
+           nodes {
+             id
+             name
+           }
+         }
+       }
+     }' --jq '.data.repository.discussionCategories.nodes[] | select(.name == "Ideas") | .id')
    
-   echo "🚧 Work in Progress (being built):"
-   ls -la /home/gotime2022/Projects/multi-agent-claude-code/scratchpad/wip/*.md 2>/dev/null
+   # Create the discussion
+   DISCUSSION=$(gh api graphql -f query="
+     mutation {
+       createDiscussion(input: {
+         repositoryId: \"$REPO_ID\"
+         categoryId: \"$CATEGORY_ID\"
+         title: \"$TOPIC\"
+         body: \"## Problem Statement\\n\\nDescribe the problem this idea solves.\\n\\n## Proposed Approach\\n\\n1. Step one\\n2. Step two\\n3. Step three\\n\\n## Questions to Consider\\n\\n- What are the main challenges?\\n- Who will benefit from this?\\n- What resources are needed?\\n\\n## Next Steps\\n\\n- [ ] Gather feedback\\n- [ ] Refine approach\\n- [ ] Decide: Convert to issue or continue discussion\"
+       }) {
+         discussion {
+           number
+           url
+         }
+       }
+     }" --jq '.data.createDiscussion.discussion')
+   
+   echo "✅ Created discussion #$(echo $DISCUSSION | jq -r .number)"
+   echo "🔗 URL: $(echo $DISCUSSION | jq -r .url)"
    ```
 
-2. **Let user select**:
-   ```
-   Which idea would you like to analyze?
-   
-   1. 20250829-automatic-pr-review.md
-   2. 20250830-branch-strategy.md
-   3. 20250830-testing-framework.md
-   
-   Or provide filename directly:
-   ```
-
-3. **Read and analyze the idea**:
-   - Load the scratchpad file
-   - Assess completeness of sections
-   - Identify what type of work this should become
-
-4. **Provide analysis**:
-   ```
-   📊 Analysis of: [idea title]
-   
-   Completeness:
-   ✅ Problem clearly defined
-   ✅ Solution approach documented
-   ⚠️ Technical details need refinement
-   ❌ Resource requirements not specified
-   
-   This appears to be a: [Feature/Bug Fix/Enhancement/Refactor]
-   
-   Recommended next step:
-   → Create Feature Issue (requirements are clear enough)
-   
-   What would you like to do?
-   1. 📝 Create issue from this idea
-   2. 💬 Create GitHub discussion for feedback
-   3. ✏️ Continue refining in scratchpad
-   4. 🗂️ Archive (not pursuing now)
-   ```
-
-5. **Execute next step**:
-
-   **If Create Issue**:
-   ```
-   What type of issue should this become?
-   1. 🚀 Feature - New functionality
-   2. 🐛 Bug - Something to fix  
-   3. 🔧 Enhancement - Improve existing feature
-   4. 🏗️ Refactor - Code improvement
-   
-   I'll help structure it properly for implementation.
-   ```
-   
-   Then create issue with:
-   - Proper issue template based on type
-   - Reference to original scratchpad discussion
-   - Extracted requirements and acceptance criteria
-   - Implementation checkboxes
-
-   **If Create Discussion**:
-   - Push to GitHub for broader feedback
-   - Link back to scratchpad origins
-
-   **If Continue Refining**:
-   - Resume collaborative editing
-   - Focus on gaps identified in analysis
-
-## Path 3: List Ideas
-
-If user chooses List:
+### List All Discussions
 
 ```bash
-# List all idea files with preview
-for file in /home/gotime2022/Projects/multi-agent-claude-code/scratchpad/ideas/*.md; do
-  echo "📄 $(basename $file)"
-  head -n 3 "$file" | grep -E "^##|^###" | head -1
-  echo ""
-done
+# List discussions in Ideas category
+gh api graphql -f query='
+  query {
+    repository(owner: "vanman2024", name: "multi-agent-claude-code") {
+      discussions(first: 20, categoryId: "Ideas", orderBy: {field: CREATED_AT, direction: DESC}) {
+        nodes {
+          number
+          title
+          createdAt
+          author {
+            login
+          }
+          comments {
+            totalCount
+          }
+        }
+      }
+    }
+  }' --jq '.data.repository.discussions.nodes[] | 
+    "Discussion #\(.number): \(.title)\n  Created: \(.createdAt | split("T")[0])\n  Author: \(.author.login)\n  Comments: \(.comments.totalCount)\n"'
 ```
 
-Output:
-```
-Current idea discussions:
+### Convert Discussion to Issue
 
-📄 20250829-automatic-pr-review.md
-   💡 Idea: Automatic PR Review System
+When converting discussion #NUMBER to issue:
 
-📄 20250830-branch-strategy.md
-   💡 Idea: Smart Branch Creation Strategy
+1. **Get discussion details**:
+   ```bash
+   DISCUSSION=$(gh api graphql -f query="
+     query {
+       repository(owner: \"vanman2024\", name: \"multi-agent-claude-code\") {
+         discussion(number: $NUMBER) {
+           title
+           body
+           url
+         }
+       }
+     }" --jq '.data.repository.discussion')
+   
+   TITLE=$(echo $DISCUSSION | jq -r .title)
+   BODY=$(echo $DISCUSSION | jq -r .body)
+   URL=$(echo $DISCUSSION | jq -r .url)
+   ```
 
-📄 20250830-testing-framework.md
-   💡 Idea: Comprehensive Testing Framework
+2. **Determine issue type**:
+   ```
+   What type of issue should this become?
+   1. feature - New functionality
+   2. enhancement - Improve existing feature
+   3. bug - Something to fix
+   4. task - Work item
+   
+   Choose [1-4]:
+   ```
 
-Use '/idea analyze' to review any of these.
+3. **Create the issue**:
+   ```bash
+   # Create issue with reference to discussion
+   gh issue create \
+     --title "$TITLE" \
+     --body "## Summary
+   
+   Based on discussion: $URL
+   
+   ## Original Discussion
+   
+   $BODY
+   
+   ## Implementation Plan
+   
+   - [ ] Define requirements
+   - [ ] Design solution
+   - [ ] Implement feature
+   - [ ] Write tests
+   - [ ] Update documentation
+   
+   ## Acceptance Criteria
+   
+   [To be defined based on discussion feedback]" \
+     --label "$ISSUE_TYPE"
+   
+   # Add comment to discussion
+   gh api graphql -f query="
+     mutation {
+       addDiscussionComment(input: {
+         discussionId: \"$DISCUSSION_ID\"
+         body: \"This discussion has been converted to issue #$ISSUE_NUMBER\"
+       }) {
+         comment {
+           id
+         }
+       }
+     }"
+   ```
+
+### View Specific Discussion
+
+```bash
+# Get discussion details
+gh api graphql -f query="
+  query {
+    repository(owner: \"vanman2024\", name: \"multi-agent-claude-code\") {
+      discussion(number: $NUMBER) {
+        title
+        body
+        createdAt
+        author {
+          login
+        }
+        comments(first: 10) {
+          nodes {
+            body
+            author {
+              login
+            }
+            createdAt
+          }
+        }
+      }
+    }
+  }" --jq '
+    .data.repository.discussion | 
+    "Discussion #'$NUMBER': \(.title)\n" +
+    "Author: \(.author.login)\n" +
+    "Created: \(.createdAt | split("T")[0])\n\n" +
+    "Body:\n\(.body)\n\n" +
+    if .comments.nodes | length > 0 then
+      "Comments:\n" + 
+      (.comments.nodes | map("- \(.author.login): \(.body | split("\n")[0])") | join("\n"))
+    else
+      "No comments yet"
+    end'
 ```
 
 ## Smart Detection
 
-If $ARGUMENTS contains a filename that exists:
-- Skip the menu, go straight to analyzing that file
+Automatically determine intent from arguments:
 
-If $ARGUMENTS is a new topic:
-- Skip the menu, go straight to creating new idea
-
-Only show menu when:
-- No arguments provided
-- Arguments are ambiguous
-
-## Example Usage
-
-### Quick create:
+```bash
+# If no arguments or just "list"
+if [[ -z "$ARGUMENTS" || "$ARGUMENTS" == "list" ]]; then
+  # Show list of discussions
+  
+# If starts with number
+elif [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
+  # View that discussion number
+  
+# If starts with "convert" followed by number
+elif [[ "$ARGUMENTS" =~ ^convert[[:space:]]+([0-9]+)$ ]]; then
+  # Convert that discussion to issue
+  
+# If starts with "view" followed by number
+elif [[ "$ARGUMENTS" =~ ^view[[:space:]]+([0-9]+)$ ]]; then
+  # View that discussion
+  
+# Otherwise treat as new topic
+else
+  # Create new discussion with topic
+fi
 ```
-/idea "automatic code review system"
-→ Skips menu, creates new idea discussion
-```
-
-### Quick analyze:
-```
-/idea 20250830-branch-strategy.md
-→ Skips menu, analyzes existing file
-```
-
-### Interactive:
-```
-/idea
-→ Shows menu for create/analyze/list
-```
-
-## Transition Workflows
-
-### Idea → Feature Issue
-- Extract requirements from scratchpad
-- Create implementation checkboxes
-- Add acceptance criteria
-- Reference: "Based on discussion: scratchpad/ideas/[file]"
-
-### Idea → Bug Report
-- Extract problem description
-- Create reproduction steps
-- Add fix checkboxes
-- Reference original discussion
-
-### Idea → GitHub Discussion
-- Push for community feedback
-- Keep scratchpad as internal notes
-- Link between them
 
 ## Key Principles
 
-1. **Single entry point** - `/idea` handles both create and analyze
-2. **Smart routing** - Detects intent from arguments
-3. **Clear progression** - Idea → Analysis → Issue/Feature
-4. **Maintains history** - Scratchpad files track evolution
-5. **Type-aware** - Knows if idea should become feature, bug, etc.
+1. **No code blocks** - Keep discussions readable as plain text
+2. **Simple format** - Problem, approach, steps, decision
+3. **GitHub native** - Use Discussions API, not local files
+4. **Clean codebase** - No scratchpad folders or temp files
+5. **Team visibility** - All ideas visible in GitHub
+
+## Examples
+
+### Create new idea:
+```bash
+/idea "Add user dashboard with analytics"
+→ Creates Discussion #125: "Add user dashboard with analytics"
+```
+
+### List all ideas:
+```bash
+/idea list
+→ Shows all discussions in Ideas category
+```
+
+### Convert to issue:
+```bash
+/idea convert 125
+→ Creates issue from Discussion #125
+→ Adds reference link in issue body
+→ Comments on discussion with issue link
+```
+
+### View discussion:
+```bash
+/idea view 125
+→ Shows full discussion with comments
+```
+
+## Error Handling
+
+- If Discussions not enabled: "❌ GitHub Discussions must be enabled for this repository"
+- If Ideas category missing: "❌ Please create an 'Ideas' category in GitHub Discussions"
+- If discussion not found: "❌ Discussion #XXX not found"
+- If GraphQL fails: Show error and suggest using GitHub web UI
