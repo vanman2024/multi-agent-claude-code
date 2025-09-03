@@ -61,7 +61,7 @@ One command for ALL implementation needs:
 - `/pr-comments` - Manage PR review comments
 - `/add-mcp` - Add new MCP servers
 - `/project-setup` - Initialize new project from template
-- `/idea` - Manage ideas using GitHub Discussions (see examples below)
+- `/discussions` - Manage GitHub Discussions (see examples below)
 
 ### Best Practices
 - Use `/create-issue` to create issues with proper routing
@@ -80,11 +80,11 @@ One command for ALL implementation needs:
 - Follow the templates in `/templates/slash-command-templates.md`
 - Use `/work` to start local implementation
 
-### /idea Command Examples
+### /discussions Command Examples
 
 **Interactive Menu** (no arguments):
 ```bash
-/idea
+/discussions
 # Shows menu with 4 options:
 # 1. Create new discussion
 # 2. List existing discussions
@@ -94,13 +94,13 @@ One command for ALL implementation needs:
 
 **Quick Create** (with topic):
 ```bash
-/idea "Add OAuth authentication support"
+/discussions "Add OAuth authentication support"
 # Creates discussion directly with that title
 ```
 
 **Quick View** (with number):
 ```bash
-/idea 125
+/discussions 125
 # Views Discussion #125 directly
 ```
 

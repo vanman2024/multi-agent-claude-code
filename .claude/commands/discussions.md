@@ -1,10 +1,10 @@
 ---
 allowed-tools: mcp__github(*), Bash(gh api *, gh issue *), Read(*), TodoWrite(*)
-description: Create and manage ideas using GitHub Discussions
+description: Create and manage GitHub Discussions
 argument-hint: "[topic or discussion number]"
 ---
 
-# Idea - GitHub Discussions Integration
+# Discussions - GitHub Discussions Management
 
 ## Context
 - Current branch: !`git branch --show-current`
@@ -13,7 +13,7 @@ argument-hint: "[topic or discussion number]"
 
 ## Your Task
 
-When user runs `/idea $ARGUMENTS`, manage ideas through GitHub Discussions.
+When user runs `/discussions $ARGUMENTS`, manage GitHub Discussions.
 
 **IMPORTANT**: 
 - DO NOT create any scripts or files
@@ -40,7 +40,7 @@ First, verify GitHub Discussions are enabled:
 
 When `$ARGUMENTS` is empty, show this menu and wait for user choice:
 ```
-What would you like to do with ideas?
+What would you like to do with discussions?
 
 1. 💡 Create new discussion
 2. 📋 List existing discussions  
