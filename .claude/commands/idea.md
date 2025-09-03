@@ -55,7 +55,10 @@ Choose [1-4]:
 For topic provided in `$ARGUMENTS` or asked from user:
 1. Use mcp__github__list_discussion_categories to get available categories
 2. Select "Ideas" category if exists, else use "General"
-3. Format discussion body using the @templates/idea-template.md structure
+3. Format discussion:
+   - **Title**: Just the topic itself (no "💡 Idea:" prefix - category shows that)
+   - **Body**: Use @templates/idea-template.md structure
+   - **Note**: Discussions use categories, not labels (unlike issues)
 4. Use gh CLI with GraphQL to create the discussion with proper mutation syntax
 5. Show success message with discussion number and URL
 
