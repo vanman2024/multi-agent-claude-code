@@ -8,11 +8,20 @@ argument-hint: "[topic or discussion number]"
 
 ## Context
 - Current branch: !`git branch --show-current`
-- Open discussions: !`gh api graphql -f query='query { repository(owner: "vanman2024", name: "multi-agent-claude-code") { discussions(first: 5, categoryId: "Ideas") { totalCount } } }' --jq '.data.repository.discussions.totalCount'`
+- Repository: vanman2024/multi-agent-claude-code
 
 ## Your Task
 
 When user runs `/idea $ARGUMENTS`, manage ideas through GitHub Discussions.
+
+### Initial Setup Check
+
+First, verify GitHub Discussions are enabled:
+1. Use mcp__github__list_discussion_categories to check if Discussions are enabled
+2. Look for "Ideas" category in the list
+3. If Discussions not enabled or Ideas category missing, inform user:
+   - Go to repository Settings → Features → Enable Discussions
+   - Create an "Ideas" category for brainstorming
 
 ### Smart Argument Detection
 
@@ -38,17 +47,24 @@ Choose [1-4]:
 ### Option 1: Create New Discussion
 
 Get topic from user if not provided, then:
-1. Get repository ID using mcp__github__search_repositories
-2. Get Ideas category ID via GraphQL
-3. Create discussion using GraphQL mutation with structured template
+1. First check if Discussions are enabled and Ideas category exists using mcp__github__list_discussion_categories
+2. If Ideas category doesn't exist, inform user to create it in GitHub UI
+3. Create discussion using Bash with gh CLI:
+   ```
+   gh api graphql -f query='mutation...'
+   ```
+   With structured template for problem statement and approach
 
 ### Option 2: List Discussions
 
-Use mcp__github__list_discussions with:
+First get category ID for "Ideas" using mcp__github__list_discussion_categories.
+Then use mcp__github__list_discussions with:
 - owner: "vanman2024"
-- repo: "multi-agent-claude-code"
-- category: "Ideas"
+- repo: "multi-agent-claude-code"  
+- category: (the Ideas category ID if it exists)
 - perPage: 20
+
+If no Ideas category, show all discussions.
 
 ### Option 3: Convert Discussion to Issue
 
