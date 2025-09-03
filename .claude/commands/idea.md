@@ -9,6 +9,7 @@ argument-hint: "[topic or discussion number]"
 ## Context
 - Current branch: !`git branch --show-current`
 - Repository: vanman2024/multi-agent-claude-code
+- Idea template: @templates/idea-template.md
 
 ## Your Task
 
@@ -49,11 +50,11 @@ Choose [1-4]:
 Get topic from user if not provided, then:
 1. First check if Discussions are enabled and Ideas category exists using mcp__github__list_discussion_categories
 2. If Ideas category doesn't exist, inform user to create it in GitHub UI
-3. Create discussion using Bash with gh CLI:
-   ```
-   gh api graphql -f query='mutation...'
-   ```
-   With structured template for problem statement and approach
+3. Use the idea template structure from @templates/idea-template.md to format the discussion body
+4. Create discussion using Bash with gh CLI, adapting the template format:
+   - Title: User's topic
+   - Body: Formatted using idea-template sections (Context, Current State, Proposed Solution, etc.)
+5. Ensure the discussion follows the template structure for consistency
 
 ### Option 2: List Discussions
 
@@ -73,15 +74,15 @@ If no Ideas category, show all discussions.
 1. List discussions and let user choose one
 2. Get discussion details via mcp__github__get_discussion
 3. Analyze content for keywords to suggest issue type:
-   - Bug keywords → suggest "bug"
-   - Feature keywords → suggest "feature"  
-   - Otherwise → suggest "enhancement"
+   - Bug keywords → suggest "bug" (use @templates/local_dev/bug-template.md)
+   - Feature keywords → suggest "feature" (use @templates/local_dev/feature-template.md)
+   - Otherwise → suggest "task" (use @templates/local_dev/task-template.md)
 4. Let user confirm or change type
-5. Create issue with mcp__github__create_issue including:
+5. Create issue with mcp__github__create_issue:
+   - Use appropriate template based on type
    - Title with [TYPE] prefix
    - Link to original discussion
-   - Implementation requirements checklist
-   - Acceptance criteria
+   - Adapt discussion content to fit the chosen template structure
 6. Add comment to discussion linking to new issue
 
 ### Option 4: View Specific Discussion
