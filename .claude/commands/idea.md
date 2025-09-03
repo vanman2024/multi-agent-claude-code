@@ -9,45 +9,42 @@ argument-hint: "[create|list|convert|view] [topic or discussion number]"
 ## Purpose
 Manage ideas through GitHub Discussions to keep the codebase clean and enable team collaboration.
 
-## Command Syntax
+## Command Flow
 
-When user runs `/idea $ARGUMENTS`, parse the command:
+When user runs `/idea $ARGUMENTS`:
 
-### 1. Create New Discussion
-```bash
-/idea "topic name"
-/idea create "topic name"
+### If no arguments provided, show menu:
+```
+What would you like to do with ideas?
+
+1. 💡 Create new discussion
+2. 📋 List existing discussions  
+3. 🔄 Convert discussion to issue
+4. 👁️ View specific discussion
+
+Choose [1-4]:
 ```
 
-### 2. List All Discussions
-```bash
-/idea list
-/idea
-```
-
-### 3. Convert Discussion to Issue
-```bash
-/idea convert 121
-```
-
-### 4. View Specific Discussion
-```bash
-/idea view 121
-```
+### Smart argument detection:
+- If `$ARGUMENTS` is a number → View that discussion
+- If `$ARGUMENTS` is text → Create new discussion with that topic
+- If no arguments → Show menu above
 
 ## Implementation
 
-### Create New Discussion
+### Menu Option 1: Create New Discussion
 
 When creating a new discussion:
 
-1. **Parse the topic**:
+1. **Get the topic**:
    ```bash
-   # Extract topic from arguments
-   if [[ "$1" == "create" ]]; then
-     TOPIC="${@:2}"  # Everything after 'create'
-   elif [[ "$1" != "list" && "$1" != "convert" && "$1" != "view" ]]; then
-     TOPIC="$@"  # Entire argument is the topic
+   # If topic provided as argument, use it
+   # Otherwise ask for it
+   if [[ -n "$ARGUMENTS" && ! "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
+     TOPIC="$ARGUMENTS"
+   else
+     echo "What idea would you like to discuss?"
+     read TOPIC
    fi
    ```
 
@@ -94,7 +91,7 @@ When creating a new discussion:
    echo "🔗 URL: $(echo $DISCUSSION | jq -r .url)"
    ```
 
-### List All Discussions
+### Menu Option 2: List All Discussions
 
 ```bash
 # List discussions in Ideas category
@@ -119,7 +116,7 @@ gh api graphql -f query='
     "Discussion #\(.number): \(.title)\n  Created: \(.createdAt | split("T")[0])\n  Author: \(.author.login)\n  Comments: \(.comments.totalCount)\n"'
 ```
 
-### Convert Discussion to Issue
+### Menu Option 3: Convert Discussion to Issue
 
 When converting discussion #NUMBER to issue:
 
@@ -192,7 +189,7 @@ When converting discussion #NUMBER to issue:
      }"
    ```
 
-### View Specific Discussion
+### Menu Option 4: View Specific Discussion
 
 ```bash
 # Get discussion details
@@ -231,30 +228,20 @@ gh api graphql -f query="
     end'
 ```
 
-## Smart Detection
-
-Automatically determine intent from arguments:
+## Smart Detection Logic
 
 ```bash
-# If no arguments or just "list"
-if [[ -z "$ARGUMENTS" || "$ARGUMENTS" == "list" ]]; then
-  # Show list of discussions
+# If no arguments → Show menu
+if [[ -z "$ARGUMENTS" ]]; then
+  # Display menu and get user choice
   
-# If starts with number
+# If argument is a number → View that discussion
 elif [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  # View that discussion number
+  # Jump directly to viewing Discussion #$ARGUMENTS
   
-# If starts with "convert" followed by number
-elif [[ "$ARGUMENTS" =~ ^convert[[:space:]]+([0-9]+)$ ]]; then
-  # Convert that discussion to issue
-  
-# If starts with "view" followed by number
-elif [[ "$ARGUMENTS" =~ ^view[[:space:]]+([0-9]+)$ ]]; then
-  # View that discussion
-  
-# Otherwise treat as new topic
+# Otherwise → Create new discussion with that topic
 else
-  # Create new discussion with topic
+  # Use $ARGUMENTS as the topic for new discussion
 fi
 ```
 
@@ -268,31 +255,32 @@ fi
 
 ## Examples
 
-### Create new idea:
+### Interactive menu:
 ```bash
-/idea "Add user dashboard with analytics"
-→ Creates Discussion #125: "Add user dashboard with analytics"
+/idea
+→ Shows menu with 4 options
+→ User selects action
 ```
 
-### List all ideas:
+### Quick create:
 ```bash
-/idea list
-→ Shows all discussions in Ideas category
+/idea "Add user dashboard with analytics"  
+→ Skips menu, creates Discussion #125 directly
 ```
 
-### Convert to issue:
+### Quick view:
 ```bash
-/idea convert 125
+/idea 125
+→ Skips menu, shows Discussion #125 directly
+```
+
+### Convert workflow:
+```bash
+/idea
+→ Choose option 3 (Convert)
+→ Shows list of discussions
+→ Select #125 to convert
 → Creates issue from Discussion #125
-→ Adds reference link in issue body
-→ Comments on discussion with issue link
-```
-
-### View discussion:
-```bash
-/idea view 125
-→ Shows full discussion with comments
-```
 
 ## Error Handling
 
