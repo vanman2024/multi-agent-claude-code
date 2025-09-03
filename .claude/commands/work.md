@@ -134,17 +134,18 @@ Use mcp__github__get_issue to get full details:
 - Comments for additional context
 - Linked PRs if any
 
-### Step 5: Create Feature Branch
+### Step 5: Create GitHub-Linked Branch
 
 ```bash
-# Get issue type from labels
-ISSUE_TYPE=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | grep -E "feature|bug|enhancement|refactor|task" | head -1)
+# Use gh issue develop to create a properly linked branch
+# This creates the branch on GitHub first, then checks it out locally
+gh issue develop $ISSUE_NUMBER --checkout
 
-# Create branch name
-BRANCH_NAME="$ISSUE_TYPE-$ISSUE_NUMBER-short-description"
+# Get the branch name that GitHub created
+BRANCH_NAME=$(git branch --show-current)
 
-# Create and checkout
-git checkout -b $BRANCH_NAME
+echo "✅ Created and checked out branch: $BRANCH_NAME"
+echo "✅ Branch is linked to issue #$ISSUE_NUMBER in Development section"
 ```
 
 ### Step 6: Implementation Routing
