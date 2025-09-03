@@ -30,6 +30,21 @@ if command -v gh &> /dev/null; then
   OPEN_PRS=$(gh pr list --author @me --state open --limit 5 2>/dev/null || echo "")
 fi
 
+# Check current issue complexity if on a feature branch
+COMPLEXITY_HINT=""
+BRANCH_ISSUE=$(echo "$CURRENT_BRANCH" | grep -oE '[0-9]+' | head -1)
+if [ -n "$BRANCH_ISSUE" ]; then
+  ISSUE_BODY=$(gh issue view "$BRANCH_ISSUE" --json body -q .body 2>/dev/null || echo "")
+  if echo "$ISSUE_BODY" | grep -q "Complexity: [3-5]"; then
+    COMPLEXITY_HINT="
+### 💭 Complex Task Detected
+This appears to be a complex task. Consider:
+- Using sequential thinking for structured analysis
+- Breaking down the problem into smaller steps
+- Taking time to understand all dependencies"
+  fi
+fi
+
 # Build context output
 CONTEXT="## Project Context Loaded
 
@@ -43,7 +58,7 @@ ${ASSIGNED_ISSUES:-No assigned issues}
 
 ### Your Open PRs
 ${OPEN_PRS:-No open PRs}
-
+$COMPLEXITY_HINT
 ### Project Guidelines
 - Run tests before pushing: npm test or pytest
 - Use conventional commits: feat:, fix:, docs:, chore:

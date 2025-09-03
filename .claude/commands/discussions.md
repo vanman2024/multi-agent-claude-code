@@ -46,21 +46,25 @@ What would you like to do with discussions?
 2. 📋 List existing discussions  
 3. 🔄 Convert discussion to issue
 4. 👁️ View specific discussion
+5. 🔍 Find similar/overlapping discussions
+6. 🔗 Consolidate multiple discussions
 
-Choose [1-4]:
+Choose [1-6]:
 ```
 
 ### Option 1: Create New Discussion
 
 For topic provided in `$ARGUMENTS` or asked from user:
-1. Use mcp__github__list_discussion_categories to get available categories
-2. Select "Ideas" category if exists, else use "General"
-3. Format discussion:
-   - **Title**: Just the topic itself (no "💡 Idea:" prefix - category shows that)
+1. **Check for existing similar discussions first** using Option 5 logic
+2. Use mcp__github__list_discussion_categories to get available categories
+3. Select appropriate category based on topic (Ideas, General, Q&A, etc.)
+4. Format discussion:
+   - **Title**: Just the topic itself (no prefix - category shows context)
    - **Body**: Use @templates/idea-template.md structure
-   - **Note**: Discussions use categories, not labels (unlike issues)
-4. Use gh CLI with GraphQL to create the discussion with proper mutation syntax
-5. Show success message with discussion number and URL
+   - **Category**: Acts like a single label (can't add multiple labels like issues)
+5. Warn user if similar discussions exist before creating
+6. Use gh CLI with GraphQL to create the discussion with proper mutation syntax
+7. Show success message with discussion number and URL
 
 ### Option 2: List Discussions
 
@@ -99,6 +103,34 @@ Use mcp__github__get_discussion with:
 - discussionNumber: chosen number
 
 Then get comments with mcp__github__get_discussion_comments
+
+### Option 5: Find Similar/Overlapping Discussions
+
+When checking for overlaps:
+1. Ask user for keywords or topic to search
+2. Use mcp__github__list_discussions to get all discussions
+3. Search discussion titles and bodies for similar content
+4. Look for patterns:
+   - Similar keywords (e.g., "milestone", "milestones", "milestone strategy")
+   - Related concepts (e.g., "branching" and "git workflow")
+   - Same feature areas (e.g., multiple auth-related discussions)
+5. Show list of potentially overlapping discussions with similarity indicators
+6. Suggest consolidation if high overlap detected
+
+### Option 6: Consolidate Multiple Discussions
+
+For consolidating overlapping discussions:
+1. List all discussions and let user select multiple to consolidate
+2. Analyze selected discussions for common themes
+3. Create consolidated issue with:
+   - Combined requirements from all discussions
+   - Links to all source discussions
+   - Clear sections for each aspect
+   - Unified implementation plan
+4. Add comments to each discussion linking to consolidated issue
+5. Consider creating multiple focused issues if topics are distinct enough
+
+**Note**: Since discussions can't have labels, track consolidation status in discussion comments
 
 ## Key Principles
 
