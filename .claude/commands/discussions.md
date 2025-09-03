@@ -55,14 +55,17 @@ Choose [1-6]:
 ### Option 1: Create New Discussion
 
 For topic provided in `$ARGUMENTS` or asked from user:
-1. **Check for existing similar discussions first** using Option 5 logic
+1. **Quick overlap check** (to avoid duplicates):
+   - Use mcp__github__search_issues with key terms from topic (limit 5 results)
+   - Check recent discussions in same category (limit 10)
+   - If matches found, show them and ask if user wants to continue
 2. Use mcp__github__list_discussion_categories to get available categories
 3. Select appropriate category based on topic (Ideas, General, Q&A, etc.)
 4. Format discussion:
    - **Title**: Just the topic itself (no prefix - category shows context)
    - **Body**: Use @templates/idea-template.md structure
    - **Category**: Acts like a single label (can't add multiple labels like issues)
-5. Warn user if similar discussions exist before creating
+5. Warn if similar issues/discussions exist but let user proceed if desired
 6. Use gh CLI with GraphQL to create the discussion with proper mutation syntax
 7. Show success message with discussion number and URL
 
@@ -104,33 +107,43 @@ Use mcp__github__get_discussion with:
 
 Then get comments with mcp__github__get_discussion_comments
 
-### Option 5: Find Similar/Overlapping Discussions
+### Option 5: Find Similar/Overlapping Content
 
-When checking for overlaps:
+When checking for overlaps (efficiently):
 1. Ask user for keywords or topic to search
-2. Use mcp__github__list_discussions to get all discussions
-3. Search discussion titles and bodies for similar content
+2. **Search existing issues** using mcp__github__search_issues:
+   - Query: `"keyword1 keyword2" in:title,body is:open`
+   - Limit to 10 most relevant results
+   - Show issue number, title, and labels
+3. **Search discussions** (recent only to save tokens):
+   - Use mcp__github__list_discussions with perPage: 20
+   - Filter client-side for matching keywords
 4. Look for patterns:
    - Similar keywords (e.g., "milestone", "milestones", "milestone strategy")
    - Related concepts (e.g., "branching" and "git workflow")
    - Same feature areas (e.g., multiple auth-related discussions)
-5. Show list of potentially overlapping discussions with similarity indicators
-6. Suggest consolidation if high overlap detected
+5. Show results grouped by type (Issues vs Discussions)
+6. Suggest consolidation or linking if high overlap detected
 
 ### Option 6: Consolidate Multiple Discussions
 
-For consolidating overlapping discussions:
-1. List all discussions and let user select multiple to consolidate
-2. Analyze selected discussions for common themes
-3. Create consolidated issue with:
-   - Combined requirements from all discussions
-   - Links to all source discussions
-   - Clear sections for each aspect
-   - Unified implementation plan
-4. Add comments to each discussion linking to consolidated issue
-5. Consider creating multiple focused issues if topics are distinct enough
+For consolidating overlapping content:
+1. **Check if existing issue already covers this**:
+   - Search issues using main keywords
+   - If suitable issue exists, link discussions to it instead
+2. Let user select multiple discussions to consolidate
+3. Analyze selected discussions for common themes
+4. **Decision point**:
+   - If existing issue found → Add discussions as comments/references
+   - If no issue → Create new consolidated issue with:
+     - Combined requirements from all discussions
+     - Links to all source discussions
+     - Clear sections for each aspect
+     - Unified implementation plan
+5. Add comments to each discussion linking to issue
+6. Consider creating multiple focused issues if topics are distinct
 
-**Note**: Since discussions can't have labels, track consolidation status in discussion comments
+**Note**: This prevents duplicate issues when topic already being worked on
 
 ## Key Principles
 
@@ -145,6 +158,13 @@ For consolidating overlapping discussions:
 - Discussions cannot be automatically closed when converted
 - The conversion creates a new linked issue, not a true conversion
 - Manual UI interaction required for native conversion
+
+## Efficiency Considerations
+
+- **Don't list ALL issues** - Use search API with specific keywords (saves tokens)
+- **Limit results** - Cap searches at 5-10 most relevant items
+- **Use targeted queries** - `is:open` `in:title,body` filters for better results
+- **Check issues first** - Prevents creating discussions for already-tracked work
 
 ## Error Handling
 
