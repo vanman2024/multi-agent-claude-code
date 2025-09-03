@@ -15,7 +15,10 @@ argument-hint: "[topic or discussion number]"
 
 When user runs `/idea $ARGUMENTS`, manage ideas through GitHub Discussions.
 
-**IMPORTANT**: DO NOT create any scripts or files. Use MCP functions and Bash commands directly.
+**IMPORTANT**: 
+- DO NOT create any scripts or files
+- Use MCP functions and Bash commands directly
+- STOP after completing the requested action (don't update command files)
 
 ### Initial Setup Check
 
