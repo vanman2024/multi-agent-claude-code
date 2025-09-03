@@ -67,6 +67,15 @@ One command for ALL implementation needs:
 - Use `/create-issue` to create issues with proper routing
 - Simple tasks auto-assign to GitHub Copilot (free with GitHub Pro)
 - Complex tasks require local Claude Code agents
+
+### CRITICAL: Slash Command Rules
+**NEVER put code blocks inside slash command files!**
+- All code must be in separate script files (e.g., `scripts/command-name/*.sh`)
+- Slash commands should only contain:
+  - Documentation and descriptions
+  - References to scripts using `!bash scripts/...`
+  - Examples showing usage (not implementation)
+- This keeps commands clean, maintainable, and focused on documentation
 - Use `/work` to start local implementation
 
 ## System Architecture: The House Metaphor 🏗️
