@@ -56,9 +56,7 @@ For topic provided in `$ARGUMENTS` or asked from user:
 1. Use mcp__github__list_discussion_categories to get available categories
 2. Select "Ideas" category if exists, else use "General"
 3. Format discussion body using the @templates/idea-template.md structure
-4. DIRECTLY use Bash command to create discussion (DO NOT create scripts):
-   !`gh api graphql -f query='mutation { createDiscussion(...) }'`
-   Include idea-template sections in the body
+4. Use gh CLI with GraphQL to create the discussion with proper mutation syntax
 5. Show success message with discussion number and URL
 
 ### Option 2: List Discussions
