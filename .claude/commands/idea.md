@@ -15,6 +15,8 @@ argument-hint: "[topic or discussion number]"
 
 When user runs `/idea $ARGUMENTS`, manage ideas through GitHub Discussions.
 
+**IMPORTANT**: DO NOT create any scripts or files. Use MCP functions and Bash commands directly.
+
 ### Initial Setup Check
 
 First, verify GitHub Discussions are enabled:
@@ -47,15 +49,14 @@ Choose [1-4]:
 
 ### Option 1: Create New Discussion
 
-Get topic from user if not provided, then:
-1. List available categories using mcp__github__list_discussion_categories
-2. Ask user which category to use (suggest "Ideas" if exists, else "General")
-3. Use the idea template structure from @templates/idea-template.md to format the discussion body
-4. Create discussion using Bash with gh CLI, adapting the template format:
-   - Category: User's choice or default
-   - Title: User's topic
-   - Body: Formatted using idea-template sections (Context, Current State, Proposed Solution, etc.)
-5. Ensure the discussion follows the template structure for consistency
+For topic provided in `$ARGUMENTS` or asked from user:
+1. Use mcp__github__list_discussion_categories to get available categories
+2. Select "Ideas" category if exists, else use "General"
+3. Format discussion body using the @templates/idea-template.md structure
+4. DIRECTLY use Bash command to create discussion (DO NOT create scripts):
+   !`gh api graphql -f query='mutation { createDiscussion(...) }'`
+   Include idea-template sections in the body
+5. Show success message with discussion number and URL
 
 ### Option 2: List Discussions
 
