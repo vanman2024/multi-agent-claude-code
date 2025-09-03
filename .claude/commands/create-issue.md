@@ -150,36 +150,11 @@ Use mcp__github__create_issue with:
 - body: filled template with metadata section + testing requirements
 - labels: [issue-type] (ONLY the type: bug, feature, enhancement, refactor, task)
 
-### Step 6: Create and Link Branch
+### Step 6: Check Dependencies
 
-**IMMEDIATELY after issue creation, create linked branch:**
+**NOTE: Branch creation happens when work starts (via `/work` command), not during issue creation**
 
-```bash
-# Get the issue number that was just created
-ISSUE_NUMBER=$(gh issue list --limit 1 --json number -q '.[0].number')
-
-# Create branch name based on type and issue number
-ISSUE_TYPE=$(gh issue view $ISSUE_NUMBER --json labels -q '.labels[0].name')
-ISSUE_TITLE=$(gh issue view $ISSUE_NUMBER --json title -q '.title' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | cut -c1-30)
-BRANCH_NAME="${ISSUE_TYPE}-${ISSUE_NUMBER}-${ISSUE_TITLE}"
-
-# Create and push the branch
-git checkout -b $BRANCH_NAME
-git push -u origin $BRANCH_NAME
-
-# Link branch to issue using gh issue develop
-gh issue develop $ISSUE_NUMBER --base $BRANCH_NAME
-
-echo "✅ Created and linked branch: $BRANCH_NAME"
-echo "✅ Branch now shows in issue #$ISSUE_NUMBER Development section"
-
-# Switch back to main for clean state
-git checkout main
-```
-
-### Step 7: Check Dependencies
-
-After creating issue and branch, check if it depends on other work:
+After creating issue, check if it depends on other work:
 ```bash
 # Ask user if this depends on other issues
 # If yes, add dependency note to issue body
@@ -379,7 +354,6 @@ ISSUE_URL=$(gh issue view $ISSUE_NUMBER --json url --jq .url)
 
 echo "✅ Issue Created: #$ISSUE_NUMBER"
 echo "📋 Type: $ISSUE_TYPE"
-echo "🌿 Branch: $BRANCH_NAME"
 echo "🏷️ Labels: $(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name' | tr '\n' ', ')"
 echo "🤖 Assignment: $ASSIGNMENT"
 echo "🔗 URL: $ISSUE_URL"
@@ -394,7 +368,7 @@ fi
 ## Important Notes
 
 - GitHub Actions will automatically handle project board updates
-- Feature branches are created automatically by workflows
+- Branches are created when work starts (via `/work`), not during issue creation
 - No manual project board management needed
 - Dependencies should be tracked with "Depends on #XX" in issue body
 - Sprint labels help with work prioritization in `/work` command
