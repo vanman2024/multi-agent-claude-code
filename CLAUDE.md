@@ -70,12 +70,14 @@ One command for ALL implementation needs:
 
 ### CRITICAL: Slash Command Rules
 **NEVER put code blocks inside slash command files!**
-- All code must be in separate script files (e.g., `scripts/command-name/*.sh`)
+- Use the special `!` syntax for inline bash commands (e.g., `!git status`)
+- Use MCP server functions directly (e.g., mcp__github__create_issue)
 - Slash commands should only contain:
-  - Documentation and descriptions
-  - References to scripts using `!bash scripts/...`
-  - Examples showing usage (not implementation)
-- This keeps commands clean, maintainable, and focused on documentation
+  - Documentation and task descriptions
+  - Direct commands using `!` syntax
+  - MCP function calls
+  - Examples showing usage (not implementation code)
+- Follow the templates in `/templates/slash-command-templates.md`
 - Use `/work` to start local implementation
 
 ## System Architecture: The House Metaphor 🏗️
