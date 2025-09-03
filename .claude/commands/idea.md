@@ -118,6 +118,10 @@ gh api graphql -f query='
 
 ### Menu Option 3: Convert Discussion to Issue
 
+**Note**: GitHub doesn't provide native API support for converting discussions to issues.
+This command creates a new issue linked to the discussion, but the discussion remains open.
+The native "Convert to Issue" button is only available in the GitHub UI.
+
 When converting discussion #NUMBER to issue:
 
 1. **Get discussion details**:
@@ -126,6 +130,7 @@ When converting discussion #NUMBER to issue:
      query {
        repository(owner: \"vanman2024\", name: \"multi-agent-claude-code\") {
          discussion(number: $NUMBER) {
+           id
            title
            body
            url
@@ -133,60 +138,117 @@ When converting discussion #NUMBER to issue:
        }
      }" --jq '.data.repository.discussion')
    
+   DISCUSSION_ID=$(echo $DISCUSSION | jq -r .id)
    TITLE=$(echo $DISCUSSION | jq -r .title)
    BODY=$(echo $DISCUSSION | jq -r .body)
    URL=$(echo $DISCUSSION | jq -r .url)
    ```
 
-2. **Determine issue type**:
-   ```
-   What type of issue should this become?
-   1. feature - New functionality
-   2. enhancement - Improve existing feature
-   3. bug - Something to fix
-   4. task - Work item
+2. **Analyze content to determine issue type**:
+   ```bash
+   # Analyze discussion content for keywords
+   echo "Analyzing discussion content to determine issue type..."
    
-   Choose [1-4]:
+   # Default to feature for new functionality
+   ISSUE_TYPE="enhancement"
+   
+   # Check for bug indicators
+   if echo "$TITLE $BODY" | grep -iE "(bug|fix|broken|error|issue|problem)" > /dev/null; then
+     echo "Detected bug-related keywords"
+     ISSUE_TYPE="bug"
+   fi
+   
+   # Check for feature indicators
+   if echo "$TITLE $BODY" | grep -iE "(feature|new|add|create|implement)" > /dev/null; then
+     echo "Detected feature-related keywords"
+     ISSUE_TYPE="feature"
+   fi
+   
+   # Ask user to confirm or change
+   echo ""
+   echo "Suggested type: $ISSUE_TYPE"
+   echo ""
+   echo "What type of issue should this become?"
+   echo "1. feature - New functionality"
+   echo "2. enhancement - Improve existing feature"
+   echo "3. bug - Something to fix"
+   echo "4. task - Work item"
+   echo ""
+   echo "Press Enter to accept '$ISSUE_TYPE' or choose [1-4]:"
+   read USER_CHOICE
+   
+   case "$USER_CHOICE" in
+     1) ISSUE_TYPE="feature" ;;
+     2) ISSUE_TYPE="enhancement" ;;
+     3) ISSUE_TYPE="bug" ;;
+     4) ISSUE_TYPE="task" ;;
+     "") echo "Using suggested type: $ISSUE_TYPE" ;;
+   esac
    ```
 
-3. **Create the issue**:
+3. **Create the issue with appropriate template**:
    ```bash
+   # Set title prefix based on type
+   case "$ISSUE_TYPE" in
+     feature) TITLE_PREFIX="[FEATURE]" ;;
+     enhancement) TITLE_PREFIX="[ENHANCEMENT]" ;;
+     bug) TITLE_PREFIX="[BUG]" ;;
+     task) TITLE_PREFIX="[TASK]" ;;
+   esac
+   
    # Create issue with reference to discussion
-   gh issue create \
-     --title "$TITLE" \
+   ISSUE_NUMBER=$(gh issue create \
+     --title "$TITLE_PREFIX $TITLE" \
      --body "## Summary
+
+Based on discussion: $URL
+
+## Original Discussion
+
+$BODY
+
+## Implementation Requirements
+
+- [ ] Analyze requirements from discussion feedback
+- [ ] Design solution approach
+- [ ] Implement core functionality
+- [ ] Write tests for new code
+- [ ] Update documentation
+- [ ] Validate with stakeholders
+
+## Acceptance Criteria
+
+- [ ] Solution addresses the original discussion points
+- [ ] Implementation follows project standards
+- [ ] Tests pass and coverage maintained
+- [ ] Documentation updated appropriately
+
+## Metadata
+**Converted from**: Discussion #$NUMBER
+**Type**: $ISSUE_TYPE
+**Priority**: TBD
+**Size**: TBD" \
+     --label "$ISSUE_TYPE" \
+     --assignee "@me" | grep -oE '[0-9]+$')
    
-   Based on discussion: $URL
+   echo "✅ Created issue #$ISSUE_NUMBER from discussion #$NUMBER"
    
-   ## Original Discussion
-   
-   $BODY
-   
-   ## Implementation Plan
-   
-   - [ ] Define requirements
-   - [ ] Design solution
-   - [ ] Implement feature
-   - [ ] Write tests
-   - [ ] Update documentation
-   
-   ## Acceptance Criteria
-   
-   [To be defined based on discussion feedback]" \
-     --label "$ISSUE_TYPE"
-   
-   # Add comment to discussion
+   # Add comment to discussion linking to the issue
    gh api graphql -f query="
      mutation {
        addDiscussionComment(input: {
          discussionId: \"$DISCUSSION_ID\"
-         body: \"This discussion has been converted to issue #$ISSUE_NUMBER\"
+         body: \"🔄 **Converted to Issue**\n\nThis discussion has been converted to issue #$ISSUE_NUMBER for implementation.\n\n➡️ Continue implementation discussion in the issue: #$ISSUE_NUMBER\n\n*Note: The discussion remains open for reference. Native API conversion is not available, so this was created as a new linked issue.*\"
        }) {
          comment {
            id
          }
        }
      }"
+   
+   echo "✅ Added comment to discussion linking to issue #$ISSUE_NUMBER"
+   echo ""
+   echo "⚠️  Note: The discussion remains open. You can manually close it in GitHub UI if desired."
    ```
 
 ### Menu Option 4: View Specific Discussion
