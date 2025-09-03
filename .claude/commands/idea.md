@@ -19,10 +19,10 @@ When user runs `/idea $ARGUMENTS`, manage ideas through GitHub Discussions.
 
 First, verify GitHub Discussions are enabled:
 1. Use mcp__github__list_discussion_categories to check if Discussions are enabled
-2. Look for "Ideas" category in the list
-3. If Discussions not enabled or Ideas category missing, inform user:
+2. Show available categories (General, Ideas, Q&A, Show and Tell, etc.)
+3. If Discussions not enabled, inform user:
    - Go to repository Settings → Features → Enable Discussions
-   - Create an "Ideas" category for brainstorming
+4. Let user choose which category to use for ideas (default to "Ideas" if exists, otherwise "General")
 
 ### Smart Argument Detection
 
@@ -48,24 +48,25 @@ Choose [1-4]:
 ### Option 1: Create New Discussion
 
 Get topic from user if not provided, then:
-1. First check if Discussions are enabled and Ideas category exists using mcp__github__list_discussion_categories
-2. If Ideas category doesn't exist, inform user to create it in GitHub UI
+1. List available categories using mcp__github__list_discussion_categories
+2. Ask user which category to use (suggest "Ideas" if exists, else "General")
 3. Use the idea template structure from @templates/idea-template.md to format the discussion body
 4. Create discussion using Bash with gh CLI, adapting the template format:
+   - Category: User's choice or default
    - Title: User's topic
    - Body: Formatted using idea-template sections (Context, Current State, Proposed Solution, etc.)
 5. Ensure the discussion follows the template structure for consistency
 
 ### Option 2: List Discussions
 
-First get category ID for "Ideas" using mcp__github__list_discussion_categories.
-Then use mcp__github__list_discussions with:
-- owner: "vanman2024"
-- repo: "multi-agent-claude-code"  
-- category: (the Ideas category ID if it exists)
-- perPage: 20
-
-If no Ideas category, show all discussions.
+1. Get all categories using mcp__github__list_discussion_categories
+2. Ask user which category to view (or "All" for all discussions)
+3. Use mcp__github__list_discussions with:
+   - owner: "vanman2024"
+   - repo: "multi-agent-claude-code"  
+   - category: (selected category ID or omit for all)
+   - perPage: 20
+4. Display discussions with their category labels for context
 
 ### Option 3: Convert Discussion to Issue
 
@@ -110,7 +111,7 @@ Then get comments with mcp__github__get_discussion_comments
 
 ## Error Handling
 
-- If Discussions not enabled: "❌ GitHub Discussions must be enabled"
-- If Ideas category missing: "❌ Please create an 'Ideas' category in GitHub Discussions"  
+- If Discussions not enabled: "❌ GitHub Discussions must be enabled in Settings → Features"
+- If no categories exist: "❌ Please create at least one Discussion category"  
 - If discussion not found: "❌ Discussion #XXX not found"
 - If API fails: Show error and suggest using GitHub web UI
