@@ -28,14 +28,14 @@ First, verify GitHub Discussions are enabled:
 
 ### Smart Argument Detection
 
-Check what the user wants:
-- If no arguments → Show interactive menu
-- If `$ARGUMENTS` is a number → View Discussion #$ARGUMENTS  
-- If `$ARGUMENTS` is text → Create new discussion with that topic
+**CRITICAL**: Check `$ARGUMENTS` first:
+1. **If empty/no arguments** → Show the menu below (DO NOT create anything)
+2. **If a number (e.g., "125")** → View Discussion #125 directly
+3. **If text (e.g., "branching strategy")** → Create new discussion with that as the topic
 
-### Menu Flow (when no arguments)
+### Menu Flow (ONLY when NO arguments provided)
 
-Show this menu:
+When `$ARGUMENTS` is empty, show this menu and wait for user choice:
 ```
 What would you like to do with ideas?
 
