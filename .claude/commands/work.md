@@ -76,44 +76,51 @@ Use mcp__github__get_issue to retrieve:
 - Implementation checklist from body
 - Comments for additional context
 
-### Step 5: Check for Worktree Support (NEW)
+### Step 5: Create GitHub-Linked Branch
 
-**Check if worktrees are needed:**
-- Check existing worktrees: !`git worktree list`
-- Check current branch: !`git branch --show-current`
-
-**If not on main branch:**
-Ask user: "You're currently on branch [BRANCH_NAME]. Would you like to:
-1. Create a worktree for issue #[ISSUE_NUMBER] (recommended for parallel work)
-2. Switch to main and work normally (will lose current branch context)
-3. Cancel and continue working on current branch
-
-Choose (1/2/3):"
-
-**Only create worktree if user chooses option 1:**
-```bash
-# If user chooses worktree option
-WORKTREE_PATH="../worktrees/issue-$ISSUE_NUMBER-$ISSUE_TYPE"
-if ! git worktree list | grep -q "issue-$ISSUE_NUMBER"; then
-  # Create worktree for this issue
-  git worktree add "$WORKTREE_PATH" -b "$ISSUE_NUMBER-$ISSUE_TYPE"
-  echo "Created worktree at $WORKTREE_PATH"
-  echo "Run: cd $WORKTREE_PATH to switch to the worktree"
-fi
-```
-
-**Note:** Worktrees are particularly useful when:
-- Multiple developers/agents work on different issues
-- You need to quickly switch between features
-- You want to preserve work on another branch
-
-### Step 6: Create GitHub-Linked Branch
-
-Use gh issue develop to create a properly linked branch:
+**CRITICAL: Use gh issue develop to create branch on GitHub first:**
 !`gh issue develop $ISSUE_NUMBER --checkout`
+
+This command:
+- Creates the branch ON GitHub first (properly linked to issue)
+- Checks it out locally
+- Shows up in the issue's Development section
+- Ensures proper GitHub tracking
 
 Get the created branch name:
 !`git branch --show-current`
+
+**Important:** The branch name will be something like `123-feature-description` based on the issue.
+
+### Step 6: Optional Worktree Support (if parallel work needed)
+
+**Only if user needs to work on multiple issues simultaneously:**
+
+Check if worktrees are needed:
+- Check existing worktrees: !`git worktree list`
+- If already working on another issue, offer worktree option
+
+**If parallel work is needed:**
+Ask user: "You're working on issue #[OTHER_ISSUE]. Would you like to:
+1. Create a worktree for issue #[ISSUE_NUMBER] (work on both)
+2. Switch branches (pause current work)
+3. Cancel
+
+Choose (1/2/3):"
+
+**If user chooses worktree (option 1):**
+```bash
+# After gh issue develop created the branch
+BRANCH_NAME=$(git branch --show-current)
+WORKTREE_PATH="../worktrees/issue-$ISSUE_NUMBER"
+
+# Create worktree from the GitHub-linked branch
+git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"
+echo "Created worktree at $WORKTREE_PATH"
+echo "Run: cd $WORKTREE_PATH to continue work there"
+```
+
+**Note:** Worktrees are secondary - branch creation via `gh issue develop` is primary!
 
 ### Step 7: Configure Git for Issue Tracking (NEW)
 
