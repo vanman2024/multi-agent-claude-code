@@ -18,7 +18,7 @@ jobs:
   require-issue-checkboxes:
     name: Require Issue Checkboxes Complete
     runs-on: ubuntu-latest
-    if: (!startsWith(github.head_ref, 'hotfix-') && !startsWith(github.ref, 'refs/heads/hotfix-'))
+    if: "!contains(github.ref, 'hotfix')"
     steps:
       - name: Check Issue Checkboxes
         uses: actions/github-script@v7
@@ -169,7 +169,7 @@ Please complete all requirements in the linked issue before this PR can be merge
   hotfix-bypass:
     name: Hotfix Bypass
     runs-on: ubuntu-latest
-    if: startsWith(github.head_ref, 'hotfix-') || startsWith(github.ref, 'refs/heads/hotfix-')
+    if: contains(github.ref, 'hotfix')
     steps:
       - name: Auto-pass for hotfix
         uses: actions/github-script@v7
