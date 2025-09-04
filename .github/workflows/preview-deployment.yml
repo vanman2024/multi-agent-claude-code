@@ -20,9 +20,73 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
+  check-issue-requirements:
+    name: Check Issue Requirements
+    runs-on: ubuntu-latest
+    outputs:
+      can_deploy: ${{ steps.check.outputs.can_deploy }}
+    steps:
+      - name: Check linked issue checkboxes
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find linked issue from PR body
+            const pr = context.payload.pull_request;
+            const issueMatch = pr.body?.match(/(?:Closes|Fixes|Resolves)\s+#(\d+)/i);
+            
+            if (!issueMatch) {
+              console.log('No linked issue found - allowing deployment');
+              core.setOutput('can_deploy', 'true');
+              return;
+            }
+            
+            const issueNumber = parseInt(issueMatch[1]);
+            console.log(`Found linked issue: #${issueNumber}`);
+            
+            // Get the issue
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            
+            // Count checkboxes
+            const uncheckedBoxes = (issue.body?.match(/- \[ \]/g) || []).length;
+            const checkedBoxes = (issue.body?.match(/- \[x\]/gi) || []).length;
+            const totalBoxes = uncheckedBoxes + checkedBoxes;
+            
+            console.log(`Issue #${issueNumber}: ${checkedBoxes}/${totalBoxes} checkboxes complete`);
+            
+            if (uncheckedBoxes > 0) {
+              core.setFailed(`❌ Cannot deploy: Issue #${issueNumber} has ${uncheckedBoxes} unchecked requirements`);
+              core.setOutput('can_deploy', 'false');
+              
+              // Create comment on PR
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `## ❌ Deployment Blocked
+                
+**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirements.
+
+Vercel deployment is blocked until all checkboxes in the linked issue are complete.
+
+**Progress:** ${checkedBoxes}/${totalBoxes} (${Math.round(checkedBoxes/totalBoxes * 100)}%)
+
+[View Issue #${issueNumber}](${issue.html_url})`
+              });
+            } else {
+              console.log('✅ All requirements complete - deployment allowed');
+              core.setOutput('can_deploy', 'true');
+            }
+
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    needs: check-issue-requirements
+    if: needs.check-issue-requirements.outputs.can_deploy == 'true'
     steps:
       - uses: actions/checkout@v4
       
@@ -68,7 +132,8 @@ jobs:
   preview-deploy:
     name: Deploy Preview to Vercel
     runs-on: ubuntu-latest
-    needs: test
+    needs: [check-issue-requirements, test]
+    if: needs.check-issue-requirements.outputs.can_deploy == 'true'
     environment:
       name: preview
       url: ${{ steps.deploy.outputs.url }}
