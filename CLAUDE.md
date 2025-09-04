@@ -20,6 +20,63 @@ This Multi-Agent Development Framework template provides:
 
 When someone clones this template, they get a complete development framework ready to build their actual application.
 
+## Working Modes
+
+### Template Mode (Building the Framework)
+**Use this mode when developing/improving this template repository itself**
+
+- **Direct commits allowed** for template improvements
+- **PRs optional** for significant changes  
+- **Simplified workflow** since no CI/CD is running on template
+- **Flexible approach** to quickly iterate on framework features
+
+**When to use Template Mode:**
+- Adding new slash commands
+- Updating documentation
+- Fixing workflow automation
+- Improving agent configurations
+- General template maintenance
+
+**Workflow in Template Mode:**
+```bash
+git pull
+# make changes directly
+git add -A
+git commit -m "feat: Add new feature to template"
+git push
+```
+
+### Application Mode (Using the Framework)
+**Use this mode when building actual applications with this template**
+
+- **STRICT workflow required**: Issue → PR → Review → Merge
+- **All changes need PRs** with proper reviews
+- **Full CI/CD validation** on every PR
+- **No direct commits** to main branch
+- **Complete testing** before merge
+
+**When to use Application Mode:**
+- Building production applications
+- Working with a team
+- When CI/CD is configured
+- For any code that will be deployed
+
+**Workflow in Application Mode:**
+```bash
+/create-issue "Add user authentication"
+/work #123  # Creates branch and draft PR
+# implement with tests
+# PR review process
+# CI/CD validation
+# Merge when all checks pass
+```
+
+### Key Distinction
+- **Template Mode** = Building/improving the framework itself (flexible)
+- **Application Mode** = Using the framework to build apps (strict)
+
+When you clone this template for a new project, immediately switch to Application Mode and follow the full workflow.
+
 ## AI Agent Integration
 
 ### How AI Agents Work in This Framework
