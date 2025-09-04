@@ -14,7 +14,13 @@ argument-hint: [--quick|--create|--frontend|--backend|--unit|--e2e] [options]
 
 ## Your Task
 
-When user runs `/test $ARGUMENTS`, intelligently detect project type and route to appropriate testing agents.
+When user runs `/test $ARGUMENTS`, check flags FIRST to determine routing:
+
+**AGENT ROUTING RULES**:
+- `--create` flag = USE AGENTS (high tokens)
+- `--update` flag = USE AGENTS (high tokens)  
+- ANY other flag = NO AGENTS (low tokens)
+- No flags = NO AGENTS (just run npm test)
 
 ### Progress Indicators
 
@@ -45,28 +51,24 @@ Parse optional arguments in `$ARGUMENTS`:
 
 ### Step 2: Check for Existing Tests (Token Optimization)
 
-**CRITICAL**: Before using any agents, check if tests already exist:
+**CRITICAL**: Before using any agents, check if tests already exist.
 
-```bash
-# Check for existing test files
-!TEST_EXISTS=false
-!test -d __tests__ && TEST_EXISTS=true
-!test -d tests && TEST_EXISTS=true  
-!test -d test && TEST_EXISTS=true
-!ls *.test.* *.spec.* 2>/dev/null | head -1 && TEST_EXISTS=true
+Check for test directories:
+!ls -d __tests__ tests test 2>/dev/null | head -1
 
-if TEST_EXISTS=true and not --create and not --update:
-   echo "✅ Existing tests found - using quick mode (minimal tokens)"
-   # Jump to Step 6: Quick Test Execution
-else if TEST_EXISTS=false and not --create:
-   echo "⚠️ No tests found. Options:"
-   echo "1. Run: /test --create (create new tests ~5000 tokens)"
-   echo "2. Write tests manually"
-   echo "3. Skip testing"
-   # Exit unless --create flag provided
-```
+Check for test files:
+!ls *.test.* *.spec.* 2>/dev/null | head -5
 
-### Step 3: Intelligent Detection (Only if needed)
+**CRITICAL ROUTING DECISION - NO AGENTS BY DEFAULT**:
+
+**WITH --create or --update flags** → Go to Step 4 (USE AGENTS - HIGH TOKENS)
+**WITH --ci flag** → Go to Step 5 (trigger GitHub Actions - NO AGENTS)
+**WITH --quick flag OR tests exist** → Go to Step 6 (run npm test - NO AGENTS)
+**NO tests and NO --create flag** → STOP and tell user: "No tests found. Use `/test --create` to create tests"
+
+**IMPORTANT**: ONLY --create and --update flags trigger agent usage. All other paths use simple commands.
+
+### Step 3: Intelligent Detection (ONLY with --create or --update flags)
 
 Detect what to test based on:
 
@@ -193,50 +195,21 @@ Show progress:
 
 **For --quick flag or when tests exist (LOW TOKEN USAGE ~50-100)**:
 
-```bash
-# Determine test command based on project type
-!if [ -f package.json ]; then
-    if grep -q '"test"' package.json; then
-        echo "🧪 Running: npm test"
-        !npm test
-    elif grep -q '"jest"' package.json; then
-        echo "🧪 Running: jest"
-        !jest
-    elif grep -q '"vitest"' package.json; then
-        echo "🧪 Running: vitest"
-        !vitest run
-    fi
-elif [ -f requirements.txt ] || [ -f pyproject.toml ]; then
-    if command -v pytest &> /dev/null; then
-        echo "🧪 Running: pytest"
-        !pytest
-    elif command -v python -m pytest &> /dev/null; then
-        echo "🧪 Running: python -m pytest"
-        !python -m pytest
-    fi
-elif [ -f go.mod ]; then
-    echo "🧪 Running: go test"
-    !go test ./...
-else
-    echo "❌ No test runner detected. Supported: npm test, jest, vitest, pytest, go test"
-fi
+Run the appropriate test command based on project type:
 
-# Check for coverage if requested
-!if [[ "$ARGUMENTS" == *"--coverage"* ]]; then
-    if [ -f package.json ] && grep -q '"test:coverage"' package.json; then
-        echo "📊 Running coverage: npm run test:coverage"
-        !npm run test:coverage
-    fi
-fi
-```
+For Node.js/JavaScript projects:
+!npm test
 
-Show results:
-```
-✅ Tests completed
-📊 Results: [pass/fail count]
-⏱️  Duration: [time]
-💰 Tokens used: ~50-100 (quick mode)
-```
+For Python projects:
+!pytest
+
+For Go projects:
+!go test ./...
+
+If `$ARGUMENTS` contains `--coverage`:
+!npm run test:coverage
+
+Show test results and indicate this was quick mode with minimal token usage.
 
 ### Step 7: Report Consolidated Results
 
