@@ -28,36 +28,49 @@ Use the Bash tool to verify you're on main with latest changes:
 
 **DO NOT PROCEED if not on main with latest changes!**
 
-### Step 1: Check for Existing Worktrees FIRST
+### Step 1: Determine Work Mode and Select Issue
 
-**CRITICAL: Always check if a worktree already exists for the issue!**
+Parse `$ARGUMENTS` to determine action:
+- If `#123` or `123` provided → Set `ISSUE_NUM` to that specific issue
+- If `--deploy` → deploy current branch to Vercel
+- If `--test` → run test suite
+- If no arguments → intelligently select next work item (see Step 2)
 
-If `$ARGUMENTS` contains an issue number (e.g., `#123` or `123`):
-- Extract the number from `$ARGUMENTS` (remove # if present)
-- Check for existing worktree:
-  !`git worktree list | grep -E "issue-$ARGUMENTS|$ARGUMENTS-" | head -1`
+### Step 2: Intelligent Work Selection (when no issue specified)
+
+If no issue number was provided, select one:
+- Check sprint, priorities, dependencies
+- Select best issue to work on
+- Set `ISSUE_NUM` to the selected issue number
+
+### Step 3: Check for Existing Worktrees/Branches
+
+**NOW check if a worktree or branch already exists for `ISSUE_NUM`:**
+
+Check for existing worktree:
+!`git worktree list | grep -E "issue-$ISSUE_NUM|$ISSUE_NUM-" | head -1`
 
 **If worktree exists for the issue:**
 - Parse the worktree path from the output
-- Display: "Found existing worktree for issue $ARGUMENTS at: [path]"
+- Display: "Found existing worktree for issue #$ISSUE_NUM at: [path]"
 - Ask: "Do you want to continue working in the existing worktree? (y/n)"
 - If yes: Instruct user to `cd [worktree_path]` and work there
 - If no: Ask if they want to remove it and start fresh
 
 **If no worktree but branch exists:**
-- Check: !`git branch -a | grep -E "$ARGUMENTS-" | head -1`
+- Check: !`git branch -a | grep -E "$ISSUE_NUM-" | head -1`
 - If branch exists locally: Switch to it
 - If branch exists remotely: Check it out locally
 
-### Step 2: Determine Work Mode
+### Step 4: Determine Final Work Mode
 
-After handling worktrees, parse full `$ARGUMENTS`:
+After handling worktrees/branches, determine final action:
 - If `#123` provided → work on that specific issue
 - If `--deploy` → deploy current branch to Vercel
 - If `--test` → run test suite
 - If no arguments → intelligently select next work item
 
-### Step 3: Intelligent Work Selection (when no issue specified)
+### Step 5: Advanced Work Selection Details
 
 #### Check Current Sprint
 Use mcp__github__list_issues with label filter "sprint:current" to find sprint work.
@@ -81,14 +94,14 @@ For each potential issue:
 4. **Continue in-progress work** - If user has work in progress, suggest continuing it
 5. **Next in sprint sequence** - Follow logical order if issues are numbered sequentially
 
-### Step 4: Verify Selection Is Valid
+### Step 6: Verify Selection Is Valid
 
 Before starting work, use mcp__github__get_issue to verify:
 - No "blocked" label
 - All dependencies (if any) are closed
 - Not already assigned to someone else
 
-### Step 5: Get Complete Issue Context
+### Step 7: Get Complete Issue Context
 
 Use mcp__github__get_issue to retrieve:
 - Title and full description
@@ -97,13 +110,13 @@ Use mcp__github__get_issue to retrieve:
 - Implementation checklist from body
 - Comments for additional context
 
-### Step 6: Create GitHub-Linked Branch (If No Worktree Exists)
+### Step 8: Create GitHub-Linked Branch (If No Worktree Exists)
 
 **CRITICAL: Only create branch if no worktree exists!**
 
-If no existing worktree was found in Step 1:
+If no existing worktree was found in Step 3:
 
-!`gh issue develop $ARGUMENTS --checkout`
+!`gh issue develop $ISSUE_NUM --checkout`
 
 This command:
 - Creates the branch ON GitHub first (properly linked to issue)
@@ -116,9 +129,9 @@ Get the created branch name:
 
 **Important:** The branch name will be something like `123-feature-description` based on the issue.
 
-**Note:** Draft PR will be created after your first meaningful commit (see Step 11a)
+**Note:** Draft PR will be created after your first meaningful commit (see Step 13a)
 
-### Step 7: Optional Additional Worktree (if parallel work needed)
+### Step 9: Optional Additional Worktree (if parallel work needed)
 
 **Only if user needs to work on multiple issues simultaneously:**
 
@@ -136,25 +149,25 @@ Choose (1/2/3):"
 
 **If user chooses worktree (option 1):**
 - Get current branch: !`git branch --show-current`
-- Create worktree path: `../worktrees/issue-$ARGUMENTS`
+- Create worktree path: `../worktrees/issue-$ISSUE_NUM`
 - Create worktree: !`git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"`
 - Inform user: "Created worktree at $WORKTREE_PATH"
 - Instruct: "Run: cd $WORKTREE_PATH to continue work there"
 
 **Note:** Worktrees are secondary - branch creation via `gh issue develop` is primary!
 
-### Step 8: Configure Git for Issue Tracking
+### Step 10: Configure Git for Issue Tracking
 
 **CRITICAL: Set up automatic issue references in commits**
 
 Set up git commit template for this branch:
 - Extract issue number: !`echo $BRANCH_NAME | grep -oP '^\d+'`
-- Create template: !`echo -e "\n\nRelated to #$ARGUMENTS" > .gitmessage`
+- Create template: !`echo -e "\n\nRelated to #$ISSUE_NUM" > .gitmessage`
 - Set template: !`git config commit.template .gitmessage`
 
 Remind user that ALL commits must reference the issue for GitHub timeline tracking.
 
-### Step 9: Implementation Routing
+### Step 11: Implementation Routing
 
 Based on issue labels (complexity and size):
 
@@ -170,16 +183,16 @@ Use Task tool with appropriate agent:
 - **Security** → security-auth-compliance agent
 - **Integration** → integration-architect agent
 
-### Step 10: Update Issue Status
+### Step 12: Update Issue Status
 
 Use mcp__github APIs:
 1. Add "status:in-progress" label: `mcp__github__update_issue`
 2. Add starting work comment with PR link: `mcp__github__add_issue_comment`
    - Include: "🚀 Started work in PR #[PR_NUMBER]"
 
-### Step 11: Work Through Issue Checkboxes
+### Step 13: Work Through Issue Checkboxes
 
-#### 11a. Create Draft PR After First Commit
+#### 13a. Create Draft PR After First Commit
 
 **After making your first meaningful commit:**
 
@@ -189,13 +202,13 @@ Use mcp__github APIs:
 2. Create draft PR to trigger automation:
    ```bash
    # Get issue title first
-   ISSUE_TITLE=$(gh issue view $ARGUMENTS --json title --jq .title)
+   ISSUE_TITLE=$(gh issue view $ISSUE_NUM --json title --jq .title)
    
    gh pr create \
-     --title "[DRAFT] Issue #$ARGUMENTS: $ISSUE_TITLE" \
-     --body "## Working on Issue #$ARGUMENTS
+     --title "[DRAFT] Issue #$ISSUE_NUM: $ISSUE_TITLE" \
+     --body "## Working on Issue #$ISSUE_NUM
    
-   **Closes #$ARGUMENTS**
+   **Closes #$ISSUE_NUM**
    
    This draft PR tracks work progress and triggers automation.
    
@@ -221,14 +234,14 @@ This draft PR:
 - Can be abandoned if needed
 - Converts to ready when complete
 
-#### 11b. Parse Issue Checkboxes to TodoWrite
+#### 13b. Parse Issue Checkboxes to TodoWrite
 Use mcp__github__get_issue to get the full issue body, then extract checkboxes:
 - Find all `- [ ]` (unchecked) and `- [x]` (checked) patterns  
 - Create TodoWrite list with items like: "CHECKBOX 1: Add user authentication endpoints"
 - Track checkbox text exactly as it appears in GitHub
 - Work entirely in TodoWrite (fast, no API calls during work)
 
-#### 11c. Systematic Local Execution
+#### 13c. Systematic Local Execution
 For each TodoWrite checkbox item:
 
 1. **Mark TodoWrite as in_progress**
@@ -265,34 +278,34 @@ For each TodoWrite checkbox item:
    **Status:** Ready for PR creation via automation
    ```
 
-#### 11e. Efficient Batch Approach Benefits
+#### 13d. Efficient Batch Approach Benefits
 - **No API rate limiting** - Single update instead of multiple
 - **Atomic update** - All checkboxes change together  
 - **Fast local work** - TodoWrite operations are instant
 - **Clear completion signal** - One comment when everything is done
 - **Reliable sync** - Direct mapping between TodoWrite and GitHub checkboxes
 
-**Draft PR was already created in Step 11a after first commit**
+**Draft PR was already created in Step 13a after first commit**
 
-### Step 12: Ensure All Commits Reference the Issue
+### Step 14: Ensure All Commits Reference the Issue
 
 **For EVERY commit made during work:**
 
 Example commit formats:
-- Feature: `feat: Add new feature\n\nRelated to #$ARGUMENTS`
-- Bug fix: `fix: Update validation logic #$ARGUMENTS`  
-- Documentation: `docs: Update README\n\nPart of #$ARGUMENTS`
+- Feature: `feat: Add new feature\n\nRelated to #$ISSUE_NUM`
+- Bug fix: `fix: Update validation logic #$ISSUE_NUM`  
+- Documentation: `docs: Update README\n\nPart of #$ISSUE_NUM`
 
 **NEVER use "Closes #XX" except in the PR description (already added)**
 
-### Step 13: Run Tests and Validation
+### Step 15: Run Tests and Validation
 
 Before marking work complete:
 !`npm test` or !`pytest` depending on project
 !`npm run lint` or appropriate linter
 !`npm run typecheck` if TypeScript project
 
-### Step 14: Convert Draft PR to Ready
+### Step 16: Convert Draft PR to Ready
 
 **When all checkboxes are complete and tests pass:**
 
@@ -301,17 +314,17 @@ Before marking work complete:
 3. The PR is now ready for review/merge
 4. Automation may auto-merge if all checks pass
 
-**The draft PR was already created in Step 11a**
+**The draft PR was already created in Step 13a**
 
-### Step 15: Clean Up After Merge
+### Step 17: Clean Up After Merge
 
 When PR is merged (by automation or manually):
 1. Checkout main: !`git checkout main`
 2. Pull latest: !`git pull origin main`
 3. Delete local branch: !`git branch -d $BRANCH_NAME`
-4. If using worktree, remove it: !`git worktree remove ../worktrees/issue-$ARGUMENTS-*`
+4. If using worktree, remove it: !`git worktree remove ../worktrees/issue-$ISSUE_NUM-*`
 
-### Step 16: Update Dependencies
+### Step 18: Update Dependencies
 
 Check if this unblocks other issues:
 - Use mcp__github__list_issues with label "blocked"
