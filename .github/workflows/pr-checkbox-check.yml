@@ -136,15 +136,17 @@ jobs:
                   c.body.includes('Cannot merge: Issue requirements incomplete')
                 );
                 
-                const message = `## ❌ Cannot merge: Issue requirements incomplete
-                
-**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirement(s).
-
-**Progress:** ${checkedBoxes}/${totalBoxes} checkboxes complete (${Math.round(checkedBoxes/totalBoxes * 100)}%)
-
-Please complete all requirements in the linked issue before this PR can be merged.
-
-[View Issue #${issueNumber}](${issue.html_url})`;
+                const message = [
+                  '## ❌ Cannot merge: Issue requirements incomplete',
+                  '',
+                  `**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirement(s).`,
+                  '',
+                  `**Progress:** ${checkedBoxes}/${totalBoxes} checkboxes complete (${Math.round(checkedBoxes/totalBoxes * 100)}%)`,
+                  '',
+                  'Please complete all requirements in the linked issue before this PR can be merged.',
+                  '',
+                  `[View Issue #${issueNumber}](${issue.html_url})`
+                ].join('\n');
                 
                 if (botComment) {
                   await github.rest.issues.updateComment({

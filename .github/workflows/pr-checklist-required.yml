@@ -18,7 +18,7 @@ jobs:
   require-issue-checkboxes:
     name: Require Issue Checkboxes Complete
     runs-on: ubuntu-latest
-    if: "!contains(github.ref, 'hotfix')"
+    if: ${{ !contains(github.ref, 'hotfix') }}
     steps:
       - name: Check Issue Checkboxes
         uses: actions/github-script@v7
@@ -121,15 +121,17 @@ jobs:
                   c.body.includes('Cannot merge: Issue requirements incomplete')
                 );
                 
-                const commentBody = `## ❌ Cannot merge: Issue requirements incomplete
-                
-**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirements.
-                
-**Progress:** ${checkedBoxes}/${totalBoxes} checkboxes complete (${Math.round(checkedBoxes/totalBoxes * 100)}%)
-                
-Please complete all requirements in the linked issue before this PR can be merged.
-                
-[View Issue #${issueNumber}](${issue.html_url})`;
+                const commentBody = [
+                  '## ❌ Cannot merge: Issue requirements incomplete',
+                  '',
+                  `**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirements.`,
+                  '',
+                  `**Progress:** ${checkedBoxes}/${totalBoxes} checkboxes complete (${Math.round(checkedBoxes/totalBoxes * 100)}%)`,
+                  '',
+                  'Please complete all requirements in the linked issue before this PR can be merged.',
+                  '',
+                  `[View Issue #${issueNumber}](${issue.html_url})`
+                ].join('\n');
                 
                 if (existingComment) {
                   // Update existing comment
