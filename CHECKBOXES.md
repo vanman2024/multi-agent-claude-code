@@ -147,10 +147,41 @@ Make sure the issue number in `Closes: #XXX` is correct
 ### Workflow not running
 Check that your PR is targeting the `main` branch
 
+## 🚀 Deployment Blocking (Vercel Integration)
+
+### Why Block Deployments?
+Prevents incomplete or broken features from reaching production when checkboxes are unchecked.
+
+### How Vercel Blocking Works
+1. **Vercel Ignore Build Script** (`scripts/deployment/vercel-ignore-build.sh`)
+   - Checks PR's linked issue for unchecked boxes
+   - Returns exit code 0 (skip) if boxes unchecked
+   - Returns exit code 1 (build) if all complete
+
+2. **Configuration in Vercel Dashboard**
+   - Go to Project Settings → Git → Ignored Build Step Command
+   - Set to: `./scripts/deployment/vercel-ignore-build.sh`
+   - Vercel runs this before every deployment
+
+3. **The Flow**
+   ```
+   Push to PR → Vercel checks script → 
+   If unchecked boxes → Skip deployment ❌
+   If all checked → Deploy preview ✅
+   ```
+
+### Status Reporting
+The `status-reporter.yml` workflow ensures GitHub shows proper status:
+- Creates "Issue Checkboxes" status on every push
+- Shows failure if unchecked boxes exist
+- Prevents "Waiting for status to be reported" message
+
 ## Technical Details
 
-### Workflow File
-`.github/workflows/pr-checklist-required.yml`
+### Workflow Files
+- `.github/workflows/pr-checklist-required.yml` - Blocks PR merge
+- `.github/workflows/status-reporter.yml` - Creates commit statuses
+- `scripts/deployment/vercel-ignore-build.sh` - Blocks Vercel deployments
 
 ### How it finds the issue
 ```javascript
@@ -165,6 +196,9 @@ const checkedBoxes = (issue.body?.match(/- \[x\]/gi) || []).length;
 
 ### Branch protection
 Configured via GitHub Settings → Branches → Protection Rules
+
+### Vercel configuration
+Configured via Vercel Dashboard → Project Settings → Git → Ignored Build Step Command
 
 ## Summary
 

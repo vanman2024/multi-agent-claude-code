@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# This script tells Vercel whether to build or skip deployment
+# Vercel Ignore Build Script
+# Location: scripts/deployment/vercel-ignore-build.sh
+# Purpose: This script tells Vercel whether to build or skip deployment
 # Exit 0 = skip build, Exit 1 = proceed with build
 # Configure in Vercel: Project Settings → Git → Ignored Build Step Command
 
