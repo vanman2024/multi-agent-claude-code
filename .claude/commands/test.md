@@ -1,7 +1,7 @@
 ---
 allowed-tools: Task(*), Bash(*), Read(*), TodoWrite(*), mcp__github(*)
 description: Unified testing strategy with intelligent project detection and agent routing
-argument-hint: [--frontend|--backend|--unit|--e2e] [options]
+argument-hint: [--quick|--create|--frontend|--backend|--unit|--e2e] [options]
 ---
 
 # Test - Unified Testing Command
@@ -30,16 +30,43 @@ Show clear progress throughout the testing process:
 ### Step 1: Analyze Context
 
 Parse optional arguments in `$ARGUMENTS`:
+- `--quick` - Run existing tests without agents (minimal tokens ~50)
+- `--create` - Force creation of new tests using agents (~5000+ tokens)
+- `--update` - Update existing tests using agents (~2000+ tokens)
 - `--frontend` - Run only frontend tests
 - `--backend` - Run only backend tests  
 - `--unit` - Run only unit tests
 - `--e2e` - Run only E2E tests
 - `--ci` - Trigger CI pipeline tests
-- No arguments - Auto-detect based on recent changes and project structure
+- No arguments - Auto-detect and use --quick if tests exist
 
-**Note**: Flags are optional enhancements. Primary behavior is intelligent detection.
+**Token-Efficient Mode**: By default, checks for existing tests first.
+**WARNING**: Only use `--create` or `--update` when necessary (high token usage).
 
-### Step 2: Intelligent Detection
+### Step 2: Check for Existing Tests (Token Optimization)
+
+**CRITICAL**: Before using any agents, check if tests already exist:
+
+```bash
+# Check for existing test files
+!TEST_EXISTS=false
+!test -d __tests__ && TEST_EXISTS=true
+!test -d tests && TEST_EXISTS=true  
+!test -d test && TEST_EXISTS=true
+!ls *.test.* *.spec.* 2>/dev/null | head -1 && TEST_EXISTS=true
+
+if TEST_EXISTS=true and not --create and not --update:
+   echo "✅ Existing tests found - using quick mode (minimal tokens)"
+   # Jump to Step 6: Quick Test Execution
+else if TEST_EXISTS=false and not --create:
+   echo "⚠️ No tests found. Options:"
+   echo "1. Run: /test --create (create new tests ~5000 tokens)"
+   echo "2. Write tests manually"
+   echo "3. Skip testing"
+   # Exit unless --create flag provided
+```
+
+### Step 3: Intelligent Detection (Only if needed)
 
 Detect what to test based on:
 
@@ -59,7 +86,9 @@ Detect what to test based on:
    If detection is ambiguous and no flags provided, ask:
    "What type of tests should I run? (frontend/backend/both)"
 
-### Step 3: Route to Testing Agents
+### Step 4: Route to Testing Agents (Only for --create or --update)
+
+**⚠️ HIGH TOKEN USAGE - Only executed with --create or --update flags**
 
 Based on detection or flags, use appropriate agents:
 
@@ -125,7 +154,7 @@ Use Task tool with:
 - description: Run frontend tests including E2E
 - prompt: [frontend testing prompt above]
 
-### Step 4: CI/CD Integration & Deduplication
+### Step 5: CI/CD Integration & Deduplication
 
 #### Check if CI/CD is already running:
 !gh run list --workflow=ci-cd-pipeline.yml --branch=$(git branch --show-current) --status=in_progress --json databaseId -q '.[0].databaseId' 2>/dev/null
@@ -160,7 +189,56 @@ Show progress:
 ✅ Pipeline running: [link to GitHub Actions]
 ```
 
-### Step 5: Report Consolidated Results
+### Step 6: Quick Test Execution (Default for existing tests)
+
+**For --quick flag or when tests exist (LOW TOKEN USAGE ~50-100)**:
+
+```bash
+# Determine test command based on project type
+!if [ -f package.json ]; then
+    if grep -q '"test"' package.json; then
+        echo "🧪 Running: npm test"
+        !npm test
+    elif grep -q '"jest"' package.json; then
+        echo "🧪 Running: jest"
+        !jest
+    elif grep -q '"vitest"' package.json; then
+        echo "🧪 Running: vitest"
+        !vitest run
+    fi
+elif [ -f requirements.txt ] || [ -f pyproject.toml ]; then
+    if command -v pytest &> /dev/null; then
+        echo "🧪 Running: pytest"
+        !pytest
+    elif command -v python -m pytest &> /dev/null; then
+        echo "🧪 Running: python -m pytest"
+        !python -m pytest
+    fi
+elif [ -f go.mod ]; then
+    echo "🧪 Running: go test"
+    !go test ./...
+else
+    echo "❌ No test runner detected. Supported: npm test, jest, vitest, pytest, go test"
+fi
+
+# Check for coverage if requested
+!if [[ "$ARGUMENTS" == *"--coverage"* ]]; then
+    if [ -f package.json ] && grep -q '"test:coverage"' package.json; then
+        echo "📊 Running coverage: npm run test:coverage"
+        !npm run test:coverage
+    fi
+fi
+```
+
+Show results:
+```
+✅ Tests completed
+📊 Results: [pass/fail count]
+⏱️  Duration: [time]
+💰 Tokens used: ~50-100 (quick mode)
+```
+
+### Step 7: Report Consolidated Results
 
 After all testing agents complete:
 
