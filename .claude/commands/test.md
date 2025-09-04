@@ -16,6 +16,17 @@ argument-hint: [--frontend|--backend|--unit|--e2e] [options]
 
 When user runs `/test $ARGUMENTS`, intelligently detect project type and route to appropriate testing agents.
 
+### Progress Indicators
+
+Show clear progress throughout the testing process:
+
+```
+🔍 Detecting project type...
+✅ Project type: [Next.js/React/Python/etc]
+🧪 Running [frontend/backend/full-stack] tests...
+⏱️  Estimated time: [2-5 minutes]
+```
+
 ### Step 1: Analyze Context
 
 Parse optional arguments in `$ARGUMENTS`:
@@ -114,9 +125,21 @@ Use Task tool with:
 - description: Run frontend tests including E2E
 - prompt: [frontend testing prompt above]
 
-### Step 4: CI Pipeline Trigger (if --ci flag)
+### Step 4: CI/CD Integration & Deduplication
 
-If `--ci` in arguments:
+#### Check if CI/CD is already running:
+!gh run list --workflow=ci-cd-pipeline.yml --branch=$(git branch --show-current) --status=in_progress --json databaseId -q '.[0].databaseId' 2>/dev/null
+
+If CI/CD already running:
+```
+⚠️  CI/CD pipeline already running for this branch
+🔗 View at: https://github.com/vanman2024/multi-agent-claude-code/actions
+⏭️  Skipping duplicate test run
+```
+
+#### CI Pipeline Trigger (if --ci flag and not already running)
+
+If `--ci` in arguments and no active CI run:
 
 Get current branch:
 !BRANCH=$(git branch --show-current) && echo "Branch: $BRANCH"
@@ -129,6 +152,13 @@ Use mcp__github__run_workflow:
 
 Then monitor status:
 Use mcp__github__get_workflow_run to check status
+
+Show progress:
+```
+🚀 CI/CD pipeline triggered
+⏱️  Waiting for pipeline to start...
+✅ Pipeline running: [link to GitHub Actions]
+```
 
 ### Step 5: Report Consolidated Results
 
@@ -157,14 +187,40 @@ If PR exists, use mcp__github__add_issue_comment to add test results.
 
 ## Error Handling
 
+### Detection Errors
 If detection unclear and no user response:
-- Default to running both frontend and backend tests
-- Inform user: "Running full test suite. Use flags to specify: /test --frontend or /test --backend"
+```
+⚠️  Could not auto-detect project type
+📝 Running full test suite (frontend + backend)
+💡 Tip: Use flags for specific tests: /test --frontend or /test --backend
+```
 
+### Test Failures
+If tests fail, provide actionable feedback:
+```
+❌ Test Failure: [specific test name]
+📍 Location: [file:line]
+🔧 Suggested fix: [actionable suggestion]
+📚 Documentation: [link to relevant docs]
+```
+
+### Agent Failures
 If agent fails:
-- Report which agent failed and why
-- Suggest running that specific test type again
-- Provide debugging commands
+```
+❌ [Agent Name] encountered an error
+📝 Error: [specific error message]
+🔄 Retry: /test --[test-type]
+🐛 Debug: npm test -- --verbose (or equivalent)
+```
+
+### Common Issues & Solutions
+| Issue | Solution | Command |
+|-------|----------|---------|
+| Module not found | Install dependencies | `npm install` or `pip install -r requirements.txt` |
+| Port already in use | Kill process on port | `lsof -ti:3000 \| xargs kill` |
+| Database connection failed | Check connection string | Verify `.env` file |
+| Permission denied | Fix file permissions | `chmod +x script.sh` |
+| Out of memory | Increase heap size | `NODE_OPTIONS=--max-old-space-size=4096` |
 
 ## Implementation Notes
 
@@ -173,3 +229,48 @@ If agent fails:
 3. **Optional flags** - Flags override auto-detection
 4. **Sequential for full-stack** - Backend must pass before E2E
 5. **Clear reporting** - Unified results from all agents
+
+## Performance & Security
+
+### Performance Monitoring
+Track detection overhead to ensure <10% impact:
+```bash
+# Start timer
+!START_TIME=$(date +%s%N)
+
+# ... detection logic ...
+
+# Calculate overhead
+!END_TIME=$(date +%s%N) && OVERHEAD=$((($END_TIME - $START_TIME) / 1000000)) && echo "Detection time: ${OVERHEAD}ms"
+```
+
+Target metrics:
+- Detection time: <500ms
+- Total overhead: <10% of test runtime
+- Memory usage: <100MB for detection
+
+### Security Measures
+
+#### Credential Handling
+Never expose sensitive data in test output:
+- Mask API keys: `****-****-****-XXXX`
+- Hide passwords: `********`
+- Sanitize URLs: Remove tokens/auth from URLs
+- Use environment variables for secrets
+
+#### Test Data Security
+```bash
+# Check for exposed secrets before running tests
+!grep -r "api_key\|password\|token\|secret" --include="*.test.*" --include="*.spec.*" . 2>/dev/null | grep -v "mock\|fake\|test" && echo "⚠️ Warning: Possible secrets in test files"
+
+# Ensure .env.test is used instead of .env
+!test -f .env.test && echo "✅ Using .env.test for testing" || echo "⚠️ Create .env.test with test credentials"
+```
+
+### Zero False Positives Strategy
+Ensure test results are accurate:
+1. **Deterministic tests** - No random/time-dependent logic
+2. **Clean state** - Reset database/cache before tests
+3. **Isolated tests** - No test interdependencies
+4. **Retry flaky tests** - Max 3 retries for network issues
+5. **Clear assertions** - Specific error messages
