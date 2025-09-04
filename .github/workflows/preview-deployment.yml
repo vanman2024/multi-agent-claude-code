@@ -80,19 +80,23 @@ jobs:
               core.setOutput('can_deploy', 'false');
               
               // Create comment on PR
+              const commentBody = [
+                '## ❌ Deployment Blocked',
+                '',
+                `**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirements.`,
+                '',
+                'Vercel deployment is blocked until all checkboxes in the linked issue are complete.',
+                '',
+                `**Progress:** ${checkedBoxes}/${totalBoxes} (${Math.round(checkedBoxes/totalBoxes * 100)}%)`,
+                '',
+                `[View Issue #${issueNumber}](${issue.html_url})`
+              ].join('\n');
+              
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.number,
-                body: `## ❌ Deployment Blocked
-                
-**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirements.
-
-Vercel deployment is blocked until all checkboxes in the linked issue are complete.
-
-**Progress:** ${checkedBoxes}/${totalBoxes} (${Math.round(checkedBoxes/totalBoxes * 100)}%)
-
-[View Issue #${issueNumber}](${issue.html_url})`
+                body: commentBody
               });
             } else {
               console.log('✅ All requirements complete - deployment allowed');
