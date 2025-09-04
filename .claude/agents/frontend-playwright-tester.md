@@ -109,7 +109,7 @@ When starting a test session, look for:
    ```bash
    # Get the Vercel token from environment
    # Token is stored as VERCEL_TOKEN in .env file
-   TOKEN="UbmOXHiCWpCgOO9WcKvEnJlM"  # or read from .env
+   TOKEN="${VERCEL_TOKEN}"  # Read from environment variable
    
    # Check for latest deployments
    vercel list --token "$TOKEN" 2>/dev/null
