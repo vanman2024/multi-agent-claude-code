@@ -91,13 +91,12 @@ Use mcp__github__get_issue to retrieve:
 - Implementation checklist from body
 - Comments for additional context
 
-### Step 6: Create GitHub-Linked Branch and Draft PR (If No Worktree Exists)
+### Step 6: Create GitHub-Linked Branch (If No Worktree Exists)
 
 **CRITICAL: Only create branch if no worktree exists!**
 
 If no existing worktree was found in Step 1:
 
-#### 6a. Create the branch:
 !`gh issue develop $ISSUE_NUMBER --checkout`
 
 This command:
@@ -109,40 +108,9 @@ This command:
 Get the created branch name:
 !`git branch --show-current`
 
-#### 6b. Create Draft PR Immediately:
-**IMPORTANT: Create draft PR right away to trigger automation!**
+**Important:** The branch name will be something like `123-feature-description` based on the issue.
 
-Push the branch and create draft PR:
-!`git push -u origin $BRANCH_NAME`
-
-Then create the draft PR with issue linkage:
-```bash
-gh pr create \
-  --title "[DRAFT] Issue #$ISSUE_NUMBER: $ISSUE_TITLE" \
-  --body "## Working on Issue #$ISSUE_NUMBER
-
-**Closes #$ISSUE_NUMBER**
-
-This is a draft PR to track work progress and trigger automation.
-
-### Checkboxes from issue:
-[Will be validated by automation]
-
-### Status:
-- [ ] Implementation in progress
-- [ ] Tests added/passing
-- [ ] Linting passing
-- [ ] Ready for review" \
-  --draft \
-  --base main
-```
-
-This draft PR:
-- Triggers checkbox validation workflows
-- Enables preview deployments (if configured)
-- Shows progress in GitHub UI
-- Can be closed if work is abandoned
-- Converts to ready when work is complete
+**Note:** Draft PR will be created after your first meaningful commit (see Step 11a)
 
 ### Step 7: Optional Additional Worktree (if parallel work needed)
 
@@ -203,18 +171,55 @@ Use mcp__github APIs:
 2. Add starting work comment with PR link: `mcp__github__add_issue_comment`
    - Include: "🚀 Started work in PR #[PR_NUMBER]"
 
-### Step 11: Work Through Issue Checkboxes with PR Validation
+### Step 11: Work Through Issue Checkboxes
 
-**CRITICAL: Work locally with TodoWrite, then batch sync to GitHub when complete**
+#### 11a. Create Draft PR After First Commit
 
-#### A. Parse Issue Checkboxes to TodoWrite
+**After making your first meaningful commit:**
+
+1. Push the branch with first commit:
+   !`git push -u origin $BRANCH_NAME`
+
+2. Create draft PR to trigger automation:
+   ```bash
+   gh pr create \
+     --title "[DRAFT] Issue #$ISSUE_NUMBER: $ISSUE_TITLE" \
+     --body "## Working on Issue #$ISSUE_NUMBER
+   
+   **Closes #$ISSUE_NUMBER**
+   
+   This draft PR tracks work progress and triggers automation.
+   
+   ### Implementation Progress:
+   Work in progress - checkboxes will be validated by automation
+   
+   ### Status:
+   - [ ] Implementation in progress
+   - [ ] Tests added/passing
+   - [ ] Linting passing
+   - [ ] Ready for review" \
+     --draft \
+     --base main
+   ```
+
+3. Get PR number for reference:
+   !`gh pr list --head $BRANCH_NAME --json number --jq .[0].number`
+
+This draft PR:
+- Triggers checkbox validation on real code
+- Enables preview deployments
+- Shows progress in GitHub UI
+- Can be abandoned if needed
+- Converts to ready when complete
+
+#### 11b. Parse Issue Checkboxes to TodoWrite
 Use mcp__github__get_issue to get the full issue body, then extract checkboxes:
 - Find all `- [ ]` (unchecked) and `- [x]` (checked) patterns  
 - Create TodoWrite list with items like: "CHECKBOX 1: Add user authentication endpoints"
 - Track checkbox text exactly as it appears in GitHub
 - Work entirely in TodoWrite (fast, no API calls during work)
 
-#### B. Systematic Local Execution
+#### 11c. Systematic Local Execution
 For each TodoWrite checkbox item:
 
 1. **Mark TodoWrite as in_progress**
@@ -251,14 +256,14 @@ For each TodoWrite checkbox item:
    **Status:** Ready for PR creation via automation
    ```
 
-#### D. Efficient Batch Approach Benefits
+#### 11e. Efficient Batch Approach Benefits
 - **No API rate limiting** - Single update instead of multiple
 - **Atomic update** - All checkboxes change together  
 - **Fast local work** - TodoWrite operations are instant
 - **Clear completion signal** - One comment when everything is done
 - **Reliable sync** - Direct mapping between TodoWrite and GitHub checkboxes
 
-**Draft PR was already created in Step 6b to trigger automation**
+**Draft PR was already created in Step 11a after first commit**
 
 ### Step 12: Ensure All Commits Reference the Issue
 
@@ -287,7 +292,7 @@ Before marking work complete:
 3. The PR is now ready for review/merge
 4. Automation may auto-merge if all checks pass
 
-**The draft PR was already created in Step 6b**
+**The draft PR was already created in Step 11a**
 
 ### Step 15: Clean Up After Merge
 
