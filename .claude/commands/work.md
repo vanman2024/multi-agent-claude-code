@@ -172,33 +172,35 @@ For each unchecked checkbox:
 
 3. **Execute the checkbox task** using appropriate tools
 
-4. **Update GitHub checkbox in real-time**:
-   - Get current issue body with mcp__github__get_issue
-   - Replace `- [ ] Task description` with `- [x] Task description`
-   - Update issue body with mcp__github__update_issue
-   - Add progress comment with mcp__github__add_issue_comment
+4. **Trigger automatic checkbox updates via commit**:
+   - Include checkbox completion markers in commit messages
+   - Use patterns: "✅ Completed: [checkbox text]" or "feat: [work] ✅ [checkbox]"
+   - Automation hook detects patterns and updates GitHub checkboxes
+   - Progress comments added automatically by the hook
 
 5. **Mark local TodoWrite as completed**
 
-#### C. Checkbox Update Function Pattern
+#### C. Automated Checkbox Update Pattern
 For each completed checkbox:
 ```
 # Example checkbox: "- [ ] Add user authentication endpoints"
 
 1. Complete the implementation (add auth endpoints)
-2. Update GitHub:
-   - Replace: "- [ ] Add user authentication endpoints" 
-   - With: "- [x] Add user authentication endpoints"
-3. Comment: "✅ Completed: Add user authentication endpoints"
+2. Commit with completion marker:
+   "feat: Add user authentication API endpoints ✅ Add user authentication endpoints"
+3. Automation hook detects pattern and updates GitHub:
+   - Changes: "- [ ] Add user..." → "- [x] Add user..."
+   - Adds comment: "🤖 Auto-updated 1 checkbox from commit abc1234"
 4. Mark TodoWrite item complete
 ```
 
-#### D. Real-Time Progress Updates
-After each checkbox completion:
-- Update issue body immediately (don't wait for all to complete)
-- Add comment showing progress: "✅ Completed 3/7 checkboxes"
-- User sees live progress in GitHub issue timeline
-- Creates back-and-forth conversation between Claude and GitHub
+#### D. Automated Progress Updates
+After each commit with checkbox completion markers:
+- Hook automatically updates GitHub checkboxes immediately
+- Hook adds progress comment: "🤖 Auto-updated 1 checkbox from commit [sha]"
+- Existing issue-checklist-enforcer.yml provides overall progress: "📊 Issue Progress: 3/7 tasks (43%)"
+- User sees live progress updates without manual intervention
+- Creates automated conversation between commits and GitHub
 
 **DO NOT manually create a PR - automation will handle it when ALL checkboxes are complete**
 
@@ -278,32 +280,34 @@ Check if this unblocks other issues:
 1. **Parse checkboxes**: Creates 5 TodoWrite items matching GitHub
 2. **Execute first checkbox**: "Add user authentication API endpoint"
    - Implements auth endpoint code
-   - Updates GitHub: `- [ ] Add user...` → `- [x] Add user...`
-   - Comments: "✅ Completed: Add user authentication API endpoint"
-   - Shows: "✅ Completed 1/5 checkboxes"
+   - Commits: `"feat: Add auth API endpoint ✅ Add user authentication API endpoint"`
+   - Hook auto-updates: `- [ ] Add user...` → `- [x] Add user...`
+   - Hook comments: "🤖 Auto-updated 1 checkbox from commit abc1234"
+   - Progress tracker shows: "📊 Issue Progress: 1/5 tasks (20%)"
 
 3. **Execute second checkbox**: "Create login form component"
    - Implements login form
-   - Updates GitHub: `- [ ] Create login...` → `- [x] Create login...`
-   - Comments: "✅ Completed: Create login form component" 
-   - Shows: "✅ Completed 2/5 checkboxes"
+   - Commits: `"feat: Create login form ✅ Create login form component"`
+   - Hook auto-updates: `- [ ] Create login...` → `- [x] Create login...`
+   - Hook comments: "🤖 Auto-updated 1 checkbox from commit def5678"
+   - Progress tracker shows: "📊 Issue Progress: 2/5 tasks (40%)"
 
 4. **Continues systematically** until all 5 checkboxes complete
 5. **Final state**: Issue body shows all `- [x]` checked, timeline shows progress
 6. **Automation triggers**: Creates PR when all checkboxes complete
 
-**Result**: User sees real-time updates in GitHub issue, full conversation history
+**Result**: User sees automated updates in GitHub issue, progress tracked automatically via commit hooks
 
 ## Key Improvements in This Version
 
-1. **Real-Time Checkbox Management** - Parses, executes, and updates GitHub checkboxes live
+1. **Automated Checkbox Management** - Parses checkboxes, executes work, updates via commit hooks
 2. **Worktree Support** - Automatically creates worktrees for parallel development
 3. **Issue Reference Enforcement** - Every commit references the issue for timeline tracking
 4. **No Manual PR Creation** - Automation handles PR when checkboxes complete
 5. **Template Compliance** - Uses `!` syntax, no bash code blocks
 6. **MCP Function Usage** - Proper use of mcp__github functions instead of complex bash
 7. **Checkbox-First Workflow** - Focus on issue completion, not PR management
-8. **Back-and-Forth GitHub Integration** - Creates live conversation between Claude and GitHub
+8. **Automated GitHub Integration** - Commit hooks create automated conversation with GitHub
 
 ## Intelligence Summary
 
@@ -312,8 +316,8 @@ The `/work` command intelligently:
 - ✅ Analyzes dependencies and blockers
 - ✅ Prioritizes work that unblocks other work
 - ✅ Parses and executes GitHub issue checkboxes systematically
-- ✅ Updates GitHub checkboxes in real-time during work
-- ✅ Creates live conversation between Claude and GitHub
+- ✅ Updates GitHub checkboxes automatically via commit hooks
+- ✅ Creates automated conversation between commits and GitHub
 - ✅ Manages worktrees for parallel development
 - ✅ Enforces issue references in all commits
 - ✅ Updates issue status throughout
