@@ -13,6 +13,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest --passWithNoTests",
+    "test:coverage": "jest --passWithNoTests --coverage",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
