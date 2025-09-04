@@ -1,6 +1,6 @@
 ---
-allowed-tools: Bash(*), Read(*), Task(*), mcp__github(*)
-description: Unified testing strategy with intelligent project detection
+allowed-tools: Task(*), Bash(*), Read(*), TodoWrite(*), mcp__github(*)
+description: Unified testing strategy with intelligent project detection and agent routing
 argument-hint: [--frontend|--backend|--unit|--e2e] [options]
 ---
 
@@ -9,105 +9,110 @@ argument-hint: [--frontend|--backend|--unit|--e2e] [options]
 ## Context
 - Current branch: !git branch --show-current
 - Repository: vanman2024/multi-agent-claude-code
+- Recent commits: !git log --oneline -5
+- Changed files: !git diff --name-only HEAD~1
 
 ## Your Task
 
-When user runs `/test $ARGUMENTS`, intelligently detect project type and run appropriate tests.
+When user runs `/test $ARGUMENTS`, intelligently detect project type and route to appropriate testing agents.
 
-### Parse Optional Arguments
+### Step 1: Analyze Context
 
-Check `$ARGUMENTS` for optional flags:
+Parse optional arguments in `$ARGUMENTS`:
 - `--frontend` - Run only frontend tests
-- `--backend` - Run only backend tests
-- `--unit` - Run only unit tests  
+- `--backend` - Run only backend tests  
+- `--unit` - Run only unit tests
 - `--e2e` - Run only E2E tests
 - `--ci` - Trigger CI pipeline tests
-- No arguments - Auto-detect and run all relevant tests
+- No arguments - Auto-detect based on recent changes and project structure
 
-**Note**: Flags are optional enhancements. Primary behavior is auto-detection.
+**Note**: Flags are optional enhancements. Primary behavior is intelligent detection.
 
-### Step 1: Auto-Detect Project Type
+### Step 2: Intelligent Detection
 
-Detect what type of project this is:
+Detect what to test based on:
 
-!echo "🔍 Detecting project type..."
+1. **Recent changes** (if no flags provided):
+   !git diff --name-only HEAD~1 | head -20
+   - If changes in `src/components`, `pages/`, `*.tsx`, `*.jsx` → Frontend
+   - If changes in `api/`, `server/`, `*.py`, `backend/` → Backend
+   - If changes in both → Full-stack
 
-Check for frontend indicators:
-!test -f package.json && grep -q -E '"react"|"vue"|"angular"|"svelte"|"next"' package.json && echo "✓ Frontend: JavaScript/TypeScript detected"
+2. **Project structure** (fallback):
+   !test -f package.json && grep -q -E '"react"|"vue"|"angular"|"svelte"|"next"' package.json && echo "Frontend project detected"
+   !test -f requirements.txt && echo "Python backend detected"
+   !test -f go.mod && echo "Go backend detected"
+   !test -f package.json && grep -q -E '"express"|"fastify"|"nestjs"' package.json && echo "Node backend detected"
 
-Check for backend indicators:
-!test -f requirements.txt && echo "✓ Backend: Python detected"
-!test -f go.mod && echo "✓ Backend: Go detected"
-!test -f package.json && grep -q -E '"express"|"fastify"|"nestjs"|"koa"' package.json && echo "✓ Backend: Node.js detected"
+3. **Ask user** (if unclear):
+   If detection is ambiguous and no flags provided, ask:
+   "What type of tests should I run? (frontend/backend/both)"
 
-Check for full-stack:
-!test -f package.json && test -f requirements.txt && echo "✓ Full-stack: Multiple technologies detected"
+### Step 3: Route to Testing Agents
 
-### Step 2: Route to Appropriate Testing
+Based on detection or flags, use appropriate agents:
 
-Based on detection and arguments, determine test approach:
+#### Frontend Testing (React/Vue/Angular/Next.js)
 
-#### Frontend Testing (React/Vue/Angular)
+If frontend testing needed:
 
-If frontend detected or `--frontend` flag:
-- For E2E tests: Use Task tool with frontend-playwright-tester agent
-- For unit tests: !npm test or !npm run test:unit
-- For all: Both unit and E2E
+Use Task tool with:
+- subagent_type: frontend-playwright-tester
+- description: Run frontend E2E and component tests
+- prompt: |
+    Run comprehensive frontend tests for this project:
+    1. Check for test files in tests/, e2e/, or __tests__ directories
+    2. Run component tests if available (Jest/Vitest)
+    3. Run E2E tests using Playwright
+    4. Test across multiple browsers if configured
+    5. Generate coverage report if available
+    6. Report results with pass/fail summary
+    
+    Test type requested: $ARGUMENTS
+    Focus on: ${detected_changes_or_all}
 
-!test -f package.json && npm list playwright >/dev/null 2>&1 && echo "📋 Playwright available for E2E testing"
+#### Backend Testing (Python/Go/Node.js)
 
-#### Backend Testing (Python/Go/Node)
+If backend testing needed:
 
-If backend detected or `--backend` flag:
-- Python: !pytest or !python -m pytest
-- Go: !go test ./...
-- Node.js: !npm test or !jest
-
-!which pytest >/dev/null 2>&1 && echo "📋 Pytest available for Python testing"
-!which go >/dev/null 2>&1 && echo "📋 Go test available"
+Use Task tool with:
+- subagent_type: backend-tester
+- description: Run backend API and unit tests
+- prompt: |
+    Run comprehensive backend tests for this project:
+    1. Detect testing framework (pytest/go test/jest/mocha)
+    2. Run unit tests for all services and utilities
+    3. Run integration tests for API endpoints
+    4. Test database operations with proper rollback
+    5. Validate API responses and status codes
+    6. Generate coverage report if available
+    7. Report results with detailed failures
+    
+    Test type requested: $ARGUMENTS
+    Focus on: ${detected_changes_or_all}
 
 #### Full-Stack Testing
 
-If both frontend and backend detected:
-1. Run backend tests first
-2. Then run frontend tests
-3. Finally run E2E tests
+If both frontend and backend testing needed:
 
-### Step 3: Execute Tests Based on Detection
+First, use TodoWrite to plan the testing sequence:
+1. Run backend tests first (ensure APIs work)
+2. Run frontend unit tests
+3. Run E2E tests (depends on backend)
 
-#### For Frontend Projects
+Then execute both agents sequentially:
 
-!echo "🧪 Running frontend tests..."
+Use Task tool with:
+- subagent_type: backend-tester
+- description: Run backend tests first
+- prompt: [backend testing prompt above]
 
-Unit tests:
-!test -f package.json && npm test 2>&1 | head -50
+After backend tests pass:
 
-E2E tests (if not unit-only):
-Use Task tool:
-```
-prompt: Run E2E tests using Playwright for the frontend application. Check for test files in tests/ or e2e/ directories. Run all browser tests and report results.
-subagent_type: frontend-playwright-tester
-description: Run frontend E2E tests
-```
-
-#### For Backend Projects  
-
-!echo "🧪 Running backend tests..."
-
-Python projects:
-!test -f requirements.txt && pytest -v --tb=short 2>&1 | head -50
-
-Node.js projects:
-!test -f package.json && grep -q '"express"' package.json && npm test 2>&1 | head -50
-
-Go projects:
-!test -f go.mod && go test -v ./... 2>&1 | head -50
-
-#### For Full-Stack Projects
-
-!echo "🧪 Running full-stack test suite..."
-
-Run both backend and frontend tests sequentially.
+Use Task tool with:
+- subagent_type: frontend-playwright-tester  
+- description: Run frontend tests including E2E
+- prompt: [frontend testing prompt above]
 
 ### Step 4: CI Pipeline Trigger (if --ci flag)
 
@@ -116,73 +121,55 @@ If `--ci` in arguments:
 Get current branch:
 !BRANCH=$(git branch --show-current) && echo "Branch: $BRANCH"
 
-Trigger CI workflow using mcp__github__run_workflow:
+Use mcp__github__run_workflow:
+- owner: vanman2024
+- repo: multi-agent-claude-code
 - workflow_id: "ci-cd-pipeline.yml"
-- ref: current branch
-- Monitor status and report results
+- ref: $BRANCH
 
-### Step 5: Report Results
+Then monitor status:
+Use mcp__github__get_workflow_run to check status
 
-Parse test output and provide summary:
+### Step 5: Report Consolidated Results
 
-!echo "
-📊 Test Summary
-==============="
+After all testing agents complete:
 
-Check for test results:
-!test -f coverage/lcov-report/index.html && echo "📈 Coverage report: coverage/lcov-report/index.html"
-!test -f htmlcov/index.html && echo "📈 Coverage report: htmlcov/index.html"
-
-### Step 6: Update PR Status (if applicable)
-
-Check if on PR branch:
-!gh pr view --json number -q .number 2>/dev/null && PR_EXISTS=true
-
-If PR exists, add test results comment using mcp__github__add_issue_comment
-
-## Output Examples
-
-### Success Output
+Provide unified summary:
 ```
-🔍 Detecting project type...
-✓ Frontend: React/Next.js detected
-✓ Backend: Node.js/Express detected
-📋 Running full-stack test suite...
+📊 Test Results Summary
+======================
+Frontend: [status from agent]
+Backend: [status from agent]
+Coverage: [if available]
+Duration: [total time]
 
-Frontend Tests:
-  ✓ Component tests: 15/15 passed
-  ✓ E2E tests: 8/8 passed
+Failed tests (if any):
+- [List failures from agents]
 
-Backend Tests:
-  ✓ Unit tests: 42/42 passed
-  ✓ Integration tests: 12/12 passed
-
-✅ All tests passed!
+Next steps:
+- [Suggestions based on results]
 ```
 
-### With Optional Flags
-```
-$ /test --backend
-🔍 Running backend tests only...
-✓ Unit tests: 42/42 passed
-✓ Integration tests: 12/12 passed
-✅ Backend tests passed!
-```
+Update PR if exists:
+!gh pr view --json number -q .number 2>/dev/null && PR_NUMBER=$(gh pr view --json number -q .number)
+
+If PR exists, use mcp__github__add_issue_comment to add test results.
 
 ## Error Handling
 
-If detection fails:
-!echo "⚠️ Could not auto-detect project type. Please specify: /test --frontend or /test --backend"
+If detection unclear and no user response:
+- Default to running both frontend and backend tests
+- Inform user: "Running full test suite. Use flags to specify: /test --frontend or /test --backend"
 
-If tests fail:
-- Show failing test names
-- Suggest re-running with verbose output
-- Provide debugging tips
+If agent fails:
+- Report which agent failed and why
+- Suggest running that specific test type again
+- Provide debugging commands
 
 ## Implementation Notes
 
-1. **NO code blocks** - Use `!` syntax for all bash commands
-2. **Auto-detection is primary** - Flags are optional overrides
-3. **Use Task tool for complex testing** - Especially E2E tests
-4. **Support multiple frameworks** - Jest, Pytest, Go test, etc.
-5. **Clear output** - Show what's being tested and results
+1. **Smart detection** - Look at git diff first, then project structure
+2. **Agent routing** - Use proper agents, not inline bash commands
+3. **Optional flags** - Flags override auto-detection
+4. **Sequential for full-stack** - Backend must pass before E2E
+5. **Clear reporting** - Unified results from all agents
