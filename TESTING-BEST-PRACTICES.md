@@ -4,6 +4,32 @@
 
 This guide provides comprehensive testing strategies and best practices for the Multi-Agent Development Framework. Our unified testing approach ensures code quality, reliability, and maintainability across frontend and backend components.
 
+## 🔄 Local vs CI/CD Testing
+
+### Local Testing (`/test` command)
+**Purpose**: Quick feedback during development
+- **What it tests**: Unit tests, component tests, basic integration
+- **Where it runs**: Your local machine
+- **When to use**: Before every commit/push
+- **Speed**: Fast (seconds to minutes)
+- **Coverage**: Code logic, component behavior, API responses
+
+### CI/CD Testing (GitHub Actions)
+**Purpose**: Comprehensive validation before merge
+- **What it tests**: Everything including E2E, browser tests, Vercel deployments
+- **Where it runs**: GitHub Actions runners
+- **When to use**: Automatically on every PR push
+- **Speed**: Slower (minutes)
+- **Coverage**: Full stack including deployed preview URLs
+
+### The Balance
+```
+Developer writes code → Run `/test` locally → Push to PR → CI/CD runs full suite → Merge
+```
+- Local tests catch 80% of issues quickly
+- CI/CD catches the remaining 20% including deployment issues
+- Never skip local tests thinking "CI will catch it"
+
 ## 🔍 Testing Philosophy
 
 ### Core Principles
