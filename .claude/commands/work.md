@@ -33,15 +33,20 @@ Use the Bash tool to verify you're on main with latest changes:
 **CRITICAL: Always check if a worktree already exists for the issue!**
 
 Parse `$ARGUMENTS` to get issue number if provided:
-- Extract issue number from `#123` or `123` format
+- Extract issue number from `#123` or `123` format into `$ISSUE_NUMBER`
 - If issue number provided, check for existing worktree:
   !`git worktree list | grep -E "issue-$ISSUE_NUMBER|$ISSUE_NUMBER-"`
 
-**If worktree exists:**
+**If worktree exists for issue #$ISSUE_NUMBER:**
 - Display: "Found existing worktree for issue #$ISSUE_NUMBER at: $WORKTREE_PATH"
 - Ask: "Do you want to continue working in the existing worktree? (y/n)"
 - If yes: Instruct user to `cd $WORKTREE_PATH` and work there
 - If no: Ask if they want to remove it and start fresh
+
+**If no worktree but branch exists:**
+- Check: !`git branch -a | grep -E "$ISSUE_NUMBER-"`
+- If branch exists locally: Switch to it with !`git checkout $BRANCH_NAME`
+- If branch exists remotely: Check it out with !`git checkout -b $BRANCH_NAME origin/$BRANCH_NAME`
 
 ### Step 2: Determine Work Mode
 
