@@ -28,15 +28,30 @@ Use the Bash tool to verify you're on main with latest changes:
 
 **DO NOT PROCEED if not on main with latest changes!**
 
-### Step 1: Determine Work Mode
+### Step 1: Check for Existing Worktrees FIRST
 
-Parse `$ARGUMENTS` to determine action:
+**CRITICAL: Always check if a worktree already exists for the issue!**
+
+Parse `$ARGUMENTS` to get issue number if provided:
+- Extract issue number from `#123` or `123` format
+- If issue number provided, check for existing worktree:
+  !`git worktree list | grep -E "issue-$ISSUE_NUMBER|$ISSUE_NUMBER-"`
+
+**If worktree exists:**
+- Display: "Found existing worktree for issue #$ISSUE_NUMBER at: $WORKTREE_PATH"
+- Ask: "Do you want to continue working in the existing worktree? (y/n)"
+- If yes: Instruct user to `cd $WORKTREE_PATH` and work there
+- If no: Ask if they want to remove it and start fresh
+
+### Step 2: Determine Work Mode
+
+After handling worktrees, parse full `$ARGUMENTS`:
 - If `#123` provided → work on that specific issue
 - If `--deploy` → deploy current branch to Vercel
 - If `--test` → run test suite
 - If no arguments → intelligently select next work item
 
-### Step 2: Intelligent Work Selection (when no issue specified)
+### Step 3: Intelligent Work Selection (when no issue specified)
 
 #### Check Current Sprint
 Use mcp__github__list_issues with label filter "sprint:current" to find sprint work.
@@ -60,14 +75,14 @@ For each potential issue:
 4. **Continue in-progress work** - If user has work in progress, suggest continuing it
 5. **Next in sprint sequence** - Follow logical order if issues are numbered sequentially
 
-### Step 3: Verify Selection Is Valid
+### Step 4: Verify Selection Is Valid
 
 Before starting work, use mcp__github__get_issue to verify:
 - No "blocked" label
 - All dependencies (if any) are closed
 - Not already assigned to someone else
 
-### Step 4: Get Complete Issue Context
+### Step 5: Get Complete Issue Context
 
 Use mcp__github__get_issue to retrieve:
 - Title and full description
@@ -76,9 +91,11 @@ Use mcp__github__get_issue to retrieve:
 - Implementation checklist from body
 - Comments for additional context
 
-### Step 5: Create GitHub-Linked Branch
+### Step 6: Create GitHub-Linked Branch (If No Worktree Exists)
 
-**CRITICAL: Use gh issue develop to create branch on GitHub first:**
+**CRITICAL: Only create branch if no worktree exists!**
+
+If no existing worktree was found in Step 1:
 !`gh issue develop $ISSUE_NUMBER --checkout`
 
 This command:
@@ -92,7 +109,7 @@ Get the created branch name:
 
 **Important:** The branch name will be something like `123-feature-description` based on the issue.
 
-### Step 6: Optional Worktree Support (if parallel work needed)
+### Step 7: Optional Additional Worktree (if parallel work needed)
 
 **Only if user needs to work on multiple issues simultaneously:**
 
@@ -117,7 +134,7 @@ Choose (1/2/3):"
 
 **Note:** Worktrees are secondary - branch creation via `gh issue develop` is primary!
 
-### Step 7: Configure Git for Issue Tracking (NEW)
+### Step 8: Configure Git for Issue Tracking
 
 **CRITICAL: Set up automatic issue references in commits**
 
@@ -128,7 +145,7 @@ Set up git commit template for this branch:
 
 Remind user that ALL commits must reference the issue for GitHub timeline tracking.
 
-### Step 8: Implementation Routing
+### Step 9: Implementation Routing
 
 Based on issue labels (complexity and size):
 
@@ -144,7 +161,7 @@ Use Task tool with appropriate agent:
 - **Security** → security-auth-compliance agent
 - **Integration** → integration-architect agent
 
-### Step 9: Update Issue Status
+### Step 10: Update Issue Status
 
 Use mcp__github APIs:
 1. Add "status:in-progress" label: `mcp__github__update_issue`
