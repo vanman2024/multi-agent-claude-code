@@ -20,60 +20,17 @@ When user runs `/work $ARGUMENTS`, intelligently select and implement work.
 
 **CRITICAL: Before doing ANYTHING else, check branch and sync status:**
 
-```bash
-# Get current branch
-CURRENT_BRANCH=$(git branch --show-current)
-
-# Check if on main
-if [[ "$CURRENT_BRANCH" != "main" ]]; then
-  echo "❌ ERROR: You must be on main branch to start work!"
-  echo ""
-  echo "Run these commands first:"
-  echo "  git checkout main"
-  echo "  git pull origin main"
-  echo ""
-  echo "Current branch: $CURRENT_BRANCH"
-  echo "Required branch: main"
-  echo ""
-  echo "See WORKFLOW.md for the required process."
-  exit 1
-fi
-
-# Check if main is up to date
-git fetch origin main --quiet
-LOCAL=$(git rev-parse main)
-REMOTE=$(git rev-parse origin/main)
-
-if [[ "$LOCAL" != "$REMOTE" ]]; then
-  echo "⚠️ Your main branch is not up to date!"
-  echo "Local:  $LOCAL"
-  echo "Remote: $REMOTE"
-  echo ""
-  echo "🔄 Auto-pulling latest changes..."
-  git pull origin main
-  
-  if [ $? -ne 0 ]; then
-    echo "❌ ERROR: Failed to pull latest changes"
-    echo "Please resolve any conflicts and try again"
-    exit 1
-  fi
-  
-  echo "✅ Successfully pulled latest changes"
-fi
-
-echo "✅ On main branch with latest changes - proceeding..."
-```
-
-If not on main or not up to date, STOP and tell the user to:
-1. `git checkout main`
-2. `git pull origin main`
-3. Then retry the command
+Use the Bash tool to verify you're on main with latest changes:
+- Check current branch: !`git branch --show-current`
+- If not on main, STOP and tell user to: `git checkout main && git pull origin main`
+- Fetch and compare: !`git fetch origin main && git rev-parse main` vs !`git rev-parse origin/main`
+- If behind, auto-pull: !`git pull origin main`
 
 **DO NOT PROCEED if not on main with latest changes!**
 
 ### Step 1: Determine Work Mode
 
-Check if specific issue provided or auto-select:
+Parse `$ARGUMENTS` to determine action:
 - If `#123` provided → work on that specific issue
 - If `--deploy` → deploy current branch to Vercel
 - If `--test` → run test suite
@@ -82,25 +39,19 @@ Check if specific issue provided or auto-select:
 ### Step 2: Intelligent Work Selection (when no issue specified)
 
 #### Check Current Sprint
-```bash
-gh issue list --label "sprint:current" --state open --json number,title,labels,body
-```
+Use mcp__github__list_issues with label filter "sprint:current" to find sprint work.
 
 #### Check Project Board Status
-```bash
-# Get issues from project board columns
-gh project item-list 1 --owner vanman2024 --format json
-
-# Check "In Progress" column - don't start new work if something's in progress
-gh issue list --label "status:in-progress" --state open
-```
+Use mcp__github__list_issues with label "status:in-progress" to check if work is already active.
+If something is in progress, suggest continuing it rather than starting new work.
 
 #### Analyze Dependencies and Blockers
-Use mcp__github__get_issue for each sprint issue to:
-- Check for "blocked" label
-- Look for "Depends on #XX" in issue body
-- Check if dependency issues are closed
-- Find issues that unblock the most other work
+For each potential issue:
+1. Use mcp__github__get_issue to get full details
+2. Check for "blocked" label
+3. Parse body for "Depends on #XX" patterns
+4. For each dependency, check if it's closed using mcp__github__get_issue
+5. Prioritize issues that unblock the most other work
 
 #### Priority Rules for Selection
 1. **Unblocked work that unblocks others** - Issues that when completed, unblock other issues
@@ -111,46 +62,61 @@ Use mcp__github__get_issue for each sprint issue to:
 
 ### Step 3: Verify Selection Is Valid
 
-Before starting work, check:
-```bash
-# Is it blocked?
-gh issue view $ISSUE_NUMBER --json labels | grep -q "blocked"
-
-# Are its dependencies resolved?
-gh issue view $ISSUE_NUMBER --json body | grep -oP "Depends on #\K\d+"
-# For each dependency found, check if closed:
-gh issue view $DEPENDENCY --json state
-
-# Is someone else working on it?
-gh issue view $ISSUE_NUMBER --json assignees
-```
+Before starting work, use mcp__github__get_issue to verify:
+- No "blocked" label
+- All dependencies (if any) are closed
+- Not already assigned to someone else
 
 ### Step 4: Get Complete Issue Context
 
-Use mcp__github__get_issue to get full details:
+Use mcp__github__get_issue to retrieve:
 - Title and full description
-- All labels (type, priority, size, etc.)
+- All labels (type, priority, size, complexity)
 - Current state and assignees
+- Implementation checklist from body
 - Comments for additional context
-- Linked PRs if any
 
-### Step 5: Create GitHub-Linked Branch
+### Step 5: Check for Worktree Support (NEW)
 
+**Check if worktrees are needed:**
+- Check existing worktrees: !`git worktree list`
+- If multiple active issues or parallel work detected, use worktree
+
+**Create worktree if needed:**
 ```bash
-# Use gh issue develop to create a properly linked branch
-# This creates the branch on GitHub first, then checks it out locally
-gh issue develop $ISSUE_NUMBER --checkout
-
-# Get the branch name that GitHub created
-BRANCH_NAME=$(git branch --show-current)
-
-echo "✅ Created and checked out branch: $BRANCH_NAME"
-echo "✅ Branch is linked to issue #$ISSUE_NUMBER in Development section"
+# Check if we're already in a worktree
+WORKTREE_PATH="../worktrees/issue-$ISSUE_NUMBER-$ISSUE_TYPE"
+if ! git worktree list | grep -q "issue-$ISSUE_NUMBER"; then
+  # Create worktree for this issue
+  git worktree add "$WORKTREE_PATH" -b "$ISSUE_NUMBER-$ISSUE_TYPE"
+  cd "$WORKTREE_PATH"
+fi
 ```
 
-### Step 6: Implementation Routing
+### Step 6: Create GitHub-Linked Branch
 
-Based on issue type and complexity from labels:
+Use gh issue develop to create a properly linked branch:
+!`gh issue develop $ISSUE_NUMBER --checkout`
+
+Get the created branch name:
+!`git branch --show-current`
+
+### Step 7: Configure Git for Issue Tracking (NEW)
+
+**CRITICAL: Set up automatic issue references in commits**
+
+Set up git commit template for this branch:
+```bash
+ISSUE_NUMBER=$(echo $BRANCH_NAME | grep -oP '^\d+')
+echo -e "\n\nRelated to #$ISSUE_NUMBER" > .gitmessage
+git config commit.template .gitmessage
+```
+
+Remind user that ALL commits must reference the issue for GitHub timeline tracking.
+
+### Step 8: Implementation Routing
+
+Based on issue labels (complexity and size):
 
 #### For Simple Issues (Complexity 1-2, Size XS-S)
 - Implement directly using Read/Write/Edit tools
@@ -164,106 +130,82 @@ Use Task tool with appropriate agent:
 - **Security** → security-auth-compliance agent
 - **Integration** → integration-architect agent
 
-### Step 7: Update Issue Status
+### Step 9: Update Issue Status
 
+Use mcp__github APIs:
+1. Add "status:in-progress" label: `mcp__github__update_issue`
+2. Add starting work comment: `mcp__github__add_issue_comment`
+
+### Step 10: Work Through Issue Checkboxes
+
+**CRITICAL: Focus on completing issue checkboxes, NOT creating PRs**
+
+1. Parse issue body to extract checkboxes
+2. Work through each checkbox systematically
+3. Update issue with progress as you complete items
+4. Use TodoWrite tool to track local progress
+
+**DO NOT manually create a PR - automation will handle it when checkboxes are complete**
+
+### Step 11: Ensure All Commits Reference the Issue
+
+**For EVERY commit made during work:**
 ```bash
-# Add in-progress label
-gh issue edit $ISSUE_NUMBER --add-label "status:in-progress"
+# Intermediate commits (NOT "Closes")
+git commit -m "feat: Add new feature
 
-# Add comment about starting work
-gh issue comment $ISSUE_NUMBER --body "🚀 Started implementation on branch \`$BRANCH_NAME\`"
+Related to #$ISSUE_NUMBER"
+
+# OR
+git commit -m "fix: Update validation logic #$ISSUE_NUMBER"
+
+# OR  
+git commit -m "docs: Update README
+
+Part of #$ISSUE_NUMBER"
 ```
 
-### Step 8: Run Tests
+**NEVER use "Closes #XX" except in the final PR description**
 
-```bash
-# Detect and run appropriate test suite
-if [ -f "package.json" ]; then
-  npm test
-  npm run lint
-elif [ -f "requirements.txt" ]; then
-  pytest
-fi
-```
+### Step 12: Run Tests and Validation
 
-### Step 9: Create Pull Request
+Before marking work complete:
+!`npm test` or !`pytest` depending on project
+!`npm run lint` or appropriate linter
+!`npm run typecheck` if TypeScript project
 
-```bash
-# Push branch
-git push -u origin $BRANCH_NAME
+### Step 13: Let Automation Create the PR
 
-# Get issue title
-ISSUE_TITLE=$(gh issue view $ISSUE_NUMBER --json title --jq .title)
+**When all checkboxes are complete:**
+1. Push your branch: !`git push -u origin $BRANCH_NAME`
+2. The automation workflow will detect completed checkboxes
+3. It will automatically create the PR with proper "Closes #XX" link
+4. PR will transition from draft to ready automatically
 
-# Create DRAFT PR linked to issue
-gh pr create \
-  --title "$ISSUE_TYPE: $ISSUE_TITLE" \
-  --body "## Summary
+**DO NOT manually create PRs with gh pr create**
 
-Working on issue #$ISSUE_NUMBER
+### Step 14: Clean Up After Merge
 
-**Closes:** #$ISSUE_NUMBER
+When PR is merged (by automation or manually):
+1. Checkout main: !`git checkout main`
+2. Pull latest: !`git pull origin main`
+3. Delete local branch: !`git branch -d $BRANCH_NAME`
+4. If using worktree, remove it: !`git worktree remove ../worktrees/issue-$ISSUE_NUMBER-*`
 
-## What Changed
+### Step 15: Update Dependencies
 
-[Implementation details will be added as work progresses]
-
-## Type of Change
-
-- [ ] 🐛 Bug fix
-- [ ] ✨ New feature  
-- [ ] ♻️ Refactoring
-- [ ] 📝 Documentation
-- [ ] 🎨 Style/UI
-- [ ] 🔧 Configuration
-- [ ] ⚡ Performance
-
-## Testing Done
-
-[Testing details will be added]" \
-  --base main \
-  --head $BRANCH_NAME \
-  --draft
-
-# Update issue with PR link
-PR_NUMBER=$(gh pr list --head $BRANCH_NAME --json number --jq .[0].number)
-gh issue comment $ISSUE_NUMBER --body "📝 Draft PR created: #$PR_NUMBER"
-```
-
-### Step 10: Merge and Cleanup
-
-When PR is approved and ready:
-```bash
-# Merge the PR (this auto-closes the issue via "Closes #XX")
-gh pr merge $PR_NUMBER --squash --delete-branch
-
-# Or if merging manually, clean up after:
-git checkout main
-git pull origin main
-git branch -d $BRANCH_NAME
-git push origin --delete $BRANCH_NAME
-```
-
-### Step 11: Update Dependencies
-
-```bash
-# Check if this unblocks other issues
-gh issue list --label "blocked" --state open --json number,body | \
-  grep -l "Depends on #$ISSUE_NUMBER"
-# For each unblocked issue, remove blocked label
-```
+Check if this unblocks other issues:
+- Use mcp__github__list_issues with label "blocked"
+- For each, check if it depended on the completed issue
+- Remove "blocked" label if unblocked using mcp__github__update_issue
 
 ## Special Actions
 
 ### Deploy (--deploy)
-```bash
-vercel --prod --token=$VERCEL_TOKEN
-```
+!`vercel --prod`
 
 ### Test (--test)
-```bash
-npm test || pytest || echo "No test suite found"
-```
+!`npm test` or !`pytest` or appropriate test command
 
 ## Examples
 
@@ -282,15 +224,23 @@ npm test || pytest || echo "No test suite found"
 /work --test
 ```
 
+## Key Improvements in This Version
+
+1. **Worktree Support** - Automatically creates worktrees for parallel development
+2. **Issue Reference Enforcement** - Every commit references the issue for timeline tracking
+3. **No Manual PR Creation** - Automation handles PR when checkboxes complete
+4. **Template Compliance** - Uses `!` syntax, no bash code blocks
+5. **MCP Function Usage** - Proper use of mcp__github functions instead of complex bash
+6. **Checkbox-First Workflow** - Focus on issue completion, not PR management
+
 ## Intelligence Summary
 
 The `/work` command intelligently:
 - ✅ Checks sprint and project board
 - ✅ Analyzes dependencies and blockers
 - ✅ Prioritizes work that unblocks other work
-- ✅ Considers work in progress
-- ✅ Respects assignments and priorities
+- ✅ Manages worktrees for parallel development
+- ✅ Enforces issue references in all commits
 - ✅ Updates issue status throughout
-- ✅ Manages dependency chains
-- ✅ Cleans up branches after merge
-- ✅ Auto-deploys when configured
+- ✅ Lets automation handle PR lifecycle
+- ✅ Cleans up branches and worktrees after merge
