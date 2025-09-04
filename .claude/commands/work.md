@@ -80,18 +80,32 @@ Use mcp__github__get_issue to retrieve:
 
 **Check if worktrees are needed:**
 - Check existing worktrees: !`git worktree list`
-- If multiple active issues or parallel work detected, use worktree
+- Check current branch: !`git branch --show-current`
 
-**Create worktree if needed:**
+**If not on main branch:**
+Ask user: "You're currently on branch [BRANCH_NAME]. Would you like to:
+1. Create a worktree for issue #[ISSUE_NUMBER] (recommended for parallel work)
+2. Switch to main and work normally (will lose current branch context)
+3. Cancel and continue working on current branch
+
+Choose (1/2/3):"
+
+**Only create worktree if user chooses option 1:**
 ```bash
-# Check if we're already in a worktree
+# If user chooses worktree option
 WORKTREE_PATH="../worktrees/issue-$ISSUE_NUMBER-$ISSUE_TYPE"
 if ! git worktree list | grep -q "issue-$ISSUE_NUMBER"; then
   # Create worktree for this issue
   git worktree add "$WORKTREE_PATH" -b "$ISSUE_NUMBER-$ISSUE_TYPE"
-  cd "$WORKTREE_PATH"
+  echo "Created worktree at $WORKTREE_PATH"
+  echo "Run: cd $WORKTREE_PATH to switch to the worktree"
 fi
 ```
+
+**Note:** Worktrees are particularly useful when:
+- Multiple developers/agents work on different issues
+- You need to quickly switch between features
+- You want to preserve work on another branch
 
 ### Step 6: Create GitHub-Linked Branch
 
