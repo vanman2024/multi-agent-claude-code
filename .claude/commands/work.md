@@ -109,16 +109,11 @@ Ask user: "You're working on issue #[OTHER_ISSUE]. Would you like to:
 Choose (1/2/3):"
 
 **If user chooses worktree (option 1):**
-```bash
-# After gh issue develop created the branch
-BRANCH_NAME=$(git branch --show-current)
-WORKTREE_PATH="../worktrees/issue-$ISSUE_NUMBER"
-
-# Create worktree from the GitHub-linked branch
-git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"
-echo "Created worktree at $WORKTREE_PATH"
-echo "Run: cd $WORKTREE_PATH to continue work there"
-```
+- Get current branch: !`git branch --show-current`
+- Create worktree path: `../worktrees/issue-$ISSUE_NUMBER`
+- Create worktree: !`git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"`
+- Inform user: "Created worktree at $WORKTREE_PATH"
+- Instruct: "Run: cd $WORKTREE_PATH to continue work there"
 
 **Note:** Worktrees are secondary - branch creation via `gh issue develop` is primary!
 
@@ -127,11 +122,9 @@ echo "Run: cd $WORKTREE_PATH to continue work there"
 **CRITICAL: Set up automatic issue references in commits**
 
 Set up git commit template for this branch:
-```bash
-ISSUE_NUMBER=$(echo $BRANCH_NAME | grep -oP '^\d+')
-echo -e "\n\nRelated to #$ISSUE_NUMBER" > .gitmessage
-git config commit.template .gitmessage
-```
+- Extract issue number: !`echo $BRANCH_NAME | grep -oP '^\d+'`
+- Create template: !`echo -e "\n\nRelated to #$ISSUE_NUMBER" > .gitmessage`
+- Set template: !`git config commit.template .gitmessage`
 
 Remind user that ALL commits must reference the issue for GitHub timeline tracking.
 
@@ -171,20 +164,11 @@ Use mcp__github APIs:
 ### Step 11: Ensure All Commits Reference the Issue
 
 **For EVERY commit made during work:**
-```bash
-# Intermediate commits (NOT "Closes")
-git commit -m "feat: Add new feature
 
-Related to #$ISSUE_NUMBER"
-
-# OR
-git commit -m "fix: Update validation logic #$ISSUE_NUMBER"
-
-# OR  
-git commit -m "docs: Update README
-
-Part of #$ISSUE_NUMBER"
-```
+Example commit formats:
+- Feature: `feat: Add new feature\n\nRelated to #$ISSUE_NUMBER`
+- Bug fix: `fix: Update validation logic #$ISSUE_NUMBER`  
+- Documentation: `docs: Update README\n\nPart of #$ISSUE_NUMBER`
 
 **NEVER use "Closes #XX" except in the final PR description**
 
@@ -230,20 +214,12 @@ Check if this unblocks other issues:
 
 ## Examples
 
-```bash
-# Intelligent auto-selection
-/work
-# Finds: Issue #35 is unblocked and unblocks 3 other issues → selects it
+**Examples:**
 
-# Work on specific issue
-/work #42
-
-# Deploy current work
-/work --deploy
-
-# Run tests
-/work --test
-```
+- Intelligent auto-selection: `/work` → Finds issue #35 that unblocks 3 others
+- Work on specific issue: `/work #42`
+- Deploy current work: `/work --deploy` 
+- Run tests: `/work --test`
 
 ## Key Improvements in This Version
 
