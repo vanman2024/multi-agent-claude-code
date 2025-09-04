@@ -32,21 +32,22 @@ Use the Bash tool to verify you're on main with latest changes:
 
 **CRITICAL: Always check if a worktree already exists for the issue!**
 
-Parse `$ARGUMENTS` to get issue number if provided:
-- Extract issue number from `#123` or `123` format into `$ISSUE_NUMBER`
-- If issue number provided, check for existing worktree:
-  !`git worktree list | grep -E "issue-$ISSUE_NUMBER|$ISSUE_NUMBER-"`
+If `$ARGUMENTS` contains an issue number (e.g., `#123` or `123`):
+- Extract the number from `$ARGUMENTS` (remove # if present)
+- Check for existing worktree:
+  !`git worktree list | grep -E "issue-$ARGUMENTS|$ARGUMENTS-" | head -1`
 
-**If worktree exists for issue #$ISSUE_NUMBER:**
-- Display: "Found existing worktree for issue #$ISSUE_NUMBER at: $WORKTREE_PATH"
+**If worktree exists for the issue:**
+- Parse the worktree path from the output
+- Display: "Found existing worktree for issue $ARGUMENTS at: [path]"
 - Ask: "Do you want to continue working in the existing worktree? (y/n)"
-- If yes: Instruct user to `cd $WORKTREE_PATH` and work there
+- If yes: Instruct user to `cd [worktree_path]` and work there
 - If no: Ask if they want to remove it and start fresh
 
 **If no worktree but branch exists:**
-- Check: !`git branch -a | grep -E "$ISSUE_NUMBER-"`
-- If branch exists locally: Switch to it with !`git checkout $BRANCH_NAME`
-- If branch exists remotely: Check it out with !`git checkout -b $BRANCH_NAME origin/$BRANCH_NAME`
+- Check: !`git branch -a | grep -E "$ARGUMENTS-" | head -1`
+- If branch exists locally: Switch to it
+- If branch exists remotely: Check it out locally
 
 ### Step 2: Determine Work Mode
 
@@ -102,7 +103,7 @@ Use mcp__github__get_issue to retrieve:
 
 If no existing worktree was found in Step 1:
 
-!`gh issue develop $ISSUE_NUMBER --checkout`
+!`gh issue develop $ARGUMENTS --checkout`
 
 This command:
 - Creates the branch ON GitHub first (properly linked to issue)
@@ -135,7 +136,7 @@ Choose (1/2/3):"
 
 **If user chooses worktree (option 1):**
 - Get current branch: !`git branch --show-current`
-- Create worktree path: `../worktrees/issue-$ISSUE_NUMBER`
+- Create worktree path: `../worktrees/issue-$ARGUMENTS`
 - Create worktree: !`git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"`
 - Inform user: "Created worktree at $WORKTREE_PATH"
 - Instruct: "Run: cd $WORKTREE_PATH to continue work there"
@@ -148,7 +149,7 @@ Choose (1/2/3):"
 
 Set up git commit template for this branch:
 - Extract issue number: !`echo $BRANCH_NAME | grep -oP '^\d+'`
-- Create template: !`echo -e "\n\nRelated to #$ISSUE_NUMBER" > .gitmessage`
+- Create template: !`echo -e "\n\nRelated to #$ARGUMENTS" > .gitmessage`
 - Set template: !`git config commit.template .gitmessage`
 
 Remind user that ALL commits must reference the issue for GitHub timeline tracking.
@@ -187,11 +188,14 @@ Use mcp__github APIs:
 
 2. Create draft PR to trigger automation:
    ```bash
-   gh pr create \
-     --title "[DRAFT] Issue #$ISSUE_NUMBER: $ISSUE_TITLE" \
-     --body "## Working on Issue #$ISSUE_NUMBER
+   # Get issue title first
+   ISSUE_TITLE=$(gh issue view $ARGUMENTS --json title --jq .title)
    
-   **Closes #$ISSUE_NUMBER**
+   gh pr create \
+     --title "[DRAFT] Issue #$ARGUMENTS: $ISSUE_TITLE" \
+     --body "## Working on Issue #$ARGUMENTS
+   
+   **Closes #$ARGUMENTS**
    
    This draft PR tracks work progress and triggers automation.
    
@@ -275,9 +279,9 @@ For each TodoWrite checkbox item:
 **For EVERY commit made during work:**
 
 Example commit formats:
-- Feature: `feat: Add new feature\n\nRelated to #$ISSUE_NUMBER`
-- Bug fix: `fix: Update validation logic #$ISSUE_NUMBER`  
-- Documentation: `docs: Update README\n\nPart of #$ISSUE_NUMBER`
+- Feature: `feat: Add new feature\n\nRelated to #$ARGUMENTS`
+- Bug fix: `fix: Update validation logic #$ARGUMENTS`  
+- Documentation: `docs: Update README\n\nPart of #$ARGUMENTS`
 
 **NEVER use "Closes #XX" except in the PR description (already added)**
 
@@ -305,7 +309,7 @@ When PR is merged (by automation or manually):
 1. Checkout main: !`git checkout main`
 2. Pull latest: !`git pull origin main`
 3. Delete local branch: !`git branch -d $BRANCH_NAME`
-4. If using worktree, remove it: !`git worktree remove ../worktrees/issue-$ISSUE_NUMBER-*`
+4. If using worktree, remove it: !`git worktree remove ../worktrees/issue-$ARGUMENTS-*`
 
 ### Step 16: Update Dependencies
 
