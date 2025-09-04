@@ -194,7 +194,7 @@ Key documentation files:
 
 - `docs/WORKFLOW.md` - Complete development workflow
 - `docs/guides/TEMPLATE_PHILOSOPHY.md` - Core design principles  
-- `INFRASTRUCTURE_REQUIREMENTS.md` - Current implementation status
+- `docs/INFRASTRUCTURE_REQUIREMENTS.md` - Current implementation status
 - `CLAUDE.md` - AI assistant instructions
 
 ---

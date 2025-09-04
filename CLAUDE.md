@@ -475,7 +475,7 @@ Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude 
    ```
 2. **CHECK if topic is already covered**:
    - WORKFLOW.md covers ALL workflow-related topics
-   - CHECKBOXES.md covers ALL checkbox topics  
+   - docs/CHECKBOXES.md covers ALL checkbox topics  
    - CLAUDE.md covers ALL AI assistant instructions
    - MCP_SERVERS_GUIDE.md covers ALL MCP server topics
 3. **UPDATE existing docs instead of creating new ones**
@@ -483,7 +483,7 @@ Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude 
 
 **Examples of what NOT to do:**
 - ❌ Creating WORKFLOW_GUIDE.md when WORKFLOW.md exists
-- ❌ Creating CHECKBOX_STRATEGY.md when CHECKBOXES.md exists
+- ❌ Creating CHECKBOX_STRATEGY.md when docs/CHECKBOXES.md exists
 - ❌ Creating MCP_SETUP.md when MCP_SERVERS_GUIDE.md exists
 
 ### CRITICAL: File Naming Convention
@@ -515,8 +515,8 @@ During development, maintain ONLY these essential documents:
 - **WAIT for explicit request** before creating any new documentation
 
 ### Documentation Location Rules
-- Keep all docs in root directory during development
-- Only create /docs folder when transitioning to production
+- Keep all docs organized in /docs folder
+- Exception: README.md and CLAUDE.md remain in root
 - Never scatter README files throughout the codebase
 - Never create documentation subfolders until product launch
 
