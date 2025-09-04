@@ -330,6 +330,42 @@ These are typically ignored by git history anyway and creating issues/PRs for ev
    - Branch is deleted
    - Deployment triggers (if configured)
 
+### 📝 CRITICAL: All Commits Must Reference the Issue
+
+**GitHub requires explicit issue references in EVERY commit message** for them to appear in the issue timeline.
+
+Even though your branch is named `123-feature-name` and was created with `gh issue develop 123`, GitHub will NOT automatically link commits to the issue. This is a GitHub limitation.
+
+**EVERY commit must include the issue number:**
+```bash
+# ✅ CORRECT - These will show in issue timeline:
+git commit -m "feat: Add authentication
+
+Related to #123"
+
+git commit -m "fix: Update validation logic #123"
+
+git commit -m "docs: Update README
+
+Part of #123"
+
+# ❌ WRONG - These will NOT show in timeline:
+git commit -m "feat: Add authentication"  # No issue reference!
+```
+
+**Reference types to use:**
+- `Related to #123` - For most commits
+- `Part of #123` - For partial work
+- `Updates #123` - For updates
+- `#123` - Simple reference
+- `Closes #123` - ONLY in final PR or last commit (use once!)
+
+**Why this matters:**
+- Without references, commits are invisible in issue timeline
+- Can't track what work was done for an issue
+- Loses audit trail and traceability
+- Makes debugging and reviews difficult
+
 ### ❌ Common Mistakes to AVOID
 
 **NEVER DO THIS:**
