@@ -150,57 +150,60 @@ Use mcp__github APIs:
 1. Add "status:in-progress" label: `mcp__github__update_issue`
 2. Add starting work comment: `mcp__github__add_issue_comment`
 
-### Step 10: Work Through Issue Checkboxes - REAL-TIME MANAGEMENT
+### Step 10: Work Through Issue Checkboxes - BATCH SYNC APPROACH
 
-**CRITICAL: Actually parse, execute, and update checkboxes in GitHub**
+**CRITICAL: Work locally with TodoWrite, then batch sync to GitHub when complete**
 
-#### A. Parse Issue Checkboxes
+#### A. Parse Issue Checkboxes to TodoWrite
 Use mcp__github__get_issue to get the full issue body, then extract checkboxes:
-- Find all `- [ ]` (unchecked) and `- [x]` (checked) patterns
-- Create TodoWrite list mirroring the GitHub checkboxes
-- Track which checkboxes are already complete vs. pending
+- Find all `- [ ]` (unchecked) and `- [x]` (checked) patterns  
+- Create TodoWrite list with items like: "CHECKBOX 1: Add user authentication endpoints"
+- Track checkbox text exactly as it appears in GitHub
+- Work entirely in TodoWrite (fast, no API calls during work)
 
-#### B. Systematic Checkbox Execution
-For each unchecked checkbox:
+#### B. Systematic Local Execution
+For each TodoWrite checkbox item:
 
-1. **Parse the checkbox text** to understand what needs to be done
-2. **Determine implementation approach**:
+1. **Mark TodoWrite as in_progress**
+2. **Parse the checkbox text** to understand what needs to be done
+3. **Determine implementation approach**:
    - Code changes → Use Read/Write/Edit tools
-   - Testing → Run appropriate test commands
+   - Testing → Run appropriate test commands  
    - Documentation → Update relevant files
    - Configuration → Modify config files
+4. **Execute the checkbox task** using appropriate tools
+5. **Mark TodoWrite as completed** (locally only)
+6. **Make commits** with normal commit messages
+7. **Continue to next TodoWrite item**
 
-3. **Execute the checkbox task** using appropriate tools
+#### C. Batch Sync When All TodoWrite Complete
+**ONLY when ALL TodoWrite items are marked completed:**
 
-4. **Trigger automatic checkbox updates via commit**:
-   - Include checkbox completion markers in commit messages
-   - Use patterns: "✅ Completed: [checkbox text]" or "feat: [work] ✅ [checkbox]"
-   - Automation hook detects patterns and updates GitHub checkboxes
-   - Progress comments added automatically by the hook
+1. **Get current GitHub issue body** with mcp__github__get_issue
+2. **For each completed TodoWrite checkbox:**
+   - Find matching checkbox in issue body: `- [ ] [checkbox text]`
+   - Replace with: `- [x] [checkbox text]`
+3. **Update entire issue body at once** with mcp__github__update_issue  
+4. **Add single completion comment** with mcp__github__add_issue_comment:
+   ```
+   ✅ **All checkboxes completed!**
+   
+   **Completed tasks:**
+   - ✅ Add user authentication endpoints
+   - ✅ Create login form component  
+   - ✅ Add password validation
+   - ✅ Write unit tests
+   - ✅ Update documentation
+   
+   **Status:** Ready for PR creation via automation
+   ```
 
-5. **Mark local TodoWrite as completed**
-
-#### C. Automated Checkbox Update Pattern
-For each completed checkbox:
-```
-# Example checkbox: "- [ ] Add user authentication endpoints"
-
-1. Complete the implementation (add auth endpoints)
-2. Commit with completion marker:
-   "feat: Add user authentication API endpoints ✅ Add user authentication endpoints"
-3. Automation hook detects pattern and updates GitHub:
-   - Changes: "- [ ] Add user..." → "- [x] Add user..."
-   - Adds comment: "🤖 Auto-updated 1 checkbox from commit abc1234"
-4. Mark TodoWrite item complete
-```
-
-#### D. Automated Progress Updates
-After each commit with checkbox completion markers:
-- Hook automatically updates GitHub checkboxes immediately
-- Hook adds progress comment: "🤖 Auto-updated 1 checkbox from commit [sha]"
-- Existing issue-checklist-enforcer.yml provides overall progress: "📊 Issue Progress: 3/7 tasks (43%)"
-- User sees live progress updates without manual intervention
-- Creates automated conversation between commits and GitHub
+#### D. Efficient Batch Approach Benefits
+- **No API rate limiting** - Single update instead of multiple
+- **Atomic update** - All checkboxes change together  
+- **Fast local work** - TodoWrite operations are instant
+- **Clear completion signal** - One comment when everything is done
+- **Reliable sync** - Direct mapping between TodoWrite and GitHub checkboxes
 
 **DO NOT manually create a PR - automation will handle it when ALL checkboxes are complete**
 
@@ -277,37 +280,45 @@ Check if this unblocks other issues:
 
 **When `/work #42` runs:**
 
-1. **Parse checkboxes**: Creates 5 TodoWrite items matching GitHub
-2. **Execute first checkbox**: "Add user authentication API endpoint"
-   - Implements auth endpoint code
-   - Commits: `"feat: Add auth API endpoint ✅ Add user authentication API endpoint"`
-   - Hook auto-updates: `- [ ] Add user...` → `- [x] Add user...`
-   - Hook comments: "🤖 Auto-updated 1 checkbox from commit abc1234"
-   - Progress tracker shows: "📊 Issue Progress: 1/5 tasks (20%)"
+1. **Parse checkboxes**: Creates 5 TodoWrite items locally
+   ```
+   - CHECKBOX 1: Add user authentication API endpoint (pending)
+   - CHECKBOX 2: Create login form component (pending)  
+   - CHECKBOX 3: Add password validation (pending)
+   - CHECKBOX 4: Write unit tests (pending)
+   - CHECKBOX 5: Update documentation (pending)
+   ```
 
-3. **Execute second checkbox**: "Create login form component"
-   - Implements login form
-   - Commits: `"feat: Create login form ✅ Create login form component"`
-   - Hook auto-updates: `- [ ] Create login...` → `- [x] Create login...`
-   - Hook comments: "🤖 Auto-updated 1 checkbox from commit def5678"
-   - Progress tracker shows: "📊 Issue Progress: 2/5 tasks (40%)"
+2. **Work through TodoWrite locally** (fast, no GitHub API calls):
+   - Mark item 1 in_progress → implement auth endpoint → mark completed
+   - Commit: `"feat: Add user authentication API endpoint"`
+   - Mark item 2 in_progress → implement login form → mark completed  
+   - Commit: `"feat: Create login form component"`
+   - Continue until all 5 TodoWrite items are completed
 
-4. **Continues systematically** until all 5 checkboxes complete
-5. **Final state**: Issue body shows all `- [x]` checked, timeline shows progress
-6. **Automation triggers**: Creates PR when all checkboxes complete
+3. **Batch sync when ALL TodoWrite complete**:
+   - Get GitHub issue body
+   - Update all checkboxes at once: `- [ ]` → `- [x]` for all 5
+   - Single GitHub update with mcp__github__update_issue
+   - Add completion comment: "✅ All checkboxes completed!"
 
-**Result**: User sees automated updates in GitHub issue, progress tracked automatically via commit hooks
+4. **Final result**: 
+   - All GitHub checkboxes show `- [x]` simultaneously
+   - One completion comment instead of 5 individual ones
+   - Automation detects all checkboxes complete → creates PR
+
+**Result**: Efficient batch update, no API rate limits, atomic checkbox completion
 
 ## Key Improvements in This Version
 
-1. **Automated Checkbox Management** - Parses checkboxes, executes work, updates via commit hooks
+1. **Batch Checkbox Management** - Parses checkboxes, works locally, batch syncs to GitHub when complete
 2. **Worktree Support** - Automatically creates worktrees for parallel development
 3. **Issue Reference Enforcement** - Every commit references the issue for timeline tracking
 4. **No Manual PR Creation** - Automation handles PR when checkboxes complete
 5. **Template Compliance** - Uses `!` syntax, no bash code blocks
 6. **MCP Function Usage** - Proper use of mcp__github functions instead of complex bash
 7. **Checkbox-First Workflow** - Focus on issue completion, not PR management
-8. **Automated GitHub Integration** - Commit hooks create automated conversation with GitHub
+8. **Batch GitHub Integration** - Single atomic update when all TodoWrite items complete
 
 ## Intelligence Summary
 
@@ -315,9 +326,9 @@ The `/work` command intelligently:
 - ✅ Checks sprint and project board
 - ✅ Analyzes dependencies and blockers
 - ✅ Prioritizes work that unblocks other work
-- ✅ Parses and executes GitHub issue checkboxes systematically
-- ✅ Updates GitHub checkboxes automatically via commit hooks
-- ✅ Creates automated conversation between commits and GitHub
+- ✅ Parses GitHub checkboxes into local TodoWrite items
+- ✅ Executes checkbox work efficiently using local TodoWrite
+- ✅ Batch syncs completed TodoWrite to GitHub when all tasks done
 - ✅ Manages worktrees for parallel development
 - ✅ Enforces issue references in all commits
 - ✅ Updates issue status throughout
