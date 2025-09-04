@@ -91,11 +91,13 @@ Use mcp__github__get_issue to retrieve:
 - Implementation checklist from body
 - Comments for additional context
 
-### Step 6: Create GitHub-Linked Branch (If No Worktree Exists)
+### Step 6: Create GitHub-Linked Branch and Draft PR (If No Worktree Exists)
 
 **CRITICAL: Only create branch if no worktree exists!**
 
 If no existing worktree was found in Step 1:
+
+#### 6a. Create the branch:
 !`gh issue develop $ISSUE_NUMBER --checkout`
 
 This command:
@@ -107,7 +109,40 @@ This command:
 Get the created branch name:
 !`git branch --show-current`
 
-**Important:** The branch name will be something like `123-feature-description` based on the issue.
+#### 6b. Create Draft PR Immediately:
+**IMPORTANT: Create draft PR right away to trigger automation!**
+
+Push the branch and create draft PR:
+!`git push -u origin $BRANCH_NAME`
+
+Then create the draft PR with issue linkage:
+```bash
+gh pr create \
+  --title "[DRAFT] Issue #$ISSUE_NUMBER: $ISSUE_TITLE" \
+  --body "## Working on Issue #$ISSUE_NUMBER
+
+**Closes #$ISSUE_NUMBER**
+
+This is a draft PR to track work progress and trigger automation.
+
+### Checkboxes from issue:
+[Will be validated by automation]
+
+### Status:
+- [ ] Implementation in progress
+- [ ] Tests added/passing
+- [ ] Linting passing
+- [ ] Ready for review" \
+  --draft \
+  --base main
+```
+
+This draft PR:
+- Triggers checkbox validation workflows
+- Enables preview deployments (if configured)
+- Shows progress in GitHub UI
+- Can be closed if work is abandoned
+- Converts to ready when work is complete
 
 ### Step 7: Optional Additional Worktree (if parallel work needed)
 
@@ -165,9 +200,10 @@ Use Task tool with appropriate agent:
 
 Use mcp__github APIs:
 1. Add "status:in-progress" label: `mcp__github__update_issue`
-2. Add starting work comment: `mcp__github__add_issue_comment`
+2. Add starting work comment with PR link: `mcp__github__add_issue_comment`
+   - Include: "🚀 Started work in PR #[PR_NUMBER]"
 
-### Step 10: Work Through Issue Checkboxes - BATCH SYNC APPROACH
+### Step 11: Work Through Issue Checkboxes with PR Validation
 
 **CRITICAL: Work locally with TodoWrite, then batch sync to GitHub when complete**
 
@@ -222,9 +258,9 @@ For each TodoWrite checkbox item:
 - **Clear completion signal** - One comment when everything is done
 - **Reliable sync** - Direct mapping between TodoWrite and GitHub checkboxes
 
-**DO NOT manually create a PR - automation will handle it when ALL checkboxes are complete**
+**Draft PR was already created in Step 6b to trigger automation**
 
-### Step 11: Ensure All Commits Reference the Issue
+### Step 12: Ensure All Commits Reference the Issue
 
 **For EVERY commit made during work:**
 
@@ -233,26 +269,27 @@ Example commit formats:
 - Bug fix: `fix: Update validation logic #$ISSUE_NUMBER`  
 - Documentation: `docs: Update README\n\nPart of #$ISSUE_NUMBER`
 
-**NEVER use "Closes #XX" except in the final PR description**
+**NEVER use "Closes #XX" except in the PR description (already added)**
 
-### Step 12: Run Tests and Validation
+### Step 13: Run Tests and Validation
 
 Before marking work complete:
 !`npm test` or !`pytest` depending on project
 !`npm run lint` or appropriate linter
 !`npm run typecheck` if TypeScript project
 
-### Step 13: Let Automation Create the PR
+### Step 14: Convert Draft PR to Ready
 
-**When all checkboxes are complete:**
-1. Push your branch: !`git push -u origin $BRANCH_NAME`
-2. The automation workflow will detect completed checkboxes
-3. It will automatically create the PR with proper "Closes #XX" link
-4. PR will transition from draft to ready automatically
+**When all checkboxes are complete and tests pass:**
 
-**DO NOT manually create PRs with gh pr create**
+1. Push final changes: !`git push`
+2. Convert draft to ready: !`gh pr ready $PR_NUMBER`
+3. The PR is now ready for review/merge
+4. Automation may auto-merge if all checks pass
 
-### Step 14: Clean Up After Merge
+**The draft PR was already created in Step 6b**
+
+### Step 15: Clean Up After Merge
 
 When PR is merged (by automation or manually):
 1. Checkout main: !`git checkout main`
@@ -260,7 +297,7 @@ When PR is merged (by automation or manually):
 3. Delete local branch: !`git branch -d $BRANCH_NAME`
 4. If using worktree, remove it: !`git worktree remove ../worktrees/issue-$ISSUE_NUMBER-*`
 
-### Step 15: Update Dependencies
+### Step 16: Update Dependencies
 
 Check if this unblocks other issues:
 - Use mcp__github__list_issues with label "blocked"
