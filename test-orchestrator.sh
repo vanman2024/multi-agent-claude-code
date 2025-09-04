@@ -77,9 +77,12 @@ check_implementation "Issue listing" "mcp__github__list_issues"
 check_implementation "Priority checking" "priority.*P0.*P1.*P2"
 check_implementation "Blocker analysis" "blocked.*label"
 
-log_test "Scenario 7: Checkbox Workflow" "Should work through issue checkboxes systematically"
-check_implementation "Checkbox mention" "checkbox"
-check_implementation "TodoWrite usage" "TodoWrite"
+log_test "Scenario 7: Real-Time Checkbox Management" "Should parse, execute, and update GitHub checkboxes live"
+check_implementation "Checkbox parsing" "Parse Issue Checkboxes"
+check_implementation "Real-time updates" "Update GitHub checkbox in real-time"
+check_implementation "MCP GitHub integration" "mcp__github__update_issue"
+check_implementation "Progress comments" "Add progress comment"
+check_implementation "TodoWrite synchronization" "TodoWrite"
 
 log_test "Scenario 8: Template Compliance" "Should use ! syntax and MCP functions"
 BASH_BLOCKS=$(grep -c '```bash' .claude/commands/work.md || echo 0)
@@ -196,6 +199,19 @@ git config --get commit.template
 # Expected: Analysis of available issues
 # Expected: Explanation of WHY specific issue was selected
 # Expected: Priority/blocker analysis
+```
+
+### Test Scenario 8: Real-Time Checkbox Management
+```bash
+# Test with issue containing checkboxes
+/work #126  # This issue should have checkboxes
+
+# Expected: Parse and display all checkboxes found
+# Expected: Work through each checkbox systematically  
+# Expected: Update GitHub after each checkbox completion
+# Expected: Add progress comments to issue timeline
+# Expected: Show "✅ Completed X/Y checkboxes" progress
+# Expected: Final state shows all checkboxes as [x] in GitHub
 ```
 
 EOF

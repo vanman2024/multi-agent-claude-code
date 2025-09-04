@@ -150,16 +150,57 @@ Use mcp__github APIs:
 1. Add "status:in-progress" label: `mcp__github__update_issue`
 2. Add starting work comment: `mcp__github__add_issue_comment`
 
-### Step 10: Work Through Issue Checkboxes
+### Step 10: Work Through Issue Checkboxes - REAL-TIME MANAGEMENT
 
-**CRITICAL: Focus on completing issue checkboxes, NOT creating PRs**
+**CRITICAL: Actually parse, execute, and update checkboxes in GitHub**
 
-1. Parse issue body to extract checkboxes
-2. Work through each checkbox systematically
-3. Update issue with progress as you complete items
-4. Use TodoWrite tool to track local progress
+#### A. Parse Issue Checkboxes
+Use mcp__github__get_issue to get the full issue body, then extract checkboxes:
+- Find all `- [ ]` (unchecked) and `- [x]` (checked) patterns
+- Create TodoWrite list mirroring the GitHub checkboxes
+- Track which checkboxes are already complete vs. pending
 
-**DO NOT manually create a PR - automation will handle it when checkboxes are complete**
+#### B. Systematic Checkbox Execution
+For each unchecked checkbox:
+
+1. **Parse the checkbox text** to understand what needs to be done
+2. **Determine implementation approach**:
+   - Code changes → Use Read/Write/Edit tools
+   - Testing → Run appropriate test commands
+   - Documentation → Update relevant files
+   - Configuration → Modify config files
+
+3. **Execute the checkbox task** using appropriate tools
+
+4. **Update GitHub checkbox in real-time**:
+   - Get current issue body with mcp__github__get_issue
+   - Replace `- [ ] Task description` with `- [x] Task description`
+   - Update issue body with mcp__github__update_issue
+   - Add progress comment with mcp__github__add_issue_comment
+
+5. **Mark local TodoWrite as completed**
+
+#### C. Checkbox Update Function Pattern
+For each completed checkbox:
+```
+# Example checkbox: "- [ ] Add user authentication endpoints"
+
+1. Complete the implementation (add auth endpoints)
+2. Update GitHub:
+   - Replace: "- [ ] Add user authentication endpoints" 
+   - With: "- [x] Add user authentication endpoints"
+3. Comment: "✅ Completed: Add user authentication endpoints"
+4. Mark TodoWrite item complete
+```
+
+#### D. Real-Time Progress Updates
+After each checkbox completion:
+- Update issue body immediately (don't wait for all to complete)
+- Add comment showing progress: "✅ Completed 3/7 checkboxes"
+- User sees live progress in GitHub issue timeline
+- Creates back-and-forth conversation between Claude and GitHub
+
+**DO NOT manually create a PR - automation will handle it when ALL checkboxes are complete**
 
 ### Step 11: Ensure All Commits Reference the Issue
 
@@ -221,14 +262,48 @@ Check if this unblocks other issues:
 - Deploy current work: `/work --deploy` 
 - Run tests: `/work --test`
 
+## Real-Time Checkbox Implementation Example
+
+**Issue #42 has checkboxes:**
+```
+- [ ] Add user authentication API endpoint
+- [ ] Create login form component
+- [ ] Add password validation
+- [ ] Write unit tests
+- [ ] Update documentation
+```
+
+**When `/work #42` runs:**
+
+1. **Parse checkboxes**: Creates 5 TodoWrite items matching GitHub
+2. **Execute first checkbox**: "Add user authentication API endpoint"
+   - Implements auth endpoint code
+   - Updates GitHub: `- [ ] Add user...` → `- [x] Add user...`
+   - Comments: "✅ Completed: Add user authentication API endpoint"
+   - Shows: "✅ Completed 1/5 checkboxes"
+
+3. **Execute second checkbox**: "Create login form component"
+   - Implements login form
+   - Updates GitHub: `- [ ] Create login...` → `- [x] Create login...`
+   - Comments: "✅ Completed: Create login form component" 
+   - Shows: "✅ Completed 2/5 checkboxes"
+
+4. **Continues systematically** until all 5 checkboxes complete
+5. **Final state**: Issue body shows all `- [x]` checked, timeline shows progress
+6. **Automation triggers**: Creates PR when all checkboxes complete
+
+**Result**: User sees real-time updates in GitHub issue, full conversation history
+
 ## Key Improvements in This Version
 
-1. **Worktree Support** - Automatically creates worktrees for parallel development
-2. **Issue Reference Enforcement** - Every commit references the issue for timeline tracking
-3. **No Manual PR Creation** - Automation handles PR when checkboxes complete
-4. **Template Compliance** - Uses `!` syntax, no bash code blocks
-5. **MCP Function Usage** - Proper use of mcp__github functions instead of complex bash
-6. **Checkbox-First Workflow** - Focus on issue completion, not PR management
+1. **Real-Time Checkbox Management** - Parses, executes, and updates GitHub checkboxes live
+2. **Worktree Support** - Automatically creates worktrees for parallel development
+3. **Issue Reference Enforcement** - Every commit references the issue for timeline tracking
+4. **No Manual PR Creation** - Automation handles PR when checkboxes complete
+5. **Template Compliance** - Uses `!` syntax, no bash code blocks
+6. **MCP Function Usage** - Proper use of mcp__github functions instead of complex bash
+7. **Checkbox-First Workflow** - Focus on issue completion, not PR management
+8. **Back-and-Forth GitHub Integration** - Creates live conversation between Claude and GitHub
 
 ## Intelligence Summary
 
@@ -236,6 +311,9 @@ The `/work` command intelligently:
 - ✅ Checks sprint and project board
 - ✅ Analyzes dependencies and blockers
 - ✅ Prioritizes work that unblocks other work
+- ✅ Parses and executes GitHub issue checkboxes systematically
+- ✅ Updates GitHub checkboxes in real-time during work
+- ✅ Creates live conversation between Claude and GitHub
 - ✅ Manages worktrees for parallel development
 - ✅ Enforces issue references in all commits
 - ✅ Updates issue status throughout
