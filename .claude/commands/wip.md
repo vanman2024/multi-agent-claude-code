@@ -40,10 +40,18 @@ Create a simple todo:
 - Status: "in_progress"
 - ActiveForm: "Working on: [branch name]"
 
-### Step 5: Tell user what happened
+### Step 5: Push branch to GitHub
+
+Push the new branch to GitHub so it's visible there:
+Run: !`git push -u origin HEAD`
+
+This makes the branch visible on GitHub even though there's no PR yet.
+
+### Step 6: Tell user what happened
 
 Say:
 - "Created branch: [branch name]"
+- "Pushed to GitHub - you can see it at github.com/vanman2024/multi-agent-claude-code/branches"
 - "This is for iterative work - no issue created"
-- "Commit with: git add -A && git commit -m 'wip: your message'"
+- "Commit and push: git add -A && git commit -m 'wip: message' && git push"
 - "Create PR when ready: gh pr create --fill"
