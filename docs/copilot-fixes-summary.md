@@ -36,6 +36,13 @@ Copilot PRs were getting stuck with "16-27 workflows awaiting approval" because 
 ### Test PR
 PR #149 - Created by Copilot to test the fixes
 
+### Future Work Needed
+- **Smart Deployment Filtering**: Vercel currently deploys ALL changes, even trivial ones
+  - Should skip deployments for: docs/, .github/, test files, config files
+  - Should only deploy when /src or /app directories change
+  - Preview deployments might be OK, but need better filtering
+  - Production should ONLY deploy from main branch after merge
+
 ### Commits Made (directly to main)
 - d3e9757 fix: Block Vercel deployment for draft PRs
 - c4b4211 fix: Block Vercel deployments for Copilot PRs
