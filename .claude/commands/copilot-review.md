@@ -6,6 +6,26 @@ argument-hint: [PR-number] [--quick|--thorough]
 
 # Copilot Review - Handle Copilot-Created PRs
 
+<!--
+WHEN TO USE THIS COMMAND:
+- After Copilot creates a PR from an issue
+- To review and merge Copilot's work
+- When you see "Copilot-agent opened PR #X"
+
+WORKFLOW OPTIONS:
+--quick    : Trust Copilot, just run tests and merge
+--thorough : Full review, tests, local validation
+
+WHAT IT DOES:
+1. Pulls Copilot's branch locally
+2. Reviews the changes
+3. Runs tests
+4. Merges if everything passes
+5. CRITICAL: Pulls main after merge
+
+REMEMBER: Always pull main after ANY PR merges!
+-->
+
 ## Context
 - Open PRs: !`gh pr list --state open --json number,title,author`
 - Copilot PRs: !`gh pr list --state open --author app/github-copilot-agent --json number,title,isDraft`
