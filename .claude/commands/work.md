@@ -1,7 +1,7 @@
 ---
 allowed-tools: Task(*), mcp__github(*), Bash(*), Read(*), Write(*), Edit(*), TodoWrite(*)
 description: Intelligently selects and implements work based on sprint priorities and dependencies
-argument-hint: [#issue-number] [--deploy] [--test]
+argument-hint: [#issue-number] [--deploy] [--discussion #num]
 ---
 
 # Work - Intelligent Implementation Command
@@ -28,22 +28,93 @@ Use the Bash tool to verify you're on main with latest changes:
 
 **DO NOT PROCEED if not on main with latest changes!**
 
-### Step 1: Determine Work Mode and Select Issue
+### Step 1: Parse Arguments and Determine Work Mode
 
-Parse `$ARGUMENTS` to determine action:
-- If `#123` or `123` provided → Set `ISSUE_NUM` to that specific issue
-- If `--deploy` → deploy current branch to Vercel
-- If `--test` → run test suite
-- If no arguments → intelligently select next work item (see Step 2)
+Parse `$ARGUMENTS` for flags and issue number:
 
-### Step 2: Intelligent Work Selection (when no issue specified)
+**Flag Parsing Pattern:**
+```bash
+# Extract flags and issue number from arguments
+ISSUE_NUM=""
+DEPLOY_FLAG=false
+DISCUSSION_NUM=""
 
-If no issue number was provided, select one:
+# Parse arguments
+for arg in $ARGUMENTS; do
+  case "$arg" in
+    --deploy) DEPLOY_FLAG=true ;;
+    --discussion) NEXT_IS_DISCUSSION=true ;;
+    *)
+      if [[ "$NEXT_IS_DISCUSSION" == "true" ]]; then
+        DISCUSSION_NUM="${arg#\#}"  # Remove # if present
+        NEXT_IS_DISCUSSION=false
+      elif [[ "$arg" =~ ^#?[0-9]+$ ]]; then
+        ISSUE_NUM="${arg#\#}"  # Remove # if present
+      fi
+      ;;
+  esac
+done
+```
+
+**Determine Action:**
+- If `ISSUE_NUM` set → Work on that specific issue
+- If `DEPLOY_FLAG` → Deploy current branch to Vercel
+- If `DISCUSSION_NUM` set → Create issue linked to discussion
+- If no arguments → Intelligently select next work item (see Step 2)
+
+### Step 2: Handle Discussion-Linked Issue Creation
+
+**If `DISCUSSION_NUM` is set:**
+
+1. Get discussion details:
+   ```bash
+   gh api graphql -f query='
+   query($owner: String!, $repo: String!, $number: Int!) {
+     repository(owner: $owner, name: $repo) {
+       discussion(number: $number) {
+         title
+         body
+         category { name }
+         author { login }
+       }
+     }
+   }'
+   ```
+
+2. Create issue from discussion:
+   ```bash
+   gh issue create \
+     --title "[FROM DISCUSSION #$DISCUSSION_NUM] $DISCUSSION_TITLE" \
+     --body "## Related Discussion
+   
+   This issue was created from Discussion #$DISCUSSION_NUM
+   
+   **Discussion Link:** https://github.com/$OWNER/$REPO/discussions/$DISCUSSION_NUM
+   
+   ## Original Context
+   
+   $DISCUSSION_BODY
+   
+   ## Implementation Plan
+   
+   - [ ] Review discussion context
+   - [ ] Define implementation approach
+   - [ ] Implement solution
+   - [ ] Test implementation
+   - [ ] Update documentation if needed"
+   ```
+
+3. Set `ISSUE_NUM` to the newly created issue number
+4. Continue with normal workflow
+
+### Step 3: Intelligent Work Selection (when no issue specified)
+
+If no issue number was provided and no discussion referenced, select one:
 - Check sprint, priorities, dependencies
 - Select best issue to work on
 - Set `ISSUE_NUM` to the selected issue number
 
-### Step 3: Check for Existing Worktrees/Branches
+### Step 4: Check for Existing Worktrees/Branches
 
 **NOW check if a worktree or branch already exists for `ISSUE_NUM`:**
 
@@ -62,15 +133,14 @@ Check for existing worktree:
 - If branch exists locally: Switch to it
 - If branch exists remotely: Check it out locally
 
-### Step 4: Determine Final Work Mode
+### Step 5: Determine Final Work Mode
 
 After handling worktrees/branches, determine final action:
-- If `#123` provided → work on that specific issue
-- If `--deploy` → deploy current branch to Vercel
-- If `--test` → run test suite
-- If no arguments → intelligently select next work item
+- If `ISSUE_NUM` set → work on that specific issue
+- If `DEPLOY_FLAG` → deploy current branch to Vercel
+- Continue with issue implementation
 
-### Step 5: Advanced Work Selection Details
+### Step 6: Advanced Work Selection Details
 
 #### Check Current Sprint
 Use mcp__github__list_issues with label filter "sprint:current" to find sprint work.
@@ -94,14 +164,14 @@ For each potential issue:
 4. **Continue in-progress work** - If user has work in progress, suggest continuing it
 5. **Next in sprint sequence** - Follow logical order if issues are numbered sequentially
 
-### Step 6: Verify Selection Is Valid
+### Step 7: Verify Selection Is Valid
 
 Before starting work, use mcp__github__get_issue to verify:
 - No "blocked" label
 - All dependencies (if any) are closed
 - Not already assigned to someone else
 
-### Step 7: Get Complete Issue Context
+### Step 8: Get Complete Issue Context
 
 Use mcp__github__get_issue to retrieve:
 - Title and full description
@@ -110,11 +180,11 @@ Use mcp__github__get_issue to retrieve:
 - Implementation checklist from body
 - Comments for additional context
 
-### Step 8: Create GitHub-Linked Branch (If No Worktree Exists)
+### Step 9: Create GitHub-Linked Branch (If No Worktree Exists)
 
 **CRITICAL: Only create branch if no worktree exists!**
 
-If no existing worktree was found in Step 3:
+If no existing worktree was found in Step 4:
 
 !`gh issue develop $ISSUE_NUM --checkout`
 
@@ -129,9 +199,9 @@ Get the created branch name:
 
 **Important:** The branch name will be something like `123-feature-description` based on the issue.
 
-**Note:** Draft PR will be created after your first meaningful commit (see Step 13a)
+**Note:** Draft PR will be created after your first meaningful commit (see Step 14a)
 
-### Step 9: Optional Additional Worktree (if parallel work needed)
+### Step 10: Optional Additional Worktree (if parallel work needed)
 
 **Only if user needs to work on multiple issues simultaneously:**
 
@@ -156,7 +226,7 @@ Choose (1/2/3):"
 
 **Note:** Worktrees are secondary - branch creation via `gh issue develop` is primary!
 
-### Step 10: Configure Git for Issue Tracking
+### Step 11: Configure Git for Issue Tracking
 
 **CRITICAL: Set up automatic issue references in commits**
 
@@ -167,7 +237,7 @@ Set up git commit template for this branch:
 
 Remind user that ALL commits must reference the issue for GitHub timeline tracking.
 
-### Step 11: Implementation Routing
+### Step 12: Implementation Routing
 
 Based on issue labels (complexity and size):
 
@@ -183,16 +253,16 @@ Use Task tool with appropriate agent:
 - **Security** → security-auth-compliance agent
 - **Integration** → integration-architect agent
 
-### Step 12: Update Issue Status
+### Step 13: Update Issue Status
 
 Use mcp__github APIs:
 1. Add "status:in-progress" label: `mcp__github__update_issue`
 2. Add starting work comment with PR link: `mcp__github__add_issue_comment`
    - Include: "🚀 Started work in PR #[PR_NUMBER]"
 
-### Step 13: Work Through Issue Checkboxes
+### Step 14: Work Through Issue Checkboxes
 
-#### 13a. Create Draft PR After First Commit
+#### 14a. Create Draft PR After First Commit
 
 **After making your first meaningful commit:**
 
@@ -234,14 +304,14 @@ This draft PR:
 - Can be abandoned if needed
 - Converts to ready when complete
 
-#### 13b. Parse Issue Checkboxes to TodoWrite
+#### 14b. Parse Issue Checkboxes to TodoWrite
 Use mcp__github__get_issue to get the full issue body, then extract checkboxes:
 - Find all `- [ ]` (unchecked) and `- [x]` (checked) patterns  
 - Create TodoWrite list with items like: "CHECKBOX 1: Add user authentication endpoints"
 - Track checkbox text exactly as it appears in GitHub
 - Work entirely in TodoWrite (fast, no API calls during work)
 
-#### 13c. Systematic Local Execution
+#### 14c. Systematic Local Execution
 For each TodoWrite checkbox item:
 
 1. **Mark TodoWrite as in_progress**
@@ -278,16 +348,16 @@ For each TodoWrite checkbox item:
    **Status:** Ready for PR creation via automation
    ```
 
-#### 13d. Efficient Batch Approach Benefits
+#### 14d. Efficient Batch Approach Benefits
 - **No API rate limiting** - Single update instead of multiple
 - **Atomic update** - All checkboxes change together  
 - **Fast local work** - TodoWrite operations are instant
 - **Clear completion signal** - One comment when everything is done
 - **Reliable sync** - Direct mapping between TodoWrite and GitHub checkboxes
 
-**Draft PR was already created in Step 13a after first commit**
+**Draft PR was already created in Step 14a after first commit**
 
-### Step 14: Ensure All Commits Reference the Issue
+### Step 15: Ensure All Commits Reference the Issue
 
 **For EVERY commit made during work:**
 
@@ -298,14 +368,14 @@ Example commit formats:
 
 **NEVER use "Closes #XX" except in the PR description (already added)**
 
-### Step 15: Run Tests and Validation
+### Step 16: Run Tests and Validation
 
 Before marking work complete:
 !`npm test` or !`pytest` depending on project
 !`npm run lint` or appropriate linter
 !`npm run typecheck` if TypeScript project
 
-### Step 16: Convert Draft PR to Ready
+### Step 17: Convert Draft PR to Ready
 
 **When all checkboxes are complete and tests pass:**
 
@@ -314,9 +384,9 @@ Before marking work complete:
 3. The PR is now ready for review/merge
 4. Automation may auto-merge if all checks pass
 
-**The draft PR was already created in Step 13a**
+**The draft PR was already created in Step 14a**
 
-### Step 17: Clean Up After Merge
+### Step 18: Clean Up After Merge
 
 When PR is merged (by automation or manually):
 1. Checkout main: !`git checkout main`
@@ -324,7 +394,7 @@ When PR is merged (by automation or manually):
 3. Delete local branch: !`git branch -d $BRANCH_NAME`
 4. If using worktree, remove it: !`git worktree remove ../worktrees/issue-$ISSUE_NUM-*`
 
-### Step 18: Update Dependencies
+### Step 19: Update Dependencies
 
 Check if this unblocks other issues:
 - Use mcp__github__list_issues with label "blocked"
@@ -336,17 +406,14 @@ Check if this unblocks other issues:
 ### Deploy (--deploy)
 !`vercel --prod`
 
-### Test (--test)
-!`npm test` or !`pytest` or appropriate test command
-
 ## Examples
 
 **Examples:**
 
 - Intelligent auto-selection: `/work` → Finds issue #35 that unblocks 3 others
 - Work on specific issue: `/work #42`
-- Deploy current work: `/work --deploy` 
-- Run tests: `/work --test`
+- Create issue from discussion: `/work --discussion 125`
+- Deploy current work: `/work --deploy`
 
 ## Real-Time Checkbox Implementation Example
 
