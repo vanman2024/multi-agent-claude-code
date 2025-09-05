@@ -311,15 +311,23 @@ Please address these issues and request another review."
 fi
 ```
 
-### Step 5: Post-Merge Actions
+### Step 5: Post-Merge Actions (CRITICAL)
 
 After merging (either workflow):
 
 ```bash
-# Sync local main with remote
-echo "🔄 Syncing local repository..."
+# CRITICAL: Sync local main with remote
+echo "🔄 Syncing local repository with GitHub..."
+echo "ℹ️  The merge happened on GitHub - local main is still behind!"
 git checkout main
 git pull origin main
+echo "✅ Local main now has Copilot's merged changes"
+
+# Why this pull is necessary:
+# - gh pr merge (or web merge) happens on GitHub's servers
+# - Your local main branch doesn't get updated automatically
+# - Without this pull, you'd be working on outdated code
+# - This ensures your next work starts from the latest main
 
 # Check for any follow-up issues
 RELATED_ISSUE=$(gh pr view $PR_NUMBER --json body --jq '.body' | grep -oE "Closes #[0-9]+" | grep -oE "[0-9]+")
@@ -355,7 +363,9 @@ echo "📋 Checking project board status..."
 
 - **Quick workflow** is for simple, critical fixes where CI is passing
 - **Thorough workflow** is for complex changes needing detailed review
-- Always pull latest main after merging to stay in sync
+- **CRITICAL**: The final `git pull` is REQUIRED after merging! Merges happen on GitHub's servers, not locally
+- **Without the pull**: Your local main stays behind even though YOU just merged the PR
+- **The workflow ensures**: Review → Merge on GitHub → Pull to sync local
 - If Copilot's PR has conflicts, resolve locally before merging
 - Project board updates happen automatically via GitHub Actions
 - Use this command specifically for Copilot-created PRs
