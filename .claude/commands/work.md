@@ -312,29 +312,21 @@ Use mcp__github APIs:
    !`git push -u origin $BRANCH_NAME`
 
 2. Create draft PR to trigger automation:
-   ```bash
-   # Get issue title first
-   ISSUE_TITLE=$(gh issue view $ISSUE_NUM --json title --jq .title)
-   
-   gh pr create \
-     --title "[DRAFT] Issue #$ISSUE_NUM: $ISSUE_TITLE" \
-     --body "## Working on Issue #$ISSUE_NUM
-   
-   **Closes #$ISSUE_NUM**
-   
-   This draft PR tracks work progress and triggers automation.
-   
-   ### Implementation Progress:
-   Work in progress - checkboxes will be validated by automation
-   
-   ### Status:
-   - [ ] Implementation in progress
-   - [ ] Tests added/passing
-   - [ ] Linting passing
-   - [ ] Ready for review" \
-     --draft \
-     --base main
-   ```
+   - Get issue title first: !`ISSUE_TITLE=$(gh issue view $ISSUE_NUM --json title --jq .title)`
+   - Create draft PR: !`gh pr create --title "[DRAFT] Issue #$ISSUE_NUM: $ISSUE_TITLE" --body "## Working on Issue #$ISSUE_NUM
+
+**Closes #$ISSUE_NUM**
+
+This draft PR tracks work progress and triggers automation.
+
+### Implementation Progress:
+Work in progress - checkboxes will be validated by automation
+
+### Status:
+- [ ] Implementation in progress
+- [ ] Tests added/passing
+- [ ] Linting passing
+- [ ] Ready for review" --draft --base main`
 
 3. Get PR number for reference:
    !`gh pr list --head $BRANCH_NAME --json number --jq .[0].number`
@@ -505,7 +497,7 @@ Check if this unblocks other issues:
 2. **Worktree Support** - Automatically creates worktrees for parallel development
 3. **Issue Reference Enforcement** - Every commit references the issue for timeline tracking
 4. **No Manual PR Creation** - Automation handles PR when checkboxes complete
-5. **Template Compliance** - Uses `!` syntax, no bash code blocks
+5. **Template Compliance** - Uses exclamation syntax, no bash code blocks
 6. **MCP Function Usage** - Proper use of mcp__github functions instead of complex bash
 7. **Checkbox-First Workflow** - Focus on issue completion, not PR management
 8. **Batch GitHub Integration** - Single atomic update when all TodoWrite items complete
