@@ -1,7 +1,7 @@
 ---
 allowed-tools: Task(*), mcp__github(*), Bash(*), Read(*), Write(*), Edit(*), TodoWrite(*)
 description: Intelligently selects and implements work based on sprint priorities and dependencies
-argument-hint: [#issue-number] [--deploy] [--discussion #num]
+argument-hint: [#issue-number] [--deploy] [--discussion #num] [--resume] [--status]
 ---
 
 # Work - Intelligent Implementation Command
@@ -30,37 +30,64 @@ Use the Bash tool to verify you're on main with latest changes:
 
 ### Step 1: Parse Arguments and Determine Work Mode
 
-Parse `$ARGUMENTS` for flags and issue number:
+Parse `$ARGUMENTS` to extract any flags and issue numbers. Look for:
+- `--deploy` flag for deployment
+- `--discussion` flag followed by a discussion number
+- `--resume` flag to resume recent work
+- `--status` flag to show work triage
+- Issue numbers (with or without # prefix)
 
-**Flag Parsing Pattern:**
-```bash
-# Extract flags and issue number from arguments
-ISSUE_NUM=""
-DEPLOY_FLAG=false
-DISCUSSION_NUM=""
+Store these in variables for later use.
 
-# Parse arguments
-for arg in $ARGUMENTS; do
-  case "$arg" in
-    --deploy) DEPLOY_FLAG=true ;;
-    --discussion) NEXT_IS_DISCUSSION=true ;;
-    *)
-      if [[ "$NEXT_IS_DISCUSSION" == "true" ]]; then
-        DISCUSSION_NUM="${arg#\#}"  # Remove # if present
-        NEXT_IS_DISCUSSION=false
-      elif [[ "$arg" =~ ^#?[0-9]+$ ]]; then
-        ISSUE_NUM="${arg#\#}"  # Remove # if present
-      fi
-      ;;
-  esac
-done
-```
+**Determine Action Priority:**
+- If `--status` flag → Show work triage view (see Step 1.5)
+- If `--resume` flag → Resume most recent work (see Step 1.5)
+- If issue number provided → Work on that specific issue
+- If `--deploy` flag → Deploy current branch to Vercel
+- If `--discussion` flag → Create issue from discussion (see Step 2)
+- If no arguments → Check for incomplete work first (see Step 1.5)
 
-**Determine Action:**
-- If `ISSUE_NUM` set → Work on that specific issue
-- If `DEPLOY_FLAG` → Deploy current branch to Vercel
-- If `DISCUSSION_NUM` set → Create issue linked to discussion
-- If no arguments → Intelligently select next work item (see Step 2)
+### Step 1.5: Check for Incomplete Work & Handle Resume/Status
+
+#### Handle --status Flag
+**If the --status flag was provided:**
+
+Display a comprehensive view of all active work:
+1. Use git to find all branches starting with issue numbers
+2. Sort them by most recent activity
+3. For each branch, check if it has any WIP commits
+4. Get the issue title from GitHub using the issue number
+5. Display each issue with:
+   - Issue number and title
+   - Branch name and WIP indicator if present
+   - Time since last activity
+6. Also list any active worktrees
+
+After showing the status, prompt the user to select which issue to resume or 'new' for fresh work.
+
+#### Handle --resume Flag  
+**If the --resume flag was provided:**
+
+Automatically resume the most recent incomplete work:
+1. Find the most recently modified branch that starts with an issue number
+2. Extract the issue number from the branch name
+3. Check if a worktree exists for this issue:
+   - If yes: Tell the user to cd into that worktree directory
+   - If no: Switch to that branch and sync with main
+4. Check for any WIP commits and if found, soft reset them to keep changes staged
+5. If no recent work is found, inform the user and suggest using /work without flags
+
+Continue to Step 4 with the resumed issue number.
+
+#### Auto-Detection (No Flags)
+**If no flags were provided and no specific issue was specified:**
+
+Check for incomplete work automatically:
+1. Look for branches with recent activity (within last 7 days)
+2. If found, show the issue number and how long ago it was worked on
+3. Prompt the user: "Resume this work? (y/n)"
+4. If yes: Set the issue number and continue to Step 4
+5. If no or nothing found: Continue to Step 3 for fresh work selection
 
 ### Step 2: Handle Discussion-Linked Issue Creation
 
