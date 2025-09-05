@@ -1,7 +1,7 @@
 ---
 allowed-tools: mcp__github(*), Read(*), Bash(*), TodoWrite(*)
 description: Create GitHub issues with proper templates and automatic agent assignment
-argument-hint: [type] [title] [issue_number]
+argument-hint: [--feature|--enhancement|--bug|--refactor|--chore|--docs|--quick|--hotfix] "title"
 ---
 
 # Create Issue
