@@ -4,6 +4,7 @@ import { createMocks } from 'node-mocks-http';
 
 describe('/api/health', () => {
   it('should return health status with correct structure', async () => {
+    console.log('Test successful');
     const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
       method: 'GET',
     });
