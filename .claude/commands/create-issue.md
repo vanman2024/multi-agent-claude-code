@@ -71,90 +71,56 @@ Claude will analyze the referenced files to better understand the issue scope.
 
 ## Your Task
 
-When user runs `/create-issue $ARGUMENTS`, follow these steps:
+When user runs `/create-issue` (with or without arguments), follow these steps:
+
+**If NO arguments provided:**
+- Ask: "What would you like to create an issue for? Please provide a title."
+- Wait for user to provide the title
+- Then continue with the steps below
 
 ### Step 0: 🔄 SMART CONTEXT SWITCHING
 
-**First, check current branch and working state:**
+**Check where we are:**
 
-Check current branch with: !`git branch --show-current`
-Check git state with: !`git status --short`
+Get current branch: !`git branch --show-current`
 
-**IMPORTANT: Do NOT attempt to checkout main until after handling the current state!**
+**If NOT on main branch:**
 
-**First, check for any blocking conditions:**
+Show message: "You're currently on branch: [show the actual branch name from above command]"
 
-1. Check for merge/rebase conflicts (look for UU, DD, AA, DU, AU, UD, UA in status)
-2. Check if in middle of rebase: !`test -d .git/rebase-merge && echo "rebase in progress"`
-3. Check if in middle of merge: !`test -f .git/MERGE_HEAD && echo "merge in progress"`
+Ask user: "To create an issue, I should switch to main. How would you like to proceed?"
 
-**If there are conflicts or operations in progress:**
-```
-⚠️ You have unresolved merge conflicts!
+Show options:
+- Type 1 to save current work and switch to main (recommended)
+- Type 2 to stay on current branch
+- Type 3 to cancel
 
-Please resolve conflicts first:
-1. Fix conflicts in the marked files
-2. Run: git add <resolved-files>
-3. Then try /create-issue again
+Wait for user response.
 
-Or abort the merge: git merge --abort
-```
-Stop here - cannot proceed with conflicts.
-
-**If on a feature branch with uncommitted changes (no conflicts):**
-
-Show the current state and ask user what to do:
-- Display: "📍 You're currently on: [branch-name]"
-- Display: "📝 You have uncommitted changes"
-- Ask: "Would you like me to:"
-- Option 1: "Stash your current work and switch to main"
-- Option 2: "Create issue from current branch (not recommended)"
-- Option 3: "Cancel and let you commit first"
-
-**WAIT for user to respond with 1, 2, or 3**
-
-**If user responds with "1" or says "stash":**
-- Get current issue number from branch name (e.g., "141" from "141-add-type...")
-- FIRST stash ALL changes: !`git stash push -u -m "WIP: Issue #141 - creating new issue"`
-- Verify stash was created: !`git stash list | head -1`
-- Note the stash reference (e.g., stash@{0})
-- ONLY AFTER successful stash, switch: !`git checkout main`
-- Pull latest: !`git pull origin main`
+**If user types 1:**
+- Save work: !`git stash push -u -m "Saving work to create new issue"`
+- Switch: !`git checkout main`
+- Update: !`git pull origin main`
 - Continue with issue creation
-- At the end, offer: "Return to issue #141? Your work is stashed as stash@{0}"
 
-**If user responds with "2" or says "stay":**
-- Warn that this is not recommended workflow
-- Continue but note they should switch to main later
+**If user types 2:**
+- Stay on current branch
+- Warn: "Creating issues from feature branches is not recommended"
+- Continue with issue creation
 
-**If user chooses 3 (Cancel):**
-- Suggest: "Commit your changes first with: git add . && git commit -m 'WIP: description'"
-- Exit the command
+**If user types 3:**
+- Say: "Cancelled. You can commit your changes first if needed."
+- Exit command
 
 **If already on main branch:**
-- Check if up to date with: !`git fetch origin main --quiet`
-- Auto-pull if behind: !`git pull origin main`
-- Continue normally
+- Update: !`git pull origin main`
+- Continue with issue creation
 
-### Step 0.5: 🔍 CHECK FOR EXISTING WORKTREES
+### Step 0.5: Check for Active Work
 
-**CRITICAL: Check if already working on another issue in a worktree:**
+Check worktrees: !`git worktree list`
 
-Use bash to check for existing worktrees:
-- Run `git worktree list` to see all active worktrees
-- Check if any worktree is not on main branch
-- If found, warn user they have active work in progress
-
-If active worktree found on non-main branch:
-- Show the worktree path and branch name
-- Ask if they want to continue with new issue or finish existing work
-- Suggest using `/work` to return to existing work
-- Only proceed if user confirms they want to create new issue
-
-This prevents:
-- Creating overlapping work
-- Forgetting about in-progress tasks
-- Conflicting branches
+If any worktrees exist besides main, mention them but continue.
 
 ### Step 1: Intelligent Issue Analysis
 
