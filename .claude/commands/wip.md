@@ -14,32 +14,35 @@ Create a simple workspace for iterative work.
 
 Run: !`git status --short`
 
-If there are changes, stash them:
+If there are changes, stash them first:
 Run: !`git stash push -m "WIP: Stashed before creating new branch"`
 
-### Step 2: Determine branch name and create it
+### Step 2: Get branch name
 
-**If user provided arguments ($ARGUMENTS):**
-1. Use $ARGUMENTS as the branch name
-2. Create it with: !`git checkout -b $ARGUMENTS`
+First, check if user provided a branch name in $ARGUMENTS.
 
-**If no arguments provided:**
-1. Ask: "What are you working on? (e.g., 'fix commands', 'update docs', or just press Enter for 'general-fixes')"
-2. Get their response
-3. If they gave a description, convert it to a branch name (lowercase, hyphens)
-4. If they gave nothing, use "general-fixes"
-5. Create the branch with git checkout -b and the chosen name
+If $ARGUMENTS is empty, ASK THE USER:
+"What are you working on? (e.g., 'fix commands', 'update docs')"
 
-### Step 3: Add to TodoWrite
+Wait for their response, then:
+- If they provide text, convert it to a branch name (lowercase, replace spaces with hyphens)
+- If they just press Enter, use "general-fixes" as the branch name
 
-Create a simple todo to track the work:
-- Content: "Work on: [branch name or description]"
+### Step 3: Create the branch
+
+Now that you have a branch name (either from $ARGUMENTS or from asking the user):
+- Create the branch using: git checkout -b [the branch name you determined]
+
+### Step 4: Track with TodoWrite
+
+Create a simple todo:
+- Content: "Work on: [branch name]"
 - Status: "in_progress"
-- ActiveForm: "Working on: [branch name or description]"
+- ActiveForm: "Working on: [branch name]"
 
-### Step 4: Inform user
+### Step 5: Tell user what happened
 
-Tell them:
+Say:
 - "Created branch: [branch name]"
 - "This is for iterative work - no issue created"
 - "Commit with: git add -A && git commit -m 'wip: your message'"
