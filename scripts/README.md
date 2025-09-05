@@ -6,46 +6,41 @@ All project scripts organized by purpose, independent of their execution context
 
 ```
 scripts/
-├── automation/           # GitHub Actions and CI/CD scripts
-│   ├── orchestrate.sh   # Issue/PR orchestration
-│   ├── detect-project-type.sh
-│   └── run-tests.sh
+├── deployment/          # Deployment and CI/CD scripts
+│   └── vercel-ignore-build.sh    # Controls Vercel deployments based on checkboxes
 │
-├── development/         # Local development helpers
-│   ├── setup-project.sh
-│   ├── create-feature.sh
-│   └── build-feature.sh
+├── testing/            # Test execution and simulation scripts
+│   ├── test-mimic.sh              # Simulates /test command behavior
+│   └── test-frontend-agent-mimic.sh  # Shows frontend agent browser testing
 │
-├── testing/            # Test execution scripts
-│   ├── run-all-tests.sh
-│   ├── test-hooks.sh
-│   ├── test-agents.sh
-│   └── test-integration.sh
-│
-└── utilities/          # Shared utilities
-    ├── json-helpers.sh
-    ├── git-helpers.sh
-    └── github-api.sh
+└── utilities/          # General purpose utilities
+    └── create-checkbox-status.sh  # Manually creates GitHub commit status
 ```
 
 ## Usage
 
 ### From GitHub Actions
 ```yaml
-- name: Run orchestration
-  run: ./scripts/automation/orchestrate.sh
+- name: Check checkboxes
+  run: ./scripts/utilities/create-checkbox-status.sh
 ```
 
-### From Claude Code Hooks
-```json
-{
-  "command": "$CLAUDE_PROJECT_DIR/scripts/development/sync-to-github.sh"
-}
-```
-
-### From Tests
+### From Vercel Settings
+Configure in Vercel Dashboard → Project Settings → Git → Ignored Build Step Command:
 ```bash
-./scripts/testing/run-all-tests.sh
+./scripts/deployment/vercel-ignore-build.sh
+```
+
+### From Command Line (Testing)
+```bash
+# Test what /test command should do
+./scripts/testing/test-mimic.sh
+
+# Test frontend agent behavior
+./scripts/testing/test-frontend-agent-mimic.sh
+
+# Manually create checkbox status
+./scripts/utilities/create-checkbox-status.sh
 ```
 
 ## Important Notes
