@@ -51,6 +51,7 @@ __tests__/                    # ONLY valid test directory
 /test --backend              # Run backend tests only
 /test --unit                 # Run unit tests only
 /test --e2e                  # Run E2E tests only
+/test --mock                 # Use mock APIs (no DB needed, 10x faster)
 /test --ci                   # Trigger CI/CD pipeline
 ```
 
@@ -69,6 +70,48 @@ __tests__/                    # ONLY valid test directory
 | @testing-library/jest-dom | Enhanced matchers | `.toBeInTheDocument()`, etc. |
 | node-mocks-http | API testing | Mock HTTP requests/responses |
 | @swc/jest | TypeScript transpilation | Fast TS compilation for tests |
+
+## Mock Testing Strategy (Built-in)
+
+### Automatic Mock Detection
+When you run `/test --mock` or `/test --create --mock`, the agents automatically:
+
+1. **Check for available tools**:
+   - Newman/Postman (preferred)
+   - MSW (Mock Service Worker)
+   - JSON Server
+   - Nock
+
+2. **Use the best available option**:
+   - **If Newman exists**: Create Postman collections with mock responses
+   - **If MSW exists**: Set up service worker interceptors
+   - **Fallback**: Create simple JSON mocks
+
+### Why Mock Testing is Built-in
+
+**Prevents Test Sprawl**:
+- No need for complex database setup
+- Tests run in milliseconds, not seconds
+- No test data pollution between runs
+- Deterministic results every time
+
+**Agent Intelligence**:
+```bash
+/test --create --mock --backend
+```
+The backend-tester agent will:
+1. Analyze your API endpoints
+2. Generate mock responses based on TypeScript/schemas
+3. Create comprehensive test suites
+4. All tests run without any infrastructure
+
+### Performance Comparison
+
+| Test Type | Without Mocks | With Mocks | Improvement |
+|-----------|--------------|------------|-------------|
+| API Test Suite | 5-10s | 100-500ms | 10-100x faster |
+| Database Tests | 2-5s | 50-100ms | 20-50x faster |
+| Full Test Run | 30-60s | 2-5s | 10-20x faster |
 
 ## Agent-Based Test Generation
 
@@ -155,7 +198,9 @@ When you clone the template for a real project:
 |---------|------------|-------------|
 | `/test` | ~50 | Daily testing during development |
 | `/test --quick` | ~50 | Force quick mode explicitly |
+| `/test --mock` | ~50 | Fast testing without database |
 | `/test --create` | ~5000+ | Initial project setup only |
+| `/test --create --mock` | ~3000+ | Create mock-based tests (faster) |
 | `/test --update` | ~2000+ | Major refactoring only |
 | `/test --ci` | ~100 | Trigger CI pipeline |
 

@@ -39,6 +39,7 @@ Parse optional arguments in `$ARGUMENTS`:
 - `--quick` - Run existing tests without agents (minimal tokens ~50)
 - `--create` - Force creation of new tests using agents (~5000+ tokens)
 - `--update` - Update existing tests using agents (~2000+ tokens)
+- `--mock` - Use mock API responses instead of real backend (fast, no DB needed)
 - `--frontend` - Run only frontend tests
 - `--backend` - Run only backend tests  
 - `--unit` - Run only unit tests
@@ -131,17 +132,27 @@ Use Task tool with:
     - API tests: __tests__/api/[endpoint].test.ts
     - Service tests: __tests__/services/[service].test.ts
     - Utility tests: __tests__/utils/[utility].test.ts
+    - Mock tests: __tests__/mocks/[api].mock.test.ts
+    
+    MOCK TESTING STRATEGY (if --mock flag present):
+    - Use MSW (Mock Service Worker) for API mocking
+    - Create deterministic mock responses based on API contracts
+    - Test without database or external dependencies
+    - Mock responses should match TypeScript interfaces
+    - Include error scenarios and edge cases
+    - Tests should run in <100ms per suite
     
     Tasks:
     1. Check for existing test files in __tests__/ directory
-    2. If --create flag: Create new tests in appropriate __tests__ subdirectory
-    3. Detect testing framework (pytest/go test/jest/mocha)
-    4. Run unit tests for all services and utilities
-    5. Run integration tests for API endpoints
-    6. Test database operations with proper rollback
-    7. Validate API responses and status codes
-    8. Generate coverage report if available
-    9. Report results with detailed failures
+    2. If --mock flag: Set up MSW mock server and create mock-based tests
+    3. If --create flag: Create new tests in appropriate __tests__ subdirectory
+    4. Detect testing framework (pytest/go test/jest/mocha)
+    5. Run unit tests for all services and utilities
+    6. Run integration tests for API endpoints (skip if --mock)
+    7. Test database operations with proper rollback (mock if --mock flag)
+    8. Validate API responses and status codes
+    9. Generate coverage report if available
+    10. Report results with detailed failures
     
     Test type requested: $ARGUMENTS
     Focus on: ${detected_changes_or_all}
