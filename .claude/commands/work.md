@@ -1,7 +1,7 @@
 ---
 allowed-tools: Task(*), mcp__github(*), Bash(*), Read(*), Write(*), Edit(*), TodoWrite(*)
 description: Intelligently selects and implements work based on sprint priorities and dependencies
-argument-hint: [#issue-number] | --status | --resume | --deploy | --discussion #num | --copilot-first | --copilot-review | --copilot-only | --no-copilot | --parallel
+argument-hint: [#issue-number] | --status | --resume | --deploy | --discussion #num | --copilot-first | --copilot-review | --copilot-only | --no-copilot | --parallel | --worktree
 ---
 
 # Work - Intelligent Implementation Command
@@ -24,17 +24,19 @@ FLAGS:
   --resume                     Auto-resume most recent incomplete work
   --deploy                     Deploy current branch to production
   --discussion <num>           Create issue from discussion #num
+  --parallel                   Create worktree for parallel work
+  --worktree                   Force worktree creation (same as --parallel)
   
 COPILOT INTEGRATION:
   --copilot-first             Try Copilot first, Claude as backup
   --copilot-review            Get Copilot's code review  
   --copilot-only              Only assign to Copilot (no Claude)
   --no-copilot                Bypass Copilot, use Claude directly
-  --parallel                  Work with Copilot simultaneously
   
 EXAMPLES:
   /work                        Smart selection from sprint
   /work #142                   Work on issue #142
+  /work #143 --parallel        Work on #143 in parallel (worktree)
   /work --status              See all active work
   /work --resume              Continue where you left off
   /work --discussion 125      Convert discussion to issue
@@ -65,6 +67,26 @@ Use the Bash tool to verify you're on main with latest changes:
 
 **DO NOT PROCEED if not on main with latest changes!**
 
+### Step 0.5: 🔍 CHECK FOR EXISTING WORKTREES AND BRANCHES
+
+**CRITICAL: Check for any existing work before creating new branches:**
+
+Check for existing worktrees using: !`git worktree list`
+- If any worktree exists that's not on main branch, show it to user
+- Ask if they want to continue with that work or start new work
+- If continuing existing work, tell them to cd into that worktree directory
+
+Check for existing local branches using: !`git branch --list "[0-9]*-*"`
+- Show any branches that start with issue numbers
+- Check if branch exists locally that matches the issue they want to work on
+- If branch already exists for this issue, switch to it instead of creating new
+
+This prevents:
+- Creating duplicate branches for same issue
+- Losing work in existing worktrees
+- Conflicting branch names
+- Overwriting existing work
+
 ### Step 1: Parse Arguments and Determine Work Mode
 
 Parse `$ARGUMENTS` to extract any flags and issue numbers. Look for:
@@ -72,9 +94,10 @@ Parse `$ARGUMENTS` to extract any flags and issue numbers. Look for:
 - `--discussion` flag followed by a discussion number
 - `--resume` flag to resume recent work
 - `--status` flag to show work triage
+- `--parallel` or `--worktree` flag to force worktree creation
 - Issue numbers (with or without # prefix)
 
-Store these in variables for later use.
+Store these in variables for later use, especially PARALLEL_FLAG.
 
 **Determine Action Priority:**
 - If `--status` flag → Show work triage view (see Step 1.5)
@@ -222,51 +245,48 @@ Use mcp__github__get_issue to retrieve:
 - Implementation checklist from body
 - Comments for additional context
 
-### Step 9: Create GitHub-Linked Branch (If No Worktree Exists)
+### Step 9: Create Branch or Worktree Based on Context
 
-**CRITICAL: Only create branch if no worktree exists!**
+**Decision logic for branch vs worktree:**
 
-If no existing worktree was found in Step 4:
-
-!`gh issue develop $ISSUE_NUM --checkout`
-
-This command:
-- Creates the branch ON GitHub first (properly linked to issue)
-- Checks it out locally
-- Shows up in the issue's Development section
-- Ensures proper GitHub tracking
-
-Get the created branch name:
-!`git branch --show-current`
-
-**Important:** The branch name will be something like `123-feature-description` based on the issue.
-
-**Note:** Draft PR will be created after your first meaningful commit (see Step 14a)
-
-### Step 10: Optional Additional Worktree (if parallel work needed)
-
-**Only if user needs to work on multiple issues simultaneously:**
-
-Check if worktrees are needed:
+Check current work status:
+- Check current branch: !`git branch --show-current`
 - Check existing worktrees: !`git worktree list`
-- If already working on another issue, offer worktree option
 
-**If parallel work is needed:**
-Ask user: "You're working on issue #[OTHER_ISSUE]. Would you like to:
-1. Create a worktree for issue #[ISSUE_NUMBER] (work on both)
-2. Switch branches (pause current work)
-3. Cancel
+**If `--parallel` or `--worktree` flag was provided:**
+- ALWAYS create a worktree regardless of current branch
+- This explicitly enables parallel development
 
-Choose (1/2/3):"
+**If already on a non-main branch (working on another issue):**
+- Ask user: "You're currently working on another issue. Would you like to:"
+  - Option 1: Create worktree for parallel work (recommended)
+  - Option 2: Switch branches (pause current work)
+  - Option 3: Cancel
+- If user chooses Option 1 or has --parallel flag, create worktree
 
-**If user chooses worktree (option 1):**
-- Get current branch: !`git branch --show-current`
-- Create worktree path: `../worktrees/issue-$ISSUE_NUM`
-- Create worktree: !`git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"`
-- Inform user: "Created worktree at $WORKTREE_PATH"
-- Instruct: "Run: cd $WORKTREE_PATH to continue work there"
+**To create worktree for parallel work:**
+1. Create branch on GitHub first: !`gh issue develop $ISSUE_NUM --checkout=false`
+2. Get the branch name that was created
+3. Create worktree: !`git worktree add ../worktree-$ISSUE_NUM $BRANCH_NAME`
+4. Tell user:
+   - "Created worktree at ../worktree-$ISSUE_NUM"
+   - "cd ../worktree-$ISSUE_NUM to work on issue #$ISSUE_NUM"
+   - "Your current work remains untouched here"
 
-**Note:** Worktrees are secondary - branch creation via `gh issue develop` is primary!
+**If on main branch (not working on anything):**
+- Use regular branch checkout: !`gh issue develop $ISSUE_NUM --checkout`
+- No worktree needed unless --parallel flag was provided
+
+### Step 10: Working Directory Instructions
+
+**If worktree was created (parallel work):**
+- Tell user: "Worktree created at ../worktree-$ISSUE_NUM"
+- Instruct: "cd ../worktree-$ISSUE_NUM to work on issue #$ISSUE_NUM"
+- Note: "You can switch between worktrees to work on multiple issues"
+
+**If regular branch checkout (single work):**
+- Continue in current directory
+- Work proceeds normally on the checked-out branch
 
 ### Step 11: Configure Git for Issue Tracking
 
