@@ -12,34 +12,38 @@ When user runs `/wip $ARGUMENTS`, create a simple workspace for iterative work.
 
 ### Step 1: Check current state
 
+First check if there are uncommitted changes:
 Run: !`git status --short`
 
 If there are uncommitted changes, stash them:
 Run: !`git stash push -m "WIP: Stashed before creating new branch"`
 
-### Step 2: Determine branch name
+### Step 2: Create the branch
 
-If arguments provided, use as branch name: `$ARGUMENTS`
+Check if user provided a branch name in $ARGUMENTS:
 
-If no arguments:
-- Ask: "What are you working on? (brief description like 'fix commands' or 'update docs')"
-- Convert the response to a branch name (lowercase, replace spaces with hyphens)
-- If no response, use "general-fixes"
+**If $ARGUMENTS is provided:**
+- Use it as the branch name
+- Create branch: !`git checkout -b $ARGUMENTS`
 
-### Step 3: Create the branch
+**If $ARGUMENTS is empty:**
+- Ask user: "What are you working on? (e.g., 'fix commands', 'update docs')"
+- Wait for their response
+- Convert their response to a branch name (lowercase, hyphens for spaces)
+- If they give no response, use branch name "general-fixes"
+- Create the branch with the determined name using git checkout -b
 
-Run: !`git checkout -b [BRANCH_NAME]`
+### Step 3: Track the work
 
-### Step 4: Set up simple tracking
+Use TodoWrite to create a simple todo:
+- If working on something specific, todo content: "Work on: [their description]"
+- If general fixes, todo content: "Work on: general improvements"
+- Set status: in_progress
 
-Use TodoWrite to create one simple todo:
-- Content: "Work on: [description]"
-- Status: in_progress
-
-### Step 5: Show next steps
+### Step 4: Show next steps
 
 Tell the user:
-- You're now on branch: [BRANCH_NAME]
-- No issue was created (this is for iterative work)
-- Commit with: `git add -A && git commit -m "wip: description"`
-- When ready, create PR with: `gh pr create --fill`
+- "You're now on branch: [branch name]"
+- "This is for iterative work - no issue needed"
+- "To commit: git add -A && git commit -m 'wip: description'"
+- "When ready for PR: gh pr create --fill"
