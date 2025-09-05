@@ -136,7 +136,9 @@ Check for incomplete work automatically:
    - Body containing link back to the original discussion
    - Original discussion content preserved
    - Standard implementation checklist added
-3. Add a status comment to the discussion:
+3. Update the discussion status:
+   - Remove `discussion:exploring` or `discussion:approved` labels if present
+   - Add `discussion:in-progress` label to the discussion
    - Get discussion ID using GraphQL
    - Add comment with status update:
      ```

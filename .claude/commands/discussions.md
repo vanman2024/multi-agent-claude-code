@@ -129,13 +129,20 @@ For consolidating overlapping content:
 
 ## Discussion Lifecycle Management
 
-### Since We Can't Use Custom Labels (Due to Automation)
-Our repository has strict label automation that only allows type labels (bug, feature, enhancement, etc.).
-Therefore, we use a **comment-based status tracking** approach.
+### Using Labels for Status Tracking
+We have dedicated discussion labels in .github/labels.yml for tracking lifecycle.
 
-### Status Tracking via Comments
+### Apply These Labels to Discussions:
+- `discussion:exploring` - Initial state, gathering feedback
+- `discussion:approved` - Ready for implementation
+- `discussion:in-progress` - Being actively implemented
+- `discussion:implemented` - Completed and deployed
+- `discussion:declined` - Won't be implemented
+- `discussion:blocked` - Waiting on dependencies
 
-When a discussion progresses through its lifecycle, add status comments:
+### Also Add Status Comments for Details
+
+When a discussion progresses, update BOTH the label AND add a comment:
 
 **Initial Discussion:**
 ```
