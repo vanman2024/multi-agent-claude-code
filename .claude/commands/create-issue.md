@@ -78,43 +78,15 @@ When user runs `/create-issue` (with or without arguments), follow these steps:
 - Wait for user to provide the title
 - Then continue with the steps below
 
-### Step 0: 🔄 SMART CONTEXT SWITCHING
-
-**Check where we are:**
+### Step 0: Branch Check (Simplified)
 
 Get current branch: !`git branch --show-current`
 
-**If NOT on main branch:**
+**For now, just create issues from the current branch to avoid stash conflicts.**
 
-Show message: "You're currently on branch: [show the actual branch name from above command]"
+If not on main, just note: "Creating issue from feature branch: [branch name]"
 
-Ask user: "To create an issue, I should switch to main. How would you like to proceed?"
-
-Show options:
-- Type 1 to save current work and switch to main (recommended)
-- Type 2 to stay on current branch
-- Type 3 to cancel
-
-Wait for user response.
-
-**If user types 1:**
-- Save work: !`git stash push -u -m "Saving work to create new issue"`
-- Switch: !`git checkout main`
-- Update: !`git pull origin main`
-- Continue with issue creation
-
-**If user types 2:**
-- Stay on current branch
-- Warn: "Creating issues from feature branches is not recommended"
-- Continue with issue creation
-
-**If user types 3:**
-- Say: "Cancelled. You can commit your changes first if needed."
-- Exit command
-
-**If already on main branch:**
-- Update: !`git pull origin main`
-- Continue with issue creation
+Continue with issue creation.
 
 ### Step 0.5: Check for Active Work
 
@@ -581,28 +553,16 @@ If assignment is "copilot":
 If assignment is "claude-code":
 - Tell user to run `/work #[actual-issue-number]` to start implementation
 
-### Step 12: Return to Previous Context (If Stashed)
+### Step 12: Next Steps
 
-**If work was stashed in Step 0:**
+Show the user what they can do next:
 
-Ask user: "Would you like to return to your previous work on Issue #141?"
+**To work on the new issue:**
+- Run: `/work #[new-issue-number]` to start implementation
+- This will create a new branch and draft PR
 
-If yes:
-- Show: "Returning to branch 141-add-type-and-workflow-flags..."
-- Switch back: !`git checkout 141-add-type-and-workflow-flags-to-create-issue-command`
-- Show stash list: !`git stash list | head -5`
-- Apply the stash: !`git stash pop stash@{0}`
-- Confirm: "✅ Restored your work on Issue #141"
-
-If no:
-- Remind: "Your work is saved in stash@{0}. Use 'git stash pop' when ready to return."
-- Stay on main branch
-
-**If user wants to work on the new issue immediately:**
-- Suggest: "Use `/work #[new-issue-number]` to start work on the new issue"
-- Explain: "This will create a NEW branch for issue #[new-issue-number]"
-- Note: "Your previous work on branch 141 remains stashed"
-- Important: "You can return to branch 141 later with: git checkout 141-... && git stash pop" (using the issue number from Step 5)
+**To continue with current work:**
+- Stay on your current branch and continue working
 
 ## Important Notes
 
