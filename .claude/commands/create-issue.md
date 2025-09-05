@@ -9,7 +9,7 @@ argument-hint: [--feature|--enhancement|--bug|--refactor|--chore|--docs|--quick|
 ## Context
 - Current branch: !`git branch --show-current`
 - Open issues: !`gh issue list --state open --limit 5 --json number,title,labels`
-- Current sprint: !`gh issue list --label "sprint:current" --json number,title`
+- Recent issues: !`gh issue list --state open --limit 3 --json number,title`
 
 ## Your Task
 
@@ -158,10 +158,9 @@ After creating issue, check if it depends on other work:
 ```bash
 # Ask user if this depends on other issues
 # If yes, add dependency note to issue body
-gh issue edit $ISSUE_NUMBER --body-file updated-body.md
-
-# Add blocked label if has dependencies
-gh issue edit $ISSUE_NUMBER --add-label "blocked"
+echo "Does this issue depend on any other issues? (y/n)"
+# If yes, update the body to include dependencies
+# Note: We don't use labels for dependencies, just track in issue body
 ```
 
 ### Step 8: Agent Assignment
@@ -179,7 +178,7 @@ const shouldAutoAssignCopilot = (complexity, size, type, labels) => {
 
   // Check for blocking labels
   const hasBlockingLabels = labels.some(l =>
-    ['security', 'architecture', 'blocked'].includes(l)
+    ['security', 'architecture'].includes(l)
   );
 
   // Auto-assign if BOTH simple AND small AND no blockers
@@ -330,14 +329,10 @@ fi
 
 ### Step 10: Sprint Assignment (Optional)
 
-Ask if this should be added to current sprint:
 ```bash
-# If yes, add sprint label
-gh issue edit $ISSUE_NUMBER --add-label "sprint:current"
-
-# Check sprint capacity
-gh issue list --label "sprint:current" --json number | jq length
-# Warn if sprint has > 10 issues
+# Sprint tracking happens via GitHub Projects, not labels
+# Project board will automatically track the issue
+echo "Issue will be tracked in the project board automatically"
 ```
 
 ### Step 11: Priority Setting
