@@ -4,24 +4,40 @@ This directory contains all test files for the project. Tests are organized by t
 
 ## Directory Structure
 
+**IMPORTANT**: Only create subdirectories that make sense for your project type.
+
+### For Full-Stack JavaScript/TypeScript Projects (React/Next.js):
 ```
 __tests__/
-├── api/                    # Backend API endpoint tests
-│   ├── health.test.ts     # Health check endpoint tests
-│   └── users.test.ts      # User API tests
-├── components/             # React component tests
-│   └── Button.test.tsx    # Button component tests
+├── api/                    # Backend API tests
+├── components/             # React component tests  
 ├── e2e/                   # End-to-end tests
-│   └── user-flow.e2e.ts   # Complete user journey tests
-├── hooks/                 # React hook tests
-│   └── useAuth.test.ts    # Authentication hook tests
-├── pages/                 # Next.js page tests
-│   └── index.test.tsx     # Homepage tests
+├── hooks/                 # React hook tests (React only)
+├── pages/                 # Page tests (Next.js only)
 ├── utils/                 # Utility function tests
-│   └── validators.test.ts # Validation utility tests
 └── services/              # Service layer tests
-    └── api-client.test.ts # API client service tests
 ```
+
+### For Backend-Only Projects:
+```
+__tests__/
+├── api/                    # API endpoint tests
+├── services/              # Service/business logic tests
+├── utils/                 # Utility function tests
+├── models/                # Data model tests (if applicable)
+└── middleware/            # Middleware tests (if applicable)
+```
+
+### For Frontend-Only Projects:
+```
+__tests__/
+├── components/            # Component tests
+├── e2e/                   # End-to-end tests
+├── stores/                # State management tests (if using Redux/Vuex)
+└── utils/                 # Utility function tests
+```
+
+**Note**: Don't create empty directories for things that don't exist in your project. For example, a Python API won't have a `hooks/` directory.
 
 ## Naming Conventions
 
