@@ -76,14 +76,14 @@ Check if arguments start with a flag like `--feature`, `--enhancement`, `--bug`,
 Extract the flag and the title that follows it.
 
 **Flag Mapping:**
-- `--feature` → Use feature template, full workflow, create feature branch
-- `--enhancement` → Use enhancement template, normal workflow, create enhancement branch  
-- `--bug` → Use bug template, normal workflow, create bug/fix branch
-- `--refactor` → Use task template, light workflow, create refactor branch
-- `--chore` → Use task template, light workflow, create chore branch
-- `--docs` → Use task template, minimal workflow, create docs branch
+- `--feature` → Use feature template, full workflow, branch prefix: `feature/`
+- `--enhancement` → Use enhancement template, normal workflow, branch prefix: `enhancement/`
+- `--bug` → Use bug template, normal workflow, branch prefix: `fix/`
+- `--refactor` → Use task template, light workflow, branch prefix: `refactor/`
+- `--chore` → Use task template, light workflow, branch prefix: `chore/`
+- `--docs` → Use task template, minimal workflow, branch prefix: `docs/`
 - `--quick` → Auto-detect type but use minimal workflow
-- `--hotfix` → Use bug template, emergency workflow, prefix title with "HOTFIX:"
+- `--hotfix` → Use bug template, emergency workflow, branch prefix: `hotfix/`
 
 **Auto-Detection (when no flag provided):**
 If no flag is present, analyze the title for keywords:
@@ -341,6 +341,7 @@ If assignment is "claude-code":
 
 - GitHub Actions will automatically handle project board updates
 - Branches are created when work starts (via `/work`), not during issue creation
+- Branch prefixes are determined by issue type (feature/, enhancement/, fix/, etc.)
 - No manual project board management needed
 - Dependencies should be tracked with "Depends on #XX" in issue body
 - Sprint labels help with work prioritization in `/work` command

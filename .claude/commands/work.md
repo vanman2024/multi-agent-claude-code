@@ -245,6 +245,11 @@ Use mcp__github__get_issue to retrieve:
 - Implementation checklist from body
 - Comments for additional context
 
+**IMMEDIATELY after getting issue: Create TodoWrite from checkboxes**
+- Extract all `- [ ]` and `- [x]` items from Definition of Done
+- Use TodoWrite tool to create todo list
+- This MUST happen before proceeding to Step 9
+
 ### Step 9: Create Branch or Worktree Based on Context
 
 **Decision logic for branch vs worktree:**
@@ -252,6 +257,23 @@ Use mcp__github__get_issue to retrieve:
 Check current work status:
 - Check current branch: !`git branch --show-current`
 - Check existing worktrees: !`git worktree list`
+
+**Determine branch prefix based on issue type:**
+- Get issue labels from Step 8
+- Map label to prefix:
+  - `feature` → `feature/`
+  - `enhancement` → `enhancement/`
+  - `bug` → `fix/` or `bugfix/`
+  - `refactor` → `refactor/`
+  - `chore` → `chore/`
+  - `documentation` → `docs/`
+  - Default → no prefix
+
+**Create branch name with prefix:**
+- Format: `[prefix]$ISSUE_NUM-brief-description`
+- Example: `enhancement/141-add-type-flags`
+- Example: `fix/142-login-error`
+- Example: `feature/143-user-dashboard`
 
 **If `--parallel` or `--worktree` flag was provided:**
 - ALWAYS create a worktree regardless of current branch
@@ -265,8 +287,8 @@ Check current work status:
 - If user chooses Option 1 or has --parallel flag, create worktree
 
 **To create worktree for parallel work:**
-1. Create branch on GitHub first: !`gh issue develop $ISSUE_NUM --checkout=false`
-2. Get the branch name that was created
+1. Create branch with prefix: !`git checkout -b $BRANCH_NAME`
+2. Link to issue: !`gh issue develop $ISSUE_NUM --name $BRANCH_NAME --checkout=false`
 3. Create worktree: !`git worktree add ../worktree-$ISSUE_NUM $BRANCH_NAME`
 4. Tell user:
    - "Created worktree at ../worktree-$ISSUE_NUM"
@@ -274,7 +296,8 @@ Check current work status:
    - "Your current work remains untouched here"
 
 **If on main branch (not working on anything):**
-- Use regular branch checkout: !`gh issue develop $ISSUE_NUM --checkout`
+- Create and checkout branch with prefix: !`git checkout -b $BRANCH_NAME`
+- Link to issue for GitHub tracking
 - No worktree needed unless --parallel flag was provided
 
 ### Step 10: Working Directory Instructions
@@ -367,11 +390,19 @@ This draft PR:
 - Converts to ready when complete
 
 #### 14b. Parse Issue Checkboxes to TodoWrite
-Use mcp__github__get_issue to get the full issue body, then extract checkboxes:
-- Find all `- [ ]` (unchecked) and `- [x]` (checked) patterns  
-- Create TodoWrite list with items like: "CHECKBOX 1: Add user authentication endpoints"
-- Track checkbox text exactly as it appears in GitHub
-- Work entirely in TodoWrite (fast, no API calls during work)
+
+**MANDATORY: Extract and create todos from issue checkboxes**
+
+1. Use mcp__github__get_issue to get the issue body
+2. Extract ALL checkboxes from "Definition of Done" section:
+   - Find all `- [ ]` (unchecked) patterns
+   - Find all `- [x]` (checked) patterns  
+3. Use TodoWrite tool to create the list:
+   - Each checkbox becomes a todo item
+   - Format: "CHECKBOX N: [exact text from issue]"
+   - Set status: "pending" for unchecked, "completed" for checked
+4. This MUST happen before any implementation starts
+5. All work tracking happens through TodoWrite (no API calls during work)
 
 #### 14c. Systematic Local Execution
 For each TodoWrite checkbox item:
