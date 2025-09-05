@@ -1,42 +1,120 @@
 ---
 allowed-tools: mcp__github(*), Read(*), Bash(*), TodoWrite(*)
 description: Create GitHub issues with proper templates and automatic agent assignment
-argument-hint: [--feature|--enhancement|--bug|--refactor|--chore|--docs|--quick|--hotfix] "title"
+argument-hint: "title" [additional details]
 ---
 
 # Create Issue
 
+## Usage Examples
+
+```bash
+# Simple usage - Claude handles everything intelligently
+/create-issue "Add user authentication"
+# Claude will:
+# 1. Notice you're on branch 141, offer to stash
+# 2. Switch to main
+# 3. Ask: "What type? [1-8]" → You choose: 1 (Feature)
+# 4. Have conversation: "What problem does this solve? Who are the users?"
+# 5. Create issue with your answers
+# 6. Offer to return to branch 141
+
+# With file context using @ reference
+/create-issue "Fix validation error" @src/validators/user.ts
+
+# Multiple files for context
+/create-issue "Refactor API layer" @src/api/index.ts @src/api/types.ts
+
+# Reference a discussion
+/create-issue "OAuth integration from discussion #25"
+
+# Detailed description inline
+/create-issue "Add dark mode toggle - should persist user preference and apply to all components"
+```
+
+## Example Conversation Flow
+
+```
+User: /create-issue "Improve search performance"
+
+Claude: You're on branch 141 with uncommitted changes.
+        1. Stash and switch to main
+        2. Stay on current branch
+        Choose [1/2]: 1
+
+Claude: ✅ Stashed work and switched to main
+
+Claude: What type of issue is this?
+        1. 🚀 Feature     2. ✨ Enhancement
+        3. 🐛 Bug        4. 🔧 Refactor
+        Based on "improve", this looks like Enhancement [2]. 
+        Choose [1-8]: 2
+
+Claude: Great, you want to enhance existing functionality. Tell me:
+        - What currently exists that you want to improve?
+        - What specific improvements are you planning?
+        - How will users benefit?
+
+User: The current search takes 3-5 seconds. I want to add 
+      caching and optimize the query. Users will see instant results.
+
+Claude: ✅ Created issue #142: Improve search performance
+        Would you like to return to branch 141?
+```
+
+**Note:** When using @ references in Claude Code, the files are automatically included in context.
+Claude will analyze the referenced files to better understand the issue scope.
+
 ## Context
 - Current branch: !`git branch --show-current`
 - Open issues: !`gh issue list --state open --limit 5 --json number,title,labels`
-- Current sprint: !`gh issue list --label "sprint:current" --json number,title`
 
 ## Your Task
 
 When user runs `/create-issue $ARGUMENTS`, follow these steps:
 
-### Step 0: 🔴 ENFORCE WORKFLOW - MUST BE ON MAIN WITH LATEST
+### Step 0: 🔄 SMART CONTEXT SWITCHING
 
-**CRITICAL: Before doing ANYTHING else, check branch and sync status:**
+**First, check current branch and working state:**
 
-First check current branch with: !`git branch --show-current`
+Check current branch with: !`git branch --show-current`
+Check for uncommitted changes with: !`git status --short`
 
-If not on main branch:
-- Show error that user must be on main branch to create issues
-- Tell user to run: git checkout main
-- Tell user to run: git pull origin main
-- Reference WORKFLOW.md for the required process
-- STOP and do not proceed
+**If on a feature branch with uncommitted changes:**
+```
+📍 You're currently on: 141-add-type-and-workflow-flags
+📝 You have uncommitted changes
 
-If on main branch, check if up to date:
-- Fetch latest with: !`git fetch origin main --quiet`
-- Compare local and remote commits
-- If behind remote, auto-pull with: !`git pull origin main`
-- If pull fails, tell user to resolve conflicts and try again
+Would you like me to:
+1. Stash your current work and switch to main
+2. Create issue from current branch (not recommended)
+3. Cancel and let you commit first
 
-Only proceed when on main branch with all latest changes.
+Choose [1/2/3]: _
+```
 
-**DO NOT PROCEED if not on main with latest changes!**
+**If user chooses 1 (Stash and Switch):**
+- Get current issue number from branch name (e.g., "141" from "141-add-type...")
+- Stash ALL changes including untracked: !`git stash push -u -m "WIP: Issue #141 - creating new issue"`
+- Verify stash was created: !`git stash list | head -1`
+- Note the stash reference (e.g., stash@{0})
+- Now safe to switch: !`git checkout main`
+- Pull latest: !`git pull origin main`
+- Continue with issue creation
+- At the end, offer: "Return to issue #141? Your work is stashed as stash@{0}"
+
+**If user chooses 2 (Stay on branch):**
+- Warn that this is not recommended workflow
+- Continue but note they should switch to main later
+
+**If user chooses 3 (Cancel):**
+- Suggest: "Commit your changes first with: git add . && git commit -m 'WIP: description'"
+- Exit the command
+
+**If already on main branch:**
+- Check if up to date with: !`git fetch origin main --quiet`
+- Auto-pull if behind: !`git pull origin main`
+- Continue normally
 
 ### Step 0.5: 🔍 CHECK FOR EXISTING WORKTREES
 
@@ -58,46 +136,166 @@ This prevents:
 - Forgetting about in-progress tasks
 - Conflicting branches
 
-### Step 1: Check for Existing Similar Issues
+### Step 1: Intelligent Issue Analysis
 
-Before creating a new issue, check if similar work is already tracked:
+Analyze the proposed issue title/description against existing issues:
 
 Show all open issues with: !`gh issue list --state open --limit 20 --json number,title,labels | jq -r '.[] | "#\(.number): \(.title)"'`
 
-Ask user to confirm if their issue is already covered by any existing issues.
-If yes, suggest using `/work #[existing-issue]` instead.
-If no, proceed to create a new issue.
+**Intelligent Analysis:**
+Analyze the new issue title for:
+- **Keywords overlap** with existing issues (e.g., "OAuth", "authentication", "user login")
+- **Component similarity** (e.g., both mention "API", "frontend", "database")
+- **Feature relationships** (e.g., "token refresh" relates to "authentication system")
+- **Scope indicators** (e.g., "Add", "Fix", "Enhance" vs "Implement", "Build", "Create")
 
-### Step 1.5: Parse Flags and Auto-Detect Type
+**Smart Recommendations:**
+1. **Exact duplicate detected**: "This appears to be covered by issue #X. Use `/work #X` instead?"
+2. **Sub-issue candidate**: "This looks like part of #X: [Parent Title]. Create as sub-issue?"
+3. **Related but separate**: "Related to #X but different scope. Create standalone issue?"
+4. **Independent work**: "No related issues found. Create standalone issue."
 
-Parse `$ARGUMENTS` to extract any flags and determine the issue type:
+**Present recommendation with reasoning:**
+- Show the suggested action
+- Explain why (e.g., "Both involve OAuth authentication")
+- Let user override if they disagree
+- Only ask for confirmation, don't make them choose from scratch
 
-Check if arguments start with a flag like `--feature`, `--enhancement`, `--bug`, etc.
-Extract the flag and the title that follows it.
+**Auto-execution:**
+- If confidence is high (>80% match), auto-suggest and execute with user confirmation
+- If unclear, present options with reasoning
 
-**Flag Mapping:**
-- `--feature` → Use feature template, full workflow, branch prefix: `feature/`
-- `--enhancement` → Use enhancement template, normal workflow, branch prefix: `enhancement/`
-- `--bug` → Use bug template, normal workflow, branch prefix: `fix/`
-- `--refactor` → Use task template, light workflow, branch prefix: `refactor/`
-- `--chore` → Use task template, light workflow, branch prefix: `chore/`
-- `--docs` → Use task template, minimal workflow, branch prefix: `docs/`
-- `--quick` → Auto-detect type but use minimal workflow
-- `--hotfix` → Use bug template, emergency workflow, branch prefix: `hotfix/`
+**Intelligence Examples:**
+- New: "Add OAuth token refresh" + Existing: "#42 Implement authentication system" → **Sub-issue** (OAuth relates to auth)
+- New: "Fix login button styling" + Existing: "#42 Implement authentication system" → **Sub-issue** (login is part of auth)  
+- New: "Add user dashboard" + Existing: "#42 Implement authentication system" → **Separate** (different feature, but auth dependency)
+- New: "Update README" + Existing: "#42 Implement authentication system" → **Separate** (unrelated)
+- New: "Implement authentication" + Existing: "#42 Implement authentication system" → **Duplicate** (same work)
 
-**Auto-Detection (when no flag provided):**
-If no flag is present, analyze the title for keywords:
-- Words like "add", "create", "implement", "build", "new" → feature
-- Words like "update", "improve", "enhance" → enhancement
-- Words like "fix", "broken", "error", "fails", "bug", "crash" → bug
-- Words like "refactor", "reorganize", "clean", "restructure" → refactor
-- Words like "document", "readme", "docs", "comment" → documentation
-- Words like "dependency", "config", "setup", "chore" → chore
-- If no keywords match → default to task
+### Step 1.5: Select Issue Type
 
-Store the determined type, template path, and workflow mode for use in later steps.
+**Present numbered options to the user:**
 
-**WORKFLOW ROUTING BASED ON FLAG:**
+Based on your title "$TITLE", what type of issue is this?
+
+```
+1. 🚀 Feature - New functionality
+2. ✨ Enhancement - Improve existing functionality  
+3. 🐛 Bug - Something is broken
+4. 🔧 Refactor - Code cleanup (no functional changes)
+5. 📝 Documentation - Update docs/README
+6. 🔨 Chore - Maintenance tasks
+7. 🚨 Hotfix - Emergency fix (skip most checks)
+8. ⚡ Quick - Minimal issue (skip templates)
+
+Choose [1-8]: _
+```
+
+**Smart Auto-Detection:**
+Analyze the title for keywords and suggest default:
+- Words like "add", "create", "implement", "build", "new" → Suggest 1 (Feature)
+- Words like "update", "improve", "enhance" → Suggest 2 (Enhancement)
+- Words like "fix", "broken", "error", "fails", "bug", "crash" → Suggest 3 (Bug)
+- Words like "refactor", "reorganize", "clean", "restructure" → Suggest 4 (Refactor)
+- Words like "document", "readme", "docs", "comment" → Suggest 5 (Documentation)
+- Words like "dependency", "config", "setup", "chore" → Suggest 6 (Chore)
+
+Show suggestion: "Based on keywords, this looks like an Enhancement [2]. Press Enter to accept or choose a different number."
+
+**Type Mapping:**
+- 1 (Feature) → Use feature template, full workflow, branch prefix: `feature/`
+- 2 (Enhancement) → Use enhancement template, normal workflow, branch prefix: `enhancement/`
+- 3 (Bug) → Use bug template, normal workflow, branch prefix: `fix/`
+- 4 (Refactor) → Use task template, light workflow, branch prefix: `refactor/`
+- 5 (Documentation) → Use task template, minimal workflow, branch prefix: `docs/`
+- 6 (Chore) → Use task template, light workflow, branch prefix: `chore/`
+- 7 (Hotfix) → Use bug template, emergency workflow, branch prefix: `hotfix/`
+- 8 (Quick) → Skip templates, minimal workflow
+
+Store the selected type, template path, and workflow mode for use in later steps.
+
+### Step 1.6: Contextual Conversation Based on Type
+
+**Based on the selected type, have a targeted conversation:**
+
+**If Feature (1) selected:**
+```
+"I see you're adding a new feature. Let me help you flesh this out:
+- What problem does this feature solve?
+- Who are the primary users?
+- Are there any existing features this integrates with?
+- Any specific requirements or constraints?"
+```
+
+**If Enhancement (2) selected:**
+```
+"Great, you want to enhance existing functionality. Tell me:
+- What currently exists that you want to improve?
+- What specific improvements are you planning?
+- How will users benefit from this enhancement?
+- Any performance or UX goals?"
+```
+
+**If Bug (3) selected:**
+```
+"Let's document this bug properly:
+- What's the current broken behavior?
+- What should happen instead?
+- Steps to reproduce?
+- Any error messages or logs?
+- How critical is this? (blocking users, minor annoyance, etc.)"
+```
+
+**If Refactor (4) selected:**
+```
+"Refactoring for better code quality. Please provide:
+- What code needs refactoring? (@reference files if possible)
+- Why does it need refactoring? (performance, readability, maintainability)
+- Will this change any external behavior?
+- Any specific patterns you want to follow?"
+```
+
+**If Documentation (5) selected:**
+```
+"Documentation update needed. Tell me:
+- What needs documenting? (new feature, API, setup instructions)
+- Is this updating existing docs or creating new ones?
+- Who's the target audience? (developers, users, admins)
+- Any specific sections that are confusing?"
+```
+
+**If Chore (6) selected:**
+```
+"Maintenance task. Quick details:
+- What needs to be done? (update deps, config changes, cleanup)
+- Any risks or breaking changes?
+- Estimated effort?"
+```
+
+**If Hotfix (7) selected:**
+```
+"🚨 Emergency fix needed! Quick info:
+- What's broken in production?
+- How many users affected?
+- Temporary workaround available?
+- Root cause if known?"
+```
+
+**If Quick (8) selected:**
+```
+"Quick issue - just need the basics:
+- One-line description of what needs doing
+- Any files involved? (@reference them)
+- That's it! Creating minimal issue..."
+```
+
+**Gather responses:**
+- Let user provide answers naturally
+- Use any @-referenced files for additional context
+- If user provides minimal info, ask follow-ups
+- If user provides extensive detail, skip remaining questions
+
+**WORKFLOW ROUTING BASED ON TYPE:**
 
 **If `--quick` flag:** 
 - **JUMP TO MINIMAL WORKFLOW** (Step 5 directly)
@@ -109,7 +307,7 @@ Store the determined type, template path, and workflow mode for use in later ste
 
 **If `--docs` or `--chore` flag:**
 - **USE LIGHT WORKFLOW** 
-- Skip milestones and sprint assignment
+- Skip milestones (sprints handled by GitHub Projects)
 
 **Otherwise continue with full workflow...**
 
@@ -144,7 +342,7 @@ What type of issue should this be?
 **If light workflow (chore/docs)**: 
 - Ask only for size
 - Auto-set complexity=2
-- **SKIP STEPS 9-11** (no milestones/sprints needed)
+- **SKIP STEPS 9-10** (no milestones needed, projects handle sprints)
 
 **If normal/full workflow**: Ask for both:
 - **Complexity** (1-5): How complex is this?
@@ -173,6 +371,45 @@ Based on the determined type from Step 1.5 or Step 2, read the template:
 
 **For minimal/quick workflow**: Skip template loading, create simple issue with just title and description
 **For emergency/hotfix workflow**: Use bug template but skip non-essential sections
+
+### Step 3.5: Compile Issue Details
+
+Use the information gathered from the contextual conversation in Step 1.6:
+
+**Information already collected:**
+- Type-specific details from the conversation
+- User's answers to targeted questions
+- Any @-referenced files provided
+- Context about the problem/feature/enhancement
+
+**Additional details if needed:**
+- If conversation didn't cover everything, ask follow-ups
+- Use @-referenced files to understand implementation context
+- Check for related code that might be affected
+
+**Common sources for details:**
+- **@-referenced files**: Automatically included in context
+- User can paste from a discussion: "Copy from GitHub Discussion #XX"
+- Reference existing documentation: "Based on docs/api-guide.md section Y"  
+- Reference existing code: "Enhance the UserProfile component in src/components/"
+- User provides details directly in response
+- Link to external requirements or designs
+
+**If user references a discussion:**
+- Use mcp__github functions to fetch discussion content
+- Extract key requirements from discussion
+- Reference the discussion in the issue body
+
+**If @-referenced files are provided:**
+- Analyze the code to understand the context
+- Identify specific functions/components mentioned
+- Note any TODO comments or existing issues in code
+- Use this to write more accurate issue description
+
+**If user provides minimal details:**
+- Ask follow-up questions to clarify scope
+- Ask about edge cases or error handling needs
+- Ask about testing requirements
 
 ### Step 4: Fill Template
 
@@ -213,16 +450,33 @@ Use mcp__github__create_issue with:
 - body: filled template with metadata section + testing requirements
 - labels: [issue-type] (ONLY the type: bug, feature, enhancement, refactor, task)
 
-### Step 6: Check Dependencies
+### Step 6: Handle Sub-Issue Creation (If Applicable)
 
-**NOTE: Branch creation happens when work starts (via `/work` command), not during issue creation**
+**If this was marked as a sub-issue in Step 1:**
+- Use the issue number created in Step 5 and the parent issue number from Step 1
+- Add as sub-issue using: `mcp__github__add_sub_issue` with:
+  - owner: vanman2024
+  - repo: multi-agent-claude-code  
+  - issue_number: [parent issue number from Step 1]
+  - sub_issue_id: [newly created issue ID - get from created issue response]
+- Add comment to parent issue noting the new sub-issue
+- Skip milestone assignment (sub-issues inherit parent milestone)
+
+**If this is a standalone issue:**
+- Continue with dependency checking below
+
+### Step 7: Check Dependencies
+
+**REMINDER: No branch exists yet - branches are created by `/work`, not `/create-issue`**
 
 After creating issue, check if it depends on other work:
 
 Ask user if this issue depends on other issues.
 If yes:
-- Add dependency note to issue body using: !`gh issue edit $ISSUE_NUMBER --body-file updated-body.md`
-- Add blocked label using: !`gh issue edit $ISSUE_NUMBER --add-label "blocked"`
+- Add dependency note to issue body using the actual issue number from Step 5
+- Note: "Depends on #[other-issue-number]" in the issue description
+- Do NOT try to add a 'blocked' label (it doesn't exist in most repos)
+- Dependencies are tracked through issue descriptions, not labels
 
 ### Step 8: Agent Assignment
 
@@ -253,7 +507,7 @@ If conditions NOT met (complex OR large OR has blocking labels):
 - Show message: "📋 Requires Claude Code"
 - Determine reason (high complexity, large size, or blocking labels)
 - Add comment explaining why Claude Code is needed using mcp__github__add_issue_comment
-- Include instruction to run `/work #[ISSUE_NUMBER]` when ready
+- Include instruction to run `/work #[actual-issue-number]` when ready (using the issue number from Step 5)
 - Set assignment to "claude-code"
 
 **Task Instructions for Copilot Comments:**
@@ -289,67 +543,97 @@ For default/feature implementation:
 - Follow existing project patterns
 - Add appropriate error handling
 
-### Step 9: Milestone Assignment (Optional)
+### Step 9: Milestone Assignment (Optional - Skip for Sub-Issues)
 
-Ask user if they want to assign a milestone:
+**For sub-issues: ALWAYS SKIP - they inherit parent milestone.**
+**For standalone issues: SKIP for now to avoid errors.**
 
-List available milestones with: !`gh api repos/vanman2024/multi-agent-claude-code/milestones --jq '.[] | "\(.number): \(.title)"'`
+Milestones can be set manually later if needed using:
+- Go to the issue in GitHub
+- Use the milestone dropdown on the right side
+- Available milestones: MVP Core, Beta Release, v1.0 Production, etc.
 
-Ask user to select milestone number (or skip).
+**Future enhancement**: Add proper interactive milestone selection that:
+- Lists your actual milestones (MVP Core, Beta Release, etc.)
+- Lets you choose by name, not number
+- Only assigns if you actually select one
 
-If milestone selected:
-- Get milestone title for confirmation
-- Assign to issue using: !`gh issue edit $ISSUE_NUMBER --milestone $MILESTONE_NUMBER`
+### Step 10: GitHub Projects Integration (Future)
 
-If no milestone selected:
-- Note that it can be set manually later
+**Note**: Sprint management will be handled through GitHub Projects, not labels.
 
-### Step 10: Sprint Assignment (Optional)
+For now, skip automatic project assignment. Issues can be manually added to project boards later.
 
-Ask if this should be added to current sprint:
+When GitHub Projects integration is implemented:
+- Issues will be automatically added to active project
+- Sprint/iteration assignment will be handled by project automation
+- No manual sprint labels needed
 
-If yes:
-- Add sprint label using: !`gh issue edit $ISSUE_NUMBER --add-label "sprint:current"`
-- Check sprint capacity with: !`gh issue list --label "sprint:current" --json number | jq length`
-- Warn if sprint has more than 10 issues
-
-### Step 11: Priority Setting
+### Step 10.5: Priority Setting
 
 Ask for priority (P0/P1/P2/P3) and add it to the metadata section in issue body.
 DO NOT add priority as a label - it's tracked in the metadata and project board fields.
 
-### Step 12: Summary
+### Step 11: Summary & Context Return
 
 Provide the user with:
 
-Get the issue URL using: !`gh issue view $ISSUE_NUMBER --json url --jq .url`
+Get the issue URL using the actual issue number from Step 5.
+- Use the issue number that was just created, NOT a hardcoded example
+- Command pattern: gh issue view [ACTUAL_ISSUE_NUMBER] --json url --jq .url
 
-Show summary:
-- ✅ Issue Created: #[ISSUE_NUMBER]
-- 📋 Type: [ISSUE_TYPE]
-- 🏷️ Labels: (get from issue using gh issue view)
-- 🤖 Assignment: [ASSIGNMENT]
-- 🔗 URL: [ISSUE_URL]
+Show summary with actual values from the created issue:
+- ✅ Issue Created: #(actual issue number from Step 5)
+- 📋 Type: (actual type determined in Step 1.5/Step 2)
+- 🏷️ Labels: (get from issue using gh issue view with actual issue number)
+- 🤖 Assignment: (copilot or claude-code based on Step 8)
+- 🔗 URL: (actual URL retrieved above)
 
 If assignment is "copilot":
 - Note that Copilot will begin work automatically
 
 If assignment is "claude-code":
-- Tell user to run `/work #[ISSUE_NUMBER]` to start implementation
+- Tell user to run `/work #[actual-issue-number]` to start implementation
+
+### Step 12: Return to Previous Context (If Stashed)
+
+**If work was stashed in Step 0:**
+
+Ask user: "Would you like to return to your previous work on Issue #141?"
+
+If yes:
+- Show: "Returning to branch 141-add-type-and-workflow-flags..."
+- Switch back: !`git checkout 141-add-type-and-workflow-flags-to-create-issue-command`
+- Show stash list: !`git stash list | head -5`
+- Apply the stash: !`git stash pop stash@{0}`
+- Confirm: "✅ Restored your work on Issue #141"
+
+If no:
+- Remind: "Your work is saved in stash@{0}. Use 'git stash pop' when ready to return."
+- Stay on main branch
+
+**If user wants to work on the new issue immediately:**
+- Suggest: "Use `/work #[new-issue-number]` to start work on the new issue"
+- Explain: "This will create a NEW branch for issue #[new-issue-number]"
+- Note: "Your previous work on branch 141 remains stashed"
+- Important: "You can return to branch 141 later with: git checkout 141-... && git stash pop" (using the issue number from Step 5)
 
 ## Important Notes
 
+- **Branches are created by `/work`, NOT by `/create-issue`**
+  - `/create-issue` only creates the GitHub issue
+  - `/work #123` creates the branch and draft PR
+  - This separation keeps planning (issues) separate from implementation (branches)
 - GitHub Actions will automatically handle project board updates
-- Branches are created when work starts (via `/work`), not during issue creation
 - Branch prefixes are determined by issue type (feature/, enhancement/, fix/, etc.)
 - No manual project board management needed
 - Dependencies should be tracked with "Depends on #XX" in issue body
-- Sprint labels help with work prioritization in `/work` command
+- GitHub Projects will handle sprint/iteration management
 - **Milestones**:
   - Used for high-level release goals (MVP Core, Beta, v1.0)
   - NOT automatically assigned based on priority/type
   - Can be set manually or left blank for later assignment
-  - Different from Projects (which track sprints/when work happens)
+  - Projects handle sprints, iterations, and work prioritization
 - **Copilot Capabilities**:
   - **Implementation**: Simple features (Complexity ≤2, Size XS/S)
   - **Unit Tests**: Can write comprehensive test suites
