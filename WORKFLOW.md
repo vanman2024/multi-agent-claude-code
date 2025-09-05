@@ -98,6 +98,33 @@ gh pr merge
 3. **Branches live on GitHub** - All WIP branches are pushed for backup/visibility
 4. **PRs connect everything** - When ready, PR can reference issues or stand alone
 
+### Branch Scope: One Branch = One Logical Feature
+
+**The Golden Rule: A branch represents a coherent piece of work, NOT individual tiny tasks.**
+
+#### ✅ CORRECT: One branch for entire feature
+```bash
+/wip add-user-auth
+# This ONE branch includes ALL auth work:
+# - Login form (might be issue #123)
+# - Password reset (might be issue #124)
+# - JWT tokens (might be issue #125)
+# - User profile (might be issue #126)
+# All related → Same branch!
+
+# When done:
+gh pr create --body "Complete auth system
+Closes #123, #124, #125, #126"
+```
+
+#### ❌ WRONG: Separate branches for each piece
+```bash
+# DON'T create 10 branches for 1 feature:
+/wip add-login-form      # Unnecessary!
+/wip add-password-field  # Too granular!
+/wip create-jwt-token    # Cluttered!
+```
+
 ### Branch Lifecycle
 
 ```
