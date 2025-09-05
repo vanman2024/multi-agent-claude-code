@@ -38,9 +38,34 @@ if [[ -n "$ARGUMENTS" ]]; then
   # User provided a name
   BRANCH_NAME="$ARGUMENTS"
 else
-  # Auto-generate name with date
-  BRANCH_NAME="wip-$(date +%Y%m%d-%H%M)"
-  echo "📝 Auto-generated branch name: $BRANCH_NAME"
+  # Ask what they're working on
+  echo "What are you working on? (brief description)"
+  echo "Examples: 'fix-commands', 'update-docs', 'explore-auth'"
+  echo ""
+  echo "Enter description (or press Enter for 'general-fixes'):"
+  
+  # In slash command context, we'll prompt for input
+  # Default to something meaningful if no response
+  read -r WORK_DESCRIPTION
+  
+  if [[ -z "$WORK_DESCRIPTION" ]]; then
+    BRANCH_NAME="general-fixes"
+  else
+    # Convert description to branch name
+    # "Fix slash commands" → "fix-slash-commands"
+    BRANCH_NAME=$(echo "$WORK_DESCRIPTION" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd '[:alnum:]-')
+  fi
+  
+  echo "📝 Branch name: $BRANCH_NAME"
+fi
+
+# Check if branch already exists
+if git show-ref --quiet refs/heads/"$BRANCH_NAME"; then
+  echo "⚠️ Branch '$BRANCH_NAME' already exists!"
+  echo "Options:"
+  echo "1. Switch to existing branch: git checkout $BRANCH_NAME"
+  echo "2. Create new branch: /wip $BRANCH_NAME-2"
+  exit 1
 fi
 
 # Create and switch to branch
@@ -52,20 +77,23 @@ echo "✅ Created and switched to branch: $BRANCH_NAME"
 
 Create a lightweight TodoWrite list for tracking:
 ```bash
-echo "What are you working on? (brief description)"
-# Example: "Fixing slash commands"
+# Use the description from branch creation
+if [[ -z "$WORK_DESCRIPTION" ]]; then
+  WORK_DESCRIPTION="General improvements"
+fi
 
 # Create simple todos
 TodoWrite([
   {
-    content: "Explore/iterate on: $DESCRIPTION",
+    content: "Work on: $WORK_DESCRIPTION",
     status: "in_progress",
-    activeForm: "Working on: $DESCRIPTION"
+    activeForm: "Working on: $WORK_DESCRIPTION"
   }
 ])
 
 echo "💡 Simple workspace ready. No issue created."
 echo "📝 This is for iterative/exploratory work."
+echo "📌 Working on: $WORK_DESCRIPTION"
 ```
 
 ### Step 4: Provide Next Steps
@@ -93,17 +121,25 @@ echo "No issue needed unless this becomes a feature!"
 ## Examples
 
 ```bash
-# Auto-named branch for quick exploration
+# Interactive - asks what you're working on
 /wip
-→ Creates: wip-20250905-1430
+→ Prompt: "What are you working on?"
+→ You type: "fixing slash commands"
+→ Creates: fix-slash-commands
 
-# Named branch for specific work
-/wip fix-typos
-→ Creates: fix-typos
+# Direct - provide branch name
+/wip update-docs
+→ Creates: update-docs
 
-# Continue existing WIP
-/wip --continue
-→ Shows existing WIP branches to resume
+# Default - just press Enter when asked
+/wip
+→ Prompt: "What are you working on?"
+→ You press Enter
+→ Creates: general-fixes
+
+# Resume existing work
+git checkout existing-branch
+→ Switches to existing WIP branch
 ```
 
 ## When to Use This vs /create-issue
