@@ -19,6 +19,7 @@ When user runs `/discussions $ARGUMENTS`, manage GitHub Discussions.
 - DO NOT create any scripts or files
 - Use MCP functions and Bash commands directly
 - STOP after completing the requested action (don't update command files)
+- To create issues from discussions, use `/work --discussion <number>` instead
 
 ### Initial Setup Check
 
@@ -44,12 +45,11 @@ What would you like to do with discussions?
 
 1. 💡 Create new discussion
 2. 📋 List existing discussions  
-3. 🔄 Convert discussion to issue
-4. 👁️ View specific discussion
-5. 🔍 Find similar/overlapping discussions
-6. 🔗 Consolidate multiple discussions
+3. 👁️ View specific discussion
+4. 🔍 Find similar/overlapping discussions
+5. 🔗 Consolidate multiple discussions
 
-Choose [1-6]:
+Choose [1-5]:
 ```
 
 ### Option 1: Create New Discussion
@@ -80,25 +80,7 @@ For topic provided in `$ARGUMENTS` or asked from user:
    - perPage: 20
 4. Display discussions with their category labels for context
 
-### Option 3: Convert Discussion to Issue
-
-**Note**: GitHub API doesn't support native conversion. We create a linked issue.
-
-1. List discussions and let user choose one
-2. Get discussion details via mcp__github__get_discussion
-3. Analyze content for keywords to suggest issue type:
-   - Bug keywords → suggest "bug" (use @templates/local_dev/bug-template.md)
-   - Feature keywords → suggest "feature" (use @templates/local_dev/feature-template.md)
-   - Otherwise → suggest "task" (use @templates/local_dev/task-template.md)
-4. Let user confirm or change type
-5. Create issue with mcp__github__create_issue:
-   - Use appropriate template based on type
-   - Title with [TYPE] prefix
-   - Link to original discussion
-   - Adapt discussion content to fit the chosen template structure
-6. Add comment to discussion linking to new issue
-
-### Option 4: View Specific Discussion
+### Option 3: View Specific Discussion
 
 Use mcp__github__get_discussion with:
 - owner: "vanman2024"
@@ -107,7 +89,7 @@ Use mcp__github__get_discussion with:
 
 Then get comments with mcp__github__get_discussion_comments
 
-### Option 5: Find Similar/Overlapping Content
+### Option 4: Find Similar/Overlapping Content
 
 When checking for overlaps (efficiently):
 1. Ask user for keywords or topic to search
@@ -125,7 +107,7 @@ When checking for overlaps (efficiently):
 5. Show results grouped by type (Issues vs Discussions)
 6. Suggest consolidation or linking if high overlap detected
 
-### Option 6: Consolidate Multiple Discussions
+### Option 5: Consolidate Multiple Discussions
 
 For consolidating overlapping content:
 1. **Check if existing issue already covers this**:
@@ -156,8 +138,8 @@ For consolidating overlapping content:
 
 - GitHub doesn't expose native "Convert to Issue" functionality via API
 - Discussions cannot be automatically closed when converted
-- The conversion creates a new linked issue, not a true conversion
 - Manual UI interaction required for native conversion
+- **Use `/work --discussion <number>` to create issues from discussions with proper workflow**
 
 ## Efficiency Considerations
 
