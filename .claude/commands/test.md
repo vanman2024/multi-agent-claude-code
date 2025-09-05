@@ -53,11 +53,11 @@ Parse optional arguments in `$ARGUMENTS`:
 
 **CRITICAL**: Before using any agents, check if tests already exist.
 
-Check for test directories:
-!ls -d __tests__ tests test 2>/dev/null | head -1
+Check for test directories (ONLY __tests__ is valid):
+!ls -d __tests__ 2>/dev/null
 
-Check for test files:
-!ls *.test.* *.spec.* 2>/dev/null | head -5
+Check for test files in __tests__:
+!ls __tests__/**/*.test.* __tests__/**/*.spec.* 2>/dev/null | head -10
 
 **CRITICAL ROUTING DECISION - NO AGENTS BY DEFAULT**:
 
@@ -100,13 +100,19 @@ If frontend testing needed:
 
 Use Task tool with:
 - subagent_type: frontend-playwright-tester
-- description: Run frontend E2E and component tests
+- description: Create or run frontend E2E and component tests
 - prompt: |
-    Run comprehensive frontend tests for this project:
-    1. Check for test files in tests/, e2e/, or __tests__ directories
-    2. Run component tests if available (Jest/Vitest)
-    3. Run E2E tests using Playwright
-    4. Test across multiple browsers if configured
+    IMPORTANT: ALL tests MUST be created in the __tests__/ directory structure:
+    - Component tests: __tests__/components/[ComponentName].test.tsx
+    - E2E tests: __tests__/e2e/[flow-name].e2e.test.ts
+    - Hook tests: __tests__/hooks/[hookName].test.ts
+    - Page tests: __tests__/pages/[page].test.tsx
+    
+    Tasks:
+    1. Check for existing test files in __tests__/ directory
+    2. If --create flag: Create new tests in appropriate __tests__ subdirectory
+    3. Run component tests if available (Jest/Vitest)
+    4. Run E2E tests using Playwright
     5. Generate coverage report if available
     6. Report results with pass/fail summary
     
@@ -119,16 +125,23 @@ If backend testing needed:
 
 Use Task tool with:
 - subagent_type: backend-tester
-- description: Run backend API and unit tests
+- description: Create or run backend API and unit tests
 - prompt: |
-    Run comprehensive backend tests for this project:
-    1. Detect testing framework (pytest/go test/jest/mocha)
-    2. Run unit tests for all services and utilities
-    3. Run integration tests for API endpoints
-    4. Test database operations with proper rollback
-    5. Validate API responses and status codes
-    6. Generate coverage report if available
-    7. Report results with detailed failures
+    IMPORTANT: ALL tests MUST be created in the __tests__/ directory structure:
+    - API tests: __tests__/api/[endpoint].test.ts
+    - Service tests: __tests__/services/[service].test.ts
+    - Utility tests: __tests__/utils/[utility].test.ts
+    
+    Tasks:
+    1. Check for existing test files in __tests__/ directory
+    2. If --create flag: Create new tests in appropriate __tests__ subdirectory
+    3. Detect testing framework (pytest/go test/jest/mocha)
+    4. Run unit tests for all services and utilities
+    5. Run integration tests for API endpoints
+    6. Test database operations with proper rollback
+    7. Validate API responses and status codes
+    8. Generate coverage report if available
+    9. Report results with detailed failures
     
     Test type requested: $ARGUMENTS
     Focus on: ${detected_changes_or_all}
