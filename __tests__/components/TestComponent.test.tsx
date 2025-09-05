@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import TestComponent from '../src/components/TestComponent'
+import TestComponent from '../../src/components/TestComponent'
 
 describe('TestComponent', () => {
   it('renders correctly', () => {
