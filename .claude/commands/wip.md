@@ -46,12 +46,25 @@ Check if user provided a branch name in $ARGUMENTS.
 - Push to GitHub: !`git push -u origin HEAD`
 - Say: "Created new branch: [branch name]"
 
-### Step 3: Track with TodoWrite
+### Step 3: Track with TodoWrite PERSISTENTLY
 
-Create or update the todo:
-- If resuming: "Resume work on: [branch name]"
-- If new: "Work on: [branch name/description]"
+**IMPORTANT: Use TodoWrite to maintain a persistent list of WIP branches**
+
+When CREATING new branch:
+- Add a NEW todo: "WIP: [branch name] - [description]"
 - Status: "in_progress"
+- This todo stays until the branch is merged or abandoned
+
+When RESUMING existing branch:
+- Find the existing todo for this branch if it exists
+- If no todo exists, create one: "WIP: [branch name] - resumed work"
+- Mark it as "in_progress" (others might be "pending")
+- This helps track all active WIP branches
+
+The TodoWrite list becomes your WIP dashboard showing:
+- All branches you're working on
+- Which one is currently active (in_progress)
+- Which are paused (pending)
 
 ### Step 4: Show relevant info
 
@@ -60,3 +73,25 @@ Tell user:
 - Whether it was created new or resumed
 - "Commit and push: git add -A && git commit -m 'wip: message' && git push"
 - "Create PR when ready: gh pr create --fill"
+
+### Step 5: When work is complete
+
+When user is done with a WIP branch, they have options:
+
+**Option A: Convert to PR (most common)**
+- Run: `gh pr create --fill`
+- This creates a PR from the WIP branch
+- Update TodoWrite: Mark the WIP todo as "completed"
+- The branch lives on in the PR
+
+**Option B: Merge directly (for tiny fixes)**
+- Merge to main locally
+- Push main
+- Delete the WIP branch
+- Update TodoWrite: Mark as "completed"
+
+**Option C: Abandon the work**
+- Delete branch locally and on GitHub
+- Update TodoWrite: Remove the todo or mark as "completed" with note
+
+The TodoWrite list helps track which WIP branches are still active vs done.
