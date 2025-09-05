@@ -15,15 +15,35 @@ Show the user all their WIP branches and what's being worked on.
 Run: !`git branch --show-current`
 Tell user: "Currently on branch: [branch name]"
 
-### Step 2: Show all local WIP branches
+### Step 2: Show worktree branches FIRST
 
-Run: !`git branch | grep -E "wip-|fix-|explore-|update-|general-"`
-Show the list of WIP-style branches
+Run: !`git worktree list`
+This shows all worktrees with their paths and current branches.
 
-### Step 3: Show GitHub branches
+If there are worktrees, display them clearly:
+```
+📁 WORKTREE BRANCHES (checked out in separate directories):
+  - [branch-name] at [path]
+  - [branch-name] at [path]
+```
 
-Run: !`gh api repos/vanman2024/multi-agent-claude-code/branches --jq '.[].name' | grep -E "wip-|fix-|explore-|update-|general-"`
-Show WIP branches that exist on GitHub
+### Step 3: Show all local WIP branches
+
+Run: !`git branch | grep -E "wip-|fix-|explore-|update-|general-|^[0-9]+-"`
+Show the list of WIP-style branches AND issue branches (starting with numbers).
+
+For each branch, check if it's in a worktree:
+- If it's in a worktree, mark with 📁 icon
+- If not, mark with 🌿 icon
+
+### Step 4: Show GitHub branches
+
+Run: !`gh api repos/vanman2024/multi-agent-claude-code/branches --jq '.[].name' | grep -E "wip-|fix-|explore-|update-|general-|^[0-9]+-"`
+Show WIP branches that exist on GitHub.
+
+Cross-reference with worktree list:
+- Mark worktree branches with 📁
+- Mark regular branches with 🌿
 
 ### Step 4: Show TodoWrite WIP items
 

@@ -17,46 +17,54 @@ First check: !`git status --short`
 If there are changes shown, stash them:
 Run: !`git stash push -m "WIP: Stashed before switching branches"`
 
-### Step 2: Handle based on arguments
+### Step 2: Check for worktrees
+
+Check if branch is in a worktree: !`git worktree list --porcelain | grep "branch refs/heads/$ARGUMENTS" | head -1`
+
+If the branch exists in a worktree:
+- Get the worktree path from the output
+- Tell user: "⚠️ Branch '$ARGUMENTS' is already checked out in worktree at: [path]"
+- Provide options:
+  1. Navigate to that worktree: `cd [worktree path]`
+  2. Work on a different branch: `/wip [different-name]`
+- STOP HERE - don't try to checkout
+
+### Step 3: Handle based on arguments
 
 **If $ARGUMENTS is empty (user just typed /wip):**
 1. ASK THE USER: "What are you working on? (e.g., 'fix commands', 'update docs')"
 2. Wait for their response
 3. Convert response to branch name (lowercase, replace spaces with hyphens)
 4. If no response, use "general-fixes" as branch name
-5. Create the new branch with git checkout -b [branch-name]
-6. Push to GitHub with git push -u origin HEAD
-7. Add to TodoWrite: "WIP: [branch-name] - [description]"
+5. Check if this branch is in a worktree first (see Step 2)
+6. ASK: "Do you want to create this as a worktree? (y/n)"
+   - Explain: "Worktrees let you work on multiple branches simultaneously in different directories"
+7. If YES to worktree:
+   - Create worktree: `git worktree add ../worktrees/[branch-name] -b [branch-name]`
+   - Tell user: "📁 Created worktree at: ../worktrees/[branch-name]"
+   - Tell user: "Navigate there with: cd ../worktrees/[branch-name]"
+8. If NO to worktree:
+   - Create the new branch with git checkout -b [branch-name]
+9. Push to GitHub with git push -u origin HEAD
+10. Add to TodoWrite: "WIP: [branch-name] - [description] [worktree]" (mark if worktree)
 
 **If $ARGUMENTS has a value (user typed /wip branch-name):**
-1. First try to checkout existing branch with: git checkout $ARGUMENTS
-2. If that succeeds:
+1. Check for worktree first (see Step 2)
+2. First try to checkout existing branch with: git checkout $ARGUMENTS
+3. If that succeeds:
    - Pull latest: git pull origin $ARGUMENTS
    - Say: "Resumed work on branch: $ARGUMENTS"
-3. If checkout fails (branch doesn't exist):
-   - Create new branch: git checkout -b $ARGUMENTS
+4. If checkout fails (branch doesn't exist):
+   - ASK: "Branch '$ARGUMENTS' doesn't exist. Create as worktree? (y/n)"
+   - If YES to worktree:
+     - Create worktree: `git worktree add ../worktrees/$ARGUMENTS -b $ARGUMENTS`
+     - Tell user: "📁 Created worktree at: ../worktrees/$ARGUMENTS"
+     - Tell user: "Navigate there with: cd ../worktrees/$ARGUMENTS"
+   - If NO to worktree:
+     - Create new branch: git checkout -b $ARGUMENTS
    - Push to GitHub: git push -u origin HEAD
    - Say: "Created new branch: $ARGUMENTS"
-4. Update TodoWrite to mark this branch as "in_progress"
-
-<<<<<<< HEAD
-### Step 3: Show status
-
-Tell user:
-- Current branch name
-- Whether it was created or resumed
-- "Commit: git add -A && git commit -m 'wip: message' && git push"
-- "Create PR when ready: gh pr create --fill"
-=======
-**If $ARGUMENTS is empty:**
-- This means they want to CREATE a new branch
-- ASK THE USER: "What are you working on? (e.g., 'fix commands', 'update docs')"
-- Wait for their response
-- Convert response to branch name (lowercase, replace spaces with hyphens)
-- If no response, use "general-fixes"
-- Create branch: git checkout -b [converted name]
-- Push to GitHub: !`git push -u origin HEAD`
-- Say: "Created new branch: [branch name]"
+5. Update TodoWrite to mark this branch as "in_progress"
 
 ### Step 3: Track with TodoWrite PERSISTENTLY
 
@@ -107,4 +115,3 @@ When user is done with a WIP branch, they have options:
 - Update TodoWrite: Remove the todo or mark as "completed" with note
 
 The TodoWrite list helps track which WIP branches are still active vs done.
->>>>>>> iterative-copilot-fixes
