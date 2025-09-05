@@ -4,6 +4,17 @@
 
 This guide captures the complete strategy for developing AI-powered applications (like "Red" - the Red Seal exam tutor) using mock testing to preserve agent personality and behavior from development through production deployment.
 
+### The Fundamental Truth
+
+> **"Testing is one of the largest, most crucial parts of any application. Without it, applications significantly fail in production."**
+
+This is especially true for AI agents where:
+- Behavior is non-deterministic
+- Personality drift destroys user experience
+- API costs can spiral out of control
+- Production failures are harder to debug
+- User trust is difficult to rebuild
+
 ## Table of Contents
 
 1. [The Core Challenge](#the-core-challenge)
