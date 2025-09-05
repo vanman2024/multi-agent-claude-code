@@ -1,10 +1,47 @@
 ---
 allowed-tools: Task(*), mcp__github(*), Bash(*), Read(*), Write(*), Edit(*), TodoWrite(*)
 description: Intelligently selects and implements work based on sprint priorities and dependencies
-argument-hint: [#issue-number] [--deploy] [--discussion #num] [--resume] [--status]
+argument-hint: [#issue-number] | --status | --resume | --deploy | --discussion #num | --copilot-first | --copilot-review | --copilot-only | --no-copilot | --parallel
 ---
 
 # Work - Intelligent Implementation Command
+
+## Quick Help (if --help flag provided)
+
+If user runs `/work --help`, display this and exit:
+
+```
+/work - Intelligent work implementation with context awareness
+
+USAGE:
+  /work [#issue-number]         Work on specific issue
+  /work                         Auto-select next priority issue
+  /work --status               Show all your active work
+  /work --resume               Resume most recent work
+  
+FLAGS:
+  --status                     Show triage view of all active work
+  --resume                     Auto-resume most recent incomplete work
+  --deploy                     Deploy current branch to production
+  --discussion <num>           Create issue from discussion #num
+  
+COPILOT INTEGRATION:
+  --copilot-first             Try Copilot first, Claude as backup
+  --copilot-review            Get Copilot's code review  
+  --copilot-only              Only assign to Copilot (no Claude)
+  --no-copilot                Bypass Copilot, use Claude directly
+  --parallel                  Work with Copilot simultaneously
+  
+EXAMPLES:
+  /work                        Smart selection from sprint
+  /work #142                   Work on issue #142
+  /work --status              See all active work
+  /work --resume              Continue where you left off
+  /work --discussion 125      Convert discussion to issue
+  /work #150 --copilot-first  Try Copilot, Claude as backup
+  
+For detailed flag documentation, see: FLAGS.md
+```
 
 ## Context
 - Current branch: !`git branch --show-current`

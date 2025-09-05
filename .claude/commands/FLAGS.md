@@ -41,6 +41,50 @@ This document provides a comprehensive reference for all flags available in slas
 - Runs Vercel deployment for current branch
 - Shows deployment URL when complete
 
+### Copilot Integration Flags
+
+#### `--copilot-first`
+**Purpose**: Try Copilot first for simple tasks, Claude as backup  
+**Usage**: `/work #150 --copilot-first`  
+**Token Savings**: ~80% for simple tasks  
+**Behavior**:
+- Assigns simple tasks to Copilot
+- Claude monitors progress
+- Claude takes over if Copilot gets stuck
+
+#### `--copilot-review`
+**Purpose**: Get Copilot's code review on current work  
+**Usage**: `/work --copilot-review`  
+**Behavior**:
+- Requests Copilot review on current PR
+- Pulls in Copilot's suggestions
+- Claude can implement the suggestions
+
+#### `--copilot-only`
+**Purpose**: Only use Copilot, no Claude involvement  
+**Usage**: `/work #142 --copilot-only`  
+**Token Savings**: 100% - No Claude tokens used  
+**Behavior**:
+- Assigns to Copilot
+- Monitors status only
+- No Claude implementation
+
+#### `--no-copilot`
+**Purpose**: Bypass Copilot entirely, use Claude directly  
+**Usage**: `/work #142 --no-copilot`  
+**Behavior**:
+- Skips Copilot assignment check
+- Claude handles everything
+- Useful for complex tasks Copilot can't handle
+
+#### `--parallel`
+**Purpose**: Claude and Copilot work simultaneously  
+**Usage**: `/work #142 --parallel`  
+**Behavior**:
+- Splits work between Claude and Copilot
+- Both work on different aspects
+- Merges results when complete
+
 ## /test Command Flags
 
 ### Test Execution Flags
