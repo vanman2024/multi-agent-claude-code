@@ -80,7 +80,20 @@ When user runs `/create-issue $ARGUMENTS`, follow these steps:
 Check current branch with: !`git branch --show-current`
 Check for uncommitted changes with: !`git status --short`
 
-**If on a feature branch with uncommitted changes:**
+**If there are merge conflicts (UU status):**
+```
+⚠️ You have unresolved merge conflicts!
+
+Please resolve conflicts first:
+1. Fix conflicts in the marked files
+2. Run: git add <resolved-files>
+3. Then try /create-issue again
+
+Or abort the merge: git merge --abort
+```
+Stop here - cannot proceed with conflicts.
+
+**If on a feature branch with uncommitted changes (no conflicts):**
 ```
 📍 You're currently on: 141-add-type-and-workflow-flags
 📝 You have uncommitted changes
