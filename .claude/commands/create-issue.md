@@ -78,11 +78,17 @@ When user runs `/create-issue $ARGUMENTS`, follow these steps:
 **First, check current branch and working state:**
 
 Check current branch with: !`git branch --show-current`
-Check for uncommitted changes with: !`git status --short`
+Check git state with: !`git status --short`
 
 **IMPORTANT: Do NOT attempt to checkout main until after handling the current state!**
 
-**If there are merge conflicts (UU status):**
+**First, check for any blocking conditions:**
+
+1. Check for merge/rebase conflicts (look for UU, DD, AA, DU, AU, UD, UA in status)
+2. Check if in middle of rebase: !`test -d .git/rebase-merge && echo "rebase in progress"`
+3. Check if in middle of merge: !`test -f .git/MERGE_HEAD && echo "merge in progress"`
+
+**If there are conflicts or operations in progress:**
 ```
 ⚠️ You have unresolved merge conflicts!
 
