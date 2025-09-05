@@ -1,6 +1,7 @@
 {
   "name": "multi-agent-framework-test",
   "framework": "nextjs",
+  "ignoreCommand": "./vercel-ignore-build.sh",
   "github": {
     "enabled": true,
     "autoAlias": true,

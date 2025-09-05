@@ -15,6 +15,13 @@ fi
 if [[ -n "$VERCEL_GIT_PULL_REQUEST_ID" ]]; then
   echo "📋 Pull Request #$VERCEL_GIT_PULL_REQUEST_ID detected"
   
+  # Skip build for Copilot PRs (they need human review first)
+  if [[ "$VERCEL_GIT_COMMIT_REF" == copilot/* ]]; then
+    echo "🤖 Copilot PR detected - skipping automatic deployment"
+    echo "❌ Copilot PRs require human review before deployment"
+    exit 1
+  fi
+  
   # Check GitHub API for checkbox status (requires GITHUB_TOKEN in Vercel env)
   if [[ -n "$GITHUB_TOKEN" ]]; then
     echo "🔍 Checking issue checkbox status..."
