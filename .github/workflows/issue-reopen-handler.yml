@@ -124,11 +124,15 @@ ${labels.map(l => `- \`${l}\``).join('\n')}
               });
               
               // Add confirmation comment
+              const confirmationBody = [
+                `✅ Issue reopened by @${commenter}`,
+                '',
+                'This issue needs additional work. Please review the latest comments for context.'
+              ].join('\n');
+              
               await github.rest.issues.createComment({
                 ...issue,
-                body: `✅ Issue reopened by @${commenter}
-                
-This issue needs additional work. Please review the latest comments for context.`
+                body: confirmationBody
               });
             } else {
               // No permission to reopen

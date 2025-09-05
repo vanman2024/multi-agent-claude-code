@@ -1,18 +1,18 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 export default function TestComponent() {
-  const [count, setCount] = useState(0)
-  const [apiResponse, setApiResponse] = useState<string | null>(null)
+  const [count, setCount] = useState(0);
+  const [apiResponse, setApiResponse] = useState<string | null>(null);
 
   const testAPI = async () => {
     try {
-      const res = await fetch('/api/health')
-      const data = await res.json()
-      setApiResponse(JSON.stringify(data, null, 2))
-    } catch (error) {
-      setApiResponse('Error fetching API')
+      const res = await fetch('/api/health');
+      const data = await res.json();
+      setApiResponse(JSON.stringify(data, null, 2));
+    } catch {
+      setApiResponse('Error fetching API');
     }
-  }
+  };
 
   return (
     <div style={{ 
@@ -70,5 +70,5 @@ export default function TestComponent() {
         )}
       </div>
     </div>
-  )
-}
+  );
+};

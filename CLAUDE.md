@@ -20,6 +20,63 @@ This Multi-Agent Development Framework template provides:
 
 When someone clones this template, they get a complete development framework ready to build their actual application.
 
+## Working Modes
+
+### Template Mode (Building the Framework)
+**Use this mode when developing/improving this template repository itself**
+
+- **Direct commits allowed** for template improvements
+- **PRs optional** for significant changes  
+- **Simplified workflow** since no CI/CD is running on template
+- **Flexible approach** to quickly iterate on framework features
+
+**When to use Template Mode:**
+- Adding new slash commands
+- Updating documentation
+- Fixing workflow automation
+- Improving agent configurations
+- General template maintenance
+
+**Workflow in Template Mode:**
+```bash
+git pull
+# make changes directly
+git add -A
+git commit -m "feat: Add new feature to template"
+git push
+```
+
+### Application Mode (Using the Framework)
+**Use this mode when building actual applications with this template**
+
+- **STRICT workflow required**: Issue → PR → Review → Merge
+- **All changes need PRs** with proper reviews
+- **Full CI/CD validation** on every PR
+- **No direct commits** to main branch
+- **Complete testing** before merge
+
+**When to use Application Mode:**
+- Building production applications
+- Working with a team
+- When CI/CD is configured
+- For any code that will be deployed
+
+**Workflow in Application Mode:**
+```bash
+/create-issue "Add user authentication"
+/work #123  # Creates branch and draft PR
+# implement with tests
+# PR review process
+# CI/CD validation
+# Merge when all checks pass
+```
+
+### Key Distinction
+- **Template Mode** = Building/improving the framework itself (flexible)
+- **Application Mode** = Using the framework to build apps (strict)
+
+When you clone this template for a new project, immediately switch to Application Mode and follow the full workflow.
+
 ## AI Agent Integration
 
 ### How AI Agents Work in This Framework
@@ -273,6 +330,42 @@ These are typically ignored by git history anyway and creating issues/PRs for ev
    - Branch is deleted
    - Deployment triggers (if configured)
 
+### 📝 CRITICAL: All Commits Must Reference the Issue
+
+**GitHub requires explicit issue references in EVERY commit message** for them to appear in the issue timeline.
+
+Even though your branch is named `123-feature-name` and was created with `gh issue develop 123`, GitHub will NOT automatically link commits to the issue. This is a GitHub limitation.
+
+**EVERY commit must include the issue number:**
+```bash
+# ✅ CORRECT - These will show in issue timeline:
+git commit -m "feat: Add authentication
+
+Related to #123"
+
+git commit -m "fix: Update validation logic #123"
+
+git commit -m "docs: Update README
+
+Part of #123"
+
+# ❌ WRONG - These will NOT show in timeline:
+git commit -m "feat: Add authentication"  # No issue reference!
+```
+
+**Reference types to use:**
+- `Related to #123` - For most commits
+- `Part of #123` - For partial work
+- `Updates #123` - For updates
+- `#123` - Simple reference
+- `Closes #123` - ONLY in final PR or last commit (use once!)
+
+**Why this matters:**
+- Without references, commits are invisible in issue timeline
+- Can't track what work was done for an issue
+- Loses audit trail and traceability
+- Makes debugging and reviews difficult
+
 ### ❌ Common Mistakes to AVOID
 
 **NEVER DO THIS:**
@@ -287,6 +380,33 @@ These are typically ignored by git history anyway and creating issues/PRs for ev
 - Use `/work` command to start implementation
 - Keep issues as planning docs only
 - Put all code/commits in PRs
+
+## Working with GitHub Discussions
+
+### Adding Comments to Discussions
+To add a comment to a GitHub Discussion, you need to:
+1. First get the discussion ID using GraphQL
+2. Then use that ID with the addDiscussionComment mutation
+
+```bash
+# Get discussion ID
+DISCUSSION_ID=$(gh api graphql -f query='
+query {
+  repository(owner: "OWNER", name: "REPO") {
+    discussion(number: NUMBER) {
+      id
+    }
+  }
+}' --jq .data.repository.discussion.id)
+
+# Add comment
+gh api graphql -f query='
+mutation($discussionId: ID!, $body: String!) {
+  addDiscussionComment(input: {discussionId: $discussionId, body: $body}) {
+    comment { id }
+  }
+}' -F discussionId="$DISCUSSION_ID" -F body="Your comment text"
+```
 
 ## Working with MCP Servers
 
@@ -382,7 +502,7 @@ Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude 
    ```
 2. **CHECK if topic is already covered**:
    - WORKFLOW.md covers ALL workflow-related topics
-   - CHECKBOXES.md covers ALL checkbox topics  
+   - docs/CHECKBOXES.md covers ALL checkbox topics  
    - CLAUDE.md covers ALL AI assistant instructions
    - MCP_SERVERS_GUIDE.md covers ALL MCP server topics
 3. **UPDATE existing docs instead of creating new ones**
@@ -390,7 +510,7 @@ Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude 
 
 **Examples of what NOT to do:**
 - ❌ Creating WORKFLOW_GUIDE.md when WORKFLOW.md exists
-- ❌ Creating CHECKBOX_STRATEGY.md when CHECKBOXES.md exists
+- ❌ Creating CHECKBOX_STRATEGY.md when docs/CHECKBOXES.md exists
 - ❌ Creating MCP_SETUP.md when MCP_SERVERS_GUIDE.md exists
 
 ### CRITICAL: File Naming Convention
@@ -422,8 +542,8 @@ During development, maintain ONLY these essential documents:
 - **WAIT for explicit request** before creating any new documentation
 
 ### Documentation Location Rules
-- Keep all docs in root directory during development
-- Only create /docs folder when transitioning to production
+- Keep all docs organized in /docs folder
+- Exception: README.md and CLAUDE.md remain in root
 - Never scatter README files throughout the codebase
 - Never create documentation subfolders until product launch
 

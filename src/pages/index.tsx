@@ -1,5 +1,5 @@
-import React from 'react'
-import TestComponent from '../components/TestComponent'
+import React from 'react';
+import TestComponent from '../components/TestComponent';
 
 export default function Home() {
   return (
@@ -28,5 +28,5 @@ export default function Home() {
         <p>Deployed via: Vercel</p>
       </section>
     </div>
-  )
+  );
 }

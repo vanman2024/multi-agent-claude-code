@@ -194,7 +194,7 @@ Key documentation files:
 
 - `docs/WORKFLOW.md` - Complete development workflow
 - `docs/guides/TEMPLATE_PHILOSOPHY.md` - Core design principles  
-- `INFRASTRUCTURE_REQUIREMENTS.md` - Current implementation status
+- `docs/INFRASTRUCTURE_REQUIREMENTS.md` - Current implementation status
 - `CLAUDE.md` - AI assistant instructions
 
 ---
@@ -277,4 +277,4 @@ No @claude GitHub App fees!
 
 [Report Issues](https://github.com/vanman2024/multi-agent-claude-code/issues) • [Documentation](./docs) • [Discord](https://discord.gg/your-discord)
 
-</div>
+</div># Test deployment blocking Thu Sep  4 12:37:35 PDT 2025
