@@ -136,8 +136,16 @@ Check for incomplete work automatically:
    - Body containing link back to the original discussion
    - Original discussion content preserved
    - Standard implementation checklist added
-3. Capture the newly created issue number
-4. Continue with the normal workflow using this issue number
+3. Add a status comment to the discussion:
+   - Get discussion ID using GraphQL
+   - Add comment with status update:
+     ```
+     📍 Status: In Progress
+     🔗 Issue: #[created-issue-number]
+     📅 Started: [current-date]
+     ```
+4. Capture the newly created issue number
+5. Continue with the normal workflow using this issue number
 
 ### Step 3: Intelligent Work Selection (when no issue specified)
 

@@ -127,12 +127,59 @@ For consolidating overlapping content:
 
 **Note**: This prevents duplicate issues when topic already being worked on
 
+## Discussion Lifecycle Management
+
+### Since We Can't Use Custom Labels (Due to Automation)
+Our repository has strict label automation that only allows type labels (bug, feature, enhancement, etc.).
+Therefore, we use a **comment-based status tracking** approach.
+
+### Status Tracking via Comments
+
+When a discussion progresses through its lifecycle, add status comments:
+
+**Initial Discussion:**
+```
+📍 Status: Exploring
+🎯 Goal: Gather feedback and refine idea
+```
+
+**When Creating Issue:**
+```
+📍 Status: In Progress
+🔗 Issue: #[number]
+📅 Started: [date]
+```
+
+**When PR Created:**
+```
+🚀 Status: Implementation Started
+🔗 Issue: #[number]
+📁 PR: #[number]
+```
+
+**When Complete:**
+```
+✅ Status: Implemented
+🔗 Issue: #[number] (closed)
+📁 PR: #[number] (merged)
+📦 Released: [version/date]
+```
+
+### Optional Title Prefixes
+Since we can't use labels, you may optionally use minimal title prefixes:
+- `[WIP]` - Work in progress
+- `[DONE]` - Implemented
+- No prefix = Still exploring
+
+But comments are the primary tracking mechanism.
+
 ## Key Principles
 
 1. **No code blocks** - Keep discussions readable as plain text
 2. **GitHub native** - Use Discussions API, not local files
 3. **Clean codebase** - No scratchpad folders or temp files
 4. **Team visibility** - All ideas visible in GitHub
+5. **Comment-based tracking** - Use status comments since labels are restricted
 
 ## API Limitations
 
