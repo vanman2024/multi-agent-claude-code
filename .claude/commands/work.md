@@ -91,48 +91,16 @@ Check for incomplete work automatically:
 
 ### Step 2: Handle Discussion-Linked Issue Creation
 
-**If `DISCUSSION_NUM` is set:**
+**If the --discussion flag was provided with a number:**
 
-1. Get discussion details:
-   ```bash
-   gh api graphql -f query='
-   query($owner: String!, $repo: String!, $number: Int!) {
-     repository(owner: $owner, name: $repo) {
-       discussion(number: $number) {
-         title
-         body
-         category { name }
-         author { login }
-       }
-     }
-   }'
-   ```
-
-2. Create issue from discussion:
-   ```bash
-   gh issue create \
-     --title "[FROM DISCUSSION #$DISCUSSION_NUM] $DISCUSSION_TITLE" \
-     --body "## Related Discussion
-   
-   This issue was created from Discussion #$DISCUSSION_NUM
-   
-   **Discussion Link:** https://github.com/$OWNER/$REPO/discussions/$DISCUSSION_NUM
-   
-   ## Original Context
-   
-   $DISCUSSION_BODY
-   
-   ## Implementation Plan
-   
-   - [ ] Review discussion context
-   - [ ] Define implementation approach
-   - [ ] Implement solution
-   - [ ] Test implementation
-   - [ ] Update documentation if needed"
-   ```
-
-3. Set `ISSUE_NUM` to the newly created issue number
-4. Continue with normal workflow
+1. Use GitHub GraphQL API to fetch the discussion details (title, body, category, author)
+2. Create a new issue with:
+   - Title prefixed with "[FROM DISCUSSION #XX]"
+   - Body containing link back to the original discussion
+   - Original discussion content preserved
+   - Standard implementation checklist added
+3. Capture the newly created issue number
+4. Continue with the normal workflow using this issue number
 
 ### Step 3: Intelligent Work Selection (when no issue specified)
 
