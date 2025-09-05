@@ -6,6 +6,23 @@ argument-hint: [branch-name] or empty for new branch
 
 # WIP - Work In Progress
 
+<!--
+WHEN TO USE THIS COMMAND:
+- Starting exploratory work (no issue needed)
+- Quick fixes and experiments
+- Resuming work from yesterday
+- Switching between multiple WIP branches
+- Iterating with Claude on improvements
+
+EXAMPLES:
+/wip                     - Start new work (asks what you're working on)
+/wip fix-auth-bug       - Resume existing branch or create new one
+/wip 126-fix-commands   - Resume issue branch without the full /work ceremony
+
+THIS IS YOUR MAIN COMMAND for day-to-day work with Claude.
+No issues needed, just branch and code.
+-->
+
 ## Your Task
 
 Either create a new workspace OR resume existing work based on arguments.

@@ -6,6 +6,31 @@ argument-hint: [--feature|--enhancement|--bug|--refactor|--chore|--docs|--quick|
 
 # Create Issue
 
+<!--
+WHEN TO USE THIS COMMAND:
+- Planning a new feature that needs tracking
+- Documenting a bug for the record  
+- Creating work items for sprint planning
+- Work that needs review/approval
+- Tasks you want Copilot to handle (simple ones)
+
+WHEN NOT TO USE:
+- Quick fixes (use /wip instead)
+- Exploratory work (use /wip instead)
+- Documentation updates (just do them)
+
+FLAGS:
+--feature    : New functionality
+--bug        : Something broken
+--enhancement: Improving existing features
+--quick      : Skip all the questions, use defaults
+--hotfix     : Emergency fix (creates branch immediately)
+
+AUTO-ASSIGNMENT:
+- Copilot gets: Complexity ≤2 AND Size ≤S
+- Claude gets: Everything else
+-->
+
 ## Context
 - Current branch: !`git branch --show-current`
 - Open issues: !`gh issue list --state open --limit 5 --json number,title,labels`

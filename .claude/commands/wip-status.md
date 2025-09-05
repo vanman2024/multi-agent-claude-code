@@ -6,6 +6,23 @@ argument-hint: none
 
 # WIP Status - View All Work In Progress
 
+<!--
+WHEN TO USE THIS COMMAND:
+- See all your WIP branches at once
+- Check which branches are worktrees (📁) vs regular (🌿)
+- Find that branch you were working on yesterday
+- Clean overview of all work in progress
+
+WHAT IT SHOWS:
+- Current branch you're on
+- All worktree branches and their locations
+- All local WIP branches
+- All GitHub WIP branches
+- TodoWrite items for WIP work
+
+USE THIS TO: Get oriented when you have multiple things going.
+-->
+
 ## Your Task
 
 Show the user all their WIP branches and what's being worked on.

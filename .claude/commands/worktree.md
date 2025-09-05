@@ -6,6 +6,20 @@ argument-hint: [list|add|remove|clean] or empty for menu
 
 # Worktree Management
 
+<!--
+WHEN TO USE THIS COMMAND:
+- Only for occasional cleanup of orphaned branches (branches without worktrees)
+- When you manually deleted a worktree directory and need to clean up
+- To see all worktrees at once across your entire project
+
+YOU DON'T NEED THIS COMMAND FOR:
+- Normal daily work - use /wip instead
+- Creating worktree branches - /wip asks you automatically
+- Switching between branches - /wip handles detection
+
+BASICALLY: /wip handles 95% of worktree needs. This is just for cleanup.
+-->
+
 ## Your Task
 
 Manage git worktrees based on the argument provided.

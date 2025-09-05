@@ -6,6 +6,31 @@ argument-hint: [#issue-number] | --status | --resume | --deploy | --discussion #
 
 # Work - Intelligent Implementation Command
 
+<!--
+WHEN TO USE THIS COMMAND:
+- Starting work on a specific issue (#123)
+- Auto-selecting next priority task (just /work)
+- Creating formal branches with PRs linked to issues
+- When you need the full issue→PR→merge workflow
+
+WHEN NOT TO USE:
+- Exploratory work (use /wip instead)
+- Quick fixes without issues (use /wip instead)
+- You're not ready to commit to an issue
+
+KEY DIFFERENCES FROM /wip:
+- /work creates branches FROM issues with full tracking
+- /wip creates branches WITHOUT issues for exploration
+- /work auto-links PRs to issues
+- /wip is for "figure it out as you go" work
+
+EXAMPLES:
+/work #123              - Work on specific issue
+/work                   - Auto-pick next priority
+/work --status          - See all active work
+/work --copilot-first   - Try Copilot, fallback to Claude
+-->
+
 ## Quick Help (if --help flag provided)
 
 If user runs `/work --help`, display this and exit:
