@@ -167,6 +167,42 @@ PRs only describe what was implemented, not requirements.
 
 **Why?** Single source of truth. Check boxes in issues, describe implementation in PRs.
 
+## 🌳 Branch Scope: One Branch = One Logical Feature
+
+### The Golden Rule
+**A branch represents a coherent piece of work, NOT individual tiny tasks.**
+
+### ✅ CORRECT: One branch for entire feature
+```bash
+/wip add-user-auth
+# This ONE branch includes ALL auth work:
+# - Login form (might be issue #123)
+# - Password reset (might be issue #124)
+# - JWT tokens (might be issue #125)
+# - User profile (might be issue #126)
+# All related → Same branch!
+
+# When done:
+gh pr create --body "Complete auth system
+Closes #123, #124, #125, #126"
+```
+
+### ❌ WRONG: Separate branches for each piece
+```bash
+# DON'T create 10 branches for 1 feature:
+/wip add-login-form      # Unnecessary!
+/wip add-password-field  # Too granular!
+/wip create-jwt-token    # Cluttered!
+```
+
+### When to Create New Branches
+Only for genuinely DIFFERENT work:
+- `add-user-auth` - Authentication feature
+- `improve-performance` - Different concern
+- `fix-mobile-layout` - Different area
+
+All auth work stays on auth branch!
+
 ## 💡 Work in Progress Pattern
 
 You don't have to finish everything at once! PRs can stay open as you work:
