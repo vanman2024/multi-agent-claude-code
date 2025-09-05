@@ -80,6 +80,8 @@ When user runs `/create-issue $ARGUMENTS`, follow these steps:
 Check current branch with: !`git branch --show-current`
 Check for uncommitted changes with: !`git status --short`
 
+**IMPORTANT: Do NOT attempt to checkout main until after handling the current state!**
+
 **If there are merge conflicts (UU status):**
 ```
 ⚠️ You have unresolved merge conflicts!
@@ -94,29 +96,28 @@ Or abort the merge: git merge --abort
 Stop here - cannot proceed with conflicts.
 
 **If on a feature branch with uncommitted changes (no conflicts):**
-```
-📍 You're currently on: 141-add-type-and-workflow-flags
-📝 You have uncommitted changes
 
-Would you like me to:
-1. Stash your current work and switch to main
-2. Create issue from current branch (not recommended)
-3. Cancel and let you commit first
+Show the current state and ask user what to do:
+- Display: "📍 You're currently on: [branch-name]"
+- Display: "📝 You have uncommitted changes"
+- Ask: "Would you like me to:"
+- Option 1: "Stash your current work and switch to main"
+- Option 2: "Create issue from current branch (not recommended)"
+- Option 3: "Cancel and let you commit first"
 
-Choose [1/2/3]: _
-```
+**WAIT for user to respond with 1, 2, or 3**
 
-**If user chooses 1 (Stash and Switch):**
+**If user responds with "1" or says "stash":**
 - Get current issue number from branch name (e.g., "141" from "141-add-type...")
-- Stash ALL changes including untracked: !`git stash push -u -m "WIP: Issue #141 - creating new issue"`
+- FIRST stash ALL changes: !`git stash push -u -m "WIP: Issue #141 - creating new issue"`
 - Verify stash was created: !`git stash list | head -1`
 - Note the stash reference (e.g., stash@{0})
-- Now safe to switch: !`git checkout main`
+- ONLY AFTER successful stash, switch: !`git checkout main`
 - Pull latest: !`git pull origin main`
 - Continue with issue creation
 - At the end, offer: "Return to issue #141? Your work is stashed as stash@{0}"
 
-**If user chooses 2 (Stay on branch):**
+**If user responds with "2" or says "stay":**
 - Warn that this is not recommended workflow
 - Continue but note they should switch to main later
 
