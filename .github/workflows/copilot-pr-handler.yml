@@ -8,10 +8,9 @@ jobs:
   handle-copilot-pr:
     name: Process Copilot PRs
     runs-on: ubuntu-latest
-    # Only run for Copilot-created PRs
-    if: |
-      github.event.pull_request.draft == true && 
-      startsWith(github.event.pull_request.head.ref, 'copilot/')
+    # This workflow is now obsolete - handled by copilot-status-reporter
+    # Skip it to avoid needing approval
+    if: false
     
     steps:
       - name: Checkout

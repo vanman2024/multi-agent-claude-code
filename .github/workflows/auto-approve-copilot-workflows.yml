@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     # Only run for Copilot PRs
     if: |
+      github.event.pull_request.user.login == 'Copilot' ||
+      github.event.pull_request.user.login == 'app/copilot-swe-agent' ||
       github.event.pull_request.user.login == 'github-actions[bot]' ||
       github.event.pull_request.user.login == 'copilot[bot]' ||
       github.event.pull_request.user.login == 'github-copilot[bot]' ||

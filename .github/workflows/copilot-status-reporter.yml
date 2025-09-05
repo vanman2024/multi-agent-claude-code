@@ -15,9 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     # Only run for Copilot-created PRs
     if: |
+      github.event.pull_request.user.login == 'Copilot' ||
+      github.event.pull_request.user.login == 'app/copilot-swe-agent' ||
       github.event.pull_request.user.login == 'copilot[bot]' ||
       github.event.pull_request.user.login == 'github-copilot[bot]' ||
-      github.event.pull_request.user.type == 'Bot' ||
       startsWith(github.event.pull_request.head.ref, 'copilot/')
     
     steps:

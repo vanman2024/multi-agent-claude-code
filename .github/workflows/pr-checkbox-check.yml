@@ -20,6 +20,10 @@ jobs:
   check-boxes:
     name: Check Issue Checkboxes
     runs-on: ubuntu-latest
+    # Skip for Copilot PRs - handled by copilot-status-reporter
+    if: |
+      !startsWith(github.head_ref, 'copilot/') && 
+      github.actor != 'Copilot'
     steps:
       - name: Report Initial Status
         uses: actions/github-script@v7

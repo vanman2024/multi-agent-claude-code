@@ -15,6 +15,31 @@ fi
 if [[ -n "$VERCEL_GIT_PULL_REQUEST_ID" ]]; then
   echo "📋 Pull Request #$VERCEL_GIT_PULL_REQUEST_ID detected"
   
+  # Skip build for Copilot PRs (they need human review first)
+  if [[ "$VERCEL_GIT_COMMIT_REF" == copilot/* ]]; then
+    echo "🤖 Copilot PR detected - skipping automatic deployment"
+    echo "❌ Copilot PRs require human review before deployment"
+    exit 1
+  fi
+  
+  # Check if PR is in draft state (requires GITHUB_TOKEN)
+  if [[ -n "$GITHUB_TOKEN" ]]; then
+    echo "🔍 Checking PR draft status..."
+    
+    # Get PR details from GitHub API
+    PR_DATA=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+      "https://api.github.com/repos/$VERCEL_GIT_REPO_OWNER/$VERCEL_GIT_REPO_SLUG/pulls/$VERCEL_GIT_PULL_REQUEST_ID")
+    
+    # Check if PR is a draft
+    IS_DRAFT=$(echo "$PR_DATA" | grep -o '"draft":[^,]*' | cut -d':' -f2 | tr -d ' ')
+    
+    if [[ "$IS_DRAFT" == "true" ]]; then
+      echo "📝 Draft PR detected - skipping deployment"
+      echo "❌ Draft PRs should not be deployed until ready for review"
+      exit 1
+    fi
+  fi
+  
   # Check GitHub API for checkbox status (requires GITHUB_TOKEN in Vercel env)
   if [[ -n "$GITHUB_TOKEN" ]]; then
     echo "🔍 Checking issue checkbox status..."
