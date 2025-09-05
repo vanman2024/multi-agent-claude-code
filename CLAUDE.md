@@ -381,6 +381,33 @@ git commit -m "feat: Add authentication"  # No issue reference!
 - Keep issues as planning docs only
 - Put all code/commits in PRs
 
+## Working with GitHub Discussions
+
+### Adding Comments to Discussions
+To add a comment to a GitHub Discussion, you need to:
+1. First get the discussion ID using GraphQL
+2. Then use that ID with the addDiscussionComment mutation
+
+```bash
+# Get discussion ID
+DISCUSSION_ID=$(gh api graphql -f query='
+query {
+  repository(owner: "OWNER", name: "REPO") {
+    discussion(number: NUMBER) {
+      id
+    }
+  }
+}' --jq .data.repository.discussion.id)
+
+# Add comment
+gh api graphql -f query='
+mutation($discussionId: ID!, $body: String!) {
+  addDiscussionComment(input: {discussionId: $discussionId, body: $body}) {
+    comment { id }
+  }
+}' -F discussionId="$DISCUSSION_ID" -F body="Your comment text"
+```
+
 ## Working with MCP Servers
 
 MCP (Model Context Protocol) servers allow Claude to interact with external tools and services. 
