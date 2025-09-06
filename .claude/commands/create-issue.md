@@ -140,9 +140,10 @@ Also ask for:
 ### Step 3: Load Appropriate Template
 
 Based on the type, read the template:
-- feature/enhancement/refactor → Read templates/local_dev/feature-template.md
+- feature → Read templates/local_dev/feature-template.md
+- enhancement → Read templates/local_dev/enhancement-template.md
 - bug → Read templates/local_dev/bug-template.md
-- task → Read templates/local_dev/task-template.md
+- task/refactor → Read templates/local_dev/task-template.md
 
 ### Step 4: Fill Template
 
