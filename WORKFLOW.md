@@ -4,64 +4,69 @@
 
 ```
 What are you doing?
-├── Exploring/Iterating/Fixing → Use `/wip`
-│   └── No issue needed, just branch and work
-├── Building a Feature → Use `/create-issue` then `/work`
-│   └── Full tracking with issues and PRs
-└── Continuing Previous Work → Use `/wip branch-name`
-    └── Resume any existing branch
+├── Building Real Features → Use `/create-issue` then `/work`
+│   └── Issue stays open during entire development
+├── Resuming Issue Work → Use `/wip branch-name`
+│   └── Quick way back to your issue branch
+├── Quick Fix/Typo → Use `/wip`
+│   └── No issue needed for trivial changes
+└── Experimenting → Use `/wip`
+    └── Try ideas before creating issues
 ```
 
 ## 🚀 Two Main Workflows
 
-### Workflow 1: Exploratory/Iterative Work (Most Common with Claude)
+### Workflow 1: Feature Development (Primary for Real Apps)
 
-**For:** Quick fixes, explorations, iterative improvements
+**For:** Building actual features, bugs, enhancements - anything substantial
 
 ```bash
-# Start new exploratory work
-/wip
-# "What are you working on?" → "fixing commands"
-# Creates: fix-commands branch
-# Pushes to GitHub automatically
+# 1. Create issue first (planning document)
+/create-issue "Add user authentication"
+# Issue #150 created
 
-# Work iteratively with Claude
-git add -A && git commit -m "wip: improving commands"
+# 2. Start development
+/work #150
+# Creates: 150-add-user-authentication branch
+# Issue stays OPEN during development
+
+# 3. Work for days/weeks
+/wip 150-add-user-authentication  # Resume work
+git add -A && git commit -m "feat: implement login form"
 git push
 
-# When ready (could be days later)
-gh pr create --fill
-# NO ISSUE NEEDED!
+# 4. Only create PR when feature is COMPLETE
+gh pr create --body "Closes #150"
+# Issue closes when PR merges
 ```
 
-### Workflow 2: Planned Features (For Tracked Work)
+### Workflow 2: Quick Fixes & Experiments (Secondary)
 
-**For:** New features, bugs that need tracking, work requiring review
+**For:** Typos, small tweaks, experiments, template fixes
 
 ```bash
-# 1. Create issue with planning
-/create-issue "Add user authentication"
+# Quick fix
+/wip fix-typo
+git add -A && git commit -m "fix: typo in README"
+gh pr create --fill
+# No issue needed for trivial changes
 
-# 2. Start work (creates branch + draft PR)
-/work #123
-
-# 3. Implement with tracking
-# TodoWrite syncs with issue checkboxes
-
-# 4. PR already linked to issue
-gh pr merge
-# Issue auto-closes
+# Experiment
+/wip test-payment-api
+# Try things out
+# If it works, THEN create issue
+/create-issue "Integrate payment API"
 ```
 
 ## 📊 Understanding When to Use What
 
 | Scenario | Command | Creates Issue? | Creates PR? |
 |----------|---------|---------------|-------------|
-| "Let me try fixing this" | `/wip` | No | When ready |
-| "Quick documentation update" | `/wip` | No | When ready |
-| "Implement user auth feature" | `/create-issue` + `/work` | Yes | Yes (draft) |
-| "Resume yesterday's work" | `/wip branch-name` | No | Already exists |
-| "Fix bug #145" | `/work #145` | Already exists | Yes |
+| "Build user authentication" | `/create-issue` + `/work` | Yes | When complete |
+| "Continue auth development" | `/wip 150-auth-branch` | Already exists | When complete |
+| "Fix typo in README" | `/wip` | No | Immediately |
+| "Try new API approach" | `/wip` | No | If it works |
+| "Fix bug #145" | `/work #145` | Already exists | When complete |
 
 ## 🔧 The `/wip` Command - Your Swiss Army Knife
 

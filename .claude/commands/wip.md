@@ -8,19 +8,20 @@ argument-hint: [branch-name] or empty for new branch
 
 <!--
 WHEN TO USE THIS COMMAND:
-- Starting exploratory work (no issue needed)
-- Quick fixes and experiments
-- Resuming work from yesterday
-- Switching between multiple WIP branches
-- Iterating with Claude on improvements
+- Resuming work on EXISTING issue branches (most common)
+- Quick fixes that don't need issues (typos, small tweaks)
+- Experiments before creating issues
+- Template/framework improvements
 
 EXAMPLES:
-/wip                     - Start new work (asks what you're working on)
-/wip fix-auth-bug       - Resume existing branch or create new one
-/wip 126-fix-commands   - Resume issue branch without the full /work ceremony
+/wip 150-add-authentication  - Resume work on issue #150's branch
+/wip fix-typo               - Quick fix without issue
+/wip test-new-api          - Experiment before committing
 
-THIS IS YOUR MAIN COMMAND for day-to-day work with Claude.
-No issues needed, just branch and code.
+PRIMARY USE: Resume existing issue branches quickly
+SECONDARY USE: Small fixes and experiments
+
+For new features, use /create-issue + /work instead!
 -->
 
 ## Your Task

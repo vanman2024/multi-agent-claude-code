@@ -97,45 +97,44 @@ claude
 
 ---
 
-## 🔄 Core Workflow
+## 🔄 Core Workflow (For Real Application Development)
 
-### Primary: Exploratory Development (90% of work)
+### Primary: Issue-Driven Development
 
 ```bash
-# Start new exploratory work (no issue needed!)
-/wip
-# "What are you working on?" → "fixing auth bug"
-# Creates branch, optionally as worktree, tracks with TodoWrite
+# 1. Create issue for any significant work
+/create-issue "Add user authentication system"
+# Issue #150 created - stays open during entire development
 
-# Resume existing work
-/wip fix-auth-bug
-# Detects worktrees, shows navigation help
+# 2. Start implementation
+/work #150
+# Creates branch: 150-add-user-authentication
+# This branch lives for days/weeks as you build
 
-# See all your WIP branches
-/wip-status
-# Shows 📁 worktree vs 🌿 regular branches
+# 3. Resume work across sessions
+/wip 150-add-user-authentication
+# Quick way to get back to your issue branch
+# Work continues, issue stays OPEN
 
-# When ready, create PR
-gh pr create --fill
+# 4. Create PR only when feature is complete
+gh pr create --body "Closes #150"
+# NOW the issue will close when PR merges
 ```
 
-### Secondary: Formal Issue Workflow (when tracking needed)
+### Secondary: Quick Fixes & Experiments
 
 ```bash
-# Create tracked work item
-/create-issue "Add user authentication"
-# Auto-routes: Copilot (simple) or Claude (complex)
+# For tiny fixes (typos, small tweaks)
+/wip fix-typo
+# No issue needed for trivial changes
 
-# Implement with full tracking
-/work #123
-# Creates branch, draft PR, links to issue
+# For experiments before committing
+/wip test-new-api
+# Try things out, then create issue if it works
 
-# Or let AI pick next priority
-/work
-
-# Special options
-/work --deploy    # Deploy to Vercel
-/work --test      # Run test suite
+# See all your branches
+/wip-status
+# Shows both issue branches and experimental branches
 ```
 
 ### ⚠️ Auto-Sync Protection
