@@ -1,11 +1,11 @@
-# Complete Infrastructure Requirements - Multi-Agent Development Framework
+# Infrastructure Guide - How The Framework Works
 
-## 🎯 Objective
-Consolidate all infrastructure automation requirements into a single comprehensive implementation plan to get the framework fully operational.
+## 🏗️ The House Building Metaphor
+This framework uses a house building metaphor to organize development work. Just like building a house, software has a natural order - you can't put up walls without a foundation, and you can't install electrical without framing. This guide explains how our infrastructure supports this systematic approach.
 
 ---
 
-## 📋 Master Requirements List
+## 📋 How The Infrastructure Components Work
 
 ### 1. PROJECT BOARD AUTOMATION ❌
 **Current State**: Not working properly
@@ -66,18 +66,74 @@ Milestones should group related issues by feature or goal, NOT by time periods.
 
 ---
 
-### 4. ISSUE RELATIONSHIPS ❌
-**Current State**: Not implemented
-**Required State**: Full dependency tracking
+### 4. ISSUE RELATIONSHIPS - The House Building Order ✅
+**Current State**: Use GitHub's built-in mentions and task lists
+**Required State**: Follow the house metaphor for natural dependencies
 
-#### Requirements:
-- [ ] Parse "Depends on #XXX" from issue body
-- [ ] Auto-add "blocked" label when dependencies exist
-- [ ] Remove "blocked" when dependencies close
-- [ ] Create sub-issue relationships
-- [ ] Show dependency graph in issue comments
-- [ ] Prevent closing parent before children
-- [ ] Auto-close parent when all children done
+#### The House Building Order (Natural Dependencies):
+
+**1. Foundation (Database & Data Layer)** 🏗️
+- Must be built FIRST - everything depends on this
+- Issues: Database schemas, tables, migrations
+- Example: "Create users table", "Set up auth database"
+
+**2. Plumbing (GitHub Automation & CI/CD)** 🔧
+- Carries things but doesn't think
+- Issues: Workflows, deployments, pipelines
+- Depends on: Foundation
+- Example: "Set up deployment pipeline", "Create test workflow"
+
+**3. Framing (Backend Services & APIs)** 🏠
+- The structural support
+- Issues: API endpoints, services, business logic
+- Depends on: Foundation (needs database)
+- Example: "Create user API endpoint", "Build auth service"
+
+**4. Electrical (Agent System & Intelligence)** ⚡
+- Powers the smart features
+- Issues: AI features, decision logic, agents
+- Depends on: Framing (needs APIs to power)
+- Example: "Add Copilot integration", "Create smart routing"
+
+**5. Finishes (Frontend & UI)** 🎨
+- What users see and touch
+- Issues: UI components, pages, styling
+- Depends on: Framing & Electrical (needs APIs and features)
+- Example: "Build login page", "Create dashboard UI"
+
+#### How to Express Dependencies:
+
+**In Issue Body:**
+```markdown
+**Layer**: Finishes (Frontend)
+**Depends on**: #45 (User API endpoint), #23 (User table)
+**Blocked by**: Need the foundation and framing first
+```
+
+**Using Task Lists:**
+```markdown
+### Prerequisites
+- [ ] #23 User database table must be created first
+- [ ] #45 User API endpoint must be working
+- [ ] #67 Auth service must be deployed
+```
+
+**Simple Mentions:**
+- "Blocked by #123"
+- "Depends on #456"
+- "Must complete #789 first"
+
+#### Why This Works:
+- **Natural order** - You can't build walls without foundation
+- **Clear dependencies** - Everyone understands house building
+- **No complex automation** - GitHub already tracks mentions
+- **Flexible** - Use whatever notation makes sense
+
+#### What NOT to Do:
+- Don't build UI before APIs exist
+- Don't create APIs before database tables
+- Don't add AI features before basic functionality
+- Don't overthink it - follow the house order
 
 ---
 
