@@ -10,7 +10,7 @@
 
 **⚠️ TEMPLATE FRAMEWORK: Clone this to bootstrap your AI-driven development**
 
-**Simplified AI-driven development: Two commands, infinite possibilities**
+**Simplified AI-driven development: Issue-driven features with AI assistance**
 
 [Quick Start](#-quick-start) • [Core Workflow](#-core-workflow) • [Documentation](#-documentation)
 
@@ -213,12 +213,13 @@ Everything deploys to **Vercel** automatically:
 
 ## 📚 Documentation
 
-Key documentation files:
+Essential guides:
 
-- `docs/WORKFLOW.md` - Complete development workflow
-- `docs/guides/TEMPLATE_PHILOSOPHY.md` - Core design principles  
-- `docs/INFRASTRUCTURE_REQUIREMENTS.md` - Current implementation status
-- `CLAUDE.md` - AI assistant instructions
+- `docs/WORKFLOW.md` - Development workflow and branch strategies
+- `docs/TESTING-STRATEGY.md` - Comprehensive testing approach
+- `docs/AI-AGENT-MOCK-TO-PRODUCTION-GUIDE.md` - Mock-first development
+- `docs/API-MOCK-TESTING.md` - API testing patterns
+- `CLAUDE.md` - AI assistant configuration and instructions
 
 ---
 
