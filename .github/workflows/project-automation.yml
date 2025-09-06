@@ -829,12 +829,15 @@ jobs:
               console.log(`Parsed Goal: ${sprintGoal}`);
             }
             
-            // Parse complexity from body - matches **Complexity**: XL format
+            // Parse size/complexity from body - matches **Size**: S or **Complexity**: XL format
             let complexity = 'M';
-            const complexityMatch = body.match(/\*\*Complexity\*\*:\s*(XS|S|M|L|XL)/i);
+            // Look for either Size or Complexity in metadata
+            const complexityMatch = body.match(/\*\*(?:Size|Complexity)\*\*:\s*(XS|S|M|L|XL)/i);
             if (complexityMatch) {
               complexity = complexityMatch[1].toUpperCase();
-              console.log(`Parsed Complexity: ${complexity}`);
+              console.log(`Parsed Size/Complexity: ${complexity}`);
+            } else {
+              console.log('No Size or Complexity found in metadata, defaulting to M');
             }
             
             // Parse milestone from body - matches **Milestone**: v0.1.0 format
@@ -921,7 +924,12 @@ jobs:
                   optionId: priorityOption.id
                 });
                 console.log(`Set Priority to ${priority}`);
+              } else {
+                console.log(`Priority option '${priority}' not found in project board options`);
+                console.log(`Available options: ${priorityField.options?.map(o => o.name).join(', ')}`);
               }
+            } else {
+              console.log(`Priority field not found or priority not set (priority: ${priority})`);
             }
             
             // Set Component field - simple case-insensitive matching only (plumbing operation)
