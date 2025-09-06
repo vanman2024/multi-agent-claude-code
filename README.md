@@ -20,9 +20,19 @@
 
 ## 🎯 What's New in v2.0
 
-**SIMPLIFIED**: Just two main commands for everything:
-- `/create-issue` - Create any type of work item with auto-routing
-- `/work` - Intelligently implement any issue (auto-pulls latest)
+**NEW PRIMARY WORKFLOW**: Work-in-Progress (WIP) driven development
+- `/wip` - Start exploratory work WITHOUT issues (90% of daily work)
+- `/wip branch-name` - Resume any existing branch instantly
+- `/wip-status` - See all your WIP branches with worktree indicators
+
+**SIMPLIFIED ISSUE WORKFLOW**: When you DO need issues
+- `/create-issue` - Smart routing to Copilot (simple) or Claude (complex)
+- `/work` - Full issue→PR→merge workflow with tracking
+
+**WORKTREE SUPPORT**: Parallel development made easy
+- Automatic worktree detection and navigation
+- Option to create new branches as worktrees
+- Visual indicators (📁) for worktree branches
 
 **COST-FREE**: No paid @claude GitHub App - uses free GitHub Copilot + local Claude Code
 
@@ -89,24 +99,38 @@ claude
 
 ## 🔄 Core Workflow
 
-### Everything Starts with an Issue
+### Primary: Exploratory Development (90% of work)
 
 ```bash
-# Create any type of work item (auto-pulls latest changes)
-/create-issue
+# Start new exploratory work (no issue needed!)
+/wip
+# "What are you working on?" → "fixing auth bug"
+# Creates branch, optionally as worktree, tracks with TodoWrite
 
-# Choose type: feature, bug, task, enhancement, refactor
-# Set complexity (1-5) and size (XS-XL)
-# Auto-routes to Copilot (simple) or Claude (complex)
+# Resume existing work
+/wip fix-auth-bug
+# Detects worktrees, shows navigation help
+
+# See all your WIP branches
+/wip-status
+# Shows 📁 worktree vs 🌿 regular branches
+
+# When ready, create PR
+gh pr create --fill
 ```
 
-### Then Work on It
+### Secondary: Formal Issue Workflow (when tracking needed)
 
 ```bash
-# Work on specific issue (auto-pulls + creates branch/PR)
-/work #123
+# Create tracked work item
+/create-issue "Add user authentication"
+# Auto-routes: Copilot (simple) or Claude (complex)
 
-# Or let AI pick the next priority
+# Implement with full tracking
+/work #123
+# Creates branch, draft PR, links to issue
+
+# Or let AI pick next priority
 /work
 
 # Special options
@@ -115,7 +139,7 @@ claude
 ```
 
 ### ⚠️ Auto-Sync Protection
-Both commands automatically `git pull` to prevent divergence between GitHub (where Copilot works) and your local environment. No more working on stale code!
+Commands automatically `git pull` to prevent divergence. The `/wip` workflow embraces exploration while `/work` provides structure when needed.
 
 ---
 
