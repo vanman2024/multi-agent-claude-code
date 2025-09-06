@@ -11,20 +11,20 @@ Consolidate all infrastructure automation requirements into a single comprehensi
 **Current State**: Not working properly
 **Required State**: Automatic status transitions based on development events
 
-#### Requirements:
-- [ ] When PR is created → Move issue to "In Progress" column
-- [ ] When PR marked ready → Move to "In Review" column  
-- [ ] When PR merged → Move to "Done" column
-- [ ] When issue reopened → Move back to appropriate column (not stuck in Done)
-- [ ] Support backwards movement (Done → In Progress for reopened issues)
-- [ ] Sync with GitHub labels (status:in-progress, etc.)
+
 
 #### Current Issues:
 - Issue #91: Project automation not updating to In Progress on PR creation
 - Copilot can move items but our automation cannot
 - Reopened issues stay in "Done" column
 
----
+---#### Requirements:
+- [ ] When PR is created → Move issue to "In Progress" column
+- [ ] When PR marked ready → Move to "In Review" column
+- [ ] When PR merged → Move to "Done" column
+- [ ] When issue reopened → Move back to appropriate column (not stuck in Done)
+- [ ] Support backwards movement (Done → In Progress for reopened issues)
+- [ ] Sync with GitHub labels (status:in-progress, etc.)
 
 ### 2. LABEL AUTOMATION ❌
 **Current State**: Manual or missing
@@ -297,7 +297,7 @@ Consolidate all infrastructure automation requirements into a single comprehensi
 
 ### Will Be Closed/Consolidated:
 - **#91**: Update project automation → Section 1: Project Board Automation
-- **#105**: Local testing vs GitHub Actions → Section 8: Testing Integration  
+- **#105**: Local testing vs GitHub Actions → Section 8: Testing Integration
 - **#108**: Complete workflow validation → Section 11: Workflow Validation
 - **#110**: User Dashboard feature → Keep separate (actual feature, not infrastructure)
 - **#113**: Fix checkbox validation → Section 7: PR-Issue Linking (COMPLETED)

@@ -3,6 +3,8 @@ name: Project Board Automation
 on:
   issues:
     types: [opened, edited, labeled, unlabeled, assigned, closed, reopened]
+  pull_request:
+    types: [opened, ready_for_review, closed, converted_to_draft, reopened]
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -28,6 +30,7 @@ env:
   # Status option IDs
   STATUS_TODO: f75ad846
   STATUS_IN_PROGRESS: 47fc9ee4
+  STATUS_IN_REVIEW: b4d5e6f7  # TODO: Get actual ID from project board
   STATUS_DONE: 98236657
   
   # Priority option IDs
@@ -1114,3 +1117,260 @@ jobs:
             } catch (error) {
               console.log('Error with issue assignment:', error.message);
             }
+
+  # PR Lifecycle Management - Move linked issues through project board
+  pr-created-move-to-in-progress:
+    name: Move Issue to In Progress on PR Creation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    
+    steps:
+      - name: Extract linked issue and move to In Progress
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            // Extract issue number from PR body (looks for "Closes #123" pattern)
+            const prBody = context.payload.pull_request.body || '';
+            const issueMatch = prBody.match(/(?:closes|fixes|resolves)\s+#(\d+)/i);
+            
+            if (!issueMatch) {
+              console.log('No linked issue found in PR body');
+              return;
+            }
+            
+            const issueNumber = parseInt(issueMatch[1]);
+            console.log(`Found linked issue: #${issueNumber}`);
+            
+            // Get the issue's project item
+            const query = `
+              query($projectId: ID!, $owner: String!, $repo: String!, $issueNumber: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $issueNumber) {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const variables = {
+              projectId: process.env.PROJECT_ID,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issueNumber: issueNumber
+            };
+            
+            const result = await github.graphql(query, variables);
+            const projectItems = result.repository.issue.projectItems.nodes;
+            
+            // Find the item in our project
+            const projectItem = projectItems.find(item => 
+              item.project.id === process.env.PROJECT_ID
+            );
+            
+            if (!projectItem) {
+              console.log('Issue not found in project board');
+              return;
+            }
+            
+            // Update status to In Progress
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: $value
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: projectItem.id,
+              fieldId: process.env.STATUS_FIELD,
+              value: { singleSelectOptionId: process.env.STATUS_IN_PROGRESS }
+            });
+            
+            console.log(`Moved issue #${issueNumber} to In Progress`);
+
+  pr-ready-move-to-review:
+    name: Move Issue to In Review on PR Ready
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'ready_for_review'
+    
+    steps:
+      - name: Extract linked issue and move to In Review
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            // Extract issue number from PR body
+            const prBody = context.payload.pull_request.body || '';
+            const issueMatch = prBody.match(/(?:closes|fixes|resolves)\s+#(\d+)/i);
+            
+            if (!issueMatch) {
+              console.log('No linked issue found in PR body');
+              return;
+            }
+            
+            const issueNumber = parseInt(issueMatch[1]);
+            console.log(`Found linked issue: #${issueNumber}`);
+            
+            // Get the issue's project item (same query as above)
+            const query = `
+              query($projectId: ID!, $owner: String!, $repo: String!, $issueNumber: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $issueNumber) {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const variables = {
+              projectId: process.env.PROJECT_ID,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issueNumber: issueNumber
+            };
+            
+            const result = await github.graphql(query, variables);
+            const projectItems = result.repository.issue.projectItems.nodes;
+            
+            const projectItem = projectItems.find(item => 
+              item.project.id === process.env.PROJECT_ID
+            );
+            
+            if (!projectItem) {
+              console.log('Issue not found in project board');
+              return;
+            }
+            
+            // Update status to In Review
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: $value
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: projectItem.id,
+              fieldId: process.env.STATUS_FIELD,
+              value: { singleSelectOptionId: process.env.STATUS_IN_REVIEW }
+            });
+            
+            console.log(`Moved issue #${issueNumber} to In Review`);
+
+  pr-merged-move-to-done:
+    name: Move Issue to Done on PR Merge
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged
+    
+    steps:
+      - name: Extract linked issue and move to Done
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECT_TOKEN }}
+          script: |
+            // Extract issue number from PR body
+            const prBody = context.payload.pull_request.body || '';
+            const issueMatch = prBody.match(/(?:closes|fixes|resolves)\s+#(\d+)/i);
+            
+            if (!issueMatch) {
+              console.log('No linked issue found in PR body');
+              return;
+            }
+            
+            const issueNumber = parseInt(issueMatch[1]);
+            console.log(`Found linked issue: #${issueNumber}`);
+            
+            // Get the issue's project item
+            const query = `
+              query($projectId: ID!, $owner: String!, $repo: String!, $issueNumber: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  issue(number: $issueNumber) {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+            
+            const variables = {
+              projectId: process.env.PROJECT_ID,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issueNumber: issueNumber
+            };
+            
+            const result = await github.graphql(query, variables);
+            const projectItems = result.repository.issue.projectItems.nodes;
+            
+            const projectItem = projectItems.find(item => 
+              item.project.id === process.env.PROJECT_ID
+            );
+            
+            if (!projectItem) {
+              console.log('Issue not found in project board');
+              return;
+            }
+            
+            // Update status to Done
+            const mutation = `
+              mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $value: ProjectV2FieldValue!) {
+                updateProjectV2ItemFieldValue(input: {
+                  projectId: $projectId
+                  itemId: $itemId
+                  fieldId: $fieldId
+                  value: $value
+                }) {
+                  projectV2Item {
+                    id
+                  }
+                }
+              }
+            `;
+            
+            await github.graphql(mutation, {
+              projectId: process.env.PROJECT_ID,
+              itemId: projectItem.id,
+              fieldId: process.env.STATUS_FIELD,
+              value: { singleSelectOptionId: process.env.STATUS_DONE }
+            });
+            
+            console.log(`Moved issue #${issueNumber} to Done`);
