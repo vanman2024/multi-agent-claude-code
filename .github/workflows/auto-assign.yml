@@ -51,20 +51,35 @@ jobs:
         with:
           assignees: ${{ steps.check-team.outputs.creator }}
           
-      - name: Add labels based on title
+      - name: Add supplemental labels based on metadata
         uses: actions/github-script@v7
         with:
           script: |
-            const title = context.payload.issue?.title || context.payload.pull_request?.title;
+            // Issue templates already add type labels (bug, feature, task, hotfix)
+            // This only adds supplemental labels based on issue body metadata
+            
+            const body = context.payload.issue?.body || '';
             const labels = [];
             
-            // Add labels based on keywords in title
-            if (title.includes('[BUG]')) labels.push('bug');
-            if (title.includes('[FEATURE]')) labels.push('enhancement');
-            if (title.includes('[DOCS]')) labels.push('documentation');
-            if (title.includes('[URGENT]')) labels.push('priority:high');
+            // Add 'documentation' label if it's a docs-related issue
+            if (body.includes('**Type**: Documentation') || 
+                (body.toLowerCase().includes('documentation') && 
+                 body.toLowerCase().includes('update'))) {
+              labels.push('documentation');
+            }
+            
+            // Add 'urgent' label for P0 priority issues (in addition to hotfix template)
+            if (body.includes('**Priority**: P0')) {
+              labels.push('urgent');
+            }
+            
+            // Add 'needs-triage' if no priority is specified
+            if (!body.includes('**Priority**:')) {
+              labels.push('needs-triage');
+            }
             
             if (labels.length > 0) {
+              console.log(`Adding supplemental labels: ${labels.join(', ')}`);
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

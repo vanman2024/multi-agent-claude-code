@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest a new feature or improvement
 title: "[FEATURE]: "
-labels: []
+labels: ["enhancement"]
 body:
   - type: dropdown
     id: type
