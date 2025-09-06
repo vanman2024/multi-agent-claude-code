@@ -41,16 +41,28 @@ Consolidate all infrastructure automation requirements into a single comprehensi
 
 ---
 
-### 3. MILESTONE AUTOMATION ❌
-**Current State**: Not working
-**Required State**: Smart milestone assignment
+### 3. MILESTONE USAGE ✅
+**Current State**: Manual creation as needed
+**Required State**: Feature/goal-based grouping
 
-#### Requirements:
-- [ ] Assign to current sprint milestone when sprint:current label added
-- [ ] Create sprint milestones automatically (Sprint 1, Sprint 2, etc.)
-- [ ] Move incomplete issues to next sprint at sprint end
-- [ ] Don't use version-based milestones (v0.1.0, etc.) - use feature/sprint based
-- [ ] Handle milestone transitions for long-running issues
+#### Proper Milestone Usage:
+Milestones should group related issues by feature or goal, NOT by time periods.
+
+**Good Examples:**
+- "User Authentication" - all login/signup/password issues
+- "Shopping Cart" - all cart-related features  
+- "MVP" - everything needed for first release
+- "Bug Fixes v1.1" - all bugs to fix after v1.0
+- "Payment Integration" - all payment-related issues
+
+**NOT for:**
+- Sprint tracking (use project board columns instead)
+- Time-based periods (Q1, Week 1, etc.)
+
+**Implementation:**
+- Teams create milestones manually for major features/releases
+- Issues are assigned to milestones based on feature grouping
+- No automation needed - keep it simple and flexible
 
 ---
 
