@@ -173,3 +173,8 @@ temp/
 # pnpm-lock.yaml
 .gemini/
 gha-creds-*.json
+
+# Playwright
+.playwright-mcp/
+playwright-report/
+test-results/
