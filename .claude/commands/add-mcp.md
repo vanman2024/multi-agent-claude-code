@@ -52,13 +52,11 @@ Note: Requires POSTMAN_API_KEY in environment.
 
 #### Supabase MCP Server (for database)
 ```bash
-# For local Supabase project
-claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
-
-# OR for hosted HTTP version (if available)
-# claude mcp add --transport http supabase https://your-supabase-mcp.com -H "Authorization: Bearer YOUR_KEY"
+# Official Supabase MCP Server
+claude mcp add supabase -s local -e SUPABASE_ACCESS_TOKEN=your_token_here -- npx -y @supabase/mcp-server-supabase@latest
 ```
-Note: Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.
+Note: Replace `your_token_here` with your actual Supabase access token.
+You'll need to get this from your Supabase project settings.
 
 #### Filesystem MCP Server (optional)
 ```bash
@@ -146,12 +144,15 @@ if [ -z "$POSTMAN_API_KEY" ]; then
 fi
 claude mcp add postman -- npx @modelcontextprotocol/server-postman
 
-# Supabase (requires URL and key)
+# Supabase (requires access token)
 echo "Adding Supabase MCP..."
-if [ -z "$SUPABASE_URL" ]; then
-  echo "⚠️  SUPABASE_URL not set. Add to .env file"
+if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+  echo "⚠️  SUPABASE_ACCESS_TOKEN not set. You'll need to add it."
+  echo "Get your token from: https://supabase.com/dashboard/account/tokens"
+  echo "Run: claude mcp add supabase -s local -e SUPABASE_ACCESS_TOKEN=your_token -- npx -y @supabase/mcp-server-supabase@latest"
+else
+  claude mcp add supabase -s local -e SUPABASE_ACCESS_TOKEN=$SUPABASE_ACCESS_TOKEN -- npx -y @supabase/mcp-server-supabase@latest
 fi
-claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
 
 echo "✅ MCP servers configured!"
 echo "📝 Remember to set API keys in your .env file"
