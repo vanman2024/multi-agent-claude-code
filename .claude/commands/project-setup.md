@@ -14,6 +14,20 @@ argument-hint: [optional: project-name or project-type]
 
 When user runs `/project-setup $ARGUMENTS`, guide them through an intelligent project setup process.
 
+### Phase 0: Load Personal Configuration
+
+Check for personal config:
+```bash
+if [ -f "$HOME/.claude-code/personal-config.json" ]; then
+  echo "🔑 Personal config found! Would you like to use your saved API keys? (y/n)"
+  # If yes, run: ./scripts/utilities/load-personal-config.sh
+  echo "✅ Loaded API keys from personal config"
+else
+  echo "💡 Tip: Run ./scripts/utilities/setup-personal-config.sh to save your API keys for reuse"
+  echo "For now, copy .env.example to .env and add your keys manually"
+fi
+```
+
 ### Phase 1: Discovery Conversation
 
 Start with understanding the project vision:

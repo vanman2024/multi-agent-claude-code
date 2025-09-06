@@ -65,7 +65,19 @@ npm install -g vercel newman        # Vercel & Postman
 npx playwright install              # Browser automation
 ```
 
-### 3️⃣ Setup MCP Servers
+### 3️⃣ Configure API Keys
+
+```bash
+# FIRST TIME ONLY: Create personal config
+./scripts/utilities/setup-personal-config.sh
+# Saves to ~/.claude-code/personal-config.json
+
+# FOR EACH PROJECT: Load your keys
+./scripts/utilities/load-personal-config.sh
+# Creates .env with all your saved keys
+```
+
+### 4️⃣ Setup MCP Servers
 
 ```bash
 # Start Claude Code
@@ -81,7 +93,7 @@ claude
 # ✅ Postman (API testing)
 ```
 
-### 4️⃣ Initialize Project
+### 5️⃣ Initialize Project
 
 ```bash
 # Set up Claude instructions for your project
@@ -90,9 +102,10 @@ cp templates/CLAUDE.md.template CLAUDE.md
 
 # One-time project setup
 /project-setup
+# Will ask if you want to use personal config!
 
 # This will:
-# - Gather all your requirements
+# - Load your personal config (if available)
 # - Configure tech stack
 # - Set up GitHub repo
 # - Initialize database
