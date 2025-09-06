@@ -84,6 +84,10 @@ claude
 ### 4️⃣ Initialize Project
 
 ```bash
+# Set up Claude instructions for your project
+cp templates/CLAUDE.md.template CLAUDE.md
+# Edit CLAUDE.md with your project specifics
+
 # One-time project setup
 /project-setup
 

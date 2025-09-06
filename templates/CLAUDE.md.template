@@ -1,0 +1,101 @@
+# Claude Code Instructions for [PROJECT NAME]
+
+## Project Overview
+<!-- Brief description of what this application does -->
+
+## Tech Stack
+- Frontend: [e.g., Next.js, React, TypeScript]
+- Backend: [e.g., Node.js, Python, Go]
+- Database: [e.g., PostgreSQL, MongoDB]
+- Deployment: [e.g., Vercel, AWS]
+
+## Key Conventions
+
+### File Naming
+- Components: PascalCase (UserProfile.tsx)
+- Utilities: camelCase (formatDate.ts)
+- Styles: kebab-case (user-profile.css)
+
+### Code Style
+<!-- Your project's specific conventions -->
+
+## Project Structure
+```
+src/
+├── components/     # [What goes here]
+├── pages/         # [What goes here]
+├── api/           # [What goes here]
+└── utils/         # [What goes here]
+```
+
+## Development Workflow
+
+### Branch Naming
+- feature/[description]
+- fix/[issue-number]-[description]
+- hotfix/[description]
+
+### Commit Messages
+- Use conventional commits: feat:, fix:, docs:, chore:
+- Reference issues: "Fix #123: Description"
+
+## Testing Requirements
+<!-- What should be tested and how -->
+
+## Security Rules
+<!-- Project-specific security requirements -->
+
+## External Services
+<!-- List of APIs, services, and their purposes -->
+
+## Environment Variables
+<!-- Required environment variables and their purposes (not values!) -->
+
+## Common Commands
+```bash
+# Development
+npm run dev
+
+# Testing
+npm test
+
+# Building
+npm run build
+
+# Linting
+npm run lint
+```
+
+## Important Context
+<!-- Any quirks, gotchas, or special knowledge needed -->
+
+## Response Guidelines for Claude
+
+### When implementing features:
+1. Check existing patterns first
+2. Follow established conventions
+3. Write tests for new functionality
+4. Update documentation as needed
+
+### When fixing bugs:
+1. Understand root cause before fixing
+2. Check for similar issues elsewhere
+3. Add tests to prevent regression
+
+### Code quality:
+- Prefer readability over cleverness
+- Add comments for complex logic
+- Keep functions small and focused
+- Handle errors appropriately
+
+## DO NOT:
+- Commit sensitive data
+- Skip error handling
+- Ignore existing patterns
+- Create unnecessary files
+
+## ALWAYS:
+- Run tests before marking complete
+- Follow existing code style
+- Update related documentation
+- Consider security implications
