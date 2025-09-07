@@ -1,0 +1,28 @@
+{
+  "name": "multi-agent-mcp-servers",
+  "version": "1.0.0",
+  "description": "Enhanced MCP servers for multi-agent development framework",
+  "main": "scripts/mcp-servers/",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:together": "node scripts/mcp-servers/together-ai-mcp-server.js",
+    "start:gemini": "node scripts/mcp-servers/gemini-mcp-server.js",
+    "start:huggingface": "node scripts/mcp-servers/huggingface-mcp-server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0"
+  },
+  "keywords": [
+    "mcp",
+    "ai",
+    "multi-agent",
+    "together-ai",
+    "gemini",
+    "huggingface"
+  ],
+  "author": "Multi-Agent Development Framework",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
