@@ -76,17 +76,18 @@ class TodoDashboard {
             this.allTodos = data.todos || [];
             this.todos = this.allTodos;
             
-            // Update project dropdown if we have projects list
-            if (data.availableProjects && !this.availableProjects.length) {
+            // Update available projects from server
+            if (data.availableProjects) {
                 this.availableProjects = data.availableProjects;
-                this.updateProjectDropdown(data.currentProject);
             }
             
-            // Extract unique project paths from todo content for simple filtering
-            if (!this.projectList) {
+            // Extract unique project paths from todo content if not available from server
+            if (!this.availableProjects || this.availableProjects.length === 0) {
                 this.projectList = this.extractProjectsFromTodos();
-                this.updateSimpleProjectDropdown();
             }
+            
+            // Update dropdown with available projects
+            this.updateSimpleProjectDropdown();
             
             document.getElementById('projectPath').textContent = data.project || '/home/gotime2022/Projects/multi-agent-claude-code';
             
@@ -149,43 +150,48 @@ class TodoDashboard {
     
     updateSimpleProjectDropdown() {
         const dropdown = document.getElementById('projectFilter');
+        const currentValue = this.selectedProject || dropdown.value; // Preserve current selection
         dropdown.innerHTML = '';
-        
-        // Count todos per project for display
-        const projectCounts = new Map();
-        this.allTodos.forEach(todo => {
-            if (todo.content) {
-                const contentLower = todo.content.toLowerCase();
-                this.projectList.forEach(projectName => {
-                    if (contentLower.includes(projectName.toLowerCase().replace(/-/g, ' ')) ||
-                        contentLower.includes(projectName.toLowerCase())) {
-                        projectCounts.set(projectName, (projectCounts.get(projectName) || 0) + 1);
-                    }
-                });
-            }
-        });
         
         // Add "All Projects" option
         const allOption = document.createElement('option');
         allOption.value = '';
-        allOption.textContent = `📁 All Projects (${this.allTodos.length} todos)`;
+        allOption.textContent = `📁 All Projects`;
         dropdown.appendChild(allOption);
         
         // Add separator
-        if (this.projectList.length > 0) {
+        if (this.availableProjects && this.availableProjects.length > 0) {
             const separator = document.createElement('option');
             separator.disabled = true;
             separator.textContent = '──────────────';
             dropdown.appendChild(separator);
             
-            // Add each project with todo count
-            this.projectList.forEach(project => {
-                const count = projectCounts.get(project) || 0;
+            // Add each project from server data
+            this.availableProjects.forEach(project => {
                 const option = document.createElement('option');
-                option.value = project;
-                option.textContent = `📁 ${project} (${count} todos)`;
+                option.value = project.path || project.name;
+                option.textContent = `📁 ${project.name}`;
                 dropdown.appendChild(option);
             });
+        } else if (this.projectList && this.projectList.length > 0) {
+            // Fallback to extracted project list
+            const separator = document.createElement('option');
+            separator.disabled = true;
+            separator.textContent = '──────────────';
+            dropdown.appendChild(separator);
+            
+            // Add each project
+            this.projectList.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project;
+                option.textContent = `📁 ${project}`;
+                dropdown.appendChild(option);
+            });
+        }
+        
+        // Restore the previously selected value
+        if (currentValue) {
+            dropdown.value = currentValue;
         }
     }
     

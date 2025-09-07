@@ -35,25 +35,39 @@ function getProjectSessions(projectPath) {
     return sessionIds;
 }
 
-// Get all available projects
+// Get all available projects - hardcoded list for stability
 function getAllProjects() {
-    const projectsDir = path.join(process.env.HOME, '.claude/projects');
-    const projects = [];
-    
-    if (fs.existsSync(projectsDir)) {
-        const dirs = fs.readdirSync(projectsDir);
-        dirs.forEach(dir => {
-            // Convert directory name back to path
-            const projectPath = '/' + dir.replace(/^-/, '').replace(/-/g, '/');
-            projects.push({
-                key: dir,
-                path: projectPath,
-                name: path.basename(projectPath)
-            });
-        });
-    }
-    
-    return projects;
+    // Return hardcoded list of known projects
+    return [
+        { 
+            name: 'multi-agent-claude-code', 
+            path: '/home/gotime2022/Projects/multi-agent-claude-code' 
+        },
+        { 
+            name: 'mcp-kernel-new', 
+            path: '/home/gotime2022/Projects/mcp-kernel-new' 
+        },
+        { 
+            name: 'recruitment-ops', 
+            path: '/home/gotime2022/Projects/recruitment-ops' 
+        },
+        { 
+            name: 'test-todo-app', 
+            path: '/home/gotime2022/Projects/test-todo-app' 
+        },
+        { 
+            name: 'multi-agent-observability-system', 
+            path: '/home/gotime2022/multi-agent-observability-system' 
+        },
+        { 
+            name: 'synapseai', 
+            path: '/home/gotime2022/synapseai' 
+        },
+        { 
+            name: 'project-seed', 
+            path: '/home/gotime2022/project-seed' 
+        }
+    ];
 }
 
 // Function to get todos - optionally filtered by project
