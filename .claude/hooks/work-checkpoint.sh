@@ -25,34 +25,45 @@ check_and_remind() {
     # Get current branch
     branch=$(git branch --show-current 2>/dev/null || echo "unknown")
     
+    # Build reminder message
+    MESSAGE=""
+    
     # Only remind if there are changes
     if [ "$changes" -gt 15 ]; then
-        echo ""
-        echo "📝 Reminder: You have $changes uncommitted changes on branch '$branch'"
-        echo "   Last commit: $last_commit"
-        echo "   Consider: /git commit"
-        echo ""
+        MESSAGE="📝 Reminder: You have $changes uncommitted changes on branch '$branch'
+   Last commit: $last_commit
+   Consider: /git commit"
     elif [ "$changes" -gt 5 ]; then
-        echo ""
-        echo "📝 Note: $changes uncommitted changes on '$branch'"
-        echo ""
+        MESSAGE="📝 Note: $changes uncommitted changes on '$branch'"
     fi
     
     # Check for unpushed commits
     unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo "0")
     if [ "$unpushed" -gt 3 ]; then
-        echo "⬆️ You have $unpushed unpushed commits. Consider: /git push"
-        echo ""
+        if [ -n "$MESSAGE" ]; then
+            MESSAGE="$MESSAGE
+⬆️ You have $unpushed unpushed commits. Consider: /git push"
+        else
+            MESSAGE="⬆️ You have $unpushed unpushed commits. Consider: /git push"
+        fi
+    fi
+    
+    # Output as JSON for Claude Code if we have a message
+    if [ -n "$MESSAGE" ]; then
+        cat <<EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "Stop",
+    "additionalContext": "$MESSAGE"
+  }
+}
+EOF
     fi
 }
 
 # Main execution
 main() {
-    # Only run reminders in interactive sessions
-    # Skip in CI/CD or automated environments
-    if [ -t 1 ]; then
-        check_and_remind
-    fi
+    check_and_remind
 }
 
 # Run main function
