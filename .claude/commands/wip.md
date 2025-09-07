@@ -30,10 +30,12 @@ Either create a new workspace OR resume existing work based on arguments.
 
 ### Step 1: Check for uncommitted changes
 
-First check: !`git status --short`
+First check: !`git status --short | grep -v work-journal.json`
 
-If there are changes shown, stash them:
-Run: !`git stash push -m "WIP: Stashed before switching branches"`
+If there are changes shown (excluding work-journal.json), stash them:
+Run: !`git stash push -m "WIP: Stashed before switching branches" -- . ':!.claude/work-journal.json'`
+
+Note: The work-journal.json is excluded from stashing to preserve the work history.
 
 ### Step 2: Check for worktrees
 
