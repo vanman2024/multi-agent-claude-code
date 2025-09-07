@@ -248,12 +248,27 @@ Before starting work, use mcp__github__get_issue to verify:
 
 ### Step 8: Get Complete Issue Context
 
-Use mcp__github__get_issue to retrieve:
+Use mcp__github APIs to retrieve complete context:
+
+**Get issue details:**
+Use mcp__github__get_issue with owner/repo/issue_number to get:
 - Title and full description
 - All labels (type, priority, size, complexity)
-- Current state and assignees
+- Current state and assignees  
 - Implementation checklist from body
-- Comments for additional context
+
+**Get issue comments for additional context:**
+Use mcp__github__get_issue_comments with owner/repo/issue_number to get:
+- All comments from team members
+- Additional requirements or clarifications
+- Design decisions and context
+- Links to related issues or PRs
+
+**Parse all context together:**
+- Combine issue body + all comments for full understanding
+- Look for updates to requirements in comments
+- Check for any design decisions or constraints mentioned
+- Note any related work or dependencies mentioned in comments
 
 ### Step 9: Create GitHub-Linked Branch (If No Worktree Exists)
 
