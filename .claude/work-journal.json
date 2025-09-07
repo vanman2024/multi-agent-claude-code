@@ -1,6 +1,150 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-07T22:40:41Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T22:39:21Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T22:35:16Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T22:29:38Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T22:22:27Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T22:14:48Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T22:11:47Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:46:58Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:46:42Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:46:36Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:45:37Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:44:52Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:44:45Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:40:19Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:38:17Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 2,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:37:48Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 2,
+      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:36:14Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 1,
+      "last_commit": "5a73424 fix: Add missing argument parsing in /work command"
+    },
+    {
+      "timestamp": "2025-09-07T21:31:00Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 1,
+      "last_commit": "3cbf293 fix: Make /work command handle projects without package.json"
+    },
+    {
+      "timestamp": "2025-09-07T21:30:44Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 1,
+      "last_commit": "3cbf293 fix: Make /work command handle projects without package.json"
+    },
+    {
+      "timestamp": "2025-09-07T21:27:57Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "c890fa6 docs: Update README with todo dashboard and work journal documentation"
+    },
+    {
       "timestamp": "2025-09-07T21:20:57Z",
       "branch": "main",
       "uncommitted": 2,
