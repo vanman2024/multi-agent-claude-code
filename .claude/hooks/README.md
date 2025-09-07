@@ -1,71 +1,79 @@
 # Claude Code Hooks
 
-These minimal hooks enhance your local development workflow while letting GitHub automation handle the heavy lifting.
+Strategic hooks that enhance your workflow at key points without overwhelming the context.
 
-## Active Hooks
+## Core Strategic Hooks (Essential)
 
-### 1. current-work.sh
+### 1. load-context.sh ✅ WORKING
+- **Event**: SessionStart
+- **Purpose**: Loads git state, assigned issues, PRs, and previous session context
+- **Benefit**: Instant context when you start working
+- **Output**: Shows in session start message
+
+### 2. verify-sync-before-claude.sh ✅ WORKING  
 - **Event**: UserPromptSubmit
-- **Purpose**: Injects current GitHub issue context into every prompt
-- **Benefit**: Claude always knows what issue you're working on
+- **Purpose**: Warns if you have unsynced changes when mentioning @claude
+- **Benefit**: Prevents testing old code with GitHub bot
+- **Output**: Warning message when local != GitHub
 
-### 2. auto-commit.sh
-- **Event**: PostToolUse (after Edit/Write/MultiEdit)
-- **Purpose**: Creates atomic commits as you work
-- **Benefit**: Automatic version history without thinking about it
+### 3. work-checkpoint.sh ✅ WORKING
+- **Event**: Stop (after Claude responds)
+- **Purpose**: Gentle reminders about uncommitted work (only if significant)
+- **Benefit**: Never lose work between responses
+- **Output**: Reminder only when 5+ files changed
 
-### 3. test-before-push.sh
-- **Event**: PreToolUse (before git push)
-- **Purpose**: Runs tests before allowing push to GitHub
-- **Benefit**: Prevents broken code from reaching CI/CD
+### 4. save-work-state.sh ✅ WORKING
+- **Event**: SessionEnd
+- **Purpose**: Saves session state to work journal
+- **Benefit**: Resume exactly where you left off
+- **Output**: Creates .claude/work-journal.json
 
-## Installation
+## Optional Hooks (Consider Removing)
 
-These hooks need to be registered in Claude Code. Run `/hooks` and add:
+### 5. current-work.sh ⚠️ LIMITED USE
+- **Event**: UserPromptSubmit  
+- **Purpose**: Inject issue context from branch name
+- **Problem**: Only works with numbered branches (e.g., 123-feature)
+- **Status**: Redundant with load-context.sh
 
-### UserPromptSubmit Hook
-```json
-{
-  "hooks": [{
-    "type": "command",
-    "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/current-work.sh"
-  }]
-}
-```
+### 6. test-before-push.sh ⚠️ QUESTIONABLE
+- **Event**: PreToolUse (Bash with git push)
+- **Purpose**: Run tests before pushing
+- **Problem**: CI/CD already handles this, may slow down workflow
+- **Status**: Consider removing
 
-### PostToolUse Hook (for auto-commit)
-- Matcher: `Edit|Write|MultiEdit`
-- Command: `$CLAUDE_PROJECT_DIR/.claude/hooks/auto-commit.sh`
+### 7. Other Complex Hooks
+- **sync-todo-checkboxes.py**: Complex Python sync with PR checkboxes
+- **sync-agent-results.py**: Agent coordination we rarely use
+- **log-agent-task.sh**: Logging we don't review
 
-### PreToolUse Hook (for test-before-push)
-- Matcher: `Bash.*git push`
-- Command: `$CLAUDE_PROJECT_DIR/.claude/hooks/test-before-push.sh`
+## Hook Output Visibility
 
-## How They Work Together
+**Important**: Hooks output JSON to Claude Code, not to your terminal!
+- ✅ You'll see their effects in Claude's responses
+- ✅ SessionStart hooks show in the greeting message
+- ✅ UserPromptSubmit hooks show as context warnings
+- ❌ You won't see terminal output when testing manually
 
-1. **current-work.sh** runs when you start talking to Claude, adding issue context
-2. **auto-commit.sh** creates commits as Claude edits files
-3. **test-before-push.sh** validates everything before it goes to GitHub
-4. GitHub workflows take over once code is pushed
+## Configuration
 
-## Why These Three?
+All hooks are configured in `.claude/settings.json`. The strategic hooks fire at:
+- **Session boundaries**: Start/End for context
+- **Natural pauses**: Stop event for reminders
+- **Critical moments**: Before mentioning @claude
 
-- **Minimal**: Only what GitHub automation doesn't handle
-- **Local-focused**: Work with your local development
-- **Non-blocking**: Won't interrupt your flow (except test failures)
-- **Complementary**: Work with, not against, your GitHub automation
+## Testing Hooks
 
-## Testing
+To see if hooks are working:
+1. Start a new session - should see context loaded
+2. Type a message with @claude - should see sync warning if needed
+3. Let Claude finish responding - may see work checkpoint reminder
+4. End session - saves state to work journal
 
-To test the hooks manually:
+## Philosophy
 
-```bash
-# Test current-work
-./.claude/hooks/current-work.sh
-
-# Test auto-commit (needs JSON input)
-echo '{"tool_input":{"file_path":"test.md"}}' | ./.claude/hooks/auto-commit.sh
-
-# Test before-push (needs JSON input)
-echo '{"tool_input":{"command":"git push"}}' | ./.claude/hooks/test-before-push.sh
-```
+These hooks follow the "Strategic, Not Constant" principle:
+- Fire at workflow boundaries, not every file change
+- Provide context without overwhelming
+- Save state without interrupting
+- Warn only when it matters
