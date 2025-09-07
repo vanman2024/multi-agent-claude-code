@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/load-context.sh"
+            "command": "bash /home/gotime2022/Projects/multi-agent-claude-code/.claude/hooks/load-context.sh"
           }
         ]
       }
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/work-checkpoint.sh"
+            "command": "bash /home/gotime2022/Projects/multi-agent-claude-code/.claude/hooks/work-checkpoint.sh"
           }
         ]
       }
@@ -25,7 +25,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/save-work-state.sh"
+            "command": "bash /home/gotime2022/Projects/multi-agent-claude-code/.claude/hooks/save-work-state.sh"
           }
         ]
       }
@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/verify-sync-before-claude.sh"
+            "command": "bash /home/gotime2022/Projects/multi-agent-claude-code/.claude/hooks/verify-sync-before-claude.sh"
           }
         ]
       }
