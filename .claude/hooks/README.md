@@ -20,7 +20,10 @@ Strategic hooks that enhance your workflow at key points without overwhelming th
 - **Event**: Stop (after Claude responds)
 - **Purpose**: Gentle reminders about uncommitted work (only if significant)
 - **Benefit**: Never lose work between responses
-- **Output**: Reminder only when 5+ files changed
+- **Output**: 
+  - Note at 5+ uncommitted changes
+  - Reminder with `/git commit` at 15+ changes
+  - Push reminder at 3+ unpushed commits
 
 ### 4. save-work-state.sh
 - **Event**: SessionEnd
