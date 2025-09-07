@@ -26,31 +26,39 @@ save_work_state() {
     # Get unpushed commits
     unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo "0")
     
-    # Get last 5 commits for context
-    recent_commits=$(git log --oneline -5 2>/dev/null || echo "")
+    # Get last commit
+    last_commit=$(git log -1 --oneline 2>/dev/null || echo "no commits")
     
     # Save only if there's work to preserve
     if [ "$changes" -gt 0 ] || [ "$unpushed" -gt 0 ]; then
         # Create or update work journal
         timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         
-        # Create journal entry
-        cat > "$WORK_JOURNAL.tmp" <<EOF
+        # Initialize journal if it doesn't exist
+        if [ ! -f "$WORK_JOURNAL" ]; then
+            echo '{"entries": []}' > "$WORK_JOURNAL"
+        fi
+        
+        # Check if journal has old format and convert it
+        if grep -q '"last_session"' "$WORK_JOURNAL" 2>/dev/null; then
+            echo '{"entries": []}' > "$WORK_JOURNAL"
+        fi
+        
+        # Create session end entry
+        end_entry=$(cat <<EOF
 {
-    "last_session": {
-        "timestamp": "$timestamp",
-        "branch": "$branch",
-        "uncommitted_changes": $changes,
-        "unpushed_commits": $unpushed,
-        "recent_commits": [
-$(echo "$recent_commits" | sed 's/^/            "/; s/$/",/' | sed '$ s/,$//')
-        ],
-        "work_summary": "Session ended with $changes uncommitted changes and $unpushed unpushed commits on branch '$branch'"
-    }
+    "timestamp": "$timestamp",
+    "event": "session_end",
+    "branch": "$branch",
+    "uncommitted": $changes,
+    "unpushed": $unpushed,
+    "last_commit": "$last_commit"
 }
 EOF
+        )
         
-        # Move temp file to actual journal
+        # Append to journal (keep last 100 entries)
+        cat "$WORK_JOURNAL" | jq --argjson entry "$end_entry" '.entries = ([$entry] + .entries)[0:100]' > "$WORK_JOURNAL.tmp"
         mv "$WORK_JOURNAL.tmp" "$WORK_JOURNAL"
         
         # Show session summary

@@ -1,16 +1,11 @@
 {
-    "last_session": {
-        "timestamp": "2025-09-07T04:00:30Z",
-        "branch": "main",
-        "uncommitted_changes": 12,
-        "unpushed_commits": 0,
-        "recent_commits": [
-            "dd27278 fix: Temporarily disable Stop hook to prevent errors",
-            "55872f8 fix: Use absolute paths for hooks to prevent 'file not found' errors",
-            "5a09c9f feat: Strategic hooks system and git command (#151)",
-            "b52d873 wip: Add five-tier system docs, planning commands, and doc-updater hook",
-            "24ce065 fix: Fix metadata parsing in project automation"
-        ],
-        "work_summary": "Session active with 12 uncommitted changes and 0 unpushed commits on branch 'main'"
+  "entries": [
+    {
+      "timestamp": "2025-09-07T04:08:35Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 1,
+      "last_commit": "ebc189c fix: Clean up duplicate docs and update hooks system"
     }
+  ]
 }
