@@ -18,21 +18,23 @@
 
 ---
 
-## 🎯 What's New in v2.0
+## 🎯 What's New: Five-Tier Development System
 
-**NEW PRIMARY WORKFLOW**: Work-in-Progress (WIP) driven development
-- `/wip` - Start exploratory work WITHOUT issues (90% of daily work)
-- `/wip branch-name` - Resume any existing branch instantly
-- `/wip-status` - See all your WIP branches with worktree indicators
+**COMPREHENSIVE PLANNING**: Project setup to production
+- `/project-setup` - Interactive discovery and vision creation
+- `/plan:generate` - Generate detailed technical documentation
+- `/test:generate` - Create comprehensive test suites (90% coverage from day 1)
 
-**SIMPLIFIED ISSUE WORKFLOW**: When you DO need issues
+**SMART IMPLEMENTATION**: Right tool for the right job
 - `/create-issue` - Smart routing to Copilot (simple) or Claude (complex)
 - `/work` - Full issue→PR→merge workflow with tracking
 
-**WORKTREE SUPPORT**: Parallel development made easy
-- Automatic worktree detection and navigation
-- Option to create new branches as worktrees
-- Visual indicators (📁) for worktree branches
+**FIVE-TIER FRAMEWORK**:
+- ⚙️ **Infrastructure** - Local DevOps setup (not tracked as issues)
+- 🏗️ **Architecture** - System design decisions
+- 🎨 **Design System** - UI/UX foundation
+- 📱 **Standard Features** - Common app functionality
+- 🎯 **Custom Features** - Your unique value (10-20 GitHub issues)
 
 **COST-FREE**: No paid @claude GitHub App - uses free GitHub Copilot + local Claude Code
 
@@ -93,69 +95,67 @@ claude
 # ✅ Postman (API testing)
 ```
 
-### 5️⃣ Initialize Project
+### 5️⃣ Initialize Project with Five-Tier System
 
 ```bash
-# Set up Claude instructions for your project
-cp templates/CLAUDE.md.template CLAUDE.md
-# Edit CLAUDE.md with your project specifics
-
-# One-time project setup
+# Step 1: Interactive project discovery and vision
 /project-setup
-# Will ask if you want to use personal config!
+# Creates: docs/PROJECT_PLAN.md (your north star vision)
 
-# This will:
-# - Load your personal config (if available)
-# - Configure tech stack
-# - Set up GitHub repo
-# - Initialize database
-# - Configure Vercel deployment
+# Step 2: Generate detailed technical documentation
+/plan:generate
+# Creates: ARCHITECTURE.md, INFRASTRUCTURE.md, FEATURES.md, DESIGN_SYSTEM.md
+
+# Step 3: Generate comprehensive test suites
+/test:generate --all
+# Creates: Unit tests, API tests (Postman), E2E tests
+
+# Step 4: Start building
+/create-issue "User authentication"
+/work #1
 ```
 
 ---
 
-## 🔄 Core Workflow (For Real Application Development)
+## 🔄 Core Workflow: Plan → Build → Test → Deploy
 
-### Primary: Issue-Driven Development
+### Phase 1: Planning & Setup (Once per project)
 
 ```bash
-# 1. Create issue for any significant work
-/create-issue "Add user authentication system"
-# Issue #150 created - stays open during entire development
+# 1. Interactive project discovery
+/project-setup
+# Creates PROJECT_PLAN.md with vision & roadmap
 
-# 2. Start implementation
+# 2. Generate technical documentation
+/plan:generate
+# Creates detailed docs from vision
+
+# 3. Generate test suites
+/test:generate --all
+# 90% test coverage before coding!
+```
+
+### Phase 2: Implementation (Daily work)
+
+```bash
+# Create issues for major features (10-20 total)
+/create-issue "Add user authentication"
+# Auto-assigns to Copilot if simple, Claude if complex
+
+# Work on features
 /work #150
-# Creates branch: 150-add-user-authentication
-# This branch lives for days/weeks as you build
+# Creates branch, implements with tests
 
-# 3. Resume work across sessions
-/wip 150-add-user-authentication
-# Quick way to get back to your issue branch
-# Work continues, issue stays OPEN
-
-# 4. Create PR only when feature is complete
-gh pr create --body "Closes #150"
-# NOW the issue will close when PR merges
+# Deploy when ready
+/deploy
+# Everything goes to Vercel
 ```
 
-### Secondary: Quick Fixes & Experiments
-
-```bash
-# For tiny fixes (typos, small tweaks)
-/wip fix-typo
-# No issue needed for trivial changes
-
-# For experiments before committing
-/wip test-new-api
-# Try things out, then create issue if it works
-
-# See all your branches
-/wip-status
-# Shows both issue branches and experimental branches
-```
-
-### ⚠️ Auto-Sync Protection
-Commands automatically `git pull` to prevent divergence. The `/wip` workflow embraces exploration while `/work` provides structure when needed.
+### ⚠️ Key Principles
+- **Infrastructure tasks** = Local work (no issues needed)
+- **Features** = GitHub issues (tracked and visible)
+- **10-20 issues total** = Group related work together
+- **Tests first** = Generate tests before implementation
 
 ---
 
@@ -252,11 +252,23 @@ See `.claude/hooks/README.md` for configuration details.
 
 Essential guides:
 
-- `docs/WORKFLOW.md` - Development workflow and branch strategies
-- `docs/TESTING-STRATEGY.md` - Comprehensive testing approach
-- `docs/AI-AGENT-MOCK-TO-PRODUCTION-GUIDE.md` - Mock-first development
-- `docs/API-MOCK-TESTING.md` - API testing patterns
+### Planning & Setup
+- `docs/development/DOCUMENT-GENERATION-FLOW.md` - Complete workflow diagram
+- `docs/development/FIVE-TIER-SYSTEM.md` - Understanding the five tiers
+- `templates/guides/*.md` - Templates for all documentation
+
+### Development
+- `docs/framework/WORKFLOW.md` - Development workflow and branch strategies
+- `docs/framework/INFRASTRUCTURE_GUIDE.md` - How the framework automation works
+- `docs/development/FLAGS.md` - All command flags reference
+
+### Testing
+- `docs/testing/API-MOCK-TESTING.md` - Newman/Postman API testing
+- `docs/testing/TESTING-STRATEGY.md` - Comprehensive testing approach
+
+### Configuration
 - `CLAUDE.md` - AI assistant configuration and instructions
+- `MCP_SERVERS_GUIDE.md` - MCP server setup and usage
 
 ---
 
@@ -272,40 +284,53 @@ Essential guides:
 
 ## 🔧 Available Commands
 
-### Core Commands
+### Planning Commands (New!)
+- `/project-setup` - Interactive discovery & create vision document
+- `/plan:generate` - Generate detailed technical docs from vision
+- `/test:generate` - Create comprehensive test suites
+
+### Implementation Commands
 - `/create-issue` - Create any type of work item
 - `/work [#issue]` - Implement issues intelligently
 
 ### Utility Commands
-- `/project-setup` - Initial project configuration
-- `/add-mcp` - Add MCP servers
+- `/add-mcp` - Add MCP servers (GitHub, Supabase, Postman)
 - `/deploy` - Quick Vercel deployment
 - `/copilot-review` - Request PR review
-
-### Archived Commands
-Old commands like `/build-feature`, `/enhance`, etc. are archived.
-Use `/work` for everything now!
+- `/discussions` - Manage GitHub Discussions
 
 ---
 
-## 💡 Examples
+## 💡 Complete Example: Building a SaaS App
 
 ```bash
-# Create a new feature
-/create-issue
-> Type: feature
-> Title: Add user authentication
-> Complexity: 3
-> Size: M
+# 1. Project Discovery (once)
+/project-setup
+> "Building a team collaboration tool"
+> B2B SaaS, subscription model
+> Creates: PROJECT_PLAN.md
 
-# Work on it
-/work #35
+# 2. Generate Documentation (once)
+/plan:generate
+> Creates: Technical specs from vision
 
-# Deploy when ready
-/work --deploy
+# 3. Generate Tests (once)
+/test:generate --all
+> Creates: Complete test coverage
 
-# Request review
-/copilot-review
+# 4. Build Features (ongoing)
+/create-issue "User authentication system"
+/create-issue "Team workspace management"
+/create-issue "Real-time collaboration"
+# Creates 10-20 major feature issues
+
+# 5. Implementation
+/work #1
+> Copilot or Claude implements based on complexity
+
+# 6. Deploy
+/deploy
+> Everything to Vercel
 ```
 
 ---
