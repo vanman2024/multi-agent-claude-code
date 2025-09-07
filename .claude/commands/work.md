@@ -429,10 +429,22 @@ Example commit formats:
 
 ### Step 16: Run Tests and Validation
 
-Before marking work complete:
-!`npm test` or !`pytest` depending on project
-!`npm run lint` or appropriate linter
-!`npm run typecheck` if TypeScript project
+Before marking work complete, check what's available and run if exists:
+
+**Check for Node.js project:**
+- Check if package.json exists: !`test -f package.json && echo "Node project found" || echo "Not a Node project"`
+- If Node project:
+  - Check for test script: !`test -f package.json && grep -q '"test"' package.json && npm test || echo "No tests configured"`
+  - Check for lint script: !`test -f package.json && grep -q '"lint"' package.json && npm run lint || echo "No linting configured"`
+  - Check for typecheck: !`test -f package.json && grep -q '"typecheck"' package.json && npm run typecheck || echo "No type checking configured"`
+
+**Check for Python project:**
+- Check for pytest: !`which pytest >/dev/null 2>&1 && pytest || echo "No Python tests found"`
+- Check for flake8: !`which flake8 >/dev/null 2>&1 && flake8 . || echo "No Python linting found"`
+
+**If no testing infrastructure exists:**
+- Note: "No test infrastructure detected - proceeding without tests"
+- This is common for template repositories or new projects
 
 ### Step 17: Convert Draft PR to Ready
 
