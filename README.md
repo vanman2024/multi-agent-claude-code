@@ -159,20 +159,29 @@ claude
 
 ---
 
-## 📊 Todo Dashboard - Visual Task Management
+## 📊 Todo Dashboard & Work Tracking
 
-### Real-time Todo Tracking System
+### Real-time Development Dashboard
 
-The framework includes a powerful **web-based Todo Dashboard** that visualizes all Claude Code TodoWrite tasks across your entire development workflow.
+The framework includes a powerful **web-based Todo Dashboard** that visualizes all Claude Code TodoWrite tasks and tracks your work history across sessions.
 
-### Features
+### 🎯 Todo Dashboard Features
 
 - **🌐 Web Interface**: Beautiful dashboard at `http://localhost:8080`
-- **📁 Project Filtering**: View todos by project or see all 650+ tasks
+- **📁 Project Filtering**: View todos by project or see all tasks
 - **📈 Live Statistics**: Track completed, in-progress, and pending tasks
 - **🔄 Auto-refresh**: Updates every 5 seconds as you work
 - **🔍 Search & Filter**: Find tasks quickly with search and status filters
 - **📂 Multi-project Support**: Manages todos across all your projects
+
+### 📝 Work Journal System
+
+**Automatic Activity Tracking** - The framework maintains a continuous work journal that:
+- **Appends entries** every time Claude responds (never overwrites)
+- **Tracks git state**: branch, uncommitted changes, unpushed commits
+- **Session markers**: Special events like session_end are flagged
+- **History preservation**: Keeps last 100 entries for work patterns
+- **Located at**: `.claude/work-journal.json`
 
 ### Starting the Dashboard
 
@@ -189,26 +198,31 @@ node server-simple.js
 
 ### Dashboard Views
 
-- **All Projects**: See all todos across every project (650+ tasks)
-- **Project-specific**: Filter to see only current project tasks
+- **All Projects**: See all todos across every project
+- **Project-specific**: Filter to see only current project tasks  
 - **Status filters**: View by Completed, In Progress, or Pending
 - **Session grouping**: Todos organized by work sessions
+- **Work History**: Journal tracks all git activity
 
 ### How It Works
 
-1. **Automatic Tracking**: TodoWrite tool usage is automatically tracked
-2. **Project Mapping**: Links todos to specific projects via session IDs
-3. **Persistent Storage**: All todos saved in `~/.claude/todos/`
-4. **Smart Filtering**: Uses bash scripts to map sessions to projects
+1. **Automatic Tracking**: TodoWrite usage tracked automatically
+2. **Project Mapping**: Links todos to projects via session IDs
+3. **Persistent Storage**: Todos in `~/.claude/todos/`, journal in `.claude/`
+4. **Smart Filtering**: Bash scripts map sessions to projects
+5. **Continuous Journal**: Hooks update work history on every response
 
-### Integration with Workflow
+### 🚀 Future GitHub Integration (Roadmap)
 
-The Todo Dashboard integrates seamlessly with the `/work` command and TodoWrite tool:
-- Every task created with TodoWrite appears in the dashboard
-- Status updates reflect in real-time
-- Project context is automatically maintained
+**Coming Soon**: Direct GitHub issue synchronization
+- **Two-way sync**: TodoWrite ↔️ GitHub Issues
+- **Auto-linking**: Todos automatically tied to issue numbers
+- **PR tracking**: See which todos are in PRs
+- **Status sync**: GitHub issue status updates Todo status
+- **Milestone mapping**: Group todos by GitHub milestones
+- **Team visibility**: Share todo progress via GitHub
 
-This provides complete visibility into your development progress across all Claude Code sessions.
+This will create a unified development experience where local Claude Code work seamlessly integrates with GitHub's project management.
 
 ---
 
@@ -231,59 +245,6 @@ This provides complete visibility into your development progress across all Clau
 - 🧠 Large tasks (Size M+)
 
 **Note**: Auto-routing to Copilot requires GitHub Actions to be fully operational (see issue #120)
-
----
-
-## 📊 Todo Dashboard - Visual Task Management
-
-### Real-time Todo Tracking System
-
-The framework includes a powerful **web-based Todo Dashboard** that visualizes all Claude Code TodoWrite tasks across your entire development workflow.
-
-### Features
-
-- **🌐 Web Interface**: Beautiful dashboard at `http://localhost:8080`
-- **📁 Project Filtering**: View todos by project or see all 657+ tasks
-- **📈 Live Statistics**: Track completed, in-progress, and pending tasks
-- **🔄 Auto-refresh**: Updates every 5 seconds as you work
-- **🔍 Search & Filter**: Find tasks quickly with search and status filters
-- **📂 Multi-project Support**: Manages todos across all your projects
-
-### Starting the Dashboard
-
-```bash
-# Navigate to todo-viewer directory
-cd todo-viewer
-
-# Start the server
-node server-simple.js
-
-# Open in browser
-# http://localhost:8080
-```
-
-### Dashboard Views
-
-- **All Projects**: See all todos across every project (657+ tasks)
-- **Project-specific**: Filter to see only current project tasks
-- **Status filters**: View by Completed, In Progress, or Pending
-- **Session grouping**: Todos organized by work sessions
-
-### How It Works
-
-1. **Automatic Tracking**: TodoWrite tool usage is automatically tracked
-2. **Project Mapping**: Links todos to specific projects via session IDs
-3. **Persistent Storage**: All todos saved in `~/.claude/todos/`
-4. **Smart Filtering**: Uses bash scripts to map sessions to projects
-
-### Integration with Workflow
-
-The Todo Dashboard integrates seamlessly with the `/work` command and TodoWrite tool:
-- Every task created with TodoWrite appears in the dashboard
-- Status updates reflect in real-time
-- Project context is automatically maintained
-
-This provides complete visibility into your development progress across all Claude Code sessions.
 
 ---
 
