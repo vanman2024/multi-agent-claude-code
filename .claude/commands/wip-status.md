@@ -44,33 +44,59 @@ If there are worktrees, display them clearly:
   - [branch-name] at [path]
 ```
 
-### Step 3: Show all local WIP branches
+### Step 3: Show ALL GitHub branches FIRST
 
-Run: !`git branch | grep -E "wip-|fix-|explore-|update-|general-|^[0-9]+-"`
-Show the list of WIP-style branches AND issue branches (starting with numbers).
+First, prune old remote references: !`git remote prune origin`
 
-For each branch, check if it's in a worktree:
-- If it's in a worktree, mark with 📁 icon
-- If not, mark with 🌿 icon
+Get ALL GitHub branches: !`gh api repos/vanman2024/multi-agent-claude-code/branches --paginate | jq -r '.[].name' | sort`
 
-### Step 4: Show GitHub branches
+Display as numbered list:
+**🌐 ALL GITHUB BRANCHES:**
+Number and list EVERY branch found (could be 7, 25, 50, 100+):
+1. [first branch]
+2. [second branch]
+3. [third branch]
+...
+N. [last branch]
 
-Run: !`gh api repos/vanman2024/multi-agent-claude-code/branches --jq '.[].name' | grep -E "wip-|fix-|explore-|update-|general-|^[0-9]+-"`
-Show WIP branches that exist on GitHub.
+### Step 4: Show sync status
 
-Cross-reference with worktree list:
-- Mark worktree branches with 📁
-- Mark regular branches with 🌿
+Get local branches with tracking info: !`git branch -vv`
 
-### Step 4: Show TodoWrite WIP items
+Now categorize based on what you found:
 
-Check TodoWrite for all todos starting with "WIP:"
-Display them with their status:
-- in_progress = Currently working on
-- pending = Paused/waiting
-- completed = Done (can be cleaned up)
+**✅ SYNCED (local + GitHub):**
+- List branches that exist both locally and on GitHub
+- Mark with 📁 if it's a worktree branch
 
-### Step 5: Provide options
+**❌ GitHub-Only (not local):**
+- List branches that are ONLY on GitHub
+- Suggest: `git checkout -b [branch] origin/[branch]`
+
+**⚠️ Local-Only (not on GitHub):**
+- Branches that exist locally but NOT pushed to GitHub
+- These need: `git push -u origin [branch]`
+
+**🔴 STALE Local (remote deleted):**
+- Branches marked as "[gone]" (were on GitHub but deleted/merged)
+- Suggest cleanup: `git branch -d [branch-name]`
+
+**📤 UNPUSHED COMMITS:**
+- Any branches with "ahead X" status
+- Show: `[branch] - X commits need pushing`
+
+### Step 5: Show stashed work
+
+Run: !`git stash list`
+
+If there are stashes, display ALL of them:
+**📦 STASHED WORK (unsaved changes):**
+- stash@{0}: message
+- stash@{1}: message
+- stash@{2}: message
+(show every single stash, no limit)
+
+### Step 6: Provide options
 
 Tell user they can:
 - Resume any branch: `/wip [branch-name]`
