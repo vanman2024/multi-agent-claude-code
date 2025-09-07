@@ -23,23 +23,28 @@ CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
 # Load previous session info if available
 PREVIOUS_SESSION=""
 if [ -f "$WORK_JOURNAL" ]; then
-  LAST_BRANCH=$(jq -r '.last_session.branch // ""' "$WORK_JOURNAL" 2>/dev/null)
-  LAST_CHANGES=$(jq -r '.last_session.uncommitted_changes // 0' "$WORK_JOURNAL" 2>/dev/null)
-  LAST_UNPUSHED=$(jq -r '.last_session.unpushed_commits // 0' "$WORK_JOURNAL" 2>/dev/null)
+  # Get the most recent entry from the new format
+  LAST_ENTRY=$(jq -r '.entries[0] // {}' "$WORK_JOURNAL" 2>/dev/null)
   
-  if [ -n "$LAST_BRANCH" ] && [ "$LAST_BRANCH" != "null" ]; then
-    PREVIOUS_SESSION="
+  if [ "$LAST_ENTRY" != "{}" ] && [ "$LAST_ENTRY" != "null" ]; then
+    LAST_BRANCH=$(echo "$LAST_ENTRY" | jq -r '.branch // ""')
+    LAST_CHANGES=$(echo "$LAST_ENTRY" | jq -r '.uncommitted // 0')
+    LAST_UNPUSHED=$(echo "$LAST_ENTRY" | jq -r '.unpushed // 0')
+    
+    if [ -n "$LAST_BRANCH" ] && [ "$LAST_BRANCH" != "null" ]; then
+      PREVIOUS_SESSION="
 ### 📚 Previous Session
 - Last branch: $LAST_BRANCH"
-    
-    if [ "$LAST_CHANGES" -gt 0 ]; then
-      PREVIOUS_SESSION="$PREVIOUS_SESSION
+      
+      if [ "$LAST_CHANGES" -gt 0 ]; then
+        PREVIOUS_SESSION="$PREVIOUS_SESSION
 - ⚠️ Had $LAST_CHANGES uncommitted changes"
-    fi
-    
-    if [ "$LAST_UNPUSHED" -gt 0 ]; then
-      PREVIOUS_SESSION="$PREVIOUS_SESSION
+      fi
+      
+      if [ "$LAST_UNPUSHED" -gt 0 ]; then
+        PREVIOUS_SESSION="$PREVIOUS_SESSION
 - ⬆️ Had $LAST_UNPUSHED unpushed commits"
+      fi
     fi
   fi
 fi
