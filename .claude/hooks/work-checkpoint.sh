@@ -10,7 +10,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 WORK_JOURNAL="$PROJECT_ROOT/.claude/work-journal.json"
 
-# Update work journal silently
+# Update work journal with append
 update_work_journal() {
     # Check if we're in a git repository
     if ! git rev-parse --git-dir > /dev/null 2>&1; then
@@ -22,25 +22,32 @@ update_work_journal() {
     changes=$(git status --porcelain 2>/dev/null | wc -l)
     unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo "0")
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    recent_commits=$(git log --oneline -5 2>/dev/null || echo "")
+    last_commit=$(git log -1 --oneline 2>/dev/null || echo "no commits")
     
-    # Update journal silently
-    cat > "$WORK_JOURNAL.tmp" <<EOF
+    # Initialize journal if it doesn't exist
+    if [ ! -f "$WORK_JOURNAL" ]; then
+        echo '{"entries": []}' > "$WORK_JOURNAL"
+    fi
+    
+    # Check if journal has old format and convert it
+    if grep -q '"last_session"' "$WORK_JOURNAL" 2>/dev/null; then
+        echo '{"entries": []}' > "$WORK_JOURNAL"
+    fi
+    
+    # Create new entry
+    new_entry=$(cat <<EOF
 {
-    "last_session": {
-        "timestamp": "$timestamp",
-        "branch": "$branch",
-        "uncommitted_changes": $changes,
-        "unpushed_commits": $unpushed,
-        "recent_commits": [
-$(echo "$recent_commits" | sed 's/^/            "/; s/$/",/' | sed '$ s/,$//')
-        ],
-        "work_summary": "Session active with $changes uncommitted changes and $unpushed unpushed commits on branch '$branch'"
-    }
+    "timestamp": "$timestamp",
+    "branch": "$branch",
+    "uncommitted": $changes,
+    "unpushed": $unpushed,
+    "last_commit": "$last_commit"
 }
 EOF
+    )
     
-    # Move temp file to actual journal
+    # Append to journal (keep last 100 entries)
+    cat "$WORK_JOURNAL" | jq --argjson entry "$new_entry" '.entries = ([$entry] + .entries)[0:100]' > "$WORK_JOURNAL.tmp"
     mv -f "$WORK_JOURNAL.tmp" "$WORK_JOURNAL" 2>/dev/null || true
 }
 
@@ -67,7 +74,7 @@ check_and_remind() {
     if [ "$changes" -gt 15 ]; then
         MESSAGE="📝 Reminder: You have $changes uncommitted changes on branch '$branch'
    Last commit: $last_commit
-   Consider: /git commit"
+   Consider: git add -A && git commit -m 'your message'"
     elif [ "$changes" -gt 5 ]; then
         MESSAGE="📝 Note: $changes uncommitted changes on '$branch'"
     fi
@@ -77,13 +84,13 @@ check_and_remind() {
     if [ "$unpushed" -gt 3 ]; then
         if [ -n "$MESSAGE" ]; then
             MESSAGE="$MESSAGE
-⬆️ You have $unpushed unpushed commits. Consider: /git push"
+⬆️ You have $unpushed unpushed commits. Consider: git push"
         else
-            MESSAGE="⬆️ You have $unpushed unpushed commits. Consider: /git push"
+            MESSAGE="⬆️ You have $unpushed unpushed commits. Consider: git push"
         fi
     fi
     
-    # Update work journal periodically (every Stop event)
+    # Update work journal every time
     update_work_journal
     
     # Output as JSON for Claude Code if we have a message
