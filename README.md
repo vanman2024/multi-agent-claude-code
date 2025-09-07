@@ -228,6 +228,26 @@ Everything deploys to **Vercel** automatically:
 
 ---
 
+## 🪝 Strategic Hooks System
+
+**Only 4 essential hooks that fire at workflow boundaries, not every file change:**
+
+### The 4 Working Hooks ✅
+1. **SessionStart** (`load-context.sh`) - Loads git state, issues, PRs when you start
+2. **UserPromptSubmit** (`verify-sync-before-claude.sh`) - Warns about unsynced changes before @claude
+3. **Stop** (`work-checkpoint.sh`) - Commit reminders (5+/15+ changes, 3+ unpushed)
+4. **SessionEnd** (`save-work-state.sh`) - Saves session state to work journal
+
+### Hook Benefits
+- **Minimal**: Only 4 hooks, all verified working
+- **Strategic**: Fire at natural pauses, not constantly
+- **Helpful**: Gentle reminders to commit and push
+- **Invisible**: JSON output to Claude, not terminal spam
+
+See `.claude/hooks/README.md` for configuration details.
+
+---
+
 ## 📚 Documentation
 
 Essential guides:

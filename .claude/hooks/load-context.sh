@@ -2,9 +2,11 @@
 # Hook: Load project context on session start
 # Event: SessionStart
 # Purpose: Inject project state and context when Claude Code starts
+# Enhanced version with work journal integration
 
 # Get current directory
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+WORK_JOURNAL="$PROJECT_DIR/.claude/work-journal.json"
 
 # Check if we're in a git repository
 if [ ! -d "$PROJECT_DIR/.git" ]; then
@@ -17,6 +19,39 @@ RECENT_COMMITS=$(git log --oneline -n 5 2>/dev/null || echo "No recent commits")
 
 # Get current branch
 CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+
+# Load previous session info if available
+PREVIOUS_SESSION=""
+if [ -f "$WORK_JOURNAL" ]; then
+  LAST_BRANCH=$(jq -r '.last_session.branch // ""' "$WORK_JOURNAL" 2>/dev/null)
+  LAST_CHANGES=$(jq -r '.last_session.uncommitted_changes // 0' "$WORK_JOURNAL" 2>/dev/null)
+  LAST_UNPUSHED=$(jq -r '.last_session.unpushed_commits // 0' "$WORK_JOURNAL" 2>/dev/null)
+  
+  if [ -n "$LAST_BRANCH" ] && [ "$LAST_BRANCH" != "null" ]; then
+    PREVIOUS_SESSION="
+### 📚 Previous Session
+- Last branch: $LAST_BRANCH"
+    
+    if [ "$LAST_CHANGES" -gt 0 ]; then
+      PREVIOUS_SESSION="$PREVIOUS_SESSION
+- ⚠️ Had $LAST_CHANGES uncommitted changes"
+    fi
+    
+    if [ "$LAST_UNPUSHED" -gt 0 ]; then
+      PREVIOUS_SESSION="$PREVIOUS_SESSION
+- ⬆️ Had $LAST_UNPUSHED unpushed commits"
+    fi
+  fi
+fi
+
+# Check for stashes
+STASH_COUNT=$(git stash list 2>/dev/null | wc -l)
+STASH_INFO=""
+if [ "$STASH_COUNT" -gt 0 ]; then
+  STASH_INFO="
+### 📦 Stashed Work
+You have $STASH_COUNT stashed changes. Use 'git stash list' to review."
+fi
 
 # Get assigned GitHub issues (if gh is available)
 ASSIGNED_ISSUES=""
@@ -52,6 +87,8 @@ CONTEXT="## Project Context Loaded
 - Branch: $CURRENT_BRANCH
 - Recent Commits:
 $RECENT_COMMITS
+$PREVIOUS_SESSION
+$STASH_INFO
 
 ### Your Assigned Issues
 ${ASSIGNED_ISSUES:-No assigned issues}
