@@ -16,7 +16,8 @@ This command helps users add the essential MCP servers needed for the Multi-Agen
 3. **postman** - API testing and collections  
 4. **supabase** - Database and authentication
 5. **filesystem** - File system access
-6. **all** - Add all recommended servers (github, playwright, postman, supabase)
+6. **memory** - Persistent memory storage for context between sessions
+7. **all** - Add all recommended servers (github, playwright, postman, supabase, memory)
 
 ### Process
 
@@ -62,6 +63,12 @@ You'll need to get this from your Supabase project settings.
 ```bash
 claude mcp add filesystem -- npx @modelcontextprotocol/server-filesystem /path/to/project
 ```
+
+#### Memory MCP Server (recommended)
+```bash
+claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
+```
+Note: Provides persistent memory storage between Claude sessions. No API key required.
 
 3. **Verify installation:**
 ```bash
@@ -153,6 +160,10 @@ if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
 else
   claude mcp add supabase -s local -e SUPABASE_ACCESS_TOKEN=$SUPABASE_ACCESS_TOKEN -- npx -y @supabase/mcp-server-supabase@latest
 fi
+
+# Memory (no key required)
+echo "Adding Memory MCP..."
+claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
 
 echo "✅ MCP servers configured!"
 echo "📝 Remember to set API keys in your .env file"

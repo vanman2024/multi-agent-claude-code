@@ -92,6 +92,9 @@ main() {
     
     # Check for emergency conditions
     emergency_stash
+    
+    # Output empty JSON for Claude Code (hooks must output valid JSON)
+    echo '{}'
 }
 
 # Run main function

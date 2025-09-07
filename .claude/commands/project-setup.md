@@ -6,6 +6,41 @@ argument-hint: [optional: project-name or project-type]
 
 # Project Setup
 
+<!--
+WHEN TO USE THIS COMMAND:
+- Starting a brand new project from scratch
+- Need to gather requirements and make tech decisions
+- Want to create foundation documentation (ARCHITECTURE, INFRASTRUCTURE, FEATURES)
+- Setting up GitHub repo and project board
+- Beginning of the development workflow
+
+WHEN NOT TO USE:
+- Project already has documentation
+- Just need to update existing setup
+- Only need test generation (use /test:generate)
+- Only need implementation plan (use /plan:generate)
+
+WORKFLOW (Complete Development Cycle):
+1. /project-setup         # Interactive discovery & create PROJECT_PLAN.md vision
+2. /plan:generate        # Generate detailed docs from vision
+3. /test:generate        # Generate comprehensive test suites
+4. /create-issue         # Start creating work items
+5. /work #1             # Begin implementation
+
+WHAT THIS CREATES:
+- docs/PROJECT_PLAN.md  # High-level vision and roadmap (north star)
+- GitHub repository     # If requested
+- Project board         # From template #13
+- Basic folder structure # frontend/, backend/, etc.
+
+KEY PRINCIPLES:
+- BUY vs BUILD emphasis (use existing services)
+- Vercel for deployment (non-negotiable)
+- Postman for API testing (standard)
+- Supabase for auth/database (recommended)
+- Port 3002 (frontend), 8891 (backend)
+-->
+
 ## Context
 - Current directory: !`pwd`
 - Git status: !`git branch --show-current`
@@ -178,33 +213,48 @@ Review all information gathered:
 
 **If any of these are incomplete, GO BACK and ask more questions.**
 
-### Phase 4: Generate Documentation
+### Phase 4: Generate PROJECT_PLAN.md Vision Document
 
-Create the foundational documents using templates and guides:
+Create the high-level vision document based on everything learned:
 
-1. **ARCHITECTURE.md**
-   - Read guide: @.claude/templates/guides/architecture-guide.md (structure reference)
-   - Read example: @.claude/templates/architecture.md (full example)
-   - Fill in decisions from conversation
-   - Lock in ports (3002 frontend, 8891 backend)
-   - Document the "why" behind each choice
-   - Adapt sections based on project type (skip database for API-only)
-   - Write to: docs/ARCHITECTURE.md
+**PROJECT_PLAN.md Structure**:
+```markdown
+# 🎯 PROJECT PLAN: [Project Name]
 
-2. **INFRASTRUCTURE.md**
-   - Read guide: @.claude/templates/guides/infrastructure-guide.md (what to include)
-   - Read example: @.claude/templates/infrastructure.md (full example)
-   - Check off services based on project type
-   - Calculate monthly costs
-   - Mark implementation priorities
-   - Only include relevant services (no payments for internal tools)
-   - Write to: docs/INFRASTRUCTURE.md
+## Executive Summary
+[2-3 sentences describing what this application does and why it matters]
 
-3. **FEATURES.md** (if features discussed)
-   - List MVP features appropriate to project type
-   - Create phase plan
-   - Set priorities
-   - Write to: docs/FEATURES.md
+## 🛠️ Technology Stack
+- **Frontend**: [Decisions from conversation]
+- **Backend**: [Decisions from conversation]
+- **Database**: [Decisions from conversation]
+- **Key Services**: [Stripe, Supabase, etc.]
+
+## 👥 Target Users
+[Who are we building for and what problems do they have]
+
+## ✨ Core Features
+[High-level features that deliver the unique value]
+
+## 🎯 Unique Value Proposition
+[What makes this different - the core differentiator]
+
+## 💰 Business Model
+[How it makes money]
+
+## 🚀 Implementation Roadmap
+[4 phases with high-level goals]
+
+## 📊 Success Metrics
+[What success looks like]
+```
+
+**Key Points**:
+- This is the VISION document - high-level, strategic
+- NO detailed technical specs (those come from /plan:generate)
+- NO exhaustive feature lists (just core value)
+- Focus on the "what" and "why", not the "how"
+- Write to: docs/PROJECT_PLAN.md
 
 ### Phase 5: Project Scaffolding
 
@@ -243,28 +293,26 @@ Create the foundational documents using templates and guides:
    - Use mcp__github__create_issue for detailed issue creation
    - Use mcp__github__update_issue to add labels and assignees
 
-### Phase 6: Future Agent Integration (Placeholders)
+### Phase 6: Verify and Configure GitHub Integration
 
-When these agents are built, integrate them:
+Check existing GitHub configuration and adjust for the project:
 
-```
-### Step 1: Template Research (Future)
-Use Task tool with:
-- subagent_type: general-purpose
-- description: Find relevant project templates
-- prompt: Search for $PROJECT_TYPE templates with $TECH_STACK
+```bash
+# 1. Check current GitHub remote
+git remote -v
 
-### Step 2: Workflow Generation (Future)
-Use Task tool with:
-- subagent_type: general-purpose  
-- description: Create GitHub Actions workflows
-- prompt: Generate CI/CD for $PROJECT_TYPE using $TECH_STACK
+# 2. Verify project board exists
+gh project list --owner vanman2024
 
-### Step 3: Documentation Enhancement (Future)
-Use Task tool with:
-- subagent_type: general-purpose
-- description: Enhance project documentation
-- prompt: Add detailed setup instructions for $PROJECT_TYPE
+# 3. Check if workflows need adjustment
+ls -la .github/workflows/
+
+# 4. Update project-specific settings if needed
+# - Adjust workflow project numbers if different
+# - Configure branch protection if needed
+# - Set up environment secrets if required
+
+echo "✅ GitHub integration verified and configured for $PROJECT_NAME"
 ```
 
 ## Example Conversation Flow
@@ -302,15 +350,17 @@ You: Based on our discussion, here's my BUY vs BUILD recommendation:
 [After confirmation, generate docs and structure]
 
 You: ✅ Project setup complete! 
-     - Architecture documented in docs/ARCHITECTURE.md
-     - Infrastructure checklist in docs/INFRASTRUCTURE.md
+     - Vision documented in docs/PROJECT_PLAN.md
      - Repository created: github.com/user/project
-     - First issue created: #1
+     - Project board created: #[number]
+     - Basic structure initialized
      
      Next steps:
-     1. cd frontend && npm install
-     2. Set up environment variables
-     3. Start development!
+     1. Review the PROJECT_PLAN.md vision document
+     2. Run '/plan:generate' to create detailed technical docs
+     3. Run '/test:generate' to create test suites
+     4. Use '/create-issue' to start creating tasks
+     5. Run '/work #1' to begin implementation!
 ```
 
 ## Important Notes

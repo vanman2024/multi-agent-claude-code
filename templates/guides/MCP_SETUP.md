@@ -52,6 +52,16 @@ Database and authentication management (if using Supabase).
 claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
 ```
 
+### 5. Memory MCP Server
+Persistent memory storage for context between Claude sessions.
+
+```bash
+# Install Memory MCP server
+claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
+```
+
+Note: Memory server provides persistent storage between sessions. No API key required.
+
 ## Quick Setup Script
 
 Create this script to add all servers at once:
@@ -88,6 +98,10 @@ claude mcp add postman -- npx @modelcontextprotocol/server-postman
 # Supabase for database (requires SUPABASE_URL and key)
 echo "Adding Supabase MCP server..."
 claude mcp add supabase -- npx @modelcontextprotocol/server-supabase
+
+# Memory for persistent storage (no key required)
+echo "Adding Memory MCP server..."
+claude mcp add memory -- npx -y @modelcontextprotocol/server-memory
 
 echo "✅ MCP servers configured!"
 echo "Run 'claude mcp list' to verify installation"
@@ -164,11 +178,15 @@ Once the template is set up, you can add additional MCP servers using:
 /add-mcp
 ```
 
-This will guide you through adding other servers like:
+This will guide you through adding servers like:
+- `github` - GitHub API access (required for this template)
+- `playwright` - Browser automation and testing
+- `postman` - API testing and collections
+- `supabase` - Database and authentication
 - `filesystem` - File system access
-- `memory` - Persistent memory
-- `slack` - Slack integration
-- `notion` - Notion workspace
+- `memory` - Persistent memory storage between sessions
+- `slack` - Slack integration (optional)
+- `notion` - Notion workspace (optional)
 - And many more...
 
 ## MCP Server Configuration
