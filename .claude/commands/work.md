@@ -99,7 +99,15 @@ Parse `$ARGUMENTS` to extract any flags and issue numbers. Look for:
 - `--status` flag to show work triage
 - Issue numbers (with or without # prefix)
 
-Store these in variables for later use.
+**Extract issue number from arguments:**
+!`echo "$ARGUMENTS" | grep -o '[0-9]\+' | head -1`
+
+If an issue number is found, set ISSUE_NUM:
+!`ISSUE_NUM=$(echo "$ARGUMENTS" | grep -o '[0-9]\+' | head -1)`
+
+Store these variables for later use:
+- `ISSUE_NUM` - Issue number to work on (if provided)
+- Flags can be checked with `echo "$ARGUMENTS" | grep -q -- "--flag-name"`
 
 **Determine Action Priority:**
 - If `--status` flag → Show work triage view (see Step 1.5)
