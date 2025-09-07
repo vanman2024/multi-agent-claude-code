@@ -2,50 +2,31 @@
 
 Strategic hooks that enhance your workflow at key points without overwhelming the context.
 
-## Core Strategic Hooks (Essential)
+## The 4 Strategic Hooks (All Working ✅)
 
-### 1. load-context.sh ✅ WORKING
+### 1. load-context.sh 
 - **Event**: SessionStart
 - **Purpose**: Loads git state, assigned issues, PRs, and previous session context
 - **Benefit**: Instant context when you start working
 - **Output**: Shows in session start message
 
-### 2. verify-sync-before-claude.sh ✅ WORKING  
+### 2. verify-sync-before-claude.sh
 - **Event**: UserPromptSubmit
 - **Purpose**: Warns if you have unsynced changes when mentioning @claude
 - **Benefit**: Prevents testing old code with GitHub bot
 - **Output**: Warning message when local != GitHub
 
-### 3. work-checkpoint.sh ✅ WORKING
+### 3. work-checkpoint.sh
 - **Event**: Stop (after Claude responds)
 - **Purpose**: Gentle reminders about uncommitted work (only if significant)
 - **Benefit**: Never lose work between responses
 - **Output**: Reminder only when 5+ files changed
 
-### 4. save-work-state.sh ✅ WORKING
+### 4. save-work-state.sh
 - **Event**: SessionEnd
 - **Purpose**: Saves session state to work journal
 - **Benefit**: Resume exactly where you left off
 - **Output**: Creates .claude/work-journal.json
-
-## Optional Hooks (Consider Removing)
-
-### 5. current-work.sh ⚠️ LIMITED USE
-- **Event**: UserPromptSubmit  
-- **Purpose**: Inject issue context from branch name
-- **Problem**: Only works with numbered branches (e.g., 123-feature)
-- **Status**: Redundant with load-context.sh
-
-### 6. test-before-push.sh ⚠️ QUESTIONABLE
-- **Event**: PreToolUse (Bash with git push)
-- **Purpose**: Run tests before pushing
-- **Problem**: CI/CD already handles this, may slow down workflow
-- **Status**: Consider removing
-
-### 7. Other Complex Hooks
-- **sync-todo-checkboxes.py**: Complex Python sync with PR checkboxes
-- **sync-agent-results.py**: Agent coordination we rarely use
-- **log-agent-task.sh**: Logging we don't review
 
 ## Hook Output Visibility
 
@@ -77,3 +58,7 @@ These hooks follow the "Strategic, Not Constant" principle:
 - Provide context without overwhelming
 - Save state without interrupting
 - Warn only when it matters
+
+## Other Files in hooks/ Directory
+
+- `doc-updater.sh` - Not a Claude hook, used by `/plan:generate` command for auto-documentation
