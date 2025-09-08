@@ -38,8 +38,8 @@ Continue or resume existing work based on the type of argument provided.
 
 Parse $ARGUMENTS to determine what we're continuing from:
 
-1. **--list**: Show all WIP branches and worktrees
-   Run: !`./.claude/scripts/worktree-status.sh`
+1. **--list**: Show all WIP branches
+   Run: !`git branch -a | grep -v "remotes/origin/HEAD"`
    Then show active WIP todos from TodoWrite
    Exit after showing list
 

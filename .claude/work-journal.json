@@ -1,6 +1,27 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T18:10:30Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "ce4661f feat: Enhance /wip command with worktree visibility"
+    },
+    {
+      "timestamp": "2025-09-08T18:07:58Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "ce4661f feat: Enhance /wip command with worktree visibility"
+    },
+    {
+      "timestamp": "2025-09-08T18:05:38Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "ce4661f feat: Enhance /wip command with worktree visibility"
+    },
+    {
       "timestamp": "2025-09-08T17:58:58Z",
       "branch": "main",
       "uncommitted": 0,
@@ -683,27 +704,6 @@
       "timestamp": "2025-09-07T22:29:38Z",
       "branch": "main",
       "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T22:22:27Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T22:14:48Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T22:11:47Z",
-      "branch": "main",
-      "uncommitted": 3,
       "unpushed": 0,
       "last_commit": "3853dac enhance: Add issue comments reading to /work command"
     }
