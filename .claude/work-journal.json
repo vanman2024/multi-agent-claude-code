@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T23:41:31Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 2,
+      "last_commit": "ea30618 chore: Remove todo-viewer and sync complexity"
+    },
+    {
       "timestamp": "2025-09-08T23:36:17Z",
       "branch": "main",
       "uncommitted": 13,
@@ -697,14 +704,6 @@
       "uncommitted": 0,
       "unpushed": 0,
       "last_commit": "fd0d4e0 [WORKING] feat: Todo persistence and session registration system"
-    },
-    {
-      "timestamp": "2025-09-08T03:45:29Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 9,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
     }
   ]
 }
