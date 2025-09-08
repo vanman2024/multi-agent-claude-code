@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T17:58:58Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "f99fa05 feat: Add worktree visibility and status tracking"
+    },
+    {
       "timestamp": "2025-09-08T17:51:11Z",
       "branch": "main",
       "uncommitted": 1,
@@ -697,13 +704,6 @@
       "timestamp": "2025-09-07T22:11:47Z",
       "branch": "main",
       "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T21:46:58Z",
-      "branch": "main",
-      "uncommitted": 2,
       "unpushed": 0,
       "last_commit": "3853dac enhance: Add issue comments reading to /work command"
     }
