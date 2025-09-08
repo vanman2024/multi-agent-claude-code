@@ -1,32 +1,66 @@
 ---
-allowed-tools: Bash(*), TodoWrite(*)
-description: Start new work-in-progress branch OR resume existing branch
-argument-hint: [branch-name] or empty for new branch
+allowed-tools: Bash(*), TodoWrite(*), mcp__github(*)
+description: Continue/resume work from branches, commits, issues, or PRs
+argument-hint: [branch-name | commit-sha | #issue | PR#123] | --continue | --list
 ---
 
-# WIP - Work In Progress
+# WIP - Work In Progress (Continue/Resume)
 
 <!--
 WHEN TO USE THIS COMMAND:
-- Resuming work on EXISTING issue branches (most common)
-- Quick fixes that don't need issues (typos, small tweaks)
-- Experiments before creating issues
-- Template/framework improvements
+- Resuming work on EXISTING branches (most common)
+- Continuing from a specific commit
+- Jumping between different work in progress
+- Picking up where you left off on an issue
+- Continuing work from a PR
+- Quick fixes that don't need issues
 
 EXAMPLES:
-/wip 150-add-authentication  - Resume work on issue #150's branch
-/wip fix-typo               - Quick fix without issue
-/wip test-new-api          - Experiment before committing
+/wip 150-add-authentication  - Resume work on branch
+/wip abc123def              - Continue from specific commit
+/wip #150                   - Resume work on issue #150
+/wip PR#123                 - Continue work from PR #123
+/wip --continue             - Continue from last commit on current branch
+/wip --list                 - Show all WIP branches and their status
+/wip fix-typo              - Quick fix without issue
 
-PRIMARY USE: Resume existing issue branches quickly
-SECONDARY USE: Small fixes and experiments
+PRIMARY USE: Continue/resume existing work
+SECONDARY USE: Jump between different WIP items
 
-For new features, use /create-issue + /work instead!
+For STARTING NEW work from an issue, use /work #123 instead!
 -->
 
 ## Your Task
 
-Either create a new workspace OR resume existing work based on arguments.
+Continue or resume existing work based on the type of argument provided.
+
+### Step 0: Determine Entry Point
+
+Parse $ARGUMENTS to determine what we're continuing from:
+
+1. **--list**: Show all WIP branches
+   Run: !`git branch -a | grep -v "remotes/origin/HEAD"`
+   Then show active WIP todos from TodoWrite
+   Exit after showing list
+
+2. **--continue**: Continue from last commit on current branch
+   Run: !`git log -1 --format="%H %s"`
+   Show what was being worked on
+
+3. **PR#number**: Resume work from a Pull Request
+   Run: !`gh pr checkout $ARGUMENTS`
+   This will checkout the PR's branch locally
+
+4. **#number**: Resume work on issue's branch
+   Run: !`git branch -a | grep "$ARGUMENTS-" | head -1`
+   If branch found, checkout that branch
+   If not found, tell user to use /work #number to start
+
+5. **Commit SHA**: Checkout specific commit
+   Run: !`git checkout $ARGUMENTS`
+   
+6. **Branch name** (default): Checkout branch
+   Run: !`git checkout $ARGUMENTS`
 
 ### Step 1: Check for uncommitted changes
 
@@ -88,16 +122,30 @@ If the branch exists in a worktree:
 
 ### Step 3: Track with TodoWrite PERSISTENTLY
 
-**IMPORTANT: Use TodoWrite to maintain a persistent list of WIP branches**
+**IMPORTANT: Use TodoWrite to maintain a persistent list of WIP items**
 
-When CREATING new branch:
-- Add a NEW todo: "WIP: [branch name] - [description]"
+Track based on what we're continuing:
+
+**For Issue-based work (#123):**
+- Add/update todo: "Issue #123: [issue title] - continuing"
 - Status: "in_progress"
-- This todo stays until the branch is merged or abandoned
+- Include issue number for tracking
 
-When RESUMING existing branch:
-- Find the existing todo for this branch if it exists
-- If no todo exists, create one: "WIP: [branch name] - resumed work"
+**For Commit-based work (SHA):**
+- Add todo: "WIP from commit: [commit message]"
+- Status: "in_progress"
+- Include first 7 chars of SHA
+
+**For Branch-based work:**
+- Add/update todo: "WIP: [branch name] - [description]"
+- Status: "in_progress"
+- Mark if in worktree
+
+**For --continue:**
+- Update existing todo for current branch
+- Add note: "Continued at [timestamp]"
+
+All WIP todos persist until the work is merged or explicitly completed.
 - Mark it as "in_progress" (others might be "pending")
 - This helps track all active WIP branches
 

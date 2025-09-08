@@ -138,16 +138,41 @@ Manage ideas and discussions without cluttering the codebase:
 - Complex tasks require local Claude Code agents
 
 ### CRITICAL: Slash Command Rules
-**NEVER put code blocks inside slash command files!**
-- Use the special `!` syntax for inline bash commands (e.g., `!git status`)
-- Use MCP server functions directly (e.g., mcp__github__create_issue)
-- Slash commands should only contain:
-  - Documentation and task descriptions
-  - Direct commands using `!` syntax
-  - MCP function calls
-  - Examples showing usage (not implementation code)
-- Follow the templates in `/templates/slash-command-templates.md`
-- Use `/work` to start local implementation
+**ALWAYS use the templates in `/templates/slash-command-templates.md` when creating slash commands!**
+
+**Key principles:**
+- Keep commands SIMPLE - they should just run, not require complex logic
+- Use the `!` syntax for bash commands (e.g., `!git status`)
+- Use `@` for file references (e.g., `@package.json`)
+- Use `$ARGUMENTS` for user input (passed directly from command)
+- Use MCP functions directly (e.g., mcp__github__create_issue)
+
+**NEVER use in slash commands:**
+- Template placeholders like `<pattern>`, `<path>`, `<search_term>`
+- Complex bash substitutions like `$(git rev-list --all)`
+- Variables that need to be saved like `DELETE_COMMIT`
+- Multi-step logic that requires state management
+- Code blocks for implementation
+
+**ALWAYS follow this structure:**
+```markdown
+---
+allowed-tools: Bash(*), Read(*)
+description: Brief description
+argument-hint: [what user should provide]
+---
+
+# Command Name
+
+## Your Task
+[Simple description]
+
+Run: !git [actual command that works]
+```
+
+- Follow the templates EXACTLY from `/templates/slash-command-templates.md`
+- Test commands manually first to ensure they work
+- Use `/work` for actual implementation, not slash commands
 
 ### /discussions Command Examples
 
@@ -657,6 +682,40 @@ try {
 
 ## Git Workflow
 
+### Working State Tracking
+**CRITICAL**: Mark stable/working states directly in commit messages so they're visible in GitHub:
+
+#### State Markers for Commit Messages:
+- `[STABLE]` - Fully tested, production-ready state (create tag after this)
+- `[WORKING]` - Everything functional but needs more testing  
+- `[WIP]` - Work in progress, may have issues
+- `[HOTFIX]` - Emergency fix applied to stable state
+
+#### Commit Message Format with State Tracking:
+```bash
+# Format: [STATE] type: description
+[STABLE] feat: Add todo viewer with project filtering
+[WORKING] fix: Correct date timezone issues 
+[WIP] feat: Implementing GitHub sync for todos
+
+# With issue references:
+[STABLE] fix: Complete todo-viewer fixes
+
+Closes #155
+```
+
+#### Creating Version Tags for Rollback:
+After any [STABLE] commit, create a descriptive tag:
+```bash
+git tag -a "v1.0-feature-stable" -m "Description of what's working"
+git push origin --tags
+```
+
+Tag naming convention:
+- `v1.0-feature-stable` - Production ready
+- `v1.0-feature-working` - Functional but needs testing
+- `hotfix-YYYYMMDD-issue` - Emergency fixes
+
 ### Branch Naming:
 - feature/short-description
 - fix/issue-number-description
@@ -664,10 +723,12 @@ try {
 - hotfix/critical-issue
 
 ### Commit Messages:
-- Start with verb: Add, Fix, Update, Remove, Refactor
-- Keep under 50 characters
+- Optionally start with state marker: [STABLE], [WORKING], [WIP]
+- Then conventional prefix: feat:, fix:, docs:, chore:, refactor:
+- Keep under 50 characters after prefix
 - No period at end
-- Reference issue: "Fix #123: Login error"
+- Reference issue: "Related to #123" or "Closes #123"
+- Use "Closes #123" only once per issue (in final commit/PR)
 
 ### NEVER Commit:
 - node_modules/, venv/, __pycache__/

@@ -173,6 +173,10 @@ The framework includes a powerful **web-based Todo Dashboard** that visualizes a
 - **🔄 Auto-refresh**: Updates every 5 seconds as you work
 - **🔍 Search & Filter**: Find tasks quickly with search and status filters
 - **📂 Multi-project Support**: Manages todos across all your projects
+- **✅ Session Auto-Registration**: TodoWrite sessions automatically linked to projects
+- **🔧 Fixed Persistence**: Accurate todo counts across dashboard and CLI
+- **📊 Full History**: CLI viewer now shows ALL sessions (not limited to 50)
+- **🪝 Auto-sync Hooks**: PostToolUse hook ensures todos always persist
 
 ### 📝 Work Journal System
 
@@ -303,19 +307,22 @@ Everything deploys to **Vercel** automatically:
 
 ## 🪝 Strategic Hooks System
 
-**Only 4 essential hooks that fire at workflow boundaries, not every file change:**
+**6 essential hooks that fire at workflow boundaries, not every file change:**
 
-### The 4 Working Hooks ✅
+### The 6 Working Hooks ✅
 1. **SessionStart** (`load-context.sh`) - Loads git state, issues, PRs when you start
 2. **UserPromptSubmit** (`verify-sync-before-claude.sh`) - Warns about unsynced changes before @claude
 3. **Stop** (`work-checkpoint.sh`) - Commit reminders (5+/15+ changes, 3+ unpushed)
 4. **SessionEnd** (`save-work-state.sh`) - Saves session state to work journal
+5. **PostToolUse:TodoWrite** (`TodoWrite-post.sh`) - Auto-registers todo sessions with project
+6. **Helper** (`register-session.sh`) - Links todo files to projects for proper tracking
 
 ### Hook Benefits
-- **Minimal**: Only 4 hooks, all verified working
+- **Minimal**: Only 6 hooks, all verified working
 - **Strategic**: Fire at natural pauses, not constantly
 - **Helpful**: Gentle reminders to commit and push
 - **Invisible**: JSON output to Claude, not terminal spam
+- **Auto-sync**: Todo persistence fixed automatically
 
 See `.claude/hooks/README.md` for configuration details.
 

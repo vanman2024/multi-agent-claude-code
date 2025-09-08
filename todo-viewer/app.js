@@ -70,18 +70,8 @@ class TodoDashboard {
             // Build API URL with project parameter if selected
             let apiUrl = '/api/todos';
             if (this.selectedProject) {
-                // Convert project name to full path
-                const projectPaths = {
-                    'multi-agent-claude-code': '/home/gotime2022/Projects/multi-agent-claude-code',
-                    'mcp-kernel-new': '/home/gotime2022/Projects/mcp-kernel-new',
-                    'recruitment-ops': '/home/gotime2022/Projects/recruitment-ops',
-                    'test-todo-app': '/home/gotime2022/Projects/test-todo-app',
-                    'multi-agent-observability-system': '/home/gotime2022/multi-agent-observability-system',
-                    'synapseai': '/home/gotime2022/synapseai',
-                    'project-seed': '/home/gotime2022/project-seed'
-                };
-                const fullPath = projectPaths[this.selectedProject] || this.selectedProject;
-                apiUrl = `/api/todos?project=${encodeURIComponent(fullPath)}`;
+                // selectedProject already contains the full path from the dropdown
+                apiUrl = `/api/todos?project=${encodeURIComponent(this.selectedProject)}`;
             }
             
             const response = await fetch(apiUrl);
@@ -510,12 +500,31 @@ class TodoDashboard {
                 html += `<div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Session: ${session.substring(0, 8)}...</div>`;
                 
                 sessionTodos.forEach(todo => {
-                    const date = todo.date ? new Date(todo.date).toLocaleDateString() : 'No date';
+                    // Use timestamp for both date and time if available, otherwise fall back to date field
+                    let dateStr = 'No date';
+                    let timeStr = '';
+                    
+                    if (todo.timestamp) {
+                        // Use timestamp for both date and time
+                        const timestamp = new Date(todo.timestamp);
+                        dateStr = timestamp.toLocaleDateString();
+                        timeStr = timestamp.toLocaleTimeString('en-US', { 
+                            hour: 'numeric', 
+                            minute: '2-digit',
+                            hour12: true 
+                        });
+                    } else if (todo.date) {
+                        // Fall back to date field if no timestamp
+                        const date = new Date(todo.date);
+                        dateStr = date.toLocaleDateString();
+                    }
+                    
                     html += `
                         <div class="todo-item ${statusClass}">
                             <div class="todo-content">${this.escapeHtml(todo.content)}</div>
                             <div class="todo-meta">
-                                <span>📅 ${date}</span>
+                                <span>📅 ${dateStr}</span>
+                                ${timeStr ? `<span>🕐 ${timeStr}</span>` : ''}
                                 ${todo.activeForm && todo.activeForm !== todo.content ? 
                                     `<span style="font-style: italic;">🎯 ${this.escapeHtml(todo.activeForm)}</span>` : ''}
                             </div>

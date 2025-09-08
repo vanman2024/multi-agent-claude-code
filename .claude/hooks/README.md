@@ -2,7 +2,7 @@
 
 Strategic hooks that enhance your workflow at key points without overwhelming the context.
 
-## The 4 Strategic Hooks (All Working ✅)
+## The 6 Strategic Hooks (All Working ✅)
 
 ### 1. load-context.sh 
 - **Event**: SessionStart
@@ -62,6 +62,23 @@ These hooks follow the "Strategic, Not Constant" principle:
 - Save state without interrupting
 - Warn only when it matters
 
+## Additional Hooks
+
+### 5. TodoWrite-post.sh
+- **Event**: PostToolUse (when TodoWrite tool is used)
+- **Purpose**: Automatically registers todo sessions with the current project
+- **Benefit**: Ensures todos are visible in dashboard and CLI viewer
+- **Output**: "✅ Todo list updated and session registered"
+
+### 6. register-session.sh
+- **Event**: Called by TodoWrite-post.sh
+- **Purpose**: Links todo files to project directory for proper tracking
+- **Benefit**: Fixes todo persistence and count discrepancies
+- **Output**: Registers new sessions in ~/.claude/projects/
+
 ## Other Files in hooks/ Directory
 
 - `doc-updater.sh` - Not a Claude hook, used by `/plan:generate` command for auto-documentation
+- `todo-reminder.sh` - Legacy todo reminder (replaced by todo dashboard)
+- `todo-update-trigger.sh` - Legacy todo trigger (replaced by TodoWrite-post)
+- `fix-todo-session.sh` - Utility script to manually fix todo session registration
