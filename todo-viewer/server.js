@@ -17,6 +17,63 @@ const mimeTypes = {
     '.json': 'application/json'
 };
 
+// Helper function to get worktree information
+function getWorktreeInfo() {
+    try {
+        const worktreeList = execSync('git worktree list --porcelain', { 
+            cwd: PROJECT_PATH,
+            encoding: 'utf8' 
+        });
+        
+        const worktrees = [];
+        const lines = worktreeList.split('\n');
+        let currentWorktree = {};
+        
+        for (const line of lines) {
+            if (line.startsWith('worktree ')) {
+                if (currentWorktree.path) {
+                    worktrees.push(currentWorktree);
+                }
+                currentWorktree = { path: line.substring(9) };
+            } else if (line.startsWith('branch ')) {
+                currentWorktree.branch = line.substring(7).replace('refs/heads/', '');
+            } else if (line === '') {
+                if (currentWorktree.path) {
+                    worktrees.push(currentWorktree);
+                    currentWorktree = {};
+                }
+            }
+        }
+        
+        // Get additional info for each worktree
+        return worktrees.map(wt => {
+            try {
+                const status = execSync('git status --porcelain', { 
+                    cwd: wt.path, 
+                    encoding: 'utf8' 
+                });
+                const uncommitted = status.split('\n').filter(line => line.trim()).length;
+                
+                // Extract issue number from branch name
+                const issueMatch = wt.branch.match(/^(\d+)-/);
+                const issueNumber = issueMatch ? issueMatch[1] : null;
+                
+                return {
+                    ...wt,
+                    uncommitted,
+                    issueNumber,
+                    name: path.basename(wt.path)
+                };
+            } catch (e) {
+                return wt;
+            }
+        }).filter(wt => !wt.path.includes('/multi-agent-claude-code')); // Exclude main
+    } catch (error) {
+        console.error('Error getting worktree info:', error);
+        return [];
+    }
+}
+
 // Get all available projects dynamically from .claude/projects
 function getAllProjects() {
     try {
@@ -386,6 +443,13 @@ const server = http.createServer((req, res) => {
             'Access-Control-Allow-Origin': '*'
         });
         res.end(JSON.stringify(getAllProjects()));
+    } else if (req.url === '/api/worktrees') {
+        // API endpoint for worktree information
+        res.writeHead(200, { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ worktrees: getWorktreeInfo() }));
     } else if (req.url === '/' || req.url === '/index.html') {
         // Serve index.html
         const filePath = path.join(__dirname, 'index.html');
