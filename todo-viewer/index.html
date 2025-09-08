@@ -219,6 +219,16 @@
         .loading {
             animation: pulse 2s infinite;
         }
+
+        .category-items.collapsed {
+            display: none;
+        }
+
+        .collapse-icon {
+            display: inline-block;
+            transition: transform 0.2s;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -255,6 +265,9 @@
             <button class="filter-btn" data-filter="in-progress">In Progress</button>
             <button class="filter-btn" data-filter="pending">Pending</button>
             <button class="filter-btn" data-filter="completed">Completed</button>
+            <button id="groupToggle" style="margin-left: 10px; padding: 10px 20px; background: #764ba2; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem;">
+                📊 Group by Type
+            </button>
             <input type="text" class="search-box" placeholder="Search todos..." id="searchBox">
         </div>
 
