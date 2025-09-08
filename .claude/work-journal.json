@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T04:13:12Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "359183f [WORKING] feat: Enhance /wip command to support multiple entry points"
+    },
+    {
       "timestamp": "2025-09-08T04:08:54Z",
       "branch": "main",
       "uncommitted": 7,
@@ -699,14 +706,6 @@
     },
     {
       "timestamp": "2025-09-07T20:22:05Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T20:20:49Z",
-      "event": "session_end",
       "branch": "main",
       "uncommitted": 8,
       "unpushed": 4,

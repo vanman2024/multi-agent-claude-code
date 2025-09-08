@@ -1,7 +1,7 @@
 ---
 allowed-tools: Bash(*), TodoWrite(*), mcp__github(*)
-description: Continue/resume work from branches, commits, or issues
-argument-hint: [branch-name | commit-sha | #issue] | --continue | --list
+description: Continue/resume work from branches, commits, issues, or PRs
+argument-hint: [branch-name | commit-sha | #issue | PR#123] | --continue | --list
 ---
 
 # WIP - Work In Progress (Continue/Resume)
@@ -12,12 +12,14 @@ WHEN TO USE THIS COMMAND:
 - Continuing from a specific commit
 - Jumping between different work in progress
 - Picking up where you left off on an issue
+- Continuing work from a PR
 - Quick fixes that don't need issues
 
 EXAMPLES:
 /wip 150-add-authentication  - Resume work on branch
 /wip abc123def              - Continue from specific commit
 /wip #150                   - Resume work on issue #150
+/wip PR#123                 - Continue work from PR #123
 /wip --continue             - Continue from last commit on current branch
 /wip --list                 - Show all WIP branches and their status
 /wip fix-typo              - Quick fix without issue
@@ -37,43 +39,28 @@ Continue or resume existing work based on the type of argument provided.
 Parse $ARGUMENTS to determine what we're continuing from:
 
 1. **--list**: Show all WIP branches
-   ```bash
-   git branch -a | grep -v "remotes/origin/HEAD"
-   echo "Your WIP todos:"
-   # Show todos marked as WIP from TodoWrite
-   ```
+   Run: !`git branch -a | grep -v "remotes/origin/HEAD"`
+   Then show active WIP todos from TodoWrite
    Exit after showing list
 
 2. **--continue**: Continue from last commit on current branch
-   ```bash
-   LAST_COMMIT=$(git log -1 --format="%H %s")
-   echo "Continuing from: $LAST_COMMIT"
-   ```
-   Show the last commit and what was being worked on
+   Run: !`git log -1 --format="%H %s"`
+   Show what was being worked on
 
-3. **#number**: Resume work on issue's branch
-   ```bash
-   ISSUE_NUM=$(echo "$ARGUMENTS" | grep -oE '[0-9]+')
-   # Find branch for this issue
-   BRANCH=$(git branch -a | grep -E "$ISSUE_NUM-" | head -1 | sed 's/.*\///')
-   if [ -n "$BRANCH" ]; then
-     git checkout "$BRANCH"
-   else
-     echo "No branch found for issue #$ISSUE_NUM. Use /work #$ISSUE_NUM to start."
-   fi
-   ```
+3. **PR#number**: Resume work from a Pull Request
+   Run: !`gh pr checkout $ARGUMENTS`
+   This will checkout the PR's branch locally
 
-4. **Commit SHA** (if matches [a-f0-9]{7,40}):
-   ```bash
-   # Check if it's a valid commit
-   if git rev-parse --verify "$ARGUMENTS" >/dev/null 2>&1; then
-     COMMIT_MSG=$(git log -1 --format="%s" "$ARGUMENTS")
-     echo "Continuing from commit: $COMMIT_MSG"
-     git checkout "$ARGUMENTS"
-   fi
-   ```
+4. **#number**: Resume work on issue's branch
+   Run: !`git branch -a | grep "$ARGUMENTS-" | head -1`
+   If branch found, checkout that branch
+   If not found, tell user to use /work #number to start
 
-5. **Branch name** (default): Continue as currently implemented
+5. **Commit SHA**: Checkout specific commit
+   Run: !`git checkout $ARGUMENTS`
+   
+6. **Branch name** (default): Checkout branch
+   Run: !`git checkout $ARGUMENTS`
 
 ### Step 1: Check for uncommitted changes
 
