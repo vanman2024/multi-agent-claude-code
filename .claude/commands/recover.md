@@ -155,7 +155,9 @@ If user wants to recover multiple files:
 **Step 1**: List files to recover
 **Step 2**: Check none currently exist
 **Step 3**: Restore all at once
-Run: !`git checkout <commit>^ -- file1 file2 file3...`
+- For each file, find its last commit before deletion
+- Use git checkout with the specific commit for each file
+- Stage all recovered files together
 
 ### Show Deletion History
 For any file path, show its deletion history:
