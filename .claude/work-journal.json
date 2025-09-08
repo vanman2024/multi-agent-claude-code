@@ -1,6 +1,51 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T01:52:34Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 1,
+      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
+    },
+    {
+      "timestamp": "2025-09-08T01:51:01Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 1,
+      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
+    },
+    {
+      "timestamp": "2025-09-08T01:50:26Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 1,
+      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
+    },
+    {
+      "timestamp": "2025-09-08T01:49:26Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 1,
+      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
+    },
+    {
+      "timestamp": "2025-09-08T01:46:47Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 1,
+      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
+    },
+    {
+      "timestamp": "2025-09-08T01:46:32Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 1,
+      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
+    },
+    {
       "timestamp": "2025-09-08T01:44:12Z",
       "event": "session_end",
       "branch": "main",
@@ -667,13 +712,6 @@
       "uncommitted": 0,
       "unpushed": 4,
       "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T18:54:11Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 3,
-      "last_commit": "1cf58cf fix: Exclude work-journal.json from stashing in /wip command"
     }
   ]
 }
