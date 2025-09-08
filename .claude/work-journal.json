@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T04:21:24Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "c0e3f20 [CRITICAL] fix: TodoWrite not persisting to disk - session broken"
+    },
+    {
+      "timestamp": "2025-09-08T04:18:07Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "c0e3f20 [CRITICAL] fix: TodoWrite not persisting to disk - session broken"
+    },
+    {
       "timestamp": "2025-09-08T04:16:31Z",
       "branch": "main",
       "uncommitted": 0,
@@ -692,20 +706,6 @@
     },
     {
       "timestamp": "2025-09-07T20:33:45Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T20:28:55Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T20:27:24Z",
       "branch": "main",
       "uncommitted": 8,
       "unpushed": 4,
