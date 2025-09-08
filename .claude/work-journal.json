@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T17:41:43Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "25cba03 docs: Add multi-instance workflow guide for parallel development"
+    },
+    {
+      "timestamp": "2025-09-08T17:33:13Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "25cba03 docs: Add multi-instance workflow guide for parallel development"
+    },
+    {
       "timestamp": "2025-09-08T17:27:49Z",
       "branch": "main",
       "uncommitted": 1,
@@ -688,21 +702,6 @@
     },
     {
       "timestamp": "2025-09-07T21:46:36Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T21:45:37Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T21:44:52Z",
-      "event": "session_end",
       "branch": "main",
       "uncommitted": 2,
       "unpushed": 0,

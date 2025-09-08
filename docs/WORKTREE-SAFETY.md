@@ -78,12 +78,11 @@ git rev-list --count HEAD..origin/main
 ./.claude/scripts/worktree-sync.sh list
 ```
 
-### Find Which Port to Use
+### Port Strategy (Simplified!)
 ```bash
-# Issue 155 = port 8081
-# Issue 156 = port 8082
-# Issue 157 = port 8083
-# Formula: 8080 + (issue_number % 100)
+# Main branch = ALWAYS port 8080
+# ANY worktree = ALWAYS port 8081
+# That's it! No calculations needed
 ```
 
 ## 🚨 Emergency Recovery

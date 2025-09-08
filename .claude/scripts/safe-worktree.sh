@@ -51,9 +51,9 @@ create_safe_worktree() {
         cp /home/gotime2022/Projects/multi-agent-claude-code/todo-viewer/package.json todo-viewer/ 2>/dev/null || true
     fi
     
-    # 7. Set correct port
-    local port=$((8080 + issue_number % 100))  # Generate port based on issue number
-    echo -e "${YELLOW}Step 6: Setting port to $port...${NC}"
+    # 7. Set correct port (ALWAYS 8081 for worktrees)
+    local port=8081  # All worktrees use 8081
+    echo -e "${YELLOW}Step 6: Setting port to $port (standard worktree port)...${NC}"
     if [ -f "todo-viewer/server.js" ]; then
         sed -i "s/const PORT = .*/const PORT = process.env.PORT || $port;/" todo-viewer/server.js
     fi
