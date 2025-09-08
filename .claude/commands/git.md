@@ -1,7 +1,7 @@
 ---
 allowed-tools: Bash(*), Read(*), TodoWrite(*), mcp__github(*)
-description: Intelligent git workflow management with working state tracking
-argument-hint: [status | commit | push | sync | pr | stash | log | stable | rollback | tags]
+description: Intelligent git workflow management with simple commands
+argument-hint: [status | commit | push | sync | pr | stash | log]
 ---
 
 # Git Command
@@ -10,21 +10,17 @@ argument-hint: [status | commit | push | sync | pr | stash | log | stable | roll
 WHEN TO USE THIS COMMAND:
 - Managing git operations with context awareness
 - Creating intelligent commit messages
-- Tracking and marking stable/working states
-- Rolling back to known good commits
 - Syncing with GitHub
+- Creating PRs with full context
 
 EXAMPLES:
-/git                - Show smart status + recent stable states
-/git commit         - Commit with intelligent message
-/git commit stable  - Commit and mark as stable state
-/git push           - Push with safety checks
-/git sync           - Pull, rebase, and push
-/git pr             - Create PR with context
-/git stable         - List all stable states
-/git rollback       - Show recent stable states to rollback to
-/git tags           - List all version tags
-/git log            - Show recent commits with stability markers
+/git             - Show smart status
+/git commit      - Commit with intelligent message
+/git push        - Push with safety checks
+/git sync        - Pull, rebase, and push
+/git pr          - Create PR with context
+/git stash       - Stash current changes
+/git log         - Show recent commits
 
 NO COMPLEX FLAGS - Just simple operations that work intelligently
 -->
@@ -55,18 +51,13 @@ Run: !`git rev-list --left-right --count HEAD...@{u} 2>/dev/null || echo "0 0"`
 - If branch matches pattern `[0-9]+-.*`, extract issue number
 - Show: "Working on issue #[number]"
 
-**Step 6**: Check for recent stable states
-Run: !`git tag -l "*-stable" --sort=-version:refname | head -3`
-Show: "Recent stable tags: [list]"
-
-**Step 7**: Display summary
+**Step 6**: Display summary
 Show:
 - Current branch
 - Files changed (grouped by type)
 - Commits ahead/behind
 - Issue context if found
 - Last commit message
-- Recent stable states if any
 
 ---
 
@@ -188,85 +179,11 @@ Say: "Changes stashed. Use 'git stash pop' to restore"
 
 ### Operation: log
 
-**Step 1**: Show recent commits with graph and tags
-Run: !`git log --oneline --graph --decorate -10`
+**Step 1**: Show recent commits with graph
+Run: !`git log --oneline --graph -10`
 
-**Step 2**: Highlight stable commits
-Run: !`git log --oneline --grep="\[STABLE\]" -5 2>/dev/null || echo "No commits marked [STABLE]"`
-
-**Step 3**: Show commit stats
+**Step 2**: Show commit stats
 Run: !`git log --stat -3`
-
----
-
-### Operation: stable
-
-**Step 1**: List all stable tags
-Run: !`git tag -l "*-stable" --sort=-version:refname`
-
-**Step 2**: List all working tags  
-Run: !`git tag -l "*-working" --sort=-version:refname`
-
-**Step 3**: Show commits marked [STABLE]
-Run: !`git log --oneline --grep="\[STABLE\]" -10`
-
-**Step 4**: Display summary
-Show:
-- Stable tags with dates
-- Working tags with dates
-- Commits marked as stable
-- Current HEAD position relative to stable states
-
----
-
-### Operation: rollback
-
-**Step 1**: Show recent stable states
-Run: !`git tag -l "*-stable" "*-working" --sort=-version:refname | head -5`
-
-**Step 2**: Show current position
-Run: !`git log -1 --oneline`
-
-**Step 3**: Ask user which state to rollback to
-Display options:
-1. Latest stable tag
-2. Latest working tag
-3. Specific commit hash
-4. Cancel
-
-**Step 4**: If user confirms, perform rollback
-WARNING: This will reset --hard, losing uncommitted changes
-Run: !`git reset --hard [selected-ref]`
-
----
-
-### Operation: tags
-
-**Step 1**: List all version tags
-Run: !`git tag -l "v*" --sort=-version:refname`
-
-**Step 2**: List all stable/working tags
-Run: !`git tag -l "*-stable" "*-working" --sort=-version:refname`
-
-**Step 3**: Show what each tag points to
-Run: !`git show-ref --tags | tail -10`
-
----
-
-### Operation: commit with stable flag
-
-When user runs `/git commit stable`:
-
-**Step 1-6**: Same as regular commit
-
-**Step 7**: Add [STABLE] marker to commit message
-Prepend "[STABLE] " to the generated message
-
-**Step 8**: Create stable tag
-Run: !`git tag -a "stable-$(date +%Y%m%d-%H%M%S)" -m "Stable state: [description]"`
-
-**Step 9**: Push tag to remote
-Run: !`git push origin --tags`
 
 ---
 
