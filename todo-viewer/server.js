@@ -46,12 +46,29 @@ function getAllProjects() {
                     reconstructedPath = '/home/gotime2022/Projects/';
                     projectPath = projectPath.substring('home-gotime2022-Projects-'.length);
                 } else if (projectPath.startsWith('home-gotime2022-')) {
-                    reconstructedPath = '/home/gotime2022/';
-                    projectPath = projectPath.substring('home-gotime2022-'.length);
+                    // Could be either /home/gotime2022/ or /home/gotime2022/Projects/
+                    // We'll check both locations
+                    const projectName = projectPath.substring('home-gotime2022-'.length);
+                    const pathWithProjects = '/home/gotime2022/Projects/' + projectName;
+                    const pathWithoutProjects = '/home/gotime2022/' + projectName;
+                    
+                    // Check which one actually exists
+                    // Always prefer the Projects path if it exists
+                    if (fs.existsSync(pathWithProjects)) {
+                        reconstructedPath = pathWithProjects;
+                    } else if (fs.existsSync(pathWithoutProjects)) {
+                        reconstructedPath = pathWithoutProjects;
+                    } else {
+                        // Default to Projects path even if not found
+                        reconstructedPath = pathWithProjects;
+                    }
+                    projectPath = ''; // Already handled
                 }
                 
-                // The remaining part is the project name (which may contain hyphens)
-                reconstructedPath += projectPath;
+                // Add remaining part if any
+                if (projectPath) {
+                    reconstructedPath += projectPath;
+                }
                 
                 // Avoid duplicates
                 if (!seen.has(reconstructedPath)) {
@@ -82,7 +99,20 @@ function getTodos(projectPath = null) {
         const targetPath = projectPath;
         // Always use the script from main project but run it IN the target directory
         const tableScriptPath = path.join(PROJECT_PATH, '.claude/scripts/project-todos-table.sh');
-        if (fs.existsSync(tableScriptPath) && fs.existsSync(targetPath)) {
+        
+        // Check if the path exists, if not return empty for that project
+        if (!fs.existsSync(targetPath)) {
+            console.error(`Project path does not exist: ${targetPath}`);
+            return {
+                todos: [],
+                project: targetPath,
+                totalSessions: 0,
+                lastUpdated: new Date(),
+                error: `Project path not found: ${targetPath}`
+            };
+        }
+        
+        if (fs.existsSync(tableScriptPath)) {
             // Get raw JSON data from the table script
             const rawData = execSync(`/usr/bin/bash "${tableScriptPath}" json 2>/dev/null || echo '{"todos":[],"sessions":0}'`, {
                 encoding: 'utf-8',
@@ -101,6 +131,13 @@ function getTodos(projectPath = null) {
                         lastUpdated: new Date()
                     };
                 }
+                // Even if no todos, return empty result for this project
+                return {
+                    todos: [],
+                    project: targetPath,
+                    totalSessions: 0,
+                    lastUpdated: new Date()
+                };
             } catch (parseError) {
                 console.error('Error parsing JSON from table script:', parseError);
             }
@@ -154,8 +191,14 @@ function getTodos(projectPath = null) {
         console.error('Error using scripts:', error);
     }
     
-    // Fallback to reading all todo files directly
-    return getAllProjectTodos();
+    // Don't fallback to ALL todos - return empty for this specific project
+    return {
+        todos: [],
+        project: projectPath || PROJECT_PATH,
+        totalSessions: 0,
+        lastUpdated: new Date(),
+        error: 'Could not load todos for this project'
+    };
 }
 
 // Get todos from ALL projects combined
