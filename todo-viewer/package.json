@@ -1,0 +1,20 @@
+{
+  "name": "todo-viewer",
+  "version": "1.0.0",
+  "description": "Todo Dashboard with auto-reload",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js --watch . --ext js,html,css",
+    "dev:8080": "PORT=8080 nodemon server.js --watch . --ext js,html,css",
+    "dev:8081": "PORT=8081 nodemon server.js --watch . --ext js,html,css",
+    "dev:8082": "PORT=8082 nodemon server.js --watch . --ext js,html,css"
+  },
+  "keywords": ["todo", "dashboard", "viewer"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
