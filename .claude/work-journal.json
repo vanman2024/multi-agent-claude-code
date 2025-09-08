@@ -1,6 +1,28 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T02:01:23Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 2,
+      "last_commit": "d115e0f fix: Simplify /recover command and update slash command creation rules"
+    },
+    {
+      "timestamp": "2025-09-08T01:59:58Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 2,
+      "last_commit": "d115e0f fix: Simplify /recover command and update slash command creation rules"
+    },
+    {
+      "timestamp": "2025-09-08T01:54:32Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 2,
+      "last_commit": "d115e0f fix: Simplify /recover command and update slash command creation rules"
+    },
+    {
       "timestamp": "2025-09-08T01:52:34Z",
       "branch": "main",
       "uncommitted": 2,
@@ -689,27 +711,6 @@
       "timestamp": "2025-09-07T19:01:19Z",
       "branch": "main",
       "uncommitted": 2,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T18:58:23Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T18:55:13Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T18:54:27Z",
-      "branch": "main",
-      "uncommitted": 0,
       "unpushed": 4,
       "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
     }
