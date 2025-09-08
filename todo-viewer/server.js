@@ -7,7 +7,10 @@ const { execSync } = require('child_process');
 
 const PORT = 8080;
 const CLAUDE_TODOS_DIR = path.join(process.env.HOME, '.claude/todos');
-const PROJECT_PATH = path.dirname(__dirname); // Get parent directory (project root)
+// Handle worktree vs main repo - always point to main repo for todos
+const PROJECT_PATH = process.cwd().includes('/worktrees/') 
+    ? '/home/gotime2022/Projects/multi-agent-claude-code'
+    : path.dirname(__dirname);
 
 // MIME types for static files
 const mimeTypes = {
