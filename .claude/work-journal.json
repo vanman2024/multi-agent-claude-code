@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T23:53:23Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "0bbc976 feat: Add simple table-formatted todo viewer"
+    },
+    {
       "timestamp": "2025-09-08T23:52:15Z",
       "branch": "main",
       "uncommitted": 3,
@@ -698,13 +705,6 @@
       "uncommitted": 0,
       "unpushed": 0,
       "last_commit": "c0e3f20 [CRITICAL] fix: TodoWrite not persisting to disk - session broken"
-    },
-    {
-      "timestamp": "2025-09-08T04:16:31Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "076bde2 fix: Update /wip command to support PRs and simplify logic"
     }
   ]
 }

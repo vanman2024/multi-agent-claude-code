@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
-Simple todo viewer for the current project.
-Displays all todos from sessions linked to this project in a table format.
+Project-specific todo viewer.
+
+This script ONLY shows todos for the current working directory's project.
+It uses the project path to find all Claude sessions linked to THIS project
+and displays their todos in a clean table format.
+
+The viewer is read-only and project-isolated - it won't show todos from
+other projects on your system.
 """
 
 import json
@@ -66,10 +72,13 @@ def get_project_todos(project_path=None):
     
     # Display results
     if stats['total'] == 0:
-        print("No todos found for this project")
+        print(f"\n📋 No todos found for project: {project_path}")
+        print(f"   Project hash: {project_hash}")
         return
     
-    print(f"\n📋 TODO LIST - {os.path.basename(project_path)}")
+    print(f"\n📋 TODO LIST FOR CURRENT PROJECT")
+    print(f"📁 Project: {project_path}")
+    print(f"📂 Name: {os.path.basename(project_path)}")
     print("=" * 100)
     
     # Sort todos: in_progress first, then pending, then completed
