@@ -657,6 +657,40 @@ try {
 
 ## Git Workflow
 
+### Working State Tracking
+**CRITICAL**: Mark stable/working states directly in commit messages so they're visible in GitHub:
+
+#### State Markers for Commit Messages:
+- `[STABLE]` - Fully tested, production-ready state (create tag after this)
+- `[WORKING]` - Everything functional but needs more testing  
+- `[WIP]` - Work in progress, may have issues
+- `[HOTFIX]` - Emergency fix applied to stable state
+
+#### Commit Message Format with State Tracking:
+```bash
+# Format: [STATE] type: description
+[STABLE] feat: Add todo viewer with project filtering
+[WORKING] fix: Correct date timezone issues 
+[WIP] feat: Implementing GitHub sync for todos
+
+# With issue references:
+[STABLE] fix: Complete todo-viewer fixes
+
+Closes #155
+```
+
+#### Creating Version Tags for Rollback:
+After any [STABLE] commit, create a descriptive tag:
+```bash
+git tag -a "v1.0-feature-stable" -m "Description of what's working"
+git push origin --tags
+```
+
+Tag naming convention:
+- `v1.0-feature-stable` - Production ready
+- `v1.0-feature-working` - Functional but needs testing
+- `hotfix-YYYYMMDD-issue` - Emergency fixes
+
 ### Branch Naming:
 - feature/short-description
 - fix/issue-number-description
@@ -664,10 +698,12 @@ try {
 - hotfix/critical-issue
 
 ### Commit Messages:
-- Start with verb: Add, Fix, Update, Remove, Refactor
-- Keep under 50 characters
+- Optionally start with state marker: [STABLE], [WORKING], [WIP]
+- Then conventional prefix: feat:, fix:, docs:, chore:, refactor:
+- Keep under 50 characters after prefix
 - No period at end
-- Reference issue: "Fix #123: Login error"
+- Reference issue: "Related to #123" or "Closes #123"
+- Use "Closes #123" only once per issue (in final commit/PR)
 
 ### NEVER Commit:
 - node_modules/, venv/, __pycache__/
