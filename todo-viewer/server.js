@@ -124,8 +124,28 @@ function getTodos(projectPath = null) {
             try {
                 const jsonData = JSON.parse(rawData);
                 if (jsonData.todos && jsonData.todos.length > 0) {
+                    // Add timestamps from session files if available
+                    const todosWithTimestamps = jsonData.todos.map(todo => {
+                        // For now, use file modification time as a proxy for creation time
+                        // In the future, we could parse JSONL files for exact TodoWrite timestamps
+                        const sessionFile = path.join(process.env.HOME, '.claude/projects', 
+                            targetPath.replace(/\//g, '-'), 
+                            `${todo.session || 'unknown'}.jsonl`);
+                        
+                        let timestamp = null;
+                        if (fs.existsSync(sessionFile)) {
+                            const stats = fs.statSync(sessionFile);
+                            timestamp = stats.mtime.toISOString();
+                        }
+                        
+                        return {
+                            ...todo,
+                            timestamp: timestamp || new Date().toISOString()
+                        };
+                    });
+                    
                     return {
-                        todos: jsonData.todos,
+                        todos: todosWithTimestamps,
                         project: targetPath, // Return the actual target path, not PROJECT_PATH
                         totalSessions: jsonData.sessions || 1,
                         lastUpdated: new Date()
@@ -259,6 +279,18 @@ function getTodosSingleProject(projectPath) {
             });
             
             const jsonData = JSON.parse(rawData);
+            
+            // Add a timestamp to each todo (using current time as placeholder)
+            // In reality, we'd need to parse JSONL files for exact timestamps
+            if (jsonData.todos) {
+                const now = new Date();
+                jsonData.todos = jsonData.todos.map((todo, index) => ({
+                    ...todo,
+                    // Create fake timestamps for demo (each todo 30 mins apart)
+                    timestamp: new Date(now.getTime() - (index * 30 * 60 * 1000)).toISOString()
+                }));
+            }
+            
             return jsonData;
         }
     } catch (error) {

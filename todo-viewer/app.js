@@ -343,11 +343,24 @@ class TodoDashboard {
                 sessionTodos.forEach(todo => {
                     // Fix timezone issue by treating date as local date, not UTC
                     const date = todo.date ? new Date(todo.date + 'T00:00:00').toLocaleDateString() : 'No date';
+                    
+                    // Add time if timestamp is available
+                    let timeStr = '';
+                    if (todo.timestamp) {
+                        const time = new Date(todo.timestamp);
+                        timeStr = time.toLocaleTimeString('en-US', { 
+                            hour: 'numeric', 
+                            minute: '2-digit',
+                            hour12: true 
+                        });
+                    }
+                    
                     html += `
                         <div class="todo-item ${statusClass}">
                             <div class="todo-content">${this.escapeHtml(todo.content)}</div>
                             <div class="todo-meta">
                                 <span>📅 ${date}</span>
+                                ${timeStr ? `<span>🕐 ${timeStr}</span>` : ''}
                                 ${todo.activeForm && todo.activeForm !== todo.content ? 
                                     `<span style="font-style: italic;">🎯 ${this.escapeHtml(todo.activeForm)}</span>` : ''}
                             </div>
