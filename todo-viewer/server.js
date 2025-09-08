@@ -245,11 +245,18 @@ function getTodos(projectPath = null) {
                 const parts = line.split('|');
                 if (parts.length >= 3) {
                     const [date, status, ...contentParts] = parts;
+                    const content = contentParts.join('|').trim();
+                    
+                    // Skip anchor todos from display
+                    if (content.includes('📌 Project anchor')) {
+                        return;
+                    }
+                    
                     todos.push({
                         date: date.trim(),
                         status: status.trim(),
-                        content: contentParts.join('|').trim(),
-                        activeForm: contentParts.join('|').trim(),
+                        content: content,
+                        activeForm: content,
                         session: currentSession
                     });
                 }
@@ -361,7 +368,7 @@ function getAllProjectTodos() {
         const allTodos = [];
         const sessions = new Set();
         
-        // Read all todo files
+        // Read all active todo files
         const files = fs.readdirSync(CLAUDE_TODOS_DIR)
             .filter(f => f.endsWith('.json'))
             .map(f => ({
@@ -369,7 +376,25 @@ function getAllProjectTodos() {
                 path: path.join(CLAUDE_TODOS_DIR, f),
                 mtime: fs.statSync(path.join(CLAUDE_TODOS_DIR, f)).mtime
             }));
+        
+        // Also read completed todos from backup directory
+        const projectHash = PROJECT_PATH.replace(/\//g, '-');
+        const backupDir = path.join(CLAUDE_PROJECTS_BASE, projectHash, 'completed-todos');
+        if (fs.existsSync(backupDir)) {
+            const backupFiles = fs.readdirSync(backupDir)
+                .filter(f => f.endsWith('.json'))
+                .map(f => ({
+                    name: f,
+                    path: path.join(backupDir, f),
+                    mtime: fs.statSync(path.join(backupDir, f)).mtime,
+                    isBackup: true
+                }));
+            files.push(...backupFiles);
+        }
 
+        // Track todos by content to merge duplicates intelligently
+        const todoMap = new Map();
+        
         // Read each file and collect todos
         files.forEach(file => {
             try {
@@ -382,11 +407,34 @@ function getAllProjectTodos() {
                 
                 // Add metadata to each todo
                 todos.forEach(todo => {
-                    allTodos.push({
-                        ...todo,
-                        date: file.mtime,
-                        session: sessionId
-                    });
+                    // Skip anchor todos from display
+                    if (todo.content && todo.content.includes('📌 Project anchor')) {
+                        return;
+                    }
+                    
+                    const key = todo.content;
+                    const existing = todoMap.get(key);
+                    
+                    // If we already have this todo, update it with the most recent status
+                    if (existing) {
+                        // Prefer completed > in_progress > pending
+                        const statusPriority = {'completed': 3, 'in_progress': 2, 'pending': 1};
+                        if (statusPriority[todo.status] > statusPriority[existing.status]) {
+                            todoMap.set(key, {
+                                ...todo,
+                                date: file.mtime,
+                                session: sessionId,
+                                isFromBackup: file.isBackup
+                            });
+                        }
+                    } else {
+                        todoMap.set(key, {
+                            ...todo,
+                            date: file.mtime,
+                            session: sessionId,
+                            isFromBackup: file.isBackup
+                        });
+                    }
                 });
                 
                 sessions.add(sessionId);
@@ -394,6 +442,9 @@ function getAllProjectTodos() {
                 // Skip files that can't be parsed
             }
         });
+        
+        // Convert map back to array
+        allTodos.push(...todoMap.values());
         
         // Sort todos by status (in_progress first, then pending, then completed)
         const statusOrder = { 'in_progress': 0, 'pending': 1, 'completed': 2 };

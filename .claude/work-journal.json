@@ -1,6 +1,403 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T23:36:17Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:32:58Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:29:56Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:27:29Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:24:37Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:24:16Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:22:49Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:22:24Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:21:04Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:18:12Z",
+      "branch": "main",
+      "uncommitted": 13,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:15:39Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:14:48Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:13:59Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:13:53Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:12:23Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:10:58Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:08:22Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:06:28Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:06:23Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T23:00:34Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:58:15Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:32:09Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:27:23Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:26:17Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:23:32Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:19:01Z",
+      "branch": "main",
+      "uncommitted": 12,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:12:22Z",
+      "branch": "main",
+      "uncommitted": 11,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:10:16Z",
+      "branch": "main",
+      "uncommitted": 11,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T22:04:48Z",
+      "branch": "main",
+      "uncommitted": 11,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T21:57:36Z",
+      "branch": "main",
+      "uncommitted": 11,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T21:38:35Z",
+      "branch": "main",
+      "uncommitted": 9,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T21:33:07Z",
+      "branch": "main",
+      "uncommitted": 8,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T20:11:05Z",
+      "branch": "main",
+      "uncommitted": 7,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:54:18Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:53:30Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:53:17Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:48:41Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:45:42Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:39:53Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:37:07Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:33:55Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:28:34Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:20:56Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:10:00Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:07:36Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:05:17Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T19:01:55Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T18:59:09Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T18:54:50Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T18:51:03Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4928946 fix: Simplify /wip command to work properly"
+    },
+    {
+      "timestamp": "2025-09-08T18:45:48Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "180780b fix: Remove TodoWrite references from /wip-status command"
+    },
+    {
+      "timestamp": "2025-09-08T18:45:07Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "180780b fix: Remove TodoWrite references from /wip-status command"
+    },
+    {
+      "timestamp": "2025-09-08T18:21:12Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "180780b fix: Remove TodoWrite references from /wip-status command"
+    },
+    {
+      "timestamp": "2025-09-08T18:19:22Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "180780b fix: Remove TodoWrite references from /wip-status command"
+    },
+    {
+      "timestamp": "2025-09-08T18:16:42Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "080c0bb fix: Remove redundant todo list from /wip command"
+    },
+    {
+      "timestamp": "2025-09-08T18:12:53Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "a610bfd fix: Separate /wip and /worktrees commands properly"
+    },
+    {
       "timestamp": "2025-09-08T18:10:30Z",
       "branch": "main",
       "uncommitted": 2,
@@ -308,404 +705,6 @@
       "uncommitted": 9,
       "unpushed": 3,
       "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:43:05Z",
-      "branch": "main",
-      "uncommitted": 9,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:41:43Z",
-      "branch": "main",
-      "uncommitted": 9,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:40:04Z",
-      "branch": "main",
-      "uncommitted": 9,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:37:43Z",
-      "branch": "main",
-      "uncommitted": 9,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:34:39Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:33:22Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:31:50Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:30:20Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:29:15Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:26:16Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:24:28Z",
-      "branch": "main",
-      "uncommitted": 7,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:23:27Z",
-      "branch": "main",
-      "uncommitted": 6,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:20:53Z",
-      "branch": "main",
-      "uncommitted": 5,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:19:20Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:17:20Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:16:27Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:15:56Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T03:07:34Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T02:42:45Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T02:31:41Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T02:22:59Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T02:21:27Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T02:08:32Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 3,
-      "last_commit": "feff7c0 [STABLE] fix: Correct timestamp display in todo-viewer"
-    },
-    {
-      "timestamp": "2025-09-08T02:01:23Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 2,
-      "last_commit": "d115e0f fix: Simplify /recover command and update slash command creation rules"
-    },
-    {
-      "timestamp": "2025-09-08T01:59:58Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 2,
-      "last_commit": "d115e0f fix: Simplify /recover command and update slash command creation rules"
-    },
-    {
-      "timestamp": "2025-09-08T01:54:32Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 2,
-      "last_commit": "d115e0f fix: Simplify /recover command and update slash command creation rules"
-    },
-    {
-      "timestamp": "2025-09-08T01:52:34Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 1,
-      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
-    },
-    {
-      "timestamp": "2025-09-08T01:51:01Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 1,
-      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
-    },
-    {
-      "timestamp": "2025-09-08T01:50:26Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 1,
-      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
-    },
-    {
-      "timestamp": "2025-09-08T01:49:26Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 1,
-      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
-    },
-    {
-      "timestamp": "2025-09-08T01:46:47Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 1,
-      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
-    },
-    {
-      "timestamp": "2025-09-08T01:46:32Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 1,
-      "last_commit": "5fbd386 fix: Remove template placeholder causing error in /recover command"
-    },
-    {
-      "timestamp": "2025-09-08T01:44:12Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "0905ce8 chore: Remove git.md command as requested"
-    },
-    {
-      "timestamp": "2025-09-08T01:42:59Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "0905ce8 chore: Remove git.md command as requested"
-    },
-    {
-      "timestamp": "2025-09-08T01:42:14Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "af3a9e1 [WORKING] feat: Add timestamps to todo-viewer and enhance /work command"
-    },
-    {
-      "timestamp": "2025-09-08T01:35:28Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "eeb6094 [STABLE] feat: Add /recover command for finding and restoring deleted files"
-    },
-    {
-      "timestamp": "2025-09-08T01:32:34Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "eeb6094 [STABLE] feat: Add /recover command for finding and restoring deleted files"
-    },
-    {
-      "timestamp": "2025-09-08T01:31:36Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "eeb6094 [STABLE] feat: Add /recover command for finding and restoring deleted files"
-    },
-    {
-      "timestamp": "2025-09-08T01:29:37Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "eeb6094 [STABLE] feat: Add /recover command for finding and restoring deleted files"
-    },
-    {
-      "timestamp": "2025-09-08T01:27:59Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "eeb6094 [STABLE] feat: Add /recover command for finding and restoring deleted files"
-    },
-    {
-      "timestamp": "2025-09-08T01:24:33Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "eeb6094 [STABLE] feat: Add /recover command for finding and restoring deleted files"
-    },
-    {
-      "timestamp": "2025-09-08T01:22:53Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "eeb6094 [STABLE] feat: Add /recover command for finding and restoring deleted files"
-    },
-    {
-      "timestamp": "2025-09-08T01:20:43Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "e6660b8 [WORKING] docs: Update CLAUDE.md with Git state tracking conventions"
-    },
-    {
-      "timestamp": "2025-09-08T01:14:59Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "af028ba [STABLE] feat: Enhanced /git command with stable state tracking"
-    },
-    {
-      "timestamp": "2025-09-08T01:07:43Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "6850f55 fix: Correct timezone issue causing dates to show September 6th instead of 7th"
-    },
-    {
-      "timestamp": "2025-09-08T01:06:12Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "6850f55 fix: Correct timezone issue causing dates to show September 6th instead of 7th"
-    },
-    {
-      "timestamp": "2025-09-08T01:04:09Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "6850f55 fix: Correct timezone issue causing dates to show September 6th instead of 7th"
-    },
-    {
-      "timestamp": "2025-09-08T01:00:15Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "833610f fix: Properly detect project paths checking both /Projects/ and root locations"
-    },
-    {
-      "timestamp": "2025-09-08T00:59:23Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 2,
-      "last_commit": "833610f fix: Properly detect project paths checking both /Projects/ and root locations"
-    },
-    {
-      "timestamp": "2025-09-08T00:18:53Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "76fdf63 fix: Partial fix for todo-viewer server"
-    },
-    {
-      "timestamp": "2025-09-07T22:48:40Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "2b071cb feat: Add TodoWrite GitHub sync implementation"
-    },
-    {
-      "timestamp": "2025-09-07T22:43:00Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 1,
-      "last_commit": "2b071cb feat: Add TodoWrite GitHub sync implementation"
-    },
-    {
-      "timestamp": "2025-09-07T22:40:41Z",
-      "branch": "main",
-      "uncommitted": 5,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T22:39:21Z",
-      "branch": "main",
-      "uncommitted": 5,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T22:35:16Z",
-      "branch": "main",
-      "uncommitted": 5,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T22:29:38Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "3853dac enhance: Add issue comments reading to /work command"
     }
   ]
 }
