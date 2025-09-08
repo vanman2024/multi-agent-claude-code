@@ -64,7 +64,7 @@ show_project_todos_table() {
     local temp_file="/tmp/todos-$$"
     > "$temp_file"
     
-    for session_file in $(ls -t "$project_dir"/*.jsonl 2>/dev/null | head -50); do
+    for session_file in $(ls -t "$project_dir"/*.jsonl 2>/dev/null); do
         local session_id=$(basename "$session_file" .jsonl)
         
         for pattern in "$session_id" "$session_id-agent-$session_id"; do
