@@ -341,25 +341,30 @@ class TodoDashboard {
                 html += `<div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Session: ${session.substring(0, 8)}...</div>`;
                 
                 sessionTodos.forEach(todo => {
-                    // Fix timezone issue by treating date as local date, not UTC
-                    const date = todo.date ? new Date(todo.date + 'T00:00:00').toLocaleDateString() : 'No date';
-                    
-                    // Add time if timestamp is available
+                    // Use timestamp for both date and time if available, otherwise fall back to date field
+                    let dateStr = 'No date';
                     let timeStr = '';
+                    
                     if (todo.timestamp) {
-                        const time = new Date(todo.timestamp);
-                        timeStr = time.toLocaleTimeString('en-US', { 
+                        // Use timestamp for both date and time
+                        const timestamp = new Date(todo.timestamp);
+                        dateStr = timestamp.toLocaleDateString();
+                        timeStr = timestamp.toLocaleTimeString('en-US', { 
                             hour: 'numeric', 
                             minute: '2-digit',
                             hour12: true 
                         });
+                    } else if (todo.date) {
+                        // Fall back to date field if no timestamp
+                        const date = new Date(todo.date);
+                        dateStr = date.toLocaleDateString();
                     }
                     
                     html += `
                         <div class="todo-item ${statusClass}">
                             <div class="todo-content">${this.escapeHtml(todo.content)}</div>
                             <div class="todo-meta">
-                                <span>📅 ${date}</span>
+                                <span>📅 ${dateStr}</span>
                                 ${timeStr ? `<span>🕐 ${timeStr}</span>` : ''}
                                 ${todo.activeForm && todo.activeForm !== todo.content ? 
                                     `<span style="font-style: italic;">🎯 ${this.escapeHtml(todo.activeForm)}</span>` : ''}
