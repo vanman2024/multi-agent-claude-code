@@ -21,7 +21,6 @@ EXAMPLES:
 /wip #150                   - Resume work on issue #150
 /wip PR#123                 - Continue work from PR #123
 /wip --continue             - Continue from last commit on current branch
-/wip --list                 - Show all WIP branches and their status
 /wip fix-typo              - Quick fix without issue
 
 PRIMARY USE: Continue/resume existing work
@@ -38,28 +37,23 @@ Continue or resume existing work based on the type of argument provided.
 
 Parse $ARGUMENTS to determine what we're continuing from:
 
-1. **--list**: Show all WIP branches
-   Run: !`git branch -a | grep -v "remotes/origin/HEAD"`
-   Then show active WIP todos from TodoWrite
-   Exit after showing list
-
-2. **--continue**: Continue from last commit on current branch
+1. **--continue**: Continue from last commit on current branch
    Run: !`git log -1 --format="%H %s"`
    Show what was being worked on
 
-3. **PR#number**: Resume work from a Pull Request
+2. **PR#number**: Resume work from a Pull Request
    Run: !`gh pr checkout $ARGUMENTS`
    This will checkout the PR's branch locally
 
-4. **#number**: Resume work on issue's branch
+3. **#number**: Resume work on issue's branch
    Run: !`git branch -a | grep "$ARGUMENTS-" | head -1`
    If branch found, checkout that branch
    If not found, tell user to use /work #number to start
 
-5. **Commit SHA**: Checkout specific commit
+4. **Commit SHA**: Checkout specific commit
    Run: !`git checkout $ARGUMENTS`
    
-6. **Branch name** (default): Checkout branch
+5. **Branch name** (default): Checkout branch
    Run: !`git checkout $ARGUMENTS`
 
 ### Step 1: Check for uncommitted changes
