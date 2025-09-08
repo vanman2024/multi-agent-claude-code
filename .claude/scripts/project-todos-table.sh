@@ -64,8 +64,20 @@ show_project_todos_table() {
     local temp_file="/tmp/todos-$$"
     > "$temp_file"
     
+    # Track processed base sessions to avoid duplicates
+    local processed_sessions=""
+    
     for session_file in $(ls -t "$project_dir"/*.jsonl 2>/dev/null); do
         local session_id=$(basename "$session_file" .jsonl)
+        
+        # Extract base session ID (remove -agent- suffix if present)
+        local base_session=$(echo "$session_id" | sed 's/-agent-.*//')
+        
+        # Skip if we've already processed this base session
+        if echo "$processed_sessions" | grep -q "$base_session"; then
+            continue
+        fi
+        processed_sessions="$processed_sessions $base_session"
         
         for pattern in "$session_id" "$session_id-agent-$session_id"; do
             local todo_file="$HOME/.claude/todos/${pattern}.json"
@@ -184,8 +196,20 @@ show_markdown_export() {
     local temp_file="/tmp/todos-md-$$"
     > "$temp_file"
     
+    # Track processed base sessions to avoid duplicates
+    local processed_sessions=""
+    
     for session_file in $(ls -t "$project_dir"/*.jsonl 2>/dev/null); do
         local session_id=$(basename "$session_file" .jsonl)
+        
+        # Extract base session ID (remove -agent- suffix if present)
+        local base_session=$(echo "$session_id" | sed 's/-agent-.*//')
+        
+        # Skip if we've already processed this base session
+        if echo "$processed_sessions" | grep -q "$base_session"; then
+            continue
+        fi
+        processed_sessions="$processed_sessions $base_session"
         
         for pattern in "$session_id" "$session_id-agent-$session_id"; do
             local todo_file="$HOME/.claude/todos/${pattern}.json"
@@ -271,8 +295,20 @@ show_json_export() {
         local temp_file="/tmp/todos-json-$$"
         > "$temp_file"
         
+        # Track processed base sessions to avoid duplicates
+        local processed_sessions=""
+        
         for session_file in $(ls -t "$project_dir"/*.jsonl 2>/dev/null); do
             local session_id=$(basename "$session_file" .jsonl)
+            
+            # Extract base session ID (remove -agent- suffix if present)
+            local base_session=$(echo "$session_id" | sed 's/-agent-.*//')
+            
+            # Skip if we've already processed this base session
+            if echo "$processed_sessions" | grep -q "$base_session"; then
+                continue
+            fi
+            processed_sessions="$processed_sessions $base_session"
             
             for pattern in "$session_id" "$session_id-agent-$session_id"; do
                 local todo_file="$HOME/.claude/todos/${pattern}.json"
