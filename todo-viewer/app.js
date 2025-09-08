@@ -341,7 +341,8 @@ class TodoDashboard {
                 html += `<div style="font-size: 0.85rem; color: #666; margin-bottom: 5px;">Session: ${session.substring(0, 8)}...</div>`;
                 
                 sessionTodos.forEach(todo => {
-                    const date = todo.date ? new Date(todo.date).toLocaleDateString() : 'No date';
+                    // Fix timezone issue by treating date as local date, not UTC
+                    const date = todo.date ? new Date(todo.date + 'T00:00:00').toLocaleDateString() : 'No date';
                     html += `
                         <div class="todo-item ${statusClass}">
                             <div class="todo-content">${this.escapeHtml(todo.content)}</div>
