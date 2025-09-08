@@ -1,6 +1,28 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T23:56:08Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "94493dd enhance: Make todo viewer clearly project-specific"
+    },
+    {
+      "timestamp": "2025-09-08T23:54:08Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "94493dd enhance: Make todo viewer clearly project-specific"
+    },
+    {
+      "timestamp": "2025-09-08T23:54:03Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 1,
+      "last_commit": "94493dd enhance: Make todo viewer clearly project-specific"
+    },
+    {
       "timestamp": "2025-09-08T23:53:23Z",
       "branch": "main",
       "uncommitted": 0,
@@ -684,27 +706,6 @@
       "uncommitted": 0,
       "unpushed": 0,
       "last_commit": "c4aa2c2 [STABLE] fix: Resolve todo duplication in viewer"
-    },
-    {
-      "timestamp": "2025-09-08T04:24:41Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "60e6027 docs: Identify todo duplication issue in viewer"
-    },
-    {
-      "timestamp": "2025-09-08T04:21:24Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "c0e3f20 [CRITICAL] fix: TodoWrite not persisting to disk - session broken"
-    },
-    {
-      "timestamp": "2025-09-08T04:18:07Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "c0e3f20 [CRITICAL] fix: TodoWrite not persisting to disk - session broken"
     }
   ]
 }
