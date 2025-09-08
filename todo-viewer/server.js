@@ -25,30 +25,43 @@ function getAllProjects() {
             return [];
         }
         
-        const projects = fs.readdirSync(projectsDir)
+        const projects = [];
+        const seen = new Set();
+        
+        fs.readdirSync(projectsDir)
             .filter(dir => fs.statSync(path.join(projectsDir, dir)).isDirectory())
-            .map(dir => {
+            .forEach(dir => {
                 // Convert directory name back to path
                 // Directory format: -home-gotime2022-Projects-multi-agent-claude-code
-                // Only replace hyphens that represent path separators
                 let projectPath = dir;
                 if (projectPath.startsWith('-')) {
                     projectPath = projectPath.substring(1); // Remove leading dash
                 }
-                // Split on -Projects- to handle the path structure correctly
-                if (projectPath.includes('-Projects-')) {
-                    const parts = projectPath.split('-Projects-');
-                    projectPath = '/' + parts[0].replace(/-/g, '/') + '/Projects/' + parts[1];
-                } else {
-                    // For paths not in Projects folder
-                    projectPath = '/' + projectPath.replace(/-/g, '/');
+                
+                // Build the path step by step, preserving hyphens in project names
+                let reconstructedPath = '/';
+                
+                // Common patterns to replace
+                if (projectPath.startsWith('home-gotime2022-Projects-')) {
+                    reconstructedPath = '/home/gotime2022/Projects/';
+                    projectPath = projectPath.substring('home-gotime2022-Projects-'.length);
+                } else if (projectPath.startsWith('home-gotime2022-')) {
+                    reconstructedPath = '/home/gotime2022/';
+                    projectPath = projectPath.substring('home-gotime2022-'.length);
                 }
                 
-                const projectName = path.basename(projectPath);
-                return {
-                    name: projectName,
-                    path: projectPath
-                };
+                // The remaining part is the project name (which may contain hyphens)
+                reconstructedPath += projectPath;
+                
+                // Avoid duplicates
+                if (!seen.has(reconstructedPath)) {
+                    seen.add(reconstructedPath);
+                    const projectName = path.basename(reconstructedPath);
+                    projects.push({
+                        name: projectName,
+                        path: reconstructedPath
+                    });
+                }
             });
         
         return projects;
@@ -61,10 +74,15 @@ function getAllProjects() {
 // Function to get ALL todos for this project across all sessions
 function getTodos(projectPath = null) {
     try {
-        const targetPath = projectPath || PROJECT_PATH;
+        // If projectPath is empty string, null or "all", get todos for all projects
+        if (!projectPath || projectPath === '' || projectPath === 'all') {
+            return getAllProjectsTodos();
+        }
+        
+        const targetPath = projectPath;
         // Always use the script from main project but run it IN the target directory
         const tableScriptPath = path.join(PROJECT_PATH, '.claude/scripts/project-todos-table.sh');
-        if (fs.existsSync(tableScriptPath)) {
+        if (fs.existsSync(tableScriptPath) && fs.existsSync(targetPath)) {
             // Get raw JSON data from the table script
             const rawData = execSync(`/usr/bin/bash "${tableScriptPath}" json 2>/dev/null || echo '{"todos":[],"sessions":0}'`, {
                 encoding: 'utf-8',
@@ -78,7 +96,7 @@ function getTodos(projectPath = null) {
                 if (jsonData.todos && jsonData.todos.length > 0) {
                     return {
                         todos: jsonData.todos,
-                        project: PROJECT_PATH,
+                        project: targetPath, // Return the actual target path, not PROJECT_PATH
                         totalSessions: jsonData.sessions || 1,
                         lastUpdated: new Date()
                     };
@@ -138,6 +156,72 @@ function getTodos(projectPath = null) {
     
     // Fallback to reading all todo files directly
     return getAllProjectTodos();
+}
+
+// Get todos from ALL projects combined
+function getAllProjectsTodos() {
+    try {
+        const allProjects = getAllProjects();
+        const allTodos = [];
+        let totalSessions = 0;
+        
+        // Collect todos from each project
+        for (const project of allProjects) {
+            if (fs.existsSync(project.path)) {
+                const projectTodos = getTodosSingleProject(project.path);
+                if (projectTodos && projectTodos.todos) {
+                    // Add project info to each todo
+                    projectTodos.todos.forEach(todo => {
+                        allTodos.push({
+                            ...todo,
+                            projectName: project.name,
+                            projectPath: project.path
+                        });
+                    });
+                    totalSessions += projectTodos.totalSessions || 0;
+                }
+            }
+        }
+        
+        // Sort by status priority
+        const statusOrder = { 'in_progress': 0, 'pending': 1, 'completed': 2 };
+        allTodos.sort((a, b) => {
+            const orderDiff = statusOrder[a.status] - statusOrder[b.status];
+            if (orderDiff !== 0) return orderDiff;
+            return new Date(b.date) - new Date(a.date);
+        });
+        
+        return {
+            todos: allTodos,
+            project: 'All Projects',
+            totalSessions: totalSessions,
+            lastUpdated: new Date()
+        };
+    } catch (error) {
+        console.error('Error getting all projects todos:', error);
+        return { todos: [], project: 'All Projects' };
+    }
+}
+
+// Helper to get todos from a single project
+function getTodosSingleProject(projectPath) {
+    try {
+        const tableScriptPath = path.join(PROJECT_PATH, '.claude/scripts/project-todos-table.sh');
+        if (fs.existsSync(tableScriptPath) && fs.existsSync(projectPath)) {
+            const rawData = execSync(`/usr/bin/bash "${tableScriptPath}" json 2>/dev/null || echo '{"todos":[],"sessions":0}'`, {
+                encoding: 'utf-8',
+                cwd: projectPath,
+                maxBuffer: 1024 * 1024 * 10,
+                shell: '/usr/bin/bash'
+            });
+            
+            const jsonData = JSON.parse(rawData);
+            return jsonData;
+        }
+    } catch (error) {
+        console.error(`Error getting todos for ${projectPath}:`, error.message);
+    }
+    return { todos: [], sessions: 0 };
 }
 
 function getAllProjectTodos() {

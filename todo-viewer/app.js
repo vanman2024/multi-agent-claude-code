@@ -55,18 +55,8 @@ class TodoDashboard {
             // Build API URL with project parameter if selected
             let apiUrl = '/api/todos';
             if (this.selectedProject) {
-                // Convert project name to full path
-                const projectPaths = {
-                    'multi-agent-claude-code': '/home/gotime2022/Projects/multi-agent-claude-code',
-                    'mcp-kernel-new': '/home/gotime2022/Projects/mcp-kernel-new',
-                    'recruitment-ops': '/home/gotime2022/Projects/recruitment-ops',
-                    'test-todo-app': '/home/gotime2022/Projects/test-todo-app',
-                    'multi-agent-observability-system': '/home/gotime2022/multi-agent-observability-system',
-                    'synapseai': '/home/gotime2022/synapseai',
-                    'project-seed': '/home/gotime2022/project-seed'
-                };
-                const fullPath = projectPaths[this.selectedProject] || this.selectedProject;
-                apiUrl = `/api/todos?project=${encodeURIComponent(fullPath)}`;
+                // selectedProject already contains the full path from the dropdown
+                apiUrl = `/api/todos?project=${encodeURIComponent(this.selectedProject)}`;
             }
             
             const response = await fetch(apiUrl);
