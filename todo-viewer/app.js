@@ -6,6 +6,7 @@ class TodoDashboard {
         this.searchTerm = '';
         this.selectedProject = null;
         this.availableProjects = [];
+        this.groupByCategory = false;
         this.init();
     }
 
@@ -47,6 +48,20 @@ class TodoDashboard {
             setTimeout(() => {
                 document.getElementById('refreshBtn').classList.remove('loading');
             }, 1000);
+        });
+
+        // Group toggle button
+        document.getElementById('groupToggle').addEventListener('click', () => {
+            this.groupByCategory = !this.groupByCategory;
+            const btn = document.getElementById('groupToggle');
+            if (this.groupByCategory) {
+                btn.textContent = '📋 Simple View';
+                btn.style.background = '#667eea';
+            } else {
+                btn.textContent = '📊 Group by Type';
+                btn.style.background = '#764ba2';
+            }
+            this.renderTodos();
         });
     }
 
@@ -288,12 +303,51 @@ class TodoDashboard {
         document.getElementById('totalCount').textContent = stats.total;
     }
 
+    categorizeTodo(todo) {
+        const content = (todo.content || '').toLowerCase();
+        const activeForm = (todo.activeForm || '').toLowerCase();
+        const combined = content + ' ' + activeForm;
+        
+        // Testing related
+        if (combined.match(/\b(test|testing|spec|jest|pytest|unit test|integration|e2e)\b/)) {
+            return 'testing';
+        }
+        
+        // Bug fixes
+        if (combined.match(/\b(fix|bug|error|issue|broken|repair|patch|resolve|correct)\b/)) {
+            return 'bugs';
+        }
+        
+        // Features
+        if (combined.match(/\b(feature|implement|add|create|new|enhance|build)\b/)) {
+            return 'features';
+        }
+        
+        // Documentation
+        if (combined.match(/\b(doc|documentation|readme|guide|tutorial|comment|explain)\b/)) {
+            return 'documentation';
+        }
+        
+        // Refactoring
+        if (combined.match(/\b(refactor|restructure|reorganize|cleanup|optimize|improve)\b/)) {
+            return 'refactoring';
+        }
+        
+        // DevOps/Infrastructure
+        if (combined.match(/\b(deploy|ci|cd|pipeline|docker|kubernetes|infrastructure|devops)\b/)) {
+            return 'devops';
+        }
+        
+        // Default category
+        return 'other';
+    }
+
     renderTodos() {
         const container = document.getElementById('todosContainer');
         const filteredTodos = this.filterTodos();
         
-        // Group todos by status
-        const grouped = {
+        // First group by status
+        const byStatus = {
             in_progress: filteredTodos.filter(t => t.status === 'in_progress'),
             pending: filteredTodos.filter(t => t.status === 'pending'),
             completed: filteredTodos.filter(t => t.status === 'completed')
@@ -301,22 +355,144 @@ class TodoDashboard {
 
         let html = '';
 
-        // Render In Progress section
-        if (grouped.in_progress.length > 0) {
-            html += this.renderSection('🔄 In Progress', grouped.in_progress, 'in-progress');
-        }
+        if (this.groupByCategory) {
+            // Group each status by category
+            const categorized = {};
+            for (const [status, todos] of Object.entries(byStatus)) {
+                categorized[status] = {};
+                todos.forEach(todo => {
+                    const category = this.categorizeTodo(todo);
+                    if (!categorized[status][category]) {
+                        categorized[status][category] = [];
+                    }
+                    categorized[status][category].push(todo);
+                });
+            }
 
-        // Render Pending section
-        if (grouped.pending.length > 0) {
-            html += this.renderSection('⏳ Pending', grouped.pending, 'pending');
-        }
+            // Render In Progress section with categories
+            if (byStatus.in_progress.length > 0) {
+                html += this.renderCategorizedSection('🔄 In Progress', categorized.in_progress, 'in-progress');
+            }
 
-        // Render Completed section
-        if (grouped.completed.length > 0) {
-            html += this.renderSection('✅ Completed', grouped.completed, 'completed');
+            // Render Pending section with categories
+            if (byStatus.pending.length > 0) {
+                html += this.renderCategorizedSection('⏳ Pending', categorized.pending, 'pending');
+            }
+
+            // Render Completed section with categories
+            if (byStatus.completed.length > 0) {
+                html += this.renderCategorizedSection('✅ Completed', categorized.completed, 'completed');
+            }
+        } else {
+            // Simple rendering without categories
+            if (byStatus.in_progress.length > 0) {
+                html += this.renderSection('🔄 In Progress', byStatus.in_progress, 'in-progress');
+            }
+
+            if (byStatus.pending.length > 0) {
+                html += this.renderSection('⏳ Pending', byStatus.pending, 'pending');
+            }
+
+            if (byStatus.completed.length > 0) {
+                html += this.renderSection('✅ Completed', byStatus.completed, 'completed');
+            }
         }
 
         container.innerHTML = html || '<div class="todo-section"><p>No todos found</p></div>';
+    }
+
+    renderCategorizedSection(title, categorizedTodos, statusClass) {
+        const categoryIcons = {
+            features: '✨',
+            bugs: '🐛',
+            testing: '🧪',
+            documentation: '📚',
+            refactoring: '🔧',
+            devops: '🚀',
+            other: '📌'
+        };
+        
+        const categoryLabels = {
+            features: 'Features',
+            bugs: 'Bug Fixes',
+            testing: 'Testing',
+            documentation: 'Documentation',
+            refactoring: 'Refactoring',
+            devops: 'DevOps',
+            other: 'Other'
+        };
+
+        // Count total todos
+        const totalCount = Object.values(categorizedTodos).reduce((sum, todos) => sum + todos.length, 0);
+        
+        let html = `
+            <div class="todo-section">
+                <h2 class="section-title">${title} (${totalCount})</h2>
+                <div class="todos-list">
+        `;
+
+        // Render each category
+        const categoryOrder = ['features', 'bugs', 'testing', 'documentation', 'refactoring', 'devops', 'other'];
+        
+        categoryOrder.forEach(category => {
+            const todos = categorizedTodos[category];
+            if (!todos || todos.length === 0) return;
+            
+            const icon = categoryIcons[category] || '📌';
+            const label = categoryLabels[category] || category;
+            
+            html += `
+                <div class="category-group" style="margin-bottom: 20px;">
+                    <h3 style="color: #4a5568; font-size: 0.95rem; margin-bottom: 10px; padding: 5px; background: #f7fafc; border-radius: 4px; cursor: pointer; user-select: none;" 
+                        onclick="this.parentElement.querySelector('.category-items').classList.toggle('collapsed'); this.querySelector('.collapse-icon').textContent = this.parentElement.querySelector('.category-items').classList.contains('collapsed') ? '▶' : '▼'">
+                        <span class="collapse-icon">▼</span> ${icon} ${label} (${todos.length})
+                    </h3>
+                    <div class="category-items">
+            `;
+            
+            // Render todos in this category
+            todos.forEach(todo => {
+                // Use timestamp for both date and time if available
+                let dateStr = 'No date';
+                let timeStr = '';
+                
+                if (todo.timestamp) {
+                    const timestamp = new Date(todo.timestamp);
+                    dateStr = timestamp.toLocaleDateString();
+                    timeStr = timestamp.toLocaleTimeString('en-US', { 
+                        hour: 'numeric', 
+                        minute: '2-digit',
+                        hour12: true 
+                    });
+                } else if (todo.date) {
+                    const date = new Date(todo.date);
+                    dateStr = date.toLocaleDateString();
+                }
+                
+                const session = todo.session || 'unknown';
+                html += `
+                    <div class="todo-item ${statusClass}" style="margin-left: 15px;">
+                        <div class="todo-content">${this.escapeHtml(todo.content)}</div>
+                        <div class="todo-meta">
+                            <span>📅 ${dateStr}</span>
+                            ${timeStr ? `<span>🕐 ${timeStr}</span>` : ''}
+                            <span style="font-size: 0.8rem; color: #999;">Session: ${session.substring(0, 8)}...</span>
+                            ${todo.activeForm && todo.activeForm !== todo.content ? 
+                                `<span style="font-style: italic;">🎯 ${this.escapeHtml(todo.activeForm)}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div></div>`;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        return html;
     }
 
     renderSection(title, todos, statusClass) {
