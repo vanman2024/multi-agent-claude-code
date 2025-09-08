@@ -1,179 +1,59 @@
 ---
-allowed-tools: Bash(*), TodoWrite(*), mcp__github(*)
-description: Continue/resume work from branches, commits, issues, or PRs
-argument-hint: [branch-name | commit-sha | #issue | PR#123] | --continue | --list
+allowed-tools: Bash(*)
+description: Switch to or create a work-in-progress branch
+argument-hint: [branch-name] or leave empty for current status
 ---
 
-# WIP - Work In Progress (Continue/Resume)
+# WIP - Work In Progress
 
 <!--
 WHEN TO USE THIS COMMAND:
-- Resuming work on EXISTING branches (most common)
-- Continuing from a specific commit
-- Jumping between different work in progress
-- Picking up where you left off on an issue
-- Continuing work from a PR
-- Quick fixes that don't need issues
+- Resume work on an existing branch
+- Create a new WIP branch for quick fixes
+- Switch between different branches
 
 EXAMPLES:
-/wip 150-add-authentication  - Resume work on branch
-/wip abc123def              - Continue from specific commit
-/wip #150                   - Resume work on issue #150
-/wip PR#123                 - Continue work from PR #123
-/wip --continue             - Continue from last commit on current branch
-/wip fix-typo              - Quick fix without issue
-
-PRIMARY USE: Continue/resume existing work
-SECONDARY USE: Jump between different WIP items
-
-For STARTING NEW work from an issue, use /work #123 instead!
+/wip                      - Show current branch status
+/wip fix-typo            - Switch to or create branch
+/wip 150-add-auth        - Switch to issue branch
 -->
 
 ## Your Task
 
-Continue or resume existing work based on the type of argument provided.
+Switch to a branch or show current status.
 
-### Step 0: Determine Entry Point
+### If no arguments provided
 
-Parse $ARGUMENTS to determine what we're continuing from:
-
-1. **--continue**: Continue from last commit on current branch
-   Run: !`git log -1 --format="%H %s"`
-   Show what was being worked on
-
-2. **PR#number**: Resume work from a Pull Request
-   Run: !`gh pr checkout $ARGUMENTS`
-   This will checkout the PR's branch locally
-
-3. **#number**: Resume work on issue's branch
-   Run: !`git branch -a | grep "$ARGUMENTS-" | head -1`
-   If branch found, checkout that branch
-   If not found, tell user to use /work #number to start
-
-4. **Commit SHA**: Checkout specific commit
-   Run: !`git checkout $ARGUMENTS`
-   
-5. **Branch name** (default): Checkout branch
-   Run: !`git checkout $ARGUMENTS`
-
-### Step 1: Check for uncommitted changes
-
-First check: !`git status --short | grep -v work-journal.json`
-
-If there are changes shown (excluding work-journal.json), stash them:
-Run: !`git stash push -m "WIP: Stashed before switching branches" -- . ':!.claude/work-journal.json'`
-
-Note: The work-journal.json is excluded from stashing to preserve the work history.
-
-### Step 2: Check for worktrees
-
-Check if branch is in a worktree: !`git worktree list --porcelain | grep "branch refs/heads/$ARGUMENTS" | head -1`
-
-If the branch exists in a worktree:
-- Get the worktree path from the output
-- Tell user: "⚠️ Branch '$ARGUMENTS' is already checked out in worktree at: [path]"
-- Provide options:
-  1. Navigate to that worktree: `cd [worktree path]`
-  2. Work on a different branch: `/wip [different-name]`
-- STOP HERE - don't try to checkout
-
-### Step 3: Handle based on arguments
-
-**If $ARGUMENTS is empty (user just typed /wip):**
-1. ASK THE USER: "What are you working on? (e.g., 'fix commands', 'update docs')"
-2. Wait for their response
-3. Convert response to branch name (lowercase, replace spaces with hyphens)
-4. If no response, use "general-fixes" as branch name
-5. Check if this branch is in a worktree first (see Step 2)
-6. ASK: "Do you want to create this as a worktree? (y/n)"
-   - Explain: "Worktrees let you work on multiple branches simultaneously in different directories"
-7. If YES to worktree:
-   - Create worktree: `git worktree add ../worktrees/[branch-name] -b [branch-name]`
-   - Tell user: "📁 Created worktree at: ../worktrees/[branch-name]"
-   - Tell user: "Navigate there with: cd ../worktrees/[branch-name]"
-8. If NO to worktree:
-   - Create the new branch with git checkout -b [branch-name]
-9. Push to GitHub with git push -u origin HEAD
-10. Add to TodoWrite: "WIP: [branch-name] - [description] [worktree]" (mark if worktree)
-
-**If $ARGUMENTS has a value (user typed /wip branch-name):**
-1. Check for worktree first (see Step 2)
-2. First try to checkout existing branch with: git checkout $ARGUMENTS
-3. If that succeeds:
-   - Pull latest: git pull origin $ARGUMENTS
-   - Say: "Resumed work on branch: $ARGUMENTS"
-4. If checkout fails (branch doesn't exist):
-   - ASK: "Branch '$ARGUMENTS' doesn't exist. Create as worktree? (y/n)"
-   - If YES to worktree:
-     - Create worktree: `git worktree add ../worktrees/$ARGUMENTS -b $ARGUMENTS`
-     - Tell user: "📁 Created worktree at: ../worktrees/$ARGUMENTS"
-     - Tell user: "Navigate there with: cd ../worktrees/$ARGUMENTS"
-   - If NO to worktree:
-     - Create new branch: git checkout -b $ARGUMENTS
-   - Push to GitHub: git push -u origin HEAD
-   - Say: "Created new branch: $ARGUMENTS"
-5. Update TodoWrite to mark this branch as "in_progress"
-
-### Step 3: Track with TodoWrite PERSISTENTLY
-
-**IMPORTANT: Use TodoWrite to maintain a persistent list of WIP items**
-
-Track based on what we're continuing:
-
-**For Issue-based work (#123):**
-- Add/update todo: "Issue #123: [issue title] - continuing"
-- Status: "in_progress"
-- Include issue number for tracking
-
-**For Commit-based work (SHA):**
-- Add todo: "WIP from commit: [commit message]"
-- Status: "in_progress"
-- Include first 7 chars of SHA
-
-**For Branch-based work:**
-- Add/update todo: "WIP: [branch name] - [description]"
-- Status: "in_progress"
-- Mark if in worktree
-
-**For --continue:**
-- Update existing todo for current branch
-- Add note: "Continued at [timestamp]"
-
-All WIP todos persist until the work is merged or explicitly completed.
-- Mark it as "in_progress" (others might be "pending")
-- This helps track all active WIP branches
-
-The TodoWrite list becomes your WIP dashboard showing:
-- All branches you're working on
-- Which one is currently active (in_progress)
-- Which are paused (pending)
-
-### Step 4: Show relevant info
+Show current status:
+Run: !git branch --show-current
+Run: !git status --short
 
 Tell user:
 - Current branch name
-- Whether it was created new or resumed
-- "Commit and push: git add -A && git commit -m 'wip: message' && git push"
-- "Create PR when ready: gh pr create --fill"
+- Number of uncommitted files
+- Use `/wip-status` to see all branches
+- Use `/wip branch-name` to switch branches
 
-### Step 5: When work is complete
+### If arguments provided (branch name)
 
-When user is done with a WIP branch, they have options:
+First, check current status:
+Run: !git status --short
 
-**Option A: Convert to PR (most common)**
-- Run: `gh pr create --fill`
-- This creates a PR from the WIP branch
-- Update TodoWrite: Mark the WIP todo as "completed"
-- The branch lives on in the PR
+If there are uncommitted changes:
+Run: !git stash push -m "WIP: Saved work from $(git branch --show-current)"
+Tell user: "Stashed changes from current branch"
 
-**Option B: Merge directly (for tiny fixes)**
-- Merge to main locally
-- Push main
-- Delete the WIP branch
-- Update TodoWrite: Mark as "completed"
+Try to checkout the branch:
+Run: !git checkout $ARGUMENTS
 
-**Option C: Abandon the work**
-- Delete branch locally and on GitHub
-- Update TodoWrite: Remove the todo or mark as "completed" with note
+If checkout succeeds:
+- Run: !git pull origin $ARGUMENTS --no-rebase 2>/dev/null || true
+- Tell user: "Switched to branch: $ARGUMENTS"
 
-The TodoWrite list helps track which WIP branches are still active vs done.
+If checkout fails (branch doesn't exist):
+- Run: !git checkout -b $ARGUMENTS
+- Run: !git push -u origin $ARGUMENTS
+- Tell user: "Created new branch: $ARGUMENTS"
+
+Show final status:
+Run: !git status --short
