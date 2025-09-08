@@ -270,11 +270,23 @@ Use mcp__github__get_issue_comments with owner/repo/issue_number to get:
 - Design decisions and context
 - Links to related issues or PRs
 
+**Extract inline quotes and code blocks:**
+Parse the issue body and comments for:
+- Quoted text blocks (lines starting with `>`) - Often contain important context
+- Code blocks (```) - May contain examples or implementation hints
+- Inline code (`backticks`) - Specific function/variable names to use
+- Blockquotes with citations - References to documentation or specs
+
 **Parse all context together:**
 - Combine issue body + all comments for full understanding
 - Look for updates to requirements in comments
 - Check for any design decisions or constraints mentioned
 - Note any related work or dependencies mentioned in comments
+- **IMPORTANT: Pay special attention to quoted sections** - They often contain:
+  - User feedback that needs addressing
+  - Error messages to fix
+  - Specific requirements from stakeholders
+  - Examples of expected behavior
 
 ### Step 9: Create GitHub-Linked Branch (If No Worktree Exists)
 
