@@ -63,3 +63,20 @@
 - name: "dependencies"
   color: "0366d6"
   description: "Pull requests that update a dependency file"
+
+# Working State Labels (used by workflows)
+- name: "state: stable"
+  color: "2ea043"
+  description: "Working state: STABLE"
+
+- name: "state: working"
+  color: "f2cc60"
+  description: "Working state: WORKING"
+
+- name: "state: wip"
+  color: "fbca04"
+  description: "Working state: WIP (draft/in progress)"
+
+- name: "state: hotfix"
+  color: "d73a49"
+  description: "Working state: HOTFIX"

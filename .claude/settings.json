@@ -39,6 +39,17 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "TodoWrite",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/gotime2022/Projects/multi-agent-claude-code/.claude/hooks/TodoWrite-post.sh"
+          }
+        ]
+      }
     ]
   }
 }

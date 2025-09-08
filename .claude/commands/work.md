@@ -1,7 +1,7 @@
 ---
 allowed-tools: Task(*), mcp__github(*), Bash(*), Read(*), Write(*), Edit(*), TodoWrite(*)
 description: Intelligently selects and implements work based on sprint priorities and dependencies
-argument-hint: [#issue-number] | --status | --resume | --deploy | --discussion #num | --copilot-first | --copilot-review | --copilot-only | --no-copilot | --parallel
+argument-hint: [#issue-number | branch-name | commit-sha] | --status | --resume | --deploy | --continue | --from-commit
 ---
 
 # Work - Intelligent Implementation Command
@@ -27,6 +27,9 @@ KEY DIFFERENCES FROM /wip:
 EXAMPLES:
 /work #123              - Work on specific issue
 /work                   - Auto-pick next priority
+/work feature-branch    - Continue work on existing branch
+/work abc123def         - Continue from specific commit
+/work --continue        - Resume from last commit on current branch
 /work --status          - See all active work
 /work --copilot-first   - Try Copilot, fallback to Claude
 -->
@@ -69,24 +72,32 @@ For detailed flag documentation, see: FLAGS.md
 ```
 
 ## Context
-- Current branch: !`git branch --show-current`
-- Sprint issues: !`gh issue list --label "sprint:current" --state open --json number,title,labels`
-- Blocked issues: !`gh issue list --label "blocked" --state open --json number,title`
-- In progress: !`gh issue list --label "status:in-progress" --state open --json number,title,assignees`
+The command should check:
+- Current branch using git commands
+- Sprint issues using GitHub CLI 
+- Blocked issues using GitHub API
+- In progress issues using GitHub API
 
 ## Your Task
 
 When user runs `/work $ARGUMENTS`, intelligently select and implement work.
+
+### Argument Processing
+
+Parse the provided arguments to extract:
+- Issue numbers (extract digits, can have # prefix)
+- Flags like --deploy, --status, --resume, etc.
+- Store issue number in ISSUE_NUM variable if found
 
 ### Step 0: 🔴 ENFORCE WORKFLOW - MUST BE ON MAIN WITH LATEST
 
 **CRITICAL: Before doing ANYTHING else, check branch and sync status:**
 
 Use the Bash tool to verify you're on main with latest changes:
-- Check current branch: !`git branch --show-current`
-- If not on main, STOP and tell user to: `git checkout main && git pull origin main`
-- Fetch and compare: !`git fetch origin main && git rev-parse main` vs !`git rev-parse origin/main`
-- If behind, auto-pull: !`git pull origin main`
+- Check current branch with: git branch --show-current
+- If not on main, STOP and tell user to: git checkout main && git pull origin main
+- Fetch and compare with: git fetch origin main
+- If behind, auto-pull with: git pull origin main
 
 **DO NOT PROCEED if not on main with latest changes!**
 
@@ -99,7 +110,14 @@ Parse `$ARGUMENTS` to extract any flags and issue numbers. Look for:
 - `--status` flag to show work triage
 - Issue numbers (with or without # prefix)
 
-Store these in variables for later use.
+**Extract issue number from arguments:**
+Use command substitution to extract issue numbers from the arguments.
+
+If arguments contain an issue number, extract and store it for use.
+
+Store these variables for later use:
+- `ISSUE_NUM` - Issue number to work on (if provided)
+- Flags can be checked with `echo "$ARGUMENTS" | grep -q -- "--flag-name"`
 
 **Determine Action Priority:**
 - If `--status` flag → Show work triage view (see Step 1.5)
@@ -185,8 +203,7 @@ If no issue number was provided and no discussion referenced, select one:
 
 **NOW check if a worktree or branch already exists for `ISSUE_NUM`:**
 
-Check for existing worktree:
-!`git worktree list | grep -E "issue-$ISSUE_NUM|$ISSUE_NUM-" | head -1`
+Check for existing worktree using git worktree list to look for branches matching the issue number.
 
 **If worktree exists for the issue:**
 - Parse the worktree path from the output
@@ -196,7 +213,7 @@ Check for existing worktree:
 - If no: Ask if they want to remove it and start fresh
 
 **If no worktree but branch exists:**
-- Check: !`git branch -a | grep -E "$ISSUE_NUM-" | head -1`
+- Check for existing branches matching the issue number
 - If branch exists locally: Switch to it
 - If branch exists remotely: Check it out locally
 
@@ -240,12 +257,39 @@ Before starting work, use mcp__github__get_issue to verify:
 
 ### Step 8: Get Complete Issue Context
 
-Use mcp__github__get_issue to retrieve:
+Use mcp__github APIs to retrieve complete context:
+
+**Get issue details:**
+Use mcp__github__get_issue with owner/repo/issue_number to get:
 - Title and full description
 - All labels (type, priority, size, complexity)
-- Current state and assignees
+- Current state and assignees  
 - Implementation checklist from body
-- Comments for additional context
+
+**Get issue comments for additional context:**
+Use mcp__github__get_issue_comments with owner/repo/issue_number to get:
+- All comments from team members
+- Additional requirements or clarifications
+- Design decisions and context
+- Links to related issues or PRs
+
+**Extract inline quotes and code blocks:**
+Parse the issue body and comments for:
+- Quoted text blocks (lines starting with `>`) - Often contain important context
+- Code blocks (```) - May contain examples or implementation hints
+- Inline code (`backticks`) - Specific function/variable names to use
+- Blockquotes with citations - References to documentation or specs
+
+**Parse all context together:**
+- Combine issue body + all comments for full understanding
+- Look for updates to requirements in comments
+- Check for any design decisions or constraints mentioned
+- Note any related work or dependencies mentioned in comments
+- **IMPORTANT: Pay special attention to quoted sections** - They often contain:
+  - User feedback that needs addressing
+  - Error messages to fix
+  - Specific requirements from stakeholders
+  - Examples of expected behavior
 
 ### Step 9: Create GitHub-Linked Branch (If No Worktree Exists)
 
@@ -253,7 +297,7 @@ Use mcp__github__get_issue to retrieve:
 
 If no existing worktree was found in Step 4:
 
-!`gh issue develop $ISSUE_NUM --checkout`
+Use the GitHub CLI command: gh issue develop $ISSUE_NUM --checkout
 
 This command:
 - Creates the branch ON GitHub first (properly linked to issue)
@@ -261,8 +305,7 @@ This command:
 - Shows up in the issue's Development section
 - Ensures proper GitHub tracking
 
-Get the created branch name:
-!`git branch --show-current`
+Get the created branch name using: git branch --show-current
 
 **Important:** The branch name will be something like `123-feature-description` based on the issue.
 
@@ -273,7 +316,7 @@ Get the created branch name:
 **Only if user needs to work on multiple issues simultaneously:**
 
 Check if worktrees are needed:
-- Check existing worktrees: !`git worktree list`
+- Check existing worktrees using: git worktree list
 - If already working on another issue, offer worktree option
 
 **If parallel work is needed:**
@@ -285,11 +328,11 @@ Ask user: "You're working on issue #[OTHER_ISSUE]. Would you like to:
 Choose (1/2/3):"
 
 **If user chooses worktree (option 1):**
-- Get current branch: !`git branch --show-current`
-- Create worktree path: `../worktrees/issue-$ISSUE_NUM`
-- Create worktree: !`git worktree add "$WORKTREE_PATH" "$BRANCH_NAME"`
-- Inform user: "Created worktree at $WORKTREE_PATH"
-- Instruct: "Run: cd $WORKTREE_PATH to continue work there"
+- Get current branch using: git branch --show-current
+- Create worktree path: ../worktrees/issue-$ISSUE_NUM
+- Create worktree using: git worktree add [path] [branch]
+- Inform user: "Created worktree at [path]"
+- Instruct: "Run: cd [path] to continue work there"
 
 **Note:** Worktrees are secondary - branch creation via `gh issue develop` is primary!
 
@@ -298,9 +341,9 @@ Choose (1/2/3):"
 **CRITICAL: Set up automatic issue references in commits**
 
 Set up git commit template for this branch:
-- Extract issue number: !`echo $BRANCH_NAME | grep -oP '^\d+'`
-- Create template: !`echo -e "\n\nRelated to #$ISSUE_NUM" > .gitmessage`
-- Set template: !`git config commit.template .gitmessage`
+- Extract issue number from branch name
+- Create template file with issue reference
+- Configure git to use the template
 
 Remind user that ALL commits must reference the issue for GitHub timeline tracking.
 
@@ -333,12 +376,11 @@ Use mcp__github APIs:
 
 **After making your first meaningful commit:**
 
-1. Push the branch with first commit:
-   !`git push -u origin $BRANCH_NAME`
+1. Push the branch with first commit using: git push -u origin [branch-name]
 
 2. Create draft PR to trigger automation:
-   - Get issue title first: !`ISSUE_TITLE=$(gh issue view $ISSUE_NUM --json title --jq .title)`
-   - Create draft PR: !`gh pr create --title "[DRAFT] Issue #$ISSUE_NUM: $ISSUE_TITLE" --body "## Working on Issue #$ISSUE_NUM
+   - Get issue title using GitHub CLI
+   - Create draft PR with appropriate title and body linking to the issue
 
 **Closes #$ISSUE_NUM**
 
@@ -353,8 +395,7 @@ Work in progress - checkboxes will be validated by automation
 - [ ] Linting passing
 - [ ] Ready for review" --draft --base main`
 
-3. Get PR number for reference:
-   !`gh pr list --head $BRANCH_NAME --json number --jq .[0].number`
+3. Get PR number for reference using GitHub CLI to list PRs for the branch
 
 This draft PR:
 - Triggers checkbox validation on real code
@@ -429,17 +470,29 @@ Example commit formats:
 
 ### Step 16: Run Tests and Validation
 
-Before marking work complete:
-!`npm test` or !`pytest` depending on project
-!`npm run lint` or appropriate linter
-!`npm run typecheck` if TypeScript project
+Before marking work complete, check what's available and run if exists:
+
+**Check for Node.js project:**
+- Check if package.json exists
+- If Node project, run available scripts:
+  - Test script if available: npm test
+  - Lint script if available: npm run lint
+  - TypeCheck script if available: npm run typecheck
+
+**Check for Python project:**
+- Check for pytest availability and run if found
+- Check for flake8 availability and run if found
+
+**If no testing infrastructure exists:**
+- Note: "No test infrastructure detected - proceeding without tests"
+- This is common for template repositories or new projects
 
 ### Step 17: Convert Draft PR to Ready
 
 **When all checkboxes are complete and tests pass:**
 
-1. Push final changes: !`git push`
-2. Convert draft to ready: !`gh pr ready $PR_NUMBER`
+1. Push final changes using: git push
+2. Convert draft to ready using: gh pr ready [PR_NUMBER]
 3. The PR is now ready for review/merge
 4. Automation may auto-merge if all checks pass
 
@@ -448,10 +501,10 @@ Before marking work complete:
 ### Step 18: Clean Up After Merge
 
 When PR is merged (by automation or manually):
-1. Checkout main: !`git checkout main`
-2. Pull latest: !`git pull origin main`
-3. Delete local branch: !`git branch -d $BRANCH_NAME`
-4. If using worktree, remove it: !`git worktree remove ../worktrees/issue-$ISSUE_NUM-*`
+1. Checkout main using: git checkout main
+2. Pull latest using: git pull origin main
+3. Delete local branch using: git branch -d [branch_name]
+4. If using worktree, remove it using: git worktree remove [worktree_path]
 
 ### Step 19: Update Dependencies
 
@@ -463,7 +516,7 @@ Check if this unblocks other issues:
 ## Special Actions
 
 ### Deploy (--deploy)
-!`vercel --prod`
+Use vercel --prod to deploy to production
 
 ## Examples
 
