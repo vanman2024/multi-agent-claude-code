@@ -95,7 +95,34 @@ If not on main or not up to date, STOP and tell the user to:
 
 **DO NOT PROCEED if not on main with latest changes!**
 
-### Step 1: Check for Existing Similar Issues
+### Step 1: Check if Creating Sub-Issue
+
+First, determine if this is a sub-issue for an existing parent:
+
+```bash
+echo "Are you creating a sub-issue for an existing issue? (y/n)"
+```
+
+If yes:
+- Ask for parent issue number
+- Skip to simplified creation (no complexity/size questions)
+- After creation, link using GraphQL mutation:
+  ```graphql
+  mutation {
+    addSubIssue(input: {
+      issueId: "PARENT_NODE_ID"
+      subIssueId: "SUB_NODE_ID"
+    }) {
+      issue { number }
+    }
+  }
+  ```
+- Add to TodoWrite: "Issue #XXX: [Sub-issue title]"
+- Skip all other steps and finish
+
+If no, continue with regular issue creation...
+
+### Step 2: Check for Existing Similar Issues
 
 Before creating a new issue, check if similar work is already tracked:
 
@@ -113,7 +140,7 @@ echo "   If no, proceed to create a new issue."
 
 If a similar issue exists, suggest using `/work #[existing-issue]` instead.
 
-### Step 2: Determine Issue Type
+### Step 3: Determine Issue Type
 
 Ask the user:
 ```
@@ -137,7 +164,7 @@ Also ask for:
   - L: 3-5 days
   - XL: > 1 week
 
-### Step 3: Load Appropriate Template
+### Step 4: Load Appropriate Template
 
 Based on the type, read the template:
 - feature → Read templates/local_dev/feature-template.md
@@ -145,7 +172,7 @@ Based on the type, read the template:
 - bug → Read templates/local_dev/bug-template.md
 - task/refactor → Read templates/local_dev/task-template.md
 
-### Step 4: Fill Template
+### Step 5: Fill Template
 
 Using the template structure:
 1. Replace placeholders with actual content
@@ -167,7 +194,7 @@ Using the template structure:
 4. Include acceptance criteria
 5. Add testing requirements section
 
-### Step 5: Create GitHub Issue
+### Step 6: Create GitHub Issue
 
 Use mcp__github__create_issue with:
 - owner: from repository context
@@ -176,7 +203,45 @@ Use mcp__github__create_issue with:
 - body: filled template with metadata section + testing requirements
 - labels: [issue-type] (ONLY the type: bug, feature, enhancement, refactor, task)
 
-### Step 6: Check Dependencies
+Store the created issue number for potential sub-issue creation.
+
+### Step 7: Create Sub-Issues (if needed for main issue)
+
+After creating the main issue (if not already a sub-issue), ask if it should be broken into sub-issues:
+
+```bash
+echo "Would you like to break this issue into sub-issues? (y/n)"
+```
+
+If yes, for complex features or enhancements, suggest natural sub-issues:
+- **Feature**: Design, Implementation, Tests, Documentation
+- **Bug**: Reproduce, Fix root cause, Add tests, Verify fix
+- **Enhancement**: Research, Implement, Validate, Document
+
+For each sub-issue:
+1. Create using mcp__github__create_issue
+2. Get the parent and sub-issue node IDs using GraphQL:
+   ```graphql
+   query {
+     repository(owner: "vanman2024", name: "multi-agent-claude-code") {
+       issue(number: ISSUE_NUMBER) { id }
+     }
+   }
+   ```
+3. Link as sub-issue using GraphQL mutation:
+   ```graphql
+   mutation {
+     addSubIssue(input: {
+       issueId: "PARENT_NODE_ID"
+       subIssueId: "SUB_NODE_ID"
+     }) {
+       issue { number }
+     }
+   }
+   ```
+4. Add to TodoWrite: "Issue #XXX: [Sub-issue title]"
+
+### Step 8: Check Dependencies
 
 **NOTE: Branch creation happens when work starts (via `/work` command), not during issue creation**
 
@@ -189,7 +254,7 @@ echo "Does this issue depend on any other issues? (y/n)"
 # Note: We don't use labels for dependencies, just track in issue body
 ```
 
-### Step 8: Agent Assignment
+### Step 9: Agent Assignment
 
 **IMMEDIATE Copilot Auto-Assignment for Simple Tasks:**
 
@@ -331,7 +396,7 @@ function getTaskInstructions(taskType) {
 }
 ```
 
-### Step 9: Milestone Assignment (Optional)
+### Step 10: Milestone Assignment (Optional)
 
 Ask user if they want to assign a milestone:
 ```bash
@@ -353,7 +418,7 @@ else
 fi
 ```
 
-### Step 10: Sprint Assignment (Optional)
+### Step 11: Sprint Assignment (Optional)
 
 ```bash
 # Sprint tracking happens via GitHub Projects, not labels
@@ -361,12 +426,12 @@ fi
 echo "Issue will be tracked in the project board automatically"
 ```
 
-### Step 11: Priority Setting
+### Step 12: Priority Setting
 
 Ask for priority (P0/P1/P2/P3) and add it to the metadata section in issue body.
 DO NOT add priority as a label - it's tracked in the metadata and project board fields.
 
-### Step 12: Summary
+### Step 13: Summary
 
 Provide the user with:
 ```bash

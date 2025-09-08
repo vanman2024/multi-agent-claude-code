@@ -1,7 +1,7 @@
 ---
 allowed-tools: Task(*), mcp__github(*), Bash(*), Read(*), Write(*), Edit(*), TodoWrite(*)
 description: Intelligently selects and implements work based on sprint priorities and dependencies
-argument-hint: [#issue-number] | --status | --resume | --deploy | --discussion #num | --copilot-first | --copilot-review | --copilot-only | --no-copilot | --parallel
+argument-hint: [#issue-number | branch-name | commit-sha] | --status | --resume | --deploy | --continue | --from-commit
 ---
 
 # Work - Intelligent Implementation Command
@@ -27,6 +27,9 @@ KEY DIFFERENCES FROM /wip:
 EXAMPLES:
 /work #123              - Work on specific issue
 /work                   - Auto-pick next priority
+/work feature-branch    - Continue work on existing branch
+/work abc123def         - Continue from specific commit
+/work --continue        - Resume from last commit on current branch
 /work --status          - See all active work
 /work --copilot-first   - Try Copilot, fallback to Claude
 -->
