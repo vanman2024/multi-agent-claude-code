@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT || 8080;
 const CLAUDE_TODOS_DIR = path.join(process.env.HOME, '.claude/todos');
 const PROJECT_PATH = path.dirname(__dirname); // Get parent directory (project root)
 

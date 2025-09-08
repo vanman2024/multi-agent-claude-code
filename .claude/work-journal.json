@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T17:14:24Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 1,
+      "last_commit": "52bd87d [STABLE] feat: Add auto-reload server and improve worktree workflow"
+    },
+    {
       "timestamp": "2025-09-08T17:11:20Z",
       "branch": "main",
       "uncommitted": 3,
@@ -702,13 +709,6 @@
       "uncommitted": 2,
       "unpushed": 2,
       "last_commit": "3853dac enhance: Add issue comments reading to /work command"
-    },
-    {
-      "timestamp": "2025-09-07T21:36:14Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 1,
-      "last_commit": "5a73424 fix: Add missing argument parsing in /work command"
     }
   ]
 }
