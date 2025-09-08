@@ -159,24 +159,6 @@ claude
 
 ---
 
-## 📊 Todo Dashboard & Work Tracking
-
-### Real-time Development Dashboard
-
-The framework includes a powerful **web-based Todo Dashboard** that visualizes all Claude Code TodoWrite tasks and tracks your work history across sessions.
-
-### 🎯 Todo Dashboard Features
-
-- **🌐 Web Interface**: Beautiful dashboard at `http://localhost:8080`
-- **📁 Project Filtering**: View todos by project or see all tasks
-- **📈 Live Statistics**: Track completed, in-progress, and pending tasks
-- **🔄 Auto-refresh**: Updates every 5 seconds as you work
-- **🔍 Search & Filter**: Find tasks quickly with search and status filters
-- **📂 Multi-project Support**: Manages todos across all your projects
-- **✅ Session Auto-Registration**: TodoWrite sessions automatically linked to projects
-- **🔧 Fixed Persistence**: Accurate todo counts across dashboard and CLI
-- **📊 Full History**: CLI viewer now shows ALL sessions (not limited to 50)
-- **🪝 Auto-sync Hooks**: PostToolUse hook ensures todos always persist
 
 ### 📝 Work Journal System
 
@@ -187,28 +169,6 @@ The framework includes a powerful **web-based Todo Dashboard** that visualizes a
 - **History preservation**: Keeps last 100 entries for work patterns
 - **Located at**: `.claude/work-journal.json`
 
-### Starting the Dashboard
-
-```bash
-# Navigate to todo-viewer directory
-cd todo-viewer
-
-# Start the server
-node server-simple.js
-
-# Open in browser
-# http://localhost:8080
-```
-
-### Dashboard Views
-
-- **All Projects**: See all todos across every project
-- **Project-specific**: Filter to see only current project tasks  
-- **Status filters**: View by Completed, In Progress, or Pending
-- **Session grouping**: Todos organized by work sessions
-- **Work History**: Journal tracks all git activity
-
-### How It Works
 
 1. **Automatic Tracking**: TodoWrite usage tracked automatically
 2. **Project Mapping**: Links todos to projects via session IDs
@@ -270,7 +230,6 @@ your-project/
 │   ├── agents/            # Specialized sub-agents
 │   ├── hooks/             # Auto-sync & testing
 │   └── scripts/           # Project management scripts
-├── 📊 todo-viewer/        # Todo Dashboard web app
 │   ├── index.html         # Dashboard UI
 │   ├── app.js             # Frontend logic
 │   ├── server-simple.js   # Node.js server
