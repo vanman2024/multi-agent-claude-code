@@ -1,6 +1,55 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T04:47:17Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "36f15c6 fix: Reopen Issue #156 - worktree sync still needed"
+    },
+    {
+      "timestamp": "2025-09-08T04:43:08Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "36f15c6 fix: Reopen Issue #156 - worktree sync still needed"
+    },
+    {
+      "timestamp": "2025-09-08T04:39:37Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "36f15c6 fix: Reopen Issue #156 - worktree sync still needed"
+    },
+    {
+      "timestamp": "2025-09-08T04:37:29Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "36f15c6 fix: Reopen Issue #156 - worktree sync still needed"
+    },
+    {
+      "timestamp": "2025-09-08T04:37:27Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "36f15c6 fix: Reopen Issue #156 - worktree sync still needed"
+    },
+    {
+      "timestamp": "2025-09-08T04:36:06Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "36f15c6 fix: Reopen Issue #156 - worktree sync still needed"
+    },
+    {
+      "timestamp": "2025-09-08T04:34:51Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "36f15c6 fix: Reopen Issue #156 - worktree sync still needed"
+    },
+    {
       "timestamp": "2025-09-08T04:28:31Z",
       "branch": "main",
       "uncommitted": 0,
@@ -661,55 +710,6 @@
       "uncommitted": 4,
       "unpushed": 0,
       "last_commit": "a546b2a feat: Add todo viewer web dashboard with project filtering"
-    },
-    {
-      "timestamp": "2025-09-07T20:56:37Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "a546b2a feat: Add todo viewer web dashboard with project filtering"
-    },
-    {
-      "timestamp": "2025-09-07T20:55:06Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "a546b2a feat: Add todo viewer web dashboard with project filtering"
-    },
-    {
-      "timestamp": "2025-09-07T20:52:06Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "a546b2a feat: Add todo viewer web dashboard with project filtering"
-    },
-    {
-      "timestamp": "2025-09-07T20:50:55Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "a546b2a feat: Add todo viewer web dashboard with project filtering"
-    },
-    {
-      "timestamp": "2025-09-07T20:45:34Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "a546b2a feat: Add todo viewer web dashboard with project filtering"
-    },
-    {
-      "timestamp": "2025-09-07T20:40:56Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "a546b2a feat: Add todo viewer web dashboard with project filtering"
-    },
-    {
-      "timestamp": "2025-09-07T20:39:10Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
     }
   ]
 }
