@@ -228,12 +228,7 @@ your-project/
 │   │   ├── deploy.md
 │   │   └── copilot-review.md
 │   ├── agents/            # Specialized sub-agents
-│   ├── hooks/             # Auto-sync & testing
-│   └── scripts/           # Project management scripts
-│   ├── index.html         # Dashboard UI
-│   ├── app.js             # Frontend logic
-│   ├── server-simple.js   # Node.js server
-│   └── server.js          # Alternative server
+│   └── hooks/             # Auto-sync & testing
 ├── 📚 docs/               # All documentation
 ├── 📖 Core Files
 │   ├── README.md          # This file
