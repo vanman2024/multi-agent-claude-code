@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T04:16:31Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "076bde2 fix: Update /wip command to support PRs and simplify logic"
+    },
+    {
       "timestamp": "2025-09-08T04:13:12Z",
       "branch": "main",
       "uncommitted": 0,
@@ -699,13 +706,6 @@
     },
     {
       "timestamp": "2025-09-07T20:27:24Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T20:22:05Z",
       "branch": "main",
       "uncommitted": 8,
       "unpushed": 4,
