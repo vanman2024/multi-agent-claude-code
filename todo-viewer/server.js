@@ -17,17 +17,60 @@ const mimeTypes = {
     '.json': 'application/json'
 };
 
-// Function to get ALL todos for this project across all sessions
-function getTodos() {
+// Get all available projects dynamically from .claude/projects
+function getAllProjects() {
     try {
-        // Try using the project-todos-table script which gives us clean data
+        const projectsDir = path.join(process.env.HOME, '.claude/projects');
+        if (!fs.existsSync(projectsDir)) {
+            return [];
+        }
+        
+        const projects = fs.readdirSync(projectsDir)
+            .filter(dir => fs.statSync(path.join(projectsDir, dir)).isDirectory())
+            .map(dir => {
+                // Convert directory name back to path
+                // Directory format: -home-gotime2022-Projects-multi-agent-claude-code
+                // Only replace hyphens that represent path separators
+                let projectPath = dir;
+                if (projectPath.startsWith('-')) {
+                    projectPath = projectPath.substring(1); // Remove leading dash
+                }
+                // Split on -Projects- to handle the path structure correctly
+                if (projectPath.includes('-Projects-')) {
+                    const parts = projectPath.split('-Projects-');
+                    projectPath = '/' + parts[0].replace(/-/g, '/') + '/Projects/' + parts[1];
+                } else {
+                    // For paths not in Projects folder
+                    projectPath = '/' + projectPath.replace(/-/g, '/');
+                }
+                
+                const projectName = path.basename(projectPath);
+                return {
+                    name: projectName,
+                    path: projectPath
+                };
+            });
+        
+        return projects;
+    } catch (error) {
+        console.error('Error reading projects:', error);
+        return [];
+    }
+}
+
+// Function to get ALL todos for this project across all sessions
+function getTodos(projectPath = null) {
+    try {
+        const targetPath = projectPath || PROJECT_PATH;
+        // Always use the script from main project but run it IN the target directory
         const tableScriptPath = path.join(PROJECT_PATH, '.claude/scripts/project-todos-table.sh');
         if (fs.existsSync(tableScriptPath)) {
             // Get raw JSON data from the table script
-            const rawData = execSync(`bash "${tableScriptPath}" json 2>/dev/null || echo '{}'`, {
+            const rawData = execSync(`/usr/bin/bash "${tableScriptPath}" json 2>/dev/null || echo '{"todos":[],"sessions":0}'`, {
                 encoding: 'utf-8',
-                cwd: PROJECT_PATH,
-                maxBuffer: 1024 * 1024 * 10 // 10MB buffer for large todo lists
+                cwd: targetPath,
+                maxBuffer: 1024 * 1024 * 10, // 10MB buffer for large todo lists
+                shell: '/usr/bin/bash'
             });
             
             try {
@@ -161,13 +204,29 @@ function getAllProjectTodos() {
 const server = http.createServer((req, res) => {
     console.log(`${req.method} ${req.url}`);
 
-    if (req.url === '/api/todos') {
-        // API endpoint for todos
+    if (req.url.startsWith('/api/todos')) {
+        // Parse query parameters
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const projectPath = url.searchParams.get('project');
+        
+        // API endpoint for todos with project list
+        const todosData = getTodos(projectPath);
+        const response = {
+            ...todosData,
+            availableProjects: getAllProjects()
+        };
         res.writeHead(200, { 
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
         });
-        res.end(JSON.stringify(getTodos()));
+        res.end(JSON.stringify(response));
+    } else if (req.url === '/api/projects') {
+        // API endpoint for projects list
+        res.writeHead(200, { 
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify(getAllProjects()));
     } else if (req.url === '/' || req.url === '/index.html') {
         // Serve index.html
         const filePath = path.join(__dirname, 'index.html');
