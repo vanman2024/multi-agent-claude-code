@@ -109,25 +109,41 @@ cd ../worktrees/ui-frontend
 **Pros**: Parallel development on same feature
 **Cons**: High risk of conflicts, ports issues, confusion
 
-## Port Management for Multiple Instances
+## Port Management Strategy (Simplified!)
 
-### Reserved Port Assignments
+### The Two-Port System
 ```
-8080 - Main branch (production-like)
-8081 - Worktree/Feature 1
-8082 - Worktree/Feature 2
-8083 - Worktree/Feature 3
-3000 - Frontend dev server (main)
-3001 - Frontend dev server (feature 1)
-3002 - Frontend dev server (feature 2)
+8080 - Main branch (ALWAYS)
+8081 - Current worktree (ANY worktree uses this)
 ```
 
-### Automatic Port Selection
+That's it! No more confusion about which port is which.
+
+### How It Works
 ```javascript
 // In server.js
-const BASE_PORT = 8080;
-const BRANCH = process.env.GIT_BRANCH || 'main';
-const PORT = BRANCH === 'main' ? BASE_PORT : BASE_PORT + hashCode(BRANCH) % 20;
+const PORT = process.env.PORT || 8080;  // Main
+// Worktrees automatically get changed to 8081 by safe-worktree.sh
+```
+
+### Multiple Services Example
+```
+Main Frontend:     8080
+Worktree Frontend: 8081
+Main API:          3000  
+Worktree API:      3001
+Main Database:     5432
+Worktree Database: 5433
+```
+
+### Switching Between Worktrees
+```bash
+# Stop worktree A server
+killall -9 node  # Or Ctrl+C in the terminal
+
+# Start worktree B server  
+cd /path/to/worktree-b
+npm run dev:8081  # Always uses 8081
 ```
 
 ## Critical Rules for Multi-Instance Success
