@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(*), TodoWrite(*)
+allowed-tools: Bash(*)
 description: Show status of all WIP branches and current work
 argument-hint: none
 ---
@@ -18,7 +18,7 @@ WHAT IT SHOWS:
 - All worktree branches and their locations
 - All local WIP branches
 - All GitHub WIP branches
-- TodoWrite items for WIP work
+- Stashed work that needs attention
 
 USE THIS TO: Get oriented when you have multiple things going.
 -->
