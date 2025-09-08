@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-08T04:24:41Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "60e6027 docs: Identify todo duplication issue in viewer"
+    },
+    {
       "timestamp": "2025-09-08T04:21:24Z",
       "branch": "main",
       "uncommitted": 1,
@@ -699,13 +706,6 @@
     },
     {
       "timestamp": "2025-09-07T20:36:37Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 4,
-      "last_commit": "a0db15c fix: Update load-context.sh to read new journal format"
-    },
-    {
-      "timestamp": "2025-09-07T20:33:45Z",
       "branch": "main",
       "uncommitted": 8,
       "unpushed": 4,
