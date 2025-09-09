@@ -121,7 +121,36 @@ def parse_checkboxes_from_issue(issue):
     
     return all_checkboxes
 
-def bulk_sync_todos(mode='all'):
+def get_existing_todos():
+    """Get all existing todos from Claude's current TodoWrite state."""
+    # This would need to be passed in from Claude since script can't access TodoWrite
+    # For now, return empty - Claude would pass this in
+    return []
+
+def deduplicate_todos(new_todos, existing_todos):
+    """Smart deduplication to avoid creating duplicates."""
+    # Create a set of existing todo content for comparison
+    existing_content = set()
+    for todo in existing_todos:
+        # Normalize content for comparison (strip whitespace, lowercase)
+        normalized = todo.get('content', '').strip().lower()
+        existing_content.add(normalized)
+    
+    # Filter out duplicates
+    unique_todos = []
+    duplicates = []
+    
+    for todo in new_todos:
+        normalized = todo['content'].strip().lower()
+        if normalized not in existing_content:
+            unique_todos.append(todo)
+            existing_content.add(normalized)  # Prevent duplicates within new todos
+        else:
+            duplicates.append(todo)
+    
+    return unique_todos, duplicates
+
+def bulk_sync_todos(mode='all', existing_todos=None):
     """Sync todos based on mode: all, assigned, or specific issue."""
     
     print("🔄 BULK TODO SYNC FROM GITHUB")
@@ -129,6 +158,9 @@ def bulk_sync_todos(mode='all'):
     
     all_todos = []
     issues_processed = 0
+    
+    if existing_todos is None:
+        existing_todos = []
     
     if mode == 'all':
         print("\n📋 Fetching ALL open issues...")
@@ -199,16 +231,29 @@ def bulk_sync_todos(mode='all'):
             by_issue[issue_num] = []
         by_issue[issue_num].append(todo)
     
-    # Format for TodoWrite (remove extra fields)
+    # Deduplicate against existing todos
+    unique_todos, duplicates = deduplicate_todos(all_todos, existing_todos)
+    
+    print(f"\n🔍 Deduplication Results:")
+    print(f"   📥 New todos from GitHub: {len(all_todos)}")
+    print(f"   🔄 Already in your list: {len(duplicates)}")
+    print(f"   ✨ Unique new todos: {len(unique_todos)}")
+    
+    # Format for TodoWrite (remove extra fields) - only unique ones
     todos_for_claude = []
-    for todo in all_todos:
+    for todo in unique_todos:
         todos_for_claude.append({
             'content': todo['content'],
             'status': todo['status'],
             'activeForm': todo['activeForm']
         })
     
-    print(f"\n📝 Ready to load {len(todos_for_claude)} todos into TodoWrite")
+    if len(unique_todos) == 0:
+        print(f"\n✅ Your todos are already up to date!")
+        print(f"   No new checkboxes found in GitHub issues.")
+        return []
+    
+    print(f"\n📝 Ready to load {len(todos_for_claude)} NEW todos into TodoWrite")
     
     # Show the JSON for direct use with TodoWrite
     print("\n🔧 JSON for TodoWrite (copy this entire block):")

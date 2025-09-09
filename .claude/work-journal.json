@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-09T04:50:56Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "f163910 feat: Add bidirectional todo-GitHub sync"
+    },
+    {
+      "timestamp": "2025-09-09T04:50:53Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "f163910 feat: Add bidirectional todo-GitHub sync"
+    },
+    {
       "timestamp": "2025-09-09T04:48:34Z",
       "branch": "main",
       "uncommitted": 4,
@@ -694,20 +708,6 @@
       "uncommitted": 0,
       "unpushed": 1,
       "last_commit": "52bd87d [STABLE] feat: Add auto-reload server and improve worktree workflow"
-    },
-    {
-      "timestamp": "2025-09-08T17:11:20Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "54d17b5 docs: Update Issue #155 to focus on todo grouping/organization"
-    },
-    {
-      "timestamp": "2025-09-08T17:08:00Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "54d17b5 docs: Update Issue #155 to focus on todo grouping/organization"
     }
   ]
 }
