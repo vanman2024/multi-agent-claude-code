@@ -9,23 +9,34 @@
 ## Task Description
 [What needs to be done]
 
+## Implementation Tasks (THIS PR)
+<!-- Include ALL tasks that will be completed in this PR -->
+- [ ] [Specific task 1]
+- [ ] [Specific task 2]
+- [ ] [Specific task 3]
+- [ ] [Add more as needed]
+
 ## Definition of Done
-- [ ] [Specific deliverable 1]
-- [ ] [Specific deliverable 2]
-- [ ] [Specific deliverable 3]
+<!-- Describe success criteria without checkboxes -->
+- Task achieves its stated goal
+- Code follows project conventions
+- Documentation updated if needed
+- Tests pass if applicable
 
 ## Dependencies
-- [ ] No dependencies
-- [ ] Waiting on: [what]
-- [ ] Blocks: [what]
+<!-- List dependencies without checkboxes -->
+- Waiting on: [describe what if anything]
+- Blocks: [describe what if anything]
+- No dependencies
 
 ## Time Estimate
 [Hours/Days needed]
 
 ## Resources Needed
-- [ ] Documentation: [links]
-- [ ] Access to: [systems/tools]
-- [ ] Input from: [people/teams]
+<!-- List resources without checkboxes -->
+- Documentation: [links]
+- Access to: [systems/tools]
+- Input from: [people/teams]
 
 ## Notes
 [Any additional context or considerations]
