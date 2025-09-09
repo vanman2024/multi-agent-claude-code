@@ -150,11 +150,18 @@ def deduplicate_todos(new_todos, existing_todos):
     
     return unique_todos, duplicates
 
-def bulk_sync_todos(mode='all', existing_todos=None):
-    """Sync todos based on mode: all, assigned, or specific issue."""
+def bulk_sync_todos(mode='all', existing_todos=None, output_json_only=False):
+    """Sync todos based on mode: all, assigned, or specific issue.
     
-    print("🔄 BULK TODO SYNC FROM GITHUB")
-    print("=" * 60)
+    Args:
+        mode: 'all', 'assigned', or issue number
+        existing_todos: List of existing todos for deduplication
+        output_json_only: If True, only output JSON without formatting
+    """
+    
+    if not output_json_only:
+        print("🔄 BULK TODO SYNC FROM GITHUB")
+        print("=" * 60)
     
     all_todos = []
     issues_processed = 0
@@ -163,10 +170,12 @@ def bulk_sync_todos(mode='all', existing_todos=None):
         existing_todos = []
     
     if mode == 'all':
-        print("\n📋 Fetching ALL open issues...")
+        if not output_json_only:
+            print("\n📋 Fetching ALL open issues...")
         issues = get_all_open_issues()
     elif mode == 'assigned':
-        print("\n👤 Fetching issues assigned to you...")
+        if not output_json_only:
+            print("\n👤 Fetching issues assigned to you...")
         result = subprocess.run(
             ['gh', 'issue', 'list', '--assignee', '@me', '--state', 'open', '--json', 'number,title,body,labels'],
             capture_output=True,
@@ -190,28 +199,46 @@ def bulk_sync_todos(mode='all', existing_todos=None):
         if checkboxes:
             issues_processed += 1
             
-            # Count by source
-            body_count = sum(1 for cb in checkboxes if cb.get('source') == 'body')
-            comment_count = sum(1 for cb in checkboxes if cb.get('source') == 'comment')
-            
-            print(f"\n📌 Issue #{issue['number']}: {issue['title']}")
-            print(f"   Found {len(checkboxes)} checkboxes total:")
-            print(f"   📝 From body: {body_count}")
-            if comment_count > 0:
-                print(f"   💬 From comments: {comment_count}")
-            
-            # Show first few items
-            for cb in checkboxes[:3]:
-                status = "✅" if cb['status'] == 'completed' else "⬜"
-                source_indicator = " 💬" if cb.get('source') == 'comment' else ""
-                print(f"   {status} {cb['content'][:60]}...{source_indicator}")
-            
-            if len(checkboxes) > 3:
-                print(f"   ... and {len(checkboxes) - 3} more")
+            if not output_json_only:
+                # Count by source
+                body_count = sum(1 for cb in checkboxes if cb.get('source') == 'body')
+                comment_count = sum(1 for cb in checkboxes if cb.get('source') == 'comment')
+                
+                print(f"\n📌 Issue #{issue['number']}: {issue['title']}")
+                print(f"   Found {len(checkboxes)} checkboxes total:")
+                print(f"   📝 From body: {body_count}")
+                if comment_count > 0:
+                    print(f"   💬 From comments: {comment_count}")
+                
+                # Show first few items
+                for cb in checkboxes[:3]:
+                    status = "✅" if cb['status'] == 'completed' else "⬜"
+                    source_indicator = " 💬" if cb.get('source') == 'comment' else ""
+                    print(f"   {status} {cb['content'][:60]}...{source_indicator}")
+                
+                if len(checkboxes) > 3:
+                    print(f"   ... and {len(checkboxes) - 3} more")
             
             all_todos.extend(checkboxes)
     
-    # Summary and format for TodoWrite
+    # Deduplicate against existing todos
+    unique_todos, duplicates = deduplicate_todos(all_todos, existing_todos)
+    
+    # Format for TodoWrite (remove extra fields) - only unique ones
+    todos_for_claude = []
+    for todo in unique_todos:
+        todos_for_claude.append({
+            'content': todo['content'],
+            'status': todo['status'],
+            'activeForm': todo['activeForm']
+        })
+    
+    # If JSON-only mode, just output the JSON and return
+    if output_json_only:
+        print(json.dumps(todos_for_claude))
+        return todos_for_claude
+    
+    # Otherwise, show detailed summary
     print("\n" + "=" * 60)
     print(f"📊 SYNC SUMMARY")
     print(f"   Issues processed: {issues_processed}")
@@ -223,30 +250,10 @@ def bulk_sync_todos(mode='all', existing_todos=None):
     print(f"   ✅ Completed: {completed}")
     print(f"   ⬜ Pending: {pending}")
     
-    # Group by issue for better organization
-    by_issue = {}
-    for todo in all_todos:
-        issue_num = todo['issue_number']
-        if issue_num not in by_issue:
-            by_issue[issue_num] = []
-        by_issue[issue_num].append(todo)
-    
-    # Deduplicate against existing todos
-    unique_todos, duplicates = deduplicate_todos(all_todos, existing_todos)
-    
     print(f"\n🔍 Deduplication Results:")
     print(f"   📥 New todos from GitHub: {len(all_todos)}")
     print(f"   🔄 Already in your list: {len(duplicates)}")
     print(f"   ✨ Unique new todos: {len(unique_todos)}")
-    
-    # Format for TodoWrite (remove extra fields) - only unique ones
-    todos_for_claude = []
-    for todo in unique_todos:
-        todos_for_claude.append({
-            'content': todo['content'],
-            'status': todo['status'],
-            'activeForm': todo['activeForm']
-        })
     
     if len(unique_todos) == 0:
         print(f"\n✅ Your todos are already up to date!")
@@ -265,16 +272,30 @@ def bulk_sync_todos(mode='all', existing_todos=None):
 
 if __name__ == "__main__":
     import sys
+    import os
+    
+    # Check for environment variable with existing todos (passed from Claude)
+    existing_todos = []
+    if os.environ.get('EXISTING_TODOS'):
+        try:
+            existing_todos = json.loads(os.environ['EXISTING_TODOS'])
+        except:
+            pass
+    
+    # Check for JSON-only mode flag
+    output_json_only = '--json-only' in sys.argv
+    if output_json_only:
+        sys.argv.remove('--json-only')
     
     if len(sys.argv) > 1:
         arg = sys.argv[1]
         if arg == '--all':
-            bulk_sync_todos('all')
+            bulk_sync_todos('all', existing_todos, output_json_only)
         elif arg == '--assigned':
-            bulk_sync_todos('assigned')
+            bulk_sync_todos('assigned', existing_todos, output_json_only)
         else:
             # Assume it's an issue number
-            bulk_sync_todos(arg)
+            bulk_sync_todos(arg, existing_todos, output_json_only)
     else:
         # Default to all open issues
-        bulk_sync_todos('all')
+        bulk_sync_todos('all', existing_todos, output_json_only)

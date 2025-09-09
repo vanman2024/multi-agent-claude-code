@@ -20,19 +20,41 @@
 - OS: [operating system]
 
 ## Severity
-- [ ] 🔴 Critical - System unusable
-- [ ] 🟠 High - Major feature broken
-- [ ] 🟡 Medium - Feature partially working
-- [ ] 🟢 Low - Minor inconvenience
+<!-- Select one -->
+- 🔴 Critical - System unusable
+- 🟠 High - Major feature broken
+- 🟡 Medium - Feature partially working
+- 🟢 Low - Minor inconvenience
 
-## Tasks to Fix
+## Fix Tasks (THIS PR)
+<!-- Include ALL tasks needed to properly fix this bug -->
+### Investigation & Analysis
 - [ ] Reproduce the bug locally
 - [ ] Identify root cause
-- [ ] Implement fix
-- [ ] Add regression test
-- [ ] Test fix in multiple scenarios
-- [ ] Update documentation if needed
-- [ ] Verify fix doesn't break other features
+- [ ] Check for related issues in other parts of codebase
+- [ ] Determine scope of impact
+
+### Implementation
+- [ ] Implement the fix
+- [ ] Handle edge cases
+- [ ] Add proper error handling
+- [ ] Update any affected dependencies
+- [ ] Fix any related issues discovered
+- [ ] Add logging for future debugging
+- [ ] Update configuration if needed
+
+### Validation
+- [ ] Verify fix resolves the issue
+- [ ] Check for regressions in related features
+- [ ] Ensure backward compatibility
+- [ ] Update documentation if behavior changed
+
+## Testing & Verification
+<!-- Describe how to verify the fix, no checkboxes -->
+- Regression test will be added to prevent recurrence
+- Manual testing in affected scenarios
+- Verify fix doesn't break related features
+- Update documentation if behavior changes
 
 ## Error Messages
 ```
@@ -50,12 +72,12 @@
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P1
-**Size**: S
-**Points**: 3
-**Goal**: Tech Debt
-**Component**: Backend
-**Milestone**: [Optional for bugs]
+**Priority**: [P0/P1/P2/P3]
+**Size**: [XS/S/M/L/XL]
+**Points**: [1-13]
+**Goal**: [Tech Debt/Stability/Quality]
+**Component**: [Backend/Frontend/Database/Infrastructure]
+**Milestone**: [Optional for bugs - e.g., MVP, Beta, v1.0]
 
 ---
 **Labels:** type:bug

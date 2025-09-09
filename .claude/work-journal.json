@@ -1,6 +1,146 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-09T06:07:13Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 6,
+      "unpushed": 0,
+      "last_commit": "4cc830a chore: Update work journal"
+    },
+    {
+      "timestamp": "2025-09-09T06:01:56Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4cc830a chore: Update work journal"
+    },
+    {
+      "timestamp": "2025-09-09T05:57:59Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4cc830a chore: Update work journal"
+    },
+    {
+      "timestamp": "2025-09-09T05:57:06Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "4cc830a chore: Update work journal"
+    },
+    {
+      "timestamp": "2025-09-09T05:54:53Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "4cc830a chore: Update work journal"
+    },
+    {
+      "timestamp": "2025-09-09T05:50:38Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "b574450 docs: Create comprehensive bulk-sync workflow guide"
+    },
+    {
+      "timestamp": "2025-09-09T05:49:48Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "b574450 docs: Create comprehensive bulk-sync workflow guide"
+    },
+    {
+      "timestamp": "2025-09-09T05:48:04Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "b574450 docs: Create comprehensive bulk-sync workflow guide"
+    },
+    {
+      "timestamp": "2025-09-09T05:45:15Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "af87f4b docs: Document Layer 2 pain points and testing results"
+    },
+    {
+      "timestamp": "2025-09-09T05:44:01Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "1ad7c4a chore: Clean up duplicate create-issue commands"
+    },
+    {
+      "timestamp": "2025-09-09T05:42:53Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "1ad7c4a chore: Clean up duplicate create-issue commands"
+    },
+    {
+      "timestamp": "2025-09-09T05:42:47Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "1ad7c4a chore: Clean up duplicate create-issue commands"
+    },
+    {
+      "timestamp": "2025-09-09T05:42:04Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "1ad7c4a chore: Clean up duplicate create-issue commands"
+    },
+    {
+      "timestamp": "2025-09-09T05:41:44Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "1ad7c4a chore: Clean up duplicate create-issue commands"
+    },
+    {
+      "timestamp": "2025-09-09T05:41:07Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "1ad7c4a chore: Clean up duplicate create-issue commands"
+    },
+    {
+      "timestamp": "2025-09-09T05:40:45Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "1ad7c4a chore: Clean up duplicate create-issue commands"
+    },
+    {
+      "timestamp": "2025-09-09T05:30:28Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "0021069 feat: Implement Layer 1 - Direct TodoWrite integration for bulk-sync"
+    },
+    {
+      "timestamp": "2025-09-09T05:29:04Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "0021069 feat: Implement Layer 1 - Direct TodoWrite integration for bulk-sync"
+    },
+    {
+      "timestamp": "2025-09-09T05:28:38Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "0021069 feat: Implement Layer 1 - Direct TodoWrite integration for bulk-sync"
+    },
+    {
+      "timestamp": "2025-09-09T05:26:51Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "90dfbbf feat: Add smart deduplication to prevent todo duplicates"
+    },
+    {
       "timestamp": "2025-09-09T04:50:56Z",
       "branch": "main",
       "uncommitted": 2,
@@ -567,147 +707,6 @@
       "uncommitted": 1,
       "unpushed": 0,
       "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T18:51:03Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T18:45:48Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "180780b fix: Remove TodoWrite references from /wip-status command"
-    },
-    {
-      "timestamp": "2025-09-08T18:45:07Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "180780b fix: Remove TodoWrite references from /wip-status command"
-    },
-    {
-      "timestamp": "2025-09-08T18:21:12Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "180780b fix: Remove TodoWrite references from /wip-status command"
-    },
-    {
-      "timestamp": "2025-09-08T18:19:22Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "180780b fix: Remove TodoWrite references from /wip-status command"
-    },
-    {
-      "timestamp": "2025-09-08T18:16:42Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "080c0bb fix: Remove redundant todo list from /wip command"
-    },
-    {
-      "timestamp": "2025-09-08T18:12:53Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "a610bfd fix: Separate /wip and /worktrees commands properly"
-    },
-    {
-      "timestamp": "2025-09-08T18:10:30Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "ce4661f feat: Enhance /wip command with worktree visibility"
-    },
-    {
-      "timestamp": "2025-09-08T18:07:58Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "ce4661f feat: Enhance /wip command with worktree visibility"
-    },
-    {
-      "timestamp": "2025-09-08T18:05:38Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "ce4661f feat: Enhance /wip command with worktree visibility"
-    },
-    {
-      "timestamp": "2025-09-08T17:58:58Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "f99fa05 feat: Add worktree visibility and status tracking"
-    },
-    {
-      "timestamp": "2025-09-08T17:51:11Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "32c4051 refactor: Simplify port strategy to two-port system"
-    },
-    {
-      "timestamp": "2025-09-08T17:50:16Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "32c4051 refactor: Simplify port strategy to two-port system"
-    },
-    {
-      "timestamp": "2025-09-08T17:41:43Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "25cba03 docs: Add multi-instance workflow guide for parallel development"
-    },
-    {
-      "timestamp": "2025-09-08T17:33:13Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "25cba03 docs: Add multi-instance workflow guide for parallel development"
-    },
-    {
-      "timestamp": "2025-09-08T17:27:49Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "00b6a82 [STABLE] fix: Set main server back to port 8080"
-    },
-    {
-      "timestamp": "2025-09-08T17:25:40Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "00b6a82 [STABLE] fix: Set main server back to port 8080"
-    },
-    {
-      "timestamp": "2025-09-08T17:23:32Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "00b6a82 [STABLE] fix: Set main server back to port 8080"
-    },
-    {
-      "timestamp": "2025-09-08T17:21:53Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "00b6a82 [STABLE] fix: Set main server back to port 8080"
-    },
-    {
-      "timestamp": "2025-09-08T17:14:24Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 1,
-      "last_commit": "52bd87d [STABLE] feat: Add auto-reload server and improve worktree workflow"
     }
   ]
 }
