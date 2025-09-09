@@ -208,20 +208,13 @@ def bulk_sync_todos(mode='all'):
             'activeForm': todo['activeForm']
         })
     
-    # Save to a file for Claude to load
-    output_file = Path.home() / '.claude' / 'bulk-todos.json'
-    output_file.parent.mkdir(exist_ok=True)
+    print(f"\n📝 Ready to load {len(todos_for_claude)} todos into TodoWrite")
     
-    with open(output_file, 'w') as f:
-        json.dump(todos_for_claude, f, indent=2)
-    
-    print(f"\n💾 Todos saved to: {output_file}")
-    print(f"📝 Use TodoWrite to load these {len(todos_for_claude)} todos")
-    
-    # Show the JSON for direct use
-    print("\n🔧 To load in Claude, use TodoWrite with this data:")
-    print(f"   (Showing first 5 todos, full list in {output_file})")
-    print(json.dumps(todos_for_claude[:5], indent=2))
+    # Show the JSON for direct use with TodoWrite
+    print("\n🔧 JSON for TodoWrite (copy this entire block):")
+    print("=" * 60)
+    print(json.dumps(todos_for_claude, indent=2))
+    print("=" * 60)
     
     return todos_for_claude
 
