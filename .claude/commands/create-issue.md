@@ -40,61 +40,6 @@ AUTO-ASSIGNMENT:
 
 When user runs `/create-issue $ARGUMENTS`, follow these steps:
 
-### Step 0: 🔴 ENFORCE WORKFLOW - MUST BE ON MAIN WITH LATEST
-
-**CRITICAL: Before doing ANYTHING else, check branch and sync status:**
-
-```bash
-# Get current branch
-CURRENT_BRANCH=$(git branch --show-current)
-
-# Check if on main
-if [[ "$CURRENT_BRANCH" != "main" ]]; then
-  echo "❌ ERROR: You must be on main branch to create issues!"
-  echo ""
-  echo "Run these commands first:"
-  echo "  git checkout main"
-  echo "  git pull origin main"
-  echo ""
-  echo "Current branch: $CURRENT_BRANCH"
-  echo "Required branch: main"
-  echo ""
-  echo "See WORKFLOW.md for the required process."
-  exit 1
-fi
-
-# Check if main is up to date
-git fetch origin main --quiet
-LOCAL=$(git rev-parse main)
-REMOTE=$(git rev-parse origin/main)
-
-if [[ "$LOCAL" != "$REMOTE" ]]; then
-  echo "⚠️ Your main branch is not up to date!"
-  echo "Local:  $LOCAL"
-  echo "Remote: $REMOTE"
-  echo ""
-  echo "🔄 Auto-pulling latest changes..."
-  git pull origin main
-
-  if [ $? -ne 0 ]; then
-    echo "❌ ERROR: Failed to pull latest changes"
-    echo "Please resolve any conflicts and try again"
-    exit 1
-  fi
-
-  echo "✅ Successfully pulled latest changes"
-fi
-
-echo "✅ On main branch with latest changes - proceeding..."
-```
-
-If not on main or not up to date, STOP and tell the user to:
-1. `git checkout main`
-2. `git pull origin main`
-3. Then retry the command
-
-**DO NOT PROCEED if not on main with latest changes!**
-
 ### Step 1: Check if Creating Sub-Issue
 
 First, determine if this is a sub-issue for an existing parent:
@@ -453,6 +398,7 @@ fi
 
 ## Important Notes
 
+- **No branch switching required** - Issues can be created from any branch
 - GitHub Actions will automatically handle project board updates
 - Branches are created when work starts (via `/work`), not during issue creation
 - No manual project board management needed
