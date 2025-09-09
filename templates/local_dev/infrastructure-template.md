@@ -70,18 +70,20 @@ jobs:
 ```
 
 ## Verification Checklist
-- [ ] Service is accessible locally
-- [ ] Environment variables are documented
-- [ ] CI/CD pipeline runs successfully
-- [ ] Monitoring/alerts are configured
-- [ ] Documentation is updated
-- [ ] Team has access/credentials
+<!-- Verify these items are complete before considering done -->
+- Service is accessible locally
+- Environment variables are documented
+- CI/CD pipeline runs successfully
+- Monitoring/alerts are configured
+- Documentation is updated
+- Team has access/credentials
 
 ## Security Considerations
-- [ ] Secrets are properly managed (not in code)
-- [ ] Access controls are configured
-- [ ] Security headers/policies applied
-- [ ] Backup strategy defined
+<!-- Ensure these security measures are in place -->
+- Secrets are properly managed (not in code)
+- Access controls are configured
+- Security headers/policies applied
+- Backup strategy defined
 
 ## Dependencies
 - **Depends on**: [Other infrastructure that must exist first]
