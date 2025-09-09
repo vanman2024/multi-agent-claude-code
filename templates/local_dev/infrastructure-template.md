@@ -10,9 +10,10 @@
 [Clear description of what infrastructure needs to be set up or configured]
 
 ## Objectives
-- [ ] [Specific objective 1]
-- [ ] [Specific objective 2]
-- [ ] [Specific objective 3]
+<!-- Goals this infrastructure change aims to achieve -->
+- [Specific objective 1]
+- [Specific objective 2]
+- [Specific objective 3]
 
 ## Technical Requirements
 
