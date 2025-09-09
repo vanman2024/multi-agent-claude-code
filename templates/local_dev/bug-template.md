@@ -20,19 +20,24 @@
 - OS: [operating system]
 
 ## Severity
-- [ ] 🔴 Critical - System unusable
-- [ ] 🟠 High - Major feature broken
-- [ ] 🟡 Medium - Feature partially working
-- [ ] 🟢 Low - Minor inconvenience
+<!-- Select one -->
+- 🔴 Critical - System unusable
+- 🟠 High - Major feature broken
+- 🟡 Medium - Feature partially working
+- 🟢 Low - Minor inconvenience
 
-## Tasks to Fix
+## Fix Tasks (THIS PR)
+<!-- Only include tasks that will be completed now -->
 - [ ] Reproduce the bug locally
 - [ ] Identify root cause
 - [ ] Implement fix
-- [ ] Add regression test
-- [ ] Test fix in multiple scenarios
-- [ ] Update documentation if needed
-- [ ] Verify fix doesn't break other features
+
+## Testing & Verification
+<!-- Describe how to verify the fix, no checkboxes -->
+- Regression test will be added to prevent recurrence
+- Manual testing in affected scenarios
+- Verify fix doesn't break related features
+- Update documentation if behavior changes
 
 ## Error Messages
 ```

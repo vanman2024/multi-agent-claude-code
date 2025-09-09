@@ -53,15 +53,25 @@ body:
       required: false
       
   - type: textarea
-    id: requirements
+    id: fix_tasks
     attributes:
-      label: Fix Requirements
-      description: What needs to be done to fix this bug?
+      label: Fix Tasks
+      description: What needs to be done in THIS PR to fix the bug?
       value: |
         - [ ] Reproduce the issue
-        - [ ] Identify root cause
         - [ ] Implement fix
-        - [ ] Add test to prevent regression
         - [ ] Verify fix resolves the issue
+    validations:
+      required: false
+      
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Approach
+      description: How will we verify this fix? (Describe, don't use checkboxes)
+      placeholder: |
+        - Test that reproduces the bug
+        - Verification steps after fix
+        - Regression prevention strategy
     validations:
       required: false

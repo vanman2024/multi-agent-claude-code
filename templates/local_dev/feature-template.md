@@ -12,20 +12,24 @@ As a [type of user]
 I want [goal/desire]
 So that [benefit/value]
 
-## Acceptance Criteria
+## Implementation Tasks (THIS PR)
+<!-- ONLY include tasks that will be completed in this PR -->
+- [ ] Core functionality implementation
+- [ ] Basic UI components
+- [ ] Essential API endpoints
 
-### Must Have (P0)
-- [ ] Criterion 1 with specific measurable outcome
-- [ ] Criterion 2 with clear definition of done
-- [ ] Criterion 3 with testable requirement
+## Future Enhancements (NOT THIS PR)
+<!-- List future work without checkboxes -->
 
-### Should Have (P1)
-- [ ] Additional features that enhance value
-- [ ] Nice-to-have improvements
+### Phase 2 Improvements
+- Additional features that enhance value
+- Performance optimizations
+- Advanced UI features
 
-### Could Have (P2)
-- [ ] Future enhancements
-- [ ] Optimization opportunities
+### Phase 3 Considerations  
+- Scaling improvements
+- Additional integrations
+- Nice-to-have features
 
 ## Technical Specification
 
@@ -48,108 +52,70 @@ So that [benefit/value]
 CREATE TABLE feature_table (
   id UUID PRIMARY KEY,
   tenant_id UUID REFERENCES tenants(id),
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  name TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
-### External Dependencies
-- [ ] Supabase Auth
-- [ ] Stripe API
-- [ ] Email service
-- [ ] Other APIs
+### Integration Points
+- External APIs: [List any third-party services]
+- Internal Services: [Other microservices/modules]
+- Event Triggers: [Webhooks, queues, etc]
 
-## UI/UX Specification
+## Testing Strategy
+<!-- Describe testing approach, don't use checkboxes -->
 
-### Design System Compliance
-- Gray-900/50 cards with gray-800 borders
-- Text sizes: text-2xl, text-xl, text-base, text-sm only
-- Follow 60/30/10 color rule
-- Consistent spacing and padding
+### Test Coverage Plan
+- Unit tests will cover all new functions and components
+- Integration tests will verify API endpoints
+- E2E tests will validate critical user flows
+- Performance testing if handling large datasets
 
-### User Flow
-1. **Entry point**: [Where users start]
-2. **Action step**: [What they do]
-3. **Success state**: [What they see]
-4. **Error handling**: [Failure scenarios]
+### Verification Steps
+1. Manual testing in development environment
+2. Automated test suite must pass
+3. Code review approval required
+4. Preview deployment testing
 
-### Mockup/Wireframe
-```
-[ASCII diagram or description]
-┌─────────────────────────┐
-│      Header Area        │
-├─────────────────────────┤
-│                         │
-│     Main Content        │
-│                         │
-├─────────────────────────┤
-│      Actions Bar        │
-└─────────────────────────┘
-```
+## Risk Assessment
 
-## Testing Requirements
-- [ ] Unit tests needed for new components
-- [ ] Integration tests for user flows
-- [ ] E2E tests for critical paths
-- [ ] Performance testing if applicable
-- [ ] Accessibility testing required
+### Technical Considerations
+- Database migration complexity: [Low/Medium/High]
+- Performance impact: [Minimal/Moderate/Significant]
+- Breaking changes: [None/Backend/Frontend/Both]
 
-## Deployment Considerations
-- [ ] Feature flag needed for gradual rollout
-- [ ] Database migrations required
-- [ ] Environment variables needed
-- [ ] Backward compatibility considerations
-- [ ] Rollback strategy defined
-
-## Risk & Dependencies
-
-### Technical Risks
-- [ ] Database schema changes may require migration
-- [ ] External API dependencies could fail
-- [ ] Performance impact on existing features
-- [ ] Browser compatibility issues
-
-### Project Dependencies
-- [ ] Dependent on [other feature/service]
-- [ ] Requires [approval/resource]
-- [ ] Blocked by [issue/limitation]
+### Dependencies
+- Blocked by: [List any blockers]
+- Depends on: [External services/features]
+- Required approvals: [Stakeholder sign-offs]
 
 ## Success Metrics
+<!-- How we'll measure success after deployment -->
+- Page load time < 2s
+- API response time < 200ms
+- Error rate < 1%
+- User adoption target: [X%]
 
-### Technical Metrics
-- [ ] Page load time < 2s
-- [ ] API response time < 200ms
-- [ ] Test coverage > 80%
-- [ ] Zero critical bugs
-
-### Business Metrics
-- [ ] User adoption rate target
-- [ ] Feature usage analytics
-- [ ] Error rate < 1%
-- [ ] User satisfaction score
-
-## Security Considerations
-- [ ] Authentication required?
-- [ ] Authorization levels defined
-- [ ] Input validation implemented
-- [ ] SQL injection prevention
-- [ ] XSS protection
-- [ ] CSRF tokens used
-- [ ] Rate limiting applied
+## Security Checklist
+<!-- Review these items during implementation -->
+- Authentication/authorization requirements
+- Input validation approach
+- SQL injection prevention
+- XSS protection strategy
+- Rate limiting needs
 
 ## Documentation Requirements
-- [ ] API documentation
-- [ ] User guide
-- [ ] Developer notes
-- [ ] Troubleshooting guide
-
-
+<!-- What documentation will be created -->
+- API documentation updates
+- User guide sections
+- Developer notes
+- Deployment instructions
 
 ## Notes & References
 - Related issues: #
 - Design docs: [link]
 - API specs: [link]
-- Previous discussions: [link] 
+- Previous discussions: [link]
 
 ---
 

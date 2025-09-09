@@ -13,8 +13,17 @@ body:
         <!-- Describe the task clearly -->
         
         
-        ## Steps
+        ## Implementation Steps (THIS PR)
+        <!-- Only include steps that will be completed now -->
         - [ ] 
         - [ ] 
+        
+        ## Future Work (if any)
+        <!-- List any follow-up work without checkboxes -->
+        
+        
+        ## How to Verify
+        <!-- Describe how to verify completion, no checkboxes -->
+        
     validations:
       required: true
