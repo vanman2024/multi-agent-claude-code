@@ -127,8 +127,8 @@ interface [InterfaceName] {
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P0
-**Size**: L
-**Points**: 8
+**Priority**: [P0/P1/P2]
+**Size**: [M/L/XL]
+**Points**: [5-13]
 **Component**: Architecture
-**Layer**: Framing (Backend)
+**Layer**: [Foundation/Plumbing/Framing/Electrical/Finishes]

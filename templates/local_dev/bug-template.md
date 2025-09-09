@@ -72,12 +72,12 @@
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P1
-**Size**: S
-**Points**: 3
-**Goal**: Tech Debt
-**Component**: Backend
-**Milestone**: [Optional for bugs]
+**Priority**: [P0/P1/P2/P3]
+**Size**: [XS/S/M/L/XL]
+**Points**: [1-13]
+**Goal**: [Tech Debt/Stability/Quality]
+**Component**: [Backend/Frontend/Database/Infrastructure]
+**Milestone**: [Optional for bugs - e.g., MVP, Beta, v1.0]
 
 ---
 **Labels:** type:bug

@@ -181,8 +181,8 @@ interface FeatureState {
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P1
-**Size**: M
-**Points**: 5
-**Component**: Frontend
-**Layer**: Finishes (UI)
+**Priority**: [P0/P1/P2/P3]
+**Size**: [XS/S/M/L/XL]
+**Points**: [1-13]
+**Component**: [Frontend/Backend/Full-Stack/Mobile]
+**Layer**: [Finishes/Framing/Electrical]

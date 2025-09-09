@@ -26,7 +26,7 @@ So that [benefit/value]
 - [ ] Configure rate limiting if needed
 - [ ] Add logging for debugging
 
-### Frontend Implementation  
+### Frontend Implementation
 - [ ] Create React components
 - [ ] Setup state management (Zustand/Redux)
 - [ ] Implement form validation
@@ -41,7 +41,7 @@ So that [benefit/value]
 
 ### Integration & Polish
 - [ ] Connect frontend to backend
-- [ ] Add optimistic updates if applicable
+- Add optimistic updates if applicable
 - [ ] Implement caching strategy
 - [ ] Add telemetry/analytics events
 - [ ] Create feature flags if needed
@@ -57,7 +57,7 @@ So that [benefit/value]
 - Performance optimizations
 - Advanced UI features
 
-### Phase 3 Considerations  
+### Phase 3 Considerations
 - Scaling improvements
 - Additional integrations
 - Nice-to-have features
@@ -153,11 +153,11 @@ CREATE TABLE feature_table (
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P2
-**Size**: M
-**Points**: 5
-**Goal**: Features
-**Component**: Frontend
+**Priority**: [P0/P1/P2/P3]
+**Size**: [XS/S/M/L/XL]
+**Points**: [1-13]
+**Goal**: [Features/Growth/Revenue/Engagement]
+**Component**: [Frontend/Backend/Full-Stack/Mobile]
 **Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]
 
 ---

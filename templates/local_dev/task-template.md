@@ -46,11 +46,11 @@
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P2
-**Size**: S
-**Points**: 2
-**Goal**: Features
-**Component**: Backend
+**Priority**: [P0/P1/P2/P3]
+**Size**: [XS/S/M/L]
+**Points**: [1-8]
+**Goal**: [Maintenance/Quality/Tech Debt/Features]
+**Component**: [Backend/Frontend/Infrastructure/Documentation]
 **Milestone**: [REQUIRED - e.g., MVP, Beta, v1.0, Q1-2025]
 
 ---

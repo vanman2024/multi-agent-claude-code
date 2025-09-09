@@ -99,8 +99,8 @@ jobs:
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P0
-**Size**: M
-**Points**: 5
+**Priority**: [P0/P1/P2]
+**Size**: [S/M/L/XL]
+**Points**: [3-13]
 **Component**: Infrastructure
-**Layer**: Plumbing (CI/CD)
+**Layer**: [Plumbing/Foundation/Electrical]
