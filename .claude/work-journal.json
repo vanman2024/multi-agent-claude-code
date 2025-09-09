@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-09T05:45:15Z",
+      "branch": "158-layered-approach-to-todo-sync-improvements",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "af87f4b docs: Document Layer 2 pain points and testing results"
+    },
+    {
       "timestamp": "2025-09-09T05:44:01Z",
       "branch": "158-layered-approach-to-todo-sync-improvements",
       "uncommitted": 2,
@@ -697,13 +704,6 @@
     },
     {
       "timestamp": "2025-09-08T18:10:30Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "ce4661f feat: Enhance /wip command with worktree visibility"
-    },
-    {
-      "timestamp": "2025-09-08T18:07:58Z",
       "branch": "main",
       "uncommitted": 2,
       "unpushed": 0,
