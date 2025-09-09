@@ -192,6 +192,52 @@ def analyze_and_decide():
 ❌ Mix gh CLI and MCP for same operation
 ❌ Forget to load context before using it
 
+## The Correct Pattern: Variables and Instructions
+
+### Variable Context Blocks
+Use `<variable_name>` blocks to store reusable content, prompts, or instructions:
+
+```markdown
+## <complexity_assessment>
+Instructions for analyzing complexity...
+</complexity_assessment>
+
+## <template_selection>
+Rules for choosing the right template...
+</template_selection>
+
+## <assignment_comment>
+The comment text to use when assigning...
+</assignment_comment>
+```
+
+### Referencing Variables in Instructions
+```markdown
+### Step 2: Analyze
+Use the <complexity_assessment> instructions to analyze...
+
+### Step 5: Add Comment
+Use mcp__github__add_issue_comment with the <assignment_comment> content
+```
+
+## Slash Command Redesign Plan
+
+### Commands to Update
+1. ✅ **create-issue-clean.md** - DONE: Has @ loading, variables, proper instructions
+2. ⏳ **work.md** - Needs variables for complexity assessment
+3. ⏳ **deploy.md** - Needs deployment checklist variables
+4. ⏳ **test.md** - Needs test selection variables
+5. ⏳ **discussions.md** - Needs discussion templates
+
+### Key Changes for Each Command
+
+#### Pattern to Apply:
+1. Add `@` file loading at the top
+2. Create `<variable>` blocks for reusable content
+3. Convert complex logic to Python scripts
+4. Make instructions reference variables
+5. Remove any code syntax (no JavaScript, minimal bash)
+
 ## Questions Still Open
 
 1. **Should we prefer gh CLI or MCP for all operations?**
@@ -205,3 +251,11 @@ def analyze_and_decide():
 
 4. **How does parallel Task execution actually work?**
    - Need to test with real multi-agent scenarios
+
+## Working Example: create-issue-clean.md
+
+This command now follows the perfect pattern:
+- Loads templates with `@templates/local_dev/*.md`
+- Has variables: `<complexity_assessment>`, `<template_selection>`, etc.
+- Instructions reference these variables
+- No code, just instructions for Claude Code to follow
