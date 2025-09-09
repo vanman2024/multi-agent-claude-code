@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-09T04:28:25Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "cea9404 feat: Add bulk todo sync from GitHub issues"
+    },
+    {
       "timestamp": "2025-09-09T04:25:20Z",
       "event": "session_end",
       "branch": "main",
@@ -696,13 +703,6 @@
     },
     {
       "timestamp": "2025-09-08T04:37:27Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "36f15c6 fix: Reopen Issue #156 - worktree sync still needed"
-    },
-    {
-      "timestamp": "2025-09-08T04:36:06Z",
       "branch": "main",
       "uncommitted": 2,
       "unpushed": 0,
