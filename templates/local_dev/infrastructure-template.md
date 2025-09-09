@@ -10,9 +10,10 @@
 [Clear description of what infrastructure needs to be set up or configured]
 
 ## Objectives
-- [ ] [Specific objective 1]
-- [ ] [Specific objective 2]
-- [ ] [Specific objective 3]
+<!-- Goals this infrastructure change aims to achieve -->
+- [Specific objective 1]
+- [Specific objective 2]
+- [Specific objective 3]
 
 ## Technical Requirements
 
@@ -69,18 +70,20 @@ jobs:
 ```
 
 ## Verification Checklist
-- [ ] Service is accessible locally
-- [ ] Environment variables are documented
-- [ ] CI/CD pipeline runs successfully
-- [ ] Monitoring/alerts are configured
-- [ ] Documentation is updated
-- [ ] Team has access/credentials
+<!-- Verify these items are complete before considering done -->
+- Service is accessible locally
+- Environment variables are documented
+- CI/CD pipeline runs successfully
+- Monitoring/alerts are configured
+- Documentation is updated
+- Team has access/credentials
 
 ## Security Considerations
-- [ ] Secrets are properly managed (not in code)
-- [ ] Access controls are configured
-- [ ] Security headers/policies applied
-- [ ] Backup strategy defined
+<!-- Ensure these security measures are in place -->
+- Secrets are properly managed (not in code)
+- Access controls are configured
+- Security headers/policies applied
+- Backup strategy defined
 
 ## Dependencies
 - **Depends on**: [Other infrastructure that must exist first]
@@ -96,8 +99,8 @@ jobs:
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P0
-**Size**: M
-**Points**: 5
+**Priority**: [P0/P1/P2]
+**Size**: [S/M/L/XL]
+**Points**: [3-13]
 **Component**: Infrastructure
-**Layer**: Plumbing (CI/CD)
+**Layer**: [Plumbing/Foundation/Electrical]

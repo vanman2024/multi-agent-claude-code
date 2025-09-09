@@ -43,16 +43,38 @@ body:
       required: false
       
   - type: textarea
-    id: acceptance
+    id: implementation
     attributes:
-      label: Acceptance Criteria
-      description: How will we know when this is complete?
+      label: Implementation Tasks
+      description: What needs to be done in THIS PR? (Only include tasks that will be completed now)
       value: |
-        - [ ] Design and plan implementation approach
-        - [ ] Implement core functionality
-        - [ ] Add necessary tests
-        - [ ] Update documentation if needed
-        - [ ] Verify feature works as expected
+        - [ ] 
+        - [ ] 
+        - [ ] 
+    validations:
+      required: false
+      
+  - type: textarea
+    id: future
+    attributes:
+      label: Future Enhancements
+      description: What could be done later? (No checkboxes - just ideas)
+      placeholder: |
+        - Additional features that could be added later
+        - Performance optimizations to consider
+        - Architectural improvements for the future
+    validations:
+      required: false
+      
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Strategy
+      description: How will this be tested? (Describe approach, don't use checkboxes)
+      placeholder: |
+        - Unit tests will cover...
+        - Integration tests will verify...
+        - Manual testing will include...
     validations:
       required: false
       

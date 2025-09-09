@@ -17,20 +17,48 @@
 ## Functional Requirements
 
 ### Core Functionality
-- [ ] [Requirement 1: Specific behavior]
-- [ ] [Requirement 2: What user can do]
-- [ ] [Requirement 3: System response]
+<!-- Describe what the feature must do -->
+- [Requirement 1: Specific behavior]
+- [Requirement 2: What user can do]
+- [Requirement 3: System response]
 
 ### User Interface
-- [ ] [UI element/page needed]
-- [ ] [Form fields and validation]
-- [ ] [Navigation/routing]
-- [ ] [Mobile responsiveness]
+<!-- Describe UI requirements -->
+- [UI element/page needed]
+- [Form fields and validation]
+- [Navigation/routing]
+- [Mobile responsiveness]
 
 ### Business Rules
 1. [Rule 1: Validation or constraint]
 2. [Rule 2: Permissions/access]
 3. [Rule 3: Limits or thresholds]
+
+## Implementation Tasks (THIS PR)
+<!-- Include ALL tasks that will be completed in this PR -->
+### Backend Tasks
+- [ ] Create database schema/migrations
+- [ ] Implement data models
+- [ ] Create API endpoints
+- [ ] Add validation logic
+- [ ] Implement business rules
+- [ ] Add error handling
+- [ ] Setup authentication/authorization
+
+### Frontend Tasks
+- [ ] Create React components
+- [ ] Implement state management
+- [ ] Add form validation
+- [ ] Connect to API
+- [ ] Handle loading/error states
+- [ ] Style components
+- [ ] Ensure mobile responsiveness
+
+### Integration Tasks
+- [ ] Connect frontend to backend
+- [ ] Test end-to-end flow
+- [ ] Add logging/monitoring
+- [ ] Update documentation
 
 ## Technical Implementation
 
@@ -94,37 +122,40 @@ interface FeatureState {
 - Background sync: [Subtle indicator]
 
 ## Acceptance Criteria
-- [ ] User can successfully [primary action]
-- [ ] Validation prevents [invalid scenarios]
-- [ ] Error messages are clear and actionable
-- [ ] Feature works on mobile devices
-- [ ] Accessibility standards met (WCAG 2.1)
-- [ ] Performance: Action completes in < 2 seconds
+<!-- Describe success criteria without checkboxes -->
+- User can successfully [primary action]
+- Validation prevents [invalid scenarios]
+- Error messages are clear and actionable
+- Feature works on mobile devices
+- Accessibility standards met (WCAG 2.1)
+- Performance: Action completes in < 2 seconds
 
-## Testing Requirements
+## Testing Strategy
+<!-- Describe testing approach without checkboxes -->
 
 ### Unit Tests
-- [ ] Component renders correctly
-- [ ] Business logic functions properly
-- [ ] Validation rules work
-- [ ] Error states handled
+- Component renders correctly
+- Business logic functions properly
+- Validation rules work
+- Error states handled
 
 ### Integration Tests
-- [ ] API endpoints respond correctly
-- [ ] Database operations succeed
-- [ ] Authentication/authorization works
+- API endpoints respond correctly
+- Database operations succeed
+- Authentication/authorization works
 
 ### E2E Tests
-- [ ] Complete user flow works
-- [ ] Edge cases handled
-- [ ] Cross-browser compatibility
+- Complete user flow works
+- Edge cases handled
+- Cross-browser compatibility
 
 ## Security Considerations
-- [ ] Input sanitization
-- [ ] Authentication required
-- [ ] Authorization checks
-- [ ] Rate limiting applied
-- [ ] Audit logging enabled
+<!-- Security requirements to verify -->
+- Input sanitization implemented
+- Authentication required for access
+- Authorization checks in place
+- Rate limiting applied to prevent abuse
+- Audit logging enabled for tracking
 
 ## Performance Requirements
 - Page load: < 1 second
@@ -150,8 +181,8 @@ interface FeatureState {
 ## Metadata
 *For automation parsing - DO NOT REMOVE*
 
-**Priority**: P1
-**Size**: M
-**Points**: 5
-**Component**: Frontend
-**Layer**: Finishes (UI)
+**Priority**: [P0/P1/P2/P3]
+**Size**: [XS/S/M/L/XL]
+**Points**: [1-13]
+**Component**: [Frontend/Backend/Full-Stack/Mobile]
+**Layer**: [Finishes/Framing/Electrical]

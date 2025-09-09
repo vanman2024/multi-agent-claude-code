@@ -27,10 +27,10 @@
 3. [Alternative approach question]
 
 ### Next Steps
-- [ ] Research [specific aspect]
-- [ ] Prototype [proof of concept]
-- [ ] Document [requirements/design]
-- [ ] Get feedback from [stakeholders]
+- Research [specific aspect]
+- Prototype [proof of concept]
+- Document [requirements/design]
+- Get feedback from [stakeholders]
 
 ### Resources
 - [Related issue/PR #]
