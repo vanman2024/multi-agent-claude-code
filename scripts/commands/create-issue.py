@@ -119,14 +119,53 @@ def create_issue(title: str, issue_type: str = "feature", auto_assign: bool = Tr
     elif "doc" in title.lower():
         issue_type = "documentation"
     
-    # Build issue body
+    # Build issue body with type-specific checkboxes
+    if issue_type == "bug":
+        checkboxes = """## Tasks to Fix
+- [ ] Reproduce the bug locally
+- [ ] Identify root cause
+- [ ] Implement fix
+- [ ] Add regression test
+- [ ] Test fix in multiple scenarios
+- [ ] Update documentation if needed
+- [ ] Verify fix doesn't break other features"""
+    elif issue_type == "feature":
+        checkboxes = """## Implementation Tasks
+- [ ] Design component/API structure
+- [ ] Implement backend logic
+- [ ] Create frontend components
+- [ ] Add unit tests
+- [ ] Add integration tests
+- [ ] Update API documentation
+- [ ] Add user documentation
+- [ ] Performance testing
+- [ ] Security review"""
+    elif issue_type == "task":
+        checkboxes = """## Definition of Done
+- [ ] Task requirements understood
+- [ ] Implementation complete
+- [ ] Code reviewed
+- [ ] Tests passing
+- [ ] Documentation updated
+- [ ] Deployed to staging"""
+    elif issue_type == "documentation":
+        checkboxes = """## Documentation Tasks
+- [ ] Review existing documentation
+- [ ] Identify gaps/outdated info
+- [ ] Write/update content
+- [ ] Add code examples
+- [ ] Review for accuracy
+- [ ] Check formatting/links"""
+    else:
+        checkboxes = """## Acceptance Criteria
+- [ ] Implementation complete
+- [ ] Tests added/updated
+- [ ] Documentation updated"""
+    
     body = f"""## Description
 {title}
 
-## Acceptance Criteria
-- [ ] Implementation complete
-- [ ] Tests added/updated
-- [ ] Documentation updated
+{checkboxes}
 
 ---
 
