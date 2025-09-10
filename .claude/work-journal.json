@@ -1,6 +1,27 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-10T21:38:54Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "9c450c6 feat: Add spec-kit task import to Claude Code TodoWrite"
+    },
+    {
+      "timestamp": "2025-09-10T21:35:48Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "9c450c6 feat: Add spec-kit task import to Claude Code TodoWrite"
+    },
+    {
+      "timestamp": "2025-09-10T21:31:13Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "9c450c6 feat: Add spec-kit task import to Claude Code TodoWrite"
+    },
+    {
       "timestamp": "2025-09-10T21:06:14Z",
       "branch": "main",
       "uncommitted": 0,
@@ -678,27 +699,6 @@
     },
     {
       "timestamp": "2025-09-08T23:32:58Z",
-      "branch": "main",
-      "uncommitted": 13,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:29:56Z",
-      "branch": "main",
-      "uncommitted": 13,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:27:29Z",
-      "branch": "main",
-      "uncommitted": 13,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:24:37Z",
       "branch": "main",
       "uncommitted": 13,
       "unpushed": 0,
