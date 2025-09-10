@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-10T20:50:42Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "748115e docs: Add VSCode settings inheritance options to README"
+    },
+    {
       "timestamp": "2025-09-10T20:46:43Z",
       "branch": "main",
       "uncommitted": 0,
@@ -692,13 +699,6 @@
     },
     {
       "timestamp": "2025-09-08T23:22:24Z",
-      "branch": "main",
-      "uncommitted": 13,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:21:04Z",
       "branch": "main",
       "uncommitted": 13,
       "unpushed": 0,
