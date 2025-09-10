@@ -67,7 +67,7 @@ npm install -g vercel newman        # Vercel & Postman
 npx playwright install              # Browser automation
 ```
 
-### 3️⃣ Configure API Keys
+### 3️⃣ Configure API Keys & VSCode Settings
 
 ```bash
 # FIRST TIME ONLY: Create personal config
@@ -77,6 +77,10 @@ npx playwright install              # Browser automation
 # FOR EACH PROJECT: Load your keys
 ./scripts/utilities/load-personal-config.sh
 # Creates .env with all your saved keys
+
+# Apply VSCode settings globally (recommended)
+./scripts/utilities/vscode-settings-sync.sh --user
+# Other options: --profile, --symlink, --copy, --git-template, --extension
 ```
 
 ### 4️⃣ Setup MCP Servers
@@ -445,6 +449,27 @@ Essential guides:
 /deploy
 > Everything to Vercel
 ```
+
+---
+
+## 🎨 VSCode Settings Inheritance
+
+Share consistent VSCode settings across all projects with multiple options:
+
+### Quick Setup (Recommended)
+```bash
+# Apply settings globally to ALL projects
+./scripts/utilities/vscode-settings-sync.sh --user
+```
+
+### Other Options Available:
+1. **VSCode Profiles** (`--profile`) - Switch between different development contexts
+2. **Symlink** (`--symlink`) - Projects always use latest template settings  
+3. **Copy** (`--copy`) - Independent copy per project
+4. **Git Template** (`--git-template`) - Auto-add to new git repos
+5. **Settings Sync Extension** (`--extension`) - Sync across machines via GitHub Gist
+
+See [VSCode Settings Guide](./docs/VSCODE-SETTINGS-INHERITANCE.md) for details.
 
 ---
 
