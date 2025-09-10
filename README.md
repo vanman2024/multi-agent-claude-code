@@ -119,6 +119,38 @@ claude
 
 ## 🔄 Core Workflow: Plan → Build → Test → Deploy
 
+### 🆕 Advanced Slash Command Patterns
+
+Our slash commands use sophisticated patterns for maximum flexibility:
+
+**Context Loading with `@`**:
+```markdown
+## Load Context
+- @README.md
+- @package.json
+- @docs/architecture.md
+```
+
+**Reusable Variable Blocks**:
+```markdown
+## <analysis_instructions>
+Analyze the request and determine complexity...
+</analysis_instructions>
+
+## <implementation_instructions>
+Based on analysis, implement the solution...
+</implementation_instructions>
+```
+
+**Stop Blocks for Workflow Control**:
+```markdown
+## <worktree_branch_check>
+CRITICAL: Must be on main branch unless --worktree flag
+</worktree_branch_check>
+```
+
+These patterns make slash commands intelligent prompts that guide Claude Code through complex workflows.
+
 ### Phase 1: Planning & Setup (Once per project)
 
 ```bash
@@ -175,6 +207,26 @@ claude
 3. **Persistent Storage**: Todos in `~/.claude/todos/`, journal in `.claude/`
 4. **Smart Filtering**: Bash scripts map sessions to projects
 5. **Continuous Journal**: Hooks update work history on every response
+
+### 🌳 Git Worktrees: Parallel Development (NEW!)
+
+**Work on multiple issues simultaneously without disrupting your current work:**
+
+```bash
+# Work on issue in isolated worktree (doesn't affect current directory)
+/work #123 --worktree
+
+# Creates worktree at: worktrees/123-feature-name/
+# Branches from origin/main automatically
+# Your current work remains untouched
+```
+
+**Benefits of --worktree flag:**
+- **No branch switching**: Stay on your current branch
+- **Parallel work**: Multiple issues in separate directories
+- **Clean isolation**: Each issue gets its own workspace
+- **Auto-cleanup**: Worktrees removed after PR merge
+- **Safe experimentation**: Test changes without affecting main work
 
 ### 🚀 Future GitHub Integration (Roadmap)
 
@@ -259,6 +311,32 @@ Everything deploys to **Vercel** automatically:
 
 ---
 
+## 🧰 Python Scripts as Utility Tools (NEW!)
+
+**Python scripts in this framework are TOOLS, not decision-makers:**
+
+```bash
+scripts/utilities/
+├── analyze-complexity.py      # Returns complexity score (data)
+├── check-dependencies.py      # Lists dependent issues (data)
+├── format-issue-body.py       # Formats markdown (transformation)
+└── validate-pr-readiness.py   # Checks PR status (validation)
+```
+
+**Key Principle**: Python scripts are like MCP servers - they provide data/transformations, but Claude Code makes the decisions.
+
+**Pattern**:
+```python
+# ✅ GOOD: Returns data for Claude to decide
+def analyze_complexity(description):
+    return {"score": 3, "factors": ["multi-file", "security"]}
+
+# ❌ BAD: Makes decisions internally
+def should_assign_to_copilot(description):
+    if complexity > 2:
+        return False  # Don't make decisions!
+```
+
 ## 🪝 Strategic Hooks System
 
 **6 essential hooks that fire at workflow boundaries, not every file change:**
@@ -326,6 +404,7 @@ Essential guides:
 ### Implementation Commands
 - `/create-issue` - Create any type of work item
 - `/work [#issue]` - Implement issues intelligently
+- `/work [#issue] --worktree` - Work in isolated git worktree (NEW!)
 
 ### Utility Commands
 - `/add-mcp` - Add MCP servers (GitHub, Supabase, Postman)
