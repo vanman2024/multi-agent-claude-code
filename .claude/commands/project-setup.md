@@ -49,6 +49,13 @@ KEY PRINCIPLES:
 
 When user runs `/project-setup $ARGUMENTS`, guide them through an intelligent project setup process.
 
+### Mode Detection
+Parse arguments for flags:
+- `--from-template` or `--from-spec-kit`: Starting from spec-kit or other template
+- `--from-existing`: Already have local code, need GitHub integration
+- `--greenfield` or no flag: Current behavior (fresh start)
+- `--local-only`: Skip GitHub creation, work locally like spec-kit
+
 ### Phase 0: Load Personal Configuration
 
 Check for personal config:
@@ -64,6 +71,28 @@ fi
 ```
 
 ### Phase 1: Discovery Conversation
+
+**Mode-Specific Handling:**
+
+**For --from-template or --from-spec-kit:**
+- Check for `.specify/` directory or `memory/constitution.md`
+- If found: "I see you're using spec-kit! Let me integrate with that."
+- Read: `.specify/spec.md`, `.specify/plan.md`, `memory/constitution.md`
+- Convert spec-kit format to our PROJECT_PLAN.md
+- Generate CLAUDE.md from constitution.md
+- Skip to Phase 2
+
+**For --from-existing:**
+- Analyze: "Let me analyze your existing codebase..."
+- Use Glob to find key files (package.json, README, etc.)
+- Generate PROJECT_PLAN.md from discovered structure
+- Ask: "Ready to create GitHub repo for this project?"
+
+**For --local-only:**
+- Note: "Working in local-only mode, no GitHub integration"
+- Focus on specs and local development
+
+**Default flow:**
 
 Start with understanding the project vision:
 
