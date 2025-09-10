@@ -1,6 +1,146 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-10T20:33:46Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "5068599 fix: Fix newline escaping in claude-init.sh script"
+    },
+    {
+      "timestamp": "2025-09-10T20:29:48Z",
+      "branch": "main",
+      "uncommitted": 6,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T20:15:14Z",
+      "branch": "main",
+      "uncommitted": 6,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T20:12:37Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T20:09:19Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T20:07:46Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T20:07:05Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T20:05:30Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T20:04:20Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T20:02:09Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T19:59:49Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T19:57:14Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T19:55:00Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T19:51:01Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T19:43:23Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T18:45:02Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T18:34:47Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T18:34:19Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T18:33:12Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
+      "timestamp": "2025-09-10T18:28:11Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
+    },
+    {
       "timestamp": "2025-09-10T18:10:23Z",
       "branch": "main",
       "uncommitted": 3,
@@ -561,149 +701,6 @@
       "timestamp": "2025-09-08T23:18:12Z",
       "branch": "main",
       "uncommitted": 13,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:15:39Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:14:48Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:13:59Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:13:53Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:12:23Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:10:58Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:08:22Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:06:28Z",
-      "event": "session_end",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:06:23Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:00:34Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:58:15Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:32:09Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:27:23Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:26:17Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:23:32Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:19:01Z",
-      "branch": "main",
-      "uncommitted": 12,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:12:22Z",
-      "branch": "main",
-      "uncommitted": 11,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:10:16Z",
-      "branch": "main",
-      "uncommitted": 11,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T22:04:48Z",
-      "branch": "main",
-      "uncommitted": 11,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T21:57:36Z",
-      "branch": "main",
-      "uncommitted": 11,
       "unpushed": 0,
       "last_commit": "4928946 fix: Simplify /wip command to work properly"
     }
