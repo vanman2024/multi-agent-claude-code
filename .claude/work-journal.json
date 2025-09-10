@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-10T21:06:14Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "a964c4c feat: Complete spec-kit integration with wrapper commands"
+    },
+    {
       "timestamp": "2025-09-10T21:00:49Z",
       "branch": "main",
       "uncommitted": 0,
@@ -692,13 +699,6 @@
     },
     {
       "timestamp": "2025-09-08T23:24:37Z",
-      "branch": "main",
-      "uncommitted": 13,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:24:16Z",
       "branch": "main",
       "uncommitted": 13,
       "unpushed": 0,
