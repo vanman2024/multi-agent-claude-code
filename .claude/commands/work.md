@@ -1,7 +1,7 @@
 ---
 allowed-tools: Task(*), mcp__github(*), Bash(*), Read(*), Write(*), Edit(*), TodoWrite(*)
 description: Intelligently selects and implements work based on sprint priorities and dependencies
-argument-hint: [#issue-number | branch-name | commit-sha] | --status | --resume | --deploy | --continue | --from-commit
+argument-hint: [#issue-number | branch-name | commit-sha] | --worktree | --status | --resume | --deploy | --continue | --from-commit
 ---
 
 # Work - Intelligent Implementation Command
@@ -25,7 +25,8 @@ KEY DIFFERENCES FROM /wip:
 - /wip is for "figure it out as you go" work
 
 EXAMPLES:
-/work #123              - Work on specific issue
+/work #123              - Work on specific issue (must be on main)
+/work #123 --worktree   - Work on issue in isolated worktree (from any branch)
 /work                   - Auto-pick next priority
 /work feature-branch    - Continue work on existing branch
 /work abc123def         - Continue from specific commit
@@ -48,6 +49,7 @@ USAGE:
   /work --resume               Resume most recent work
   
 FLAGS:
+  --worktree                   Create isolated worktree for this work
   --status                     Show triage view of all active work
   --resume                     Auto-resume most recent incomplete work
   --deploy                     Deploy current branch to production
@@ -62,7 +64,8 @@ COPILOT INTEGRATION:
   
 EXAMPLES:
   /work                        Smart selection from sprint
-  /work #142                   Work on issue #142
+  /work #142                   Work on issue #142 (must be on main)
+  /work #142 --worktree       Work on #142 in isolated worktree
   /work --status              See all active work
   /work --resume              Continue where you left off
   /work --discussion 125      Convert discussion to issue
@@ -78,6 +81,43 @@ The command should check:
 - Blocked issues using GitHub API
 - In progress issues using GitHub API
 
+## <worktree_branch_check>
+**CRITICAL: Branch/Worktree Decision Logic**
+
+Before proceeding with any work:
+1. Check if $ARGUMENTS contains --worktree flag
+2. Get current branch: git branch --show-current
+3. Apply these rules:
+
+**IF --worktree flag is present:**
+- Can be on ANY branch (doesn't matter where you are)
+- Will create NEW branch from origin/main in isolated worktree
+- The new branch is always based on latest main, NOT current branch
+- Continue with worktree creation workflow (Step 0.5)
+
+**IF NO --worktree flag (normal workflow):**
+- **MUST be on main branch**
+- Will create feature branch from current position
+- If NOT on main: 
+  - STOP IMMEDIATELY
+  - Display error: "❌ Must be on main branch to start work"
+  - Show current branch: "[current_branch_name]"
+  - Provide options:
+    ```
+    Option 1: Switch to main
+    git checkout main && git pull origin main
+    /work #[issue]
+    
+    Option 2: Use worktree (work from any branch)
+    /work #[issue] --worktree
+    ```
+  - EXIT - do not proceed past this point
+
+**Summary:**
+- Normal workflow: Must be on main, branches from current position
+- Worktree workflow: Can be anywhere, always branches from origin/main
+</worktree_branch_check>
+
 ## Your Task
 
 When user runs `/work $ARGUMENTS`, intelligently select and implement work.
@@ -89,15 +129,64 @@ Parse the provided arguments to extract:
 - Flags like --deploy, --status, --resume, etc.
 - Store issue number in ISSUE_NUM variable if found
 
-### Step 0: 🔴 ENFORCE WORKFLOW - MUST BE ON MAIN WITH LATEST
+### Step 0: 🔴 ENFORCE WORKFLOW - Check Branch/Worktree Requirements
 
-**CRITICAL: Before doing ANYTHING else, check branch and sync status:**
+**CRITICAL: Apply the <worktree_branch_check> logic FIRST**
 
-Use the Bash tool to verify you're on main with latest changes:
-- Check current branch with: git branch --show-current
-- If not on main, STOP and tell user to: git checkout main && git pull origin main
+1. Check if --worktree flag is in $ARGUMENTS
+2. Get current branch: git branch --show-current
+3. Follow <worktree_branch_check> rules:
+   - If --worktree: proceed with worktree creation (skip to Step 0.5)
+   - If NOT on main AND no --worktree: STOP with error message
+   - If on main: continue to sync check
+
+**If on main (normal workflow):**
 - Fetch and compare with: git fetch origin main
 - If behind, auto-pull with: git pull origin main
+
+### Step 0.5: Worktree Creation (if --worktree flag)
+
+**IMPORTANT**: Worktree operations DO NOT affect the current directory/branch!
+- The current directory stays on whatever branch it's on
+- Worktree creates a SEPARATE directory with its own branch
+- No disruption to any work happening in current location
+
+If --worktree flag is present:
+1. Get issue details and determine expected branch name (e.g., 123-feature-name)
+2. Check current branch: git branch --show-current (just for decision logic)
+3. **Decision point:**
+   
+   **CASE A: Already on the target branch**
+   - If current branch matches expected branch for this issue:
+   - ASK: "You're already on branch [branch-name] for issue #123. Options:"
+     ```
+     1. Continue working here (no worktree needed)
+     2. Create separate worktree instance (for parallel work)
+     3. Cancel
+     ```
+   - If option 1: Skip worktree, continue normal workflow
+   - If option 2: Create worktree with suffix (e.g., 123-feature-name-wt2)
+   
+   **CASE B: Branch exists but we're not on it**
+   - Check if branch exists: git branch -r | grep [branch-name]
+   - If exists, ASK: "Branch [branch-name] already exists. Options:"
+     ```
+     1. Create worktree using existing branch
+     2. Create new branch with suffix (123-feature-name-v2)
+     3. Cancel
+     ```
+   
+   **CASE C: Branch doesn't exist (normal case)**
+   - Fetch latest: git fetch origin main
+   - Create worktree path: ../worktree-issue-[number]
+   - Create worktree FROM origin/main WITHOUT switching current directory:
+     ```
+     git worktree add [path] -b [issue-branch-name] origin/main
+     ```
+     This creates the worktree in a SEPARATE directory without affecting current work
+   
+4. Switch to worktree directory: cd [path]
+5. Continue with normal workflow from there
 
 **DO NOT PROCEED if not on main with latest changes!**
 
