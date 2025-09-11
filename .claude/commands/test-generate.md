@@ -57,7 +57,12 @@ TESTING APPROACH:
 
 ## Your Task
 
-When user runs `/test:generate $ARGUMENTS`, analyze the ENTIRE project and create comprehensive test suites.
+When user runs `/test:generate $ARGUMENTS`:
+
+First, check for spec-kit integration:
+!`./scripts/integrate-test-with-speckit.sh`
+
+Then analyze the ENTIRE project and create comprehensive test suites.
 
 ### Step 1: Deep Project Analysis
 
