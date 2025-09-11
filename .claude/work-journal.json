@@ -1,6 +1,20 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-11T01:33:24Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 0,
+      "last_commit": "cbb9761 docs: Consolidate 6 spec-kit docs into 1 comprehensive guide"
+    },
+    {
+      "timestamp": "2025-09-10T21:42:33Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "cbb9761 docs: Consolidate 6 spec-kit docs into 1 comprehensive guide"
+    },
+    {
       "timestamp": "2025-09-10T21:38:54Z",
       "branch": "main",
       "uncommitted": 2,
@@ -689,20 +703,6 @@
       "uncommitted": 0,
       "unpushed": 2,
       "last_commit": "ea30618 chore: Remove todo-viewer and sync complexity"
-    },
-    {
-      "timestamp": "2025-09-08T23:36:17Z",
-      "branch": "main",
-      "uncommitted": 13,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
-    },
-    {
-      "timestamp": "2025-09-08T23:32:58Z",
-      "branch": "main",
-      "uncommitted": 13,
-      "unpushed": 0,
-      "last_commit": "4928946 fix: Simplify /wip command to work properly"
     }
   ]
 }

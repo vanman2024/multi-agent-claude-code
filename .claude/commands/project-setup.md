@@ -74,6 +74,18 @@ fi
 
 **Mode-Specific Handling:**
 
+**Auto-detect spec-kit initialization:**
+```bash
+# Check if this is a fresh spec-kit project (no actual code yet)
+if [ -d "memory" ] && [ -d "scripts" ] && [ -d "templates" ] && [ ! -d "specs" ]; then
+  echo "✅ Spec-kit initialized! Let's create your project vision."
+  # Continue with normal flow to create PROJECT_PLAN.md
+elif [ -d "specs" ] && [ -f "specs/*/spec.md" ]; then
+  echo "📋 Found existing specifications."
+  # Ask if they want to update or continue
+fi
+```
+
 **For --from-template or --from-spec-kit:**
 - Check for `.specify/` directory or `memory/constitution.md`
 - If found: "I see you're using spec-kit! Let me integrate with that."
@@ -97,7 +109,11 @@ fi
 Start with understanding the project vision:
 
 #### Step 1A: Initial Assessment
-Ask: "Are you starting a brand new project or adding to existing code?"
+Check project state:
+- If only spec-kit scaffolding exists (memory/, scripts/, templates/): "I see you've initialized spec-kit. Let's define your project vision!"
+- If specs/ directory exists with content: "I see you have existing specifications. Would you like to update the vision or continue with implementation?"
+- If actual project code exists: "This appears to be an existing project. Would you like to update PROJECT_PLAN.md or add new features?"
+- Otherwise: "Let's create your project vision!"
 
 #### Step 1B: Gather ALL Reference Materials
 Ask: "Before we dive into details, let me gather any existing materials. Do you have:
@@ -284,6 +300,21 @@ Create the high-level vision document based on everything learned:
 - NO exhaustive feature lists (just core value)
 - Focus on the "what" and "why", not the "how"
 - Write to: docs/PROJECT_PLAN.md
+
+### Phase 4.5: Spec-Kit Integration (if detected)
+
+If spec-kit is initialized (memory/ exists):
+```bash
+echo "📋 PROJECT_PLAN.md created! Now let's generate specifications..."
+echo ""
+echo "Next step: Pass this vision to spec-kit's /specify command"
+echo "This will create the functional requirements (no tech stack yet)"
+```
+
+Then automatically suggest running:
+```
+/specify "Build [Project Name] as described in PROJECT_PLAN.md: [summary of key requirements from PROJECT_PLAN]"
+```
 
 ### Phase 5: Project Scaffolding
 
