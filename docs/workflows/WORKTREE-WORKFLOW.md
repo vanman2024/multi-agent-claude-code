@@ -3,11 +3,22 @@
 ## Overview
 Git worktrees allow parallel development on multiple branches without switching contexts. This guide ensures smooth integration between worktrees and the main branch.
 
-## Key Problems Solved
-1. **Port Conflicts**: Each worktree server runs on different ports (8080 main, 8081+ worktrees)
-2. **File Sync Issues**: Changes in worktrees weren't visible in main branch
-3. **Testing Isolation**: Can test features without affecting main project
-4. **Merge Complexity**: Simplified merging process
+## ⚠️ Critical Safety Information
+
+### The Main Problems with Worktrees
+1. **OLD CODE PROBLEM**: `gh issue develop` creates worktrees from the commit when the issue was created, NOT from current main
+2. **LOST WORK PROBLEM**: Changes in worktrees don't automatically sync to main
+3. **MERGE CONFLICT PROBLEM**: Parallel development can create conflicts
+4. **PORT CONFLICT PROBLEM**: Multiple servers on same port crash
+
+### 🎯 Golden Rules
+1. **Merge Main First** - Always get latest code before starting
+2. **Commit Often** - Don't lose work
+3. **Use Auto-Reload** - No manual server restarts
+4. **Verify Before PR** - Check you're not behind main
+5. **Clean Up After** - Remove worktrees after merging
+
+> "A worktree is like a parallel universe - it starts from the past, not the present. Always bring it to the present before working!"
 
 ## Worktree Setup & Management
 
@@ -28,6 +39,50 @@ gh issue develop 155 --checkout
     ├── 156-feature-xyz/            # Worktree (port 8082)
     └── ...
 ```
+
+## 🛡️ Safe Worktree Practices
+
+### ✅ ALWAYS DO THIS
+
+#### When Creating a Worktree
+```bash
+# DON'T use gh issue develop (it uses old code)
+# DO use our safe script instead
+./.claude/scripts/safe-worktree.sh create 156
+
+# Or if you must use gh issue develop, IMMEDIATELY:
+gh issue develop 156 --checkout
+cd /home/gotime2022/Projects/worktrees/156-*
+git fetch origin main
+git merge origin/main  # GET LATEST CODE!
+```
+
+#### Before Starting Work
+```bash
+# Verify you have latest code
+./.claude/scripts/safe-worktree.sh verify
+
+# If behind, merge main
+./.claude/scripts/safe-worktree.sh merge
+```
+
+#### While Working
+```bash
+# Use auto-reload server (no manual restarts)
+npm run dev:8081  # Auto-restarts on changes
+
+# Commit frequently
+git add -A
+git commit -m "[WIP] Working on feature"
+git push
+```
+
+### ❌ NEVER DO THIS
+1. **NEVER** assume worktree has latest code
+2. **NEVER** work for hours without committing
+3. **NEVER** run multiple servers on same port
+4. **NEVER** delete worktree without pushing changes
+5. **NEVER** create worktree without merging main first
 
 ## Using the Worktree Sync Tool
 
