@@ -44,6 +44,19 @@
 
 ## ⚡ Quick Start
 
+### 🎯 Quick Copy Commands
+
+```bash
+# Copy VSCode settings to new project
+cp /home/gotime2022/Projects/multi-agent-claude-code/.vscode/settings.json .vscode/
+
+# Copy project-setup command to spec-kit project  
+cp /home/gotime2022/Projects/multi-agent-claude-code/.claude/commands/project-setup.md .claude/commands/
+
+# Your global Claude settings already have all permissions ✓
+# Located at: ~/.claude/settings.json
+```
+
 ### 1️⃣ Clone & Initialize
 
 ```bash

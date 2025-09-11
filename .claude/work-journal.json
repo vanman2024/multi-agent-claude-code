@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-11T02:01:51Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "57b8533 docs: Add note about global vs project commands"
+    },
+    {
       "timestamp": "2025-09-11T01:59:08Z",
       "branch": "main",
       "uncommitted": 2,
@@ -696,13 +703,6 @@
       "uncommitted": 0,
       "unpushed": 0,
       "last_commit": "7e09bd4 docs: Clean up README - remove todo-viewer references"
-    },
-    {
-      "timestamp": "2025-09-08T23:45:01Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "335c64b refactor: Move scripts to proper project structure"
     }
   ]
 }
