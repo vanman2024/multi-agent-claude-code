@@ -379,25 +379,31 @@ See `.claude/hooks/README.md` for configuration details.
 
 ## 📚 Documentation
 
-Essential guides:
+Essential guides (consolidated from 84 to ~50 files):
 
-### Planning & Setup
-- `docs/development/DOCUMENT-GENERATION-FLOW.md` - Complete workflow diagram
+### Core Documentation
+- `README.md` - Project overview and quick start (this file)
+- `CLAUDE.md` - AI assistant configuration and instructions
+- `docs/SPEC-KIT-INTEGRATION.md` - Spec-kit integration guide
+- `docs/VSCODE-SETTINGS-INHERITANCE.md` - VSCode settings guide
+
+### Development Workflows
+- `docs/workflows/MAIN-WORKFLOW.md` - Primary development workflow
+- `docs/workflows/WORKTREE-WORKFLOW.md` - Git worktree management (includes safety rules)
+- `docs/workflows/MULTI-INSTANCE-WORKFLOW.md` - Multiple instance handling
+
+### Architecture & Planning
 - `docs/development/FIVE-TIER-SYSTEM.md` - Understanding the five tiers
-- `templates/guides/*.md` - Templates for all documentation
-
-### Development
-- `docs/framework/WORKFLOW.md` - Development workflow and branch strategies
-- `docs/framework/INFRASTRUCTURE_GUIDE.md` - How the framework automation works
-- `docs/development/FLAGS.md` - All command flags reference
+- `docs/development/DOCUMENT-GENERATION-FLOW.md` - Documentation workflow
+- `docs/architecture/INFRASTRUCTURE_GUIDE.md` - Framework automation guide
 
 ### Testing
+- `docs/testing/TESTING-STRATEGY.md` - Comprehensive testing approach  
 - `docs/testing/API-MOCK-TESTING.md` - Newman/Postman API testing
-- `docs/testing/TESTING-STRATEGY.md` - Comprehensive testing approach
 
-### Configuration
-- `CLAUDE.md` - AI assistant configuration and instructions
-- `MCP_SERVERS_GUIDE.md` - MCP server setup and usage
+### Commands & Configuration
+- `docs/development/FLAGS.md` - All command flags reference
+- `docs/development/CICD.md` - CI/CD pipeline configuration
 
 ---
 
