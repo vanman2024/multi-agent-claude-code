@@ -56,3 +56,18 @@ We follow spec-kit methodology:
 4. /implement - Execute tasks (you help here)
 
 When implementing, reference task numbers (T001, T002, etc.) from the specs/*/tasks.md files.
+<!-- AUTO-CONTEXT-START -->
+
+**Current Branch**: main
+**Last Updated**: 2025-09-13 22:51:21
+
+### Recent Commits
+```
+3d28ba5 [WORKING] feat: Major project-sync system implementation
+2dd7a25 feat: Integrate spec-kit with test generation and implement commands
+ec3fc88 docs: Consolidate documentation from 84 to ~60 files
+47b50dc docs: Add quick copy commands to README
+57b8533 docs: Add note about global vs project commands
+```
+
+<!-- AUTO-CONTEXT-END -->
