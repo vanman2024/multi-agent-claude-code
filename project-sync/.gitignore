@@ -1,0 +1,184 @@
+# Dependencies
+node_modules/
+*.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+
+# Production
+build/
+dist/
+out/
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+.idea
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+logs/
+*.log
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Next.js
+.next/
+.next
+out/
+.vercel
+
+# Gatsby
+.cache/
+public
+
+# Vuepress
+.vuepress/dist
+
+# Serverless
+.serverless/
+
+# FuseBox
+.fusebox/
+
+# DynamoDB
+.dynamodb/
+
+# TernJS
+.tern-port
+
+# Stores
+.vscode-test
+
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Turborepo
+.turbo
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Claude Code
+.claude/settings.local.json
+claude-settings.json
+
+# Settings Sync - Local Overrides (machine-specific, never commit)
+settings-sync/local-overrides/
+settings-sync/backups/
+
+# Documentation files not needed in template
+CUSTOM-MCP-HOSTING.md
+MCP-ARCHITECTURE.md
+TESTING-CHECKLIST.md
+IMPLEMENTATION-CHECKLIST.md
+TEMPLATE-INFO.md
+SECRET-STATUS.md
+*-CHECKLIST.md
+IDEAS.md
+NOTES.md
+TODO.md
+DRAFT-*.md
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Lock files (keep these in version control usually)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+.gemini/
+gha-creds-*.json
+
+# Playwright
+.playwright-mcp/
+playwright-report/
+test-results/

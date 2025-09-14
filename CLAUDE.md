@@ -77,12 +77,28 @@ git push
 
 When you clone this template for a new project, immediately switch to Application Mode and follow the full workflow.
 
-## AI Agent Integration
+## 🤖 @Symbol Multi-Agent Coordination System
 
-### How AI Agents Work in This Framework
-- **GitHub Copilot**: Handles simple tasks (Complexity 1-2, Size XS-S) directly in GitHub
-- **Claude Code Agents**: Handle complex tasks locally with full MCP tool access
-- **No @claude App**: We avoid the @claude GitHub App to prevent usage costs
+### Revolutionary Coordination Approach
+This project now uses the **@symbol coordination system** - a breakthrough in AI agent collaboration that integrates seamlessly with Claude Code's existing subagent architecture.
+
+### How @Symbol Coordination Works with Claude Code
+- **@claude**: Uses Claude Code's full subagent system (general-purpose, code-refactorer, pr-reviewer, etc.)
+- **@copilot**: GitHub Copilot handles simple tasks (Complexity ≤2, Size XS-S) 
+- **@qwen**: Local Qwen CLI for everyday coding tasks (FREE until rate limits)
+- **@gemini**: Large document/codebase analysis via CLI (2M context, ~$0.075/million tokens using gemini-1.5-flash)
+- **@codex**: Interactive development and prototyping
+
+### Claude Code Subagent Integration
+Claude Code's specialized agents work within the @symbol system:
+- **@claude/general-purpose**: Complex multi-step tasks and research
+- **@claude/code-refactorer**: Large-scale refactoring and optimization
+- **@claude/pr-reviewer**: Code review and standards compliance
+- **@claude/backend-tester**: API testing and validation
+- **@claude/integration-architect**: Multi-service integrations
+- **@claude/system-architect**: Database and API architecture
+- **@claude/security-auth-compliance**: Authentication and security
+- **@claude/frontend-playwright-tester**: End-to-end UI testing
 
 ### Primary Slash Commands
 
@@ -433,6 +449,54 @@ mutation($discussionId: ID!, $body: String!) {
 }' -F discussionId="$DISCUSSION_ID" -F body="Your comment text"
 ```
 
+## Gemini CLI Configuration - Dual Terminal Setup
+
+### 🚀 MAXIMIZE BOTH FREE MODELS
+
+We now have TWO powerful Gemini models running FREE:
+1. **Terminal 1**: Google OAuth → **Gemini 2.5 Pro** (FREE on personal accounts!)
+2. **Terminal 2**: API Key → **Gemini 2.0 Flash Experimental** (FREE while in experimental!)
+
+### Setup Instructions
+
+#### Terminal 1: Google OAuth (Gemini 2.5 Pro)
+```bash
+# Just run gemini - API keys are commented out in .bashrc
+gemini
+# Choose option 1: Login with Google
+# You'll get Gemini 2.5 Pro FREE on personal accounts
+```
+
+#### Terminal 2: API Key (Gemini 2.0 Flash Experimental)
+```bash
+# Source the setup script to enable API key for this terminal only
+source /home/gotime2022/bin/gemini-setup-experimental.sh
+# Now use the free experimental model
+gemini -m gemini-2.0-flash-exp
+```
+
+### Model Comparison & Strategy
+
+| Model | Auth Method | Cost | Context | Best For |
+|-------|------------|------|---------|----------|
+| **Gemini 2.5 Pro** | Google OAuth | FREE (personal) | 1M tokens | Complex reasoning, advanced tasks |
+| **Gemini 2.0 Flash Exp** | API Key | FREE (experimental) | 1M tokens | Fast responses, agentic tasks |
+| **Claude Code** | N/A | Via subscription | N/A | Architecture, complex debugging |
+
+### Usage Strategy - Use ALL THREE to Maximum Advantage
+1. **Gemini 2.0 Flash Exp** (Terminal 2): Rapid prototyping, quick questions, bulk processing
+2. **Gemini 2.5 Pro** (Terminal 1): Complex analysis, when Flash Exp can't handle it
+3. **Claude Code**: Architecture decisions, complex multi-file refactoring, debugging
+
+### CRITICAL: Both Gemini Models are FREE
+- **2.5 Pro**: Free on personal Google accounts (would cost $1.25/M input + $10/M output otherwise!)
+- **2.0 Flash Exp**: Completely free during experimental phase (normally $0.10/M input + $0.40/M output)
+- **USE THEM BOTH TO THE MAX WHILE THEY'RE FREE!**
+
+### Configuration Files
+- **API Key Script**: `/home/gotime2022/bin/gemini-setup-experimental.sh` (sets API key for terminal session)
+- **API Keys**: Commented out in `~/.bashrc` (lines 192-193) to allow Google OAuth by default
+
 ## Working with MCP Servers
 
 MCP (Model Context Protocol) servers allow Claude to interact with external tools and services. 
@@ -468,6 +532,10 @@ When working in WSL and needing to read Windows files (especially screenshots), 
 - WSL path: `/mnt/c/Users/user/Pictures/Screenshots/screenshot.png`
 
 Replace `C:/` with `/mnt/c/` and forward slashes throughout. This allows Claude Code to access Windows files from the WSL environment.
+
+## VS Code Settings Changes
+
+**IMPORTANT**: After modifying `.vscode/settings.json`, always restart VS Code to apply changes. Settings like Vim extension disable, formatters, and other configurations only take effect after restart.
 
 ## File Naming Conventions
 

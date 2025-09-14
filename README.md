@@ -1,516 +1,336 @@
-# 🚀 Multi-Agent Development Framework (Template)
+# Multi-Agent Development Framework with Spec-Kit Integration
 
-<div align="center">
+**IMPORTANT**: This system is designed to work AFTER spec-kit project initialization. Spec-kit creates the project structure and planning, then this system adds comprehensive AI agent coordination on top.
 
-![Version](https://img.shields.io/badge/Version-v2.0.0-purple?style=for-the-badge)
-![GitHub](https://img.shields.io/badge/GitHub-Native-black?style=for-the-badge&logo=github)
-![Copilot](https://img.shields.io/badge/GitHub_Copilot-Free-blue?style=for-the-badge&logo=github)
-![Claude](https://img.shields.io/badge/Claude_Code-Local-orange?style=for-the-badge)
-![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)
+## 🚀 Quick Start: The ONLY Workflow You Need
 
-**⚠️ TEMPLATE FRAMEWORK: Clone this to bootstrap your AI-driven development**
+### Step 1: Create Project with Spec-Kit
+```bash
+# Navigate to your Projects directory first
+cd /home/gotime2022/Projects
 
-**Simplified AI-driven development: Issue-driven features with AI assistance**
+# Install spec-kit and create new project
+uvx --from git+https://github.com/github/spec-kit.git specify init my-awesome-app
+cd my-awesome-app
 
-[Quick Start](#-quick-start) • [Core Workflow](#-core-workflow) • [Documentation](#-documentation)
+# Or with specific AI agent
+specify init my-awesome-app --ai claude
+specify init my-awesome-app --ai gemini
+specify init my-awesome-app --ai copilot
 
-</div>
+# Or add to existing project:
+specify init --here --ai copilot
+```
 
----
+### Step 2: Add Multi-Agent Coordination
+```bash
+# From your new project directory, run:
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh
 
-## 🎯 What's New: Five-Tier Development System
+# That's it! Your spec-kit project now has full multi-agent coordination.
+```
 
-**COMPREHENSIVE PLANNING**: Project setup to production
-- `/project-setup` - Interactive discovery and vision creation
-- `/plan:generate` - Generate detailed technical documentation
-- `/test:generate` - Create comprehensive test suites (90% coverage from day 1)
+## 📋 What Gets Copied to Your Project
 
-**SMART IMPLEMENTATION**: Right tool for the right job
-- `/create-issue` - Smart routing to Copilot (simple) or Claude (complex)
-- `/work` - Full issue→PR→merge workflow with tracking
+### 🤖 Agent Coordination Files
+- `agents/CLAUDE.md` - Claude Code subagent instructions
+- `agents/AGENTS.md` - Multi-agent coordination rules
+- `agents/QWEN.md` - Local Ollama agent (free)
+- `agents/GEMINI.md` - Google AI research agent
+- `.github/copilot-instructions.md` - GitHub Copilot configuration
 
-**FIVE-TIER FRAMEWORK**:
-- ⚙️ **Infrastructure** - Local DevOps setup (not tracked as issues)
-- 🏗️ **Architecture** - System design decisions
-- 🎨 **Design System** - UI/UX foundation
-- 📱 **Standard Features** - Common app functionality
-- 🎯 **Custom Features** - Your unique value (10-20 GitHub issues)
+### 🔧 MCP & Tools Configuration
+- `mcp.json` - Shared MCP server configuration for all agents
+- VS Code settings with AI tool extensions
+- Environment variable template (`.env.example`)
+- Testing standards for your detected tech stack
 
-**COST-FREE**: No paid @claude GitHub App - uses free GitHub Copilot + local Claude Code
+### ⚙️ GitHub Automation
+- CI/CD pipeline with quality gates
+- Preview deployment workflow (Vercel)
+- Production deployment automation
+- Automated PR status updates and coverage reports
 
-**UNIFIED**: Everything deploys to Vercel (frontend + backend)
+### 🪝 Development Hooks
+- Session context loading for agents
+- Work state preservation between sessions
+- Automatic git state tracking
 
----
+## 🤖 AI Agent CLI Setup
 
-## ⚡ Quick Start
+### Daily Capacity: 4000+ FREE Requests
+- **Gemini 2.5 Pro**: 1000 requests/day (OAuth)
+- **Gemini 2.0 Flash Exp**: Unlimited while experimental (API)
+- **Qwen**: 2000 requests/day (OAuth)
+- **Claude Code**: Your architect/reviewer (local)
 
-### 🎯 Quick Copy Commands
+### Gemini CLI (Dual-Model Strategy)
+```bash
+# Terminal 1: Gemini 2.5 Pro (OAuth - 1000 requests/day FREE)
+gemini                  # Uses OAuth login with Google account
+
+# Terminal 2: Gemini 2.0 Flash Experimental (API Key - Unlimited while experimental)
+# One-time setup per terminal session:
+source ~/bin/gemini-setup-experimental.sh
+gemini -m gemini-2.0-flash-exp    # Use ANY model with -m flag
+
+# Or use the convenience wrapper:
+/home/gotime2022/bin/gemini-exp   # Always uses 2.0 Flash Experimental
+```
+
+**Note:** The `gemini -m` flag works with ANY Gemini model (gemini-2.0-flash-exp, gemini-1.5-pro, etc.)
+
+### Qwen CLI (2000 requests/day FREE)
+```bash
+qwen                    # OAuth login, 2000 free requests daily
+```
+
+### Codex CLI (Interactive Development)
+```bash
+codex                   # Interactive mode
+codex exec [command]    # Non-interactive execution
+```
+
+### Claude Code (Your CTO-level reviewer)
+```bash
+# Already integrated - you're using it now!
+# Acts as architect/reviewer for the other agents' work
+```
+
+### MCP Server Configuration
+```bash
+# Sync MCP servers to all agents (one-time setup)
+/home/gotime2022/Projects/multi-agent-claude-code/project-sync/scripts/sync-mcp-servers.sh
+
+# Configure project-specific settings (Supabase, etc.)
+/home/gotime2022/Projects/multi-agent-claude-code/project-sync/scripts/sync-mcp-servers.sh configure
+
+# List configured MCP servers
+/home/gotime2022/Projects/multi-agent-claude-code/project-sync/scripts/sync-mcp-servers.sh list
+```
+
+## 🐳 Docker for Python Development (No More WSL Issues!)
+
+If you're using Python, Docker eliminates all WSL path issues, version conflicts, and environment problems:
 
 ```bash
-# Copy VSCode settings to new project
-cp /home/gotime2022/Projects/multi-agent-claude-code/.vscode/settings.json .vscode/
+# After running sync-project-template.sh, you'll have Docker files ready
+# Start the development environment:
+./docker-scripts.sh dev-up
 
-# Copy project-setup command to spec-kit project  
-cp /home/gotime2022/Projects/multi-agent-claude-code/.claude/commands/project-setup.md .claude/commands/
+# Your Python environment is now running in Docker!
+# - Python dev server: http://localhost:8000
+# - Node.js frontend: http://localhost:3000
+# - PostgreSQL: localhost:5432
+# - Redis: localhost:6379
 
-# Your global Claude settings already have all permissions ✓
-# Located at: ~/.claude/settings.json
+# Open a shell in the Python container:
+./docker-scripts.sh dev-shell python-dev
+
+# Run tests in container (no local Python needed!):
+./docker-scripts.sh dev-test
+
+# Format code:
+./docker-scripts.sh dev-format
+
+# Stop everything:
+./docker-scripts.sh dev-down
 ```
 
-### 1️⃣ Clone & Initialize
+**VS Code Integration:**
+- Open folder in container: F1 → "Dev Containers: Open Folder in Container"
+- All extensions and Python work inside the container
+- No local Python installation needed!
+
+## 🔄 Updating Existing Projects
+
+If you already ran the setup and need to update/add missing files:
 
 ```bash
-# Get the template
-git clone https://github.com/vanman2024/multi-agent-claude-code.git my-project
-cd my-project
+# The setup script will detect existing configuration and exit with this message:
+# "⚠️ AI Agents already configured in this project!"
+# "To reconfigure, run: node /path/to/sync-project.js"
 
-# Make it yours
-rm -rf .git && git init
-git add . && git commit -m "Initial from template"
-git remote add origin https://github.com/YOU/your-repo.git
-git push -u origin main
+# Run the sync script directly to update existing projects:
+cd your-project-directory
+node /home/gotime2022/Projects/multi-agent-claude-code/project-sync/scripts/sync-project.js
+
+# This safely adds missing files without overwriting your existing customizations
 ```
 
-### 2️⃣ Install Tools
+## 📊 Smart Agent Routing
 
+- Simple tasks (Complexity ≤2, Size XS/S) → GitHub Copilot (free)
+- Complex tasks (Complexity 3-5, any size) → Claude Code agents
+- Local development → Qwen API (2000 requests/day free)
+- Research → Gemini CLI
+- Interactive development → Codex API
+
+## 🧪 Testing Infrastructure
+
+Based on your detected tech stack:
+- **React/Next.js**: Jest, Playwright, ESLint, TypeScript checking
+- **Python/FastAPI**: pytest, coverage, ruff/flake8, mypy
+- **Node.js/Express**: Jest, supertest, ESLint, TypeScript
+
+## 🚀 Deployment Ready
+
+- Vercel deployment workflows
+- Environment variable templates
+- Production readiness scripts
+- Security scanning and linting
+
+## 🔄 Agent Coordination
+
+- @symbol task assignment system
+- Shared MCP server access across all tools
+- Context preservation between sessions
+- Work state tracking
+
+## 📋 Two Scripts Explained
+
+### 1. sync-project-template.sh (Main Entry Point)
+- **For**: New projects that haven't been configured yet  
+- **What it does**: Safety checks, then automatically calls sync-project.js
+- **Safety**: Won't overwrite existing configurations
+
+### 2. sync-project.js (File Sync Engine)
+- **For**: Existing projects that need updates or missing files added
+- **What it does**: Copies agent files, .claude directory, VS Code settings, .env, .gitignore, etc.
+- **Safety**: Only adds missing files, preserves your existing customizations
+
+## 📁 How It Works
+
+### Tech Stack Detection
+Automatically detects React/Next.js, Python/FastAPI, Node.js/Express, etc.
+
+### Smart Configuration
+Applies appropriate testing standards and scripts for your framework
+
+### File Copying
+Copies all template files while preserving your existing project structure
+
+### No Conflicts
+Only adds files, never overwrites existing project files
+
+## 📜 Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `sync-project-template.sh` | Main setup script for new projects |
+| `sync-project.js` | Core sync logic (called by setup script) |
+| `sync-mcp-servers.sh` | Sync MCP servers to all AI agents |
+| `sync-mcp-servers.sh configure` | Set project-specific tokens |
+| `sync-mcp-servers.sh list` | List configured MCP servers |
+
+## ⚙️ Customizing Settings
+
+### VS Code Customizations
+Edit `local-overrides/vscode-local.json`:
+```json
+{
+  "// Machine-specific overrides": "",
+  "editor.fontSize": 16,
+  "editor.fontFamily": "JetBrains Mono",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "python.defaultInterpreterPath": "/usr/local/bin/python3"
+}
+```
+
+### MCP Server Configuration
+Configure MCP servers for all agents using the central config:
 ```bash
-# Required CLIs
-brew install gh                    # GitHub CLI
-npm install -g vercel newman        # Vercel & Postman
-npx playwright install              # Browser automation
+# Edit central MCP configuration
+vi project-sync/config/mcp-servers.json
+
+# Sync to all agents (Gemini, Qwen, Codex)
+./project-sync/scripts/sync-mcp-servers.sh
+
+# For Claude Code, use the built-in command:
+/add-mcp [server-name]
 ```
 
-### 3️⃣ Configure API Keys & VSCode Settings
-
+Project-specific tokens (Supabase, etc.) go in `.env.mcp`:
 ```bash
-# FIRST TIME ONLY: Create personal config
-./scripts/utilities/setup-personal-config.sh
-# Saves to ~/.claude-code/personal-config.json
-
-# FOR EACH PROJECT: Load your keys
-./scripts/utilities/load-personal-config.sh
-# Creates .env with all your saved keys
-
-# Apply VSCode settings globally (recommended)
-./scripts/utilities/vscode-settings-sync.sh --user
-# Other options: --profile, --symlink, --copy, --git-template, --extension
+SUPABASE_PROJECT_REF="your-project-ref"
+SUPABASE_ACCESS_TOKEN="your-access-token"
 ```
 
-### 4️⃣ Setup MCP Servers
+## 🔒 Security
 
+- ✅ **Templates**: Safe defaults, no sensitive data
+- ✅ **Local overrides**: Can contain API keys, local paths (never committed)
+- ✅ **Automatic backups**: Before every sync
+- ✅ **Cross-platform**: Works on Windows, macOS, Linux
+
+## 🔄 Integration with Spec-Kit
+
+The project sync system works seamlessly with spec-kit projects:
+
+1. **Initialize with spec-kit**: Use spec-kit to create your project structure and initial planning
+2. **Add AI coordination**: Run `./sync-project-template.sh` to layer on the multi-agent system
+3. **Start developing**: Use @symbol coordination with spec-kit's generated plans
+
+### Example Workflow:
 ```bash
-# Start Claude Code
-claude
+# Start from your Projects directory
+cd /home/gotime2022/Projects
 
-# Add essential MCP servers
-/add-mcp
+# Create new project with spec-kit
+uvx --from git+https://github.com/github/spec-kit.git specify init my-app
 
-# This configures:
-# ✅ GitHub MCP (free, local API access)
-# ✅ Playwright (browser testing)
-# ✅ Supabase (database)
-# ✅ Postman (API testing)
+# Enter project directory  
+cd my-app
+
+# Add AI agent coordination
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh
+
+# Start developing with AI agents
+code .
 ```
 
-### 5️⃣ Initialize Project with Five-Tier System
+Now you have both spec-kit's planning capabilities AND the full multi-agent coordination system ready to go!
 
-```bash
-# Step 1: Interactive project discovery and vision
-/project-setup
-# Creates: docs/PROJECT_PLAN.md (your north star vision)
+## 🎯 Key Insights
 
-# Step 2: Generate detailed technical documentation
-/plan:generate
-# Creates: ARCHITECTURE.md, INFRASTRUCTURE.md, FEATURES.md, DESIGN_SYSTEM.md
+> **"Simple, universal patterns often outperform complex, custom solutions."**
 
-# Step 3: Generate comprehensive test suites
-/test:generate --all
-# Creates: Unit tests, API tests (Postman), E2E tests
+The @symbol coordination system succeeds because:
 
-# Step 4: Start building
-/create-issue "User authentication"
-/work #1
-```
+1. **Cognitive Familiarity** - Everyone knows @mentions
+2. **No Learning Curve** - Instant adoption by any team member
+3. **Tool Independence** - Works with any AI agent or human
+4. **Self-Organizing** - Teams naturally optimize their usage
+5. **Failure Resistant** - No complex infrastructure to break
 
----
+## 📚 Technical Details
 
-## 🔄 Core Workflow: Plan → Build → Test → Deploy
+### Configuration Files
+- `project-sync-config.template.json` - Master configuration template
+- Dynamic tech stack detection and framework-specific settings
+- Testing command standards for different project types
+- MCP server routing (local vs remote access)
 
-### 🆕 Advanced Slash Command Patterns
+### Agent Capabilities
+Each agent gets configured with appropriate tool access:
+- **Claude Code**: Full MCP access (filesystem, git, github, memory, etc.)
+- **Qwen**: Performance optimization with API access
+- **Gemini**: Research and documentation tools
+- **Copilot**: GitHub integration and VS Code extensions
 
-Our slash commands use sophisticated patterns for maximum flexibility:
+### Template vs Project Mode
+- **Template Mode**: You're building/improving this framework
+- **Project Mode**: You're using this framework to build applications
 
-**Context Loading with `@`**:
-```markdown
-## Load Context
-- @README.md
-- @package.json
-- @docs/architecture.md
-```
-
-**Reusable Variable Blocks**:
-```markdown
-## <analysis_instructions>
-Analyze the request and determine complexity...
-</analysis_instructions>
-
-## <implementation_instructions>
-Based on analysis, implement the solution...
-</implementation_instructions>
-```
-
-**Stop Blocks for Workflow Control**:
-```markdown
-## <worktree_branch_check>
-CRITICAL: Must be on main branch unless --worktree flag
-</worktree_branch_check>
-```
-
-These patterns make slash commands intelligent prompts that guide Claude Code through complex workflows.
-
-### Phase 1: Planning & Setup (Once per project)
-
-```bash
-# 1. Interactive project discovery
-/project-setup
-# Creates PROJECT_PLAN.md with vision & roadmap
-
-# 2. Generate technical documentation
-/plan:generate
-# Creates detailed docs from vision
-
-# 3. Generate test suites
-/test:generate --all
-# 90% test coverage before coding!
-```
-
-### Phase 2: Implementation (Daily work)
-
-```bash
-# Create issues for major features (10-20 total)
-/create-issue "Add user authentication"
-# Auto-assigns to Copilot if simple, Claude if complex
-
-# Work on features
-/work #150
-# Creates branch, implements with tests
-
-# Deploy when ready
-/deploy
-# Everything goes to Vercel
-```
-
-### ⚠️ Key Principles
-- **Infrastructure tasks** = Local work (no issues needed)
-- **Features** = GitHub issues (tracked and visible)
-- **10-20 issues total** = Group related work together
-- **Tests first** = Generate tests before implementation
-
----
-
-
-### 📝 Work Journal System
-
-**Automatic Activity Tracking** - The framework maintains a continuous work journal that:
-- **Appends entries** every time Claude responds (never overwrites)
-- **Tracks git state**: branch, uncommitted changes, unpushed commits
-- **Session markers**: Special events like session_end are flagged
-- **History preservation**: Keeps last 100 entries for work patterns
-- **Located at**: `.claude/work-journal.json`
-
-
-1. **Automatic Tracking**: TodoWrite usage tracked automatically
-2. **Project Mapping**: Links todos to projects via session IDs
-3. **Persistent Storage**: Todos in `~/.claude/todos/`, journal in `.claude/`
-4. **Smart Filtering**: Bash scripts map sessions to projects
-5. **Continuous Journal**: Hooks update work history on every response
-
-### 🌳 Git Worktrees: Parallel Development (NEW!)
-
-**Work on multiple issues simultaneously without disrupting your current work:**
-
-```bash
-# Work on issue in isolated worktree (doesn't affect current directory)
-/work #123 --worktree
-
-# Creates worktree at: worktrees/123-feature-name/
-# Branches from origin/main automatically
-# Your current work remains untouched
-```
-
-**Benefits of --worktree flag:**
-- **No branch switching**: Stay on your current branch
-- **Parallel work**: Multiple issues in separate directories
-- **Clean isolation**: Each issue gets its own workspace
-- **Auto-cleanup**: Worktrees removed after PR merge
-- **Safe experimentation**: Test changes without affecting main work
-
-### 🚀 Future GitHub Integration (Roadmap)
-
-**Coming Soon**: Direct GitHub issue synchronization
-- **Two-way sync**: TodoWrite ↔️ GitHub Issues
-- **Auto-linking**: Todos automatically tied to issue numbers
-- **PR tracking**: See which todos are in PRs
-- **Status sync**: GitHub issue status updates Todo status
-- **Milestone mapping**: Group todos by GitHub milestones
-- **Team visibility**: Share todo progress via GitHub
-
-This will create a unified development experience where local Claude Code work seamlessly integrates with GitHub's project management.
-
----
-
-## 🤖 AI Agent Routing (When Activated)
-
-### GitHub Copilot Handles (FREE)
-- ✅ Simple implementations (Complexity ≤2, Size XS-S)
-- ✅ Unit test writing
-- ✅ Documentation updates
-- ✅ Simple bug fixes
-- ✅ Basic refactoring
-- ✅ PR code reviews
-
-### Claude Code Handles (LOCAL)
-- 🧠 Complex features (Complexity ≥3)
-- 🧠 Architecture decisions
-- 🧠 Multi-file refactoring
-- 🧠 Security implementations
-- 🧠 Integration work
-- 🧠 Large tasks (Size M+)
-
-**Note**: Auto-routing to Copilot requires GitHub Actions to be fully operational (see issue #120)
-
----
-
-## 📁 Project Structure
-
-```
-your-project/
-├── 📋 .github/
-│   ├── workflows/         # GitHub Actions CI/CD
-│   └── ISSUE_TEMPLATE/    # Smart issue templates
-├── 🤖 .claude/
-│   ├── commands/          # Core slash commands
-│   │   ├── create-issue.md
-│   │   ├── work.md
-│   │   ├── project-setup.md
-│   │   ├── add-mcp.md
-│   │   ├── deploy.md
-│   │   └── copilot-review.md
-│   ├── agents/            # Specialized sub-agents
-│   └── hooks/             # Auto-sync & testing
-├── 📚 docs/               # All documentation
-├── 📖 Core Files
-│   ├── README.md          # This file
-│   └── CLAUDE.md          # AI instructions
-```
-
----
-
-## 🚀 Deployment
-
-Everything deploys to **Vercel** automatically:
-
-```bash
-# Quick deploy
-/deploy
-
-# Or through work command
-/work --deploy
-```
-
-**Vercel handles:**
-- Frontend (React, Next.js, etc.)
-- Backend APIs (serverless functions)
-- Webhooks endpoints
-- Global CDN
-- Automatic HTTPS
-- Preview deployments for PRs
-
----
-
-## 🧰 Python Scripts as Utility Tools (NEW!)
-
-**Python scripts in this framework are TOOLS, not decision-makers:**
-
-```bash
-scripts/utilities/
-├── analyze-complexity.py      # Returns complexity score (data)
-├── check-dependencies.py      # Lists dependent issues (data)
-├── format-issue-body.py       # Formats markdown (transformation)
-└── validate-pr-readiness.py   # Checks PR status (validation)
-```
-
-**Key Principle**: Python scripts are like MCP servers - they provide data/transformations, but Claude Code makes the decisions.
-
-**Pattern**:
-```python
-# ✅ GOOD: Returns data for Claude to decide
-def analyze_complexity(description):
-    return {"score": 3, "factors": ["multi-file", "security"]}
-
-# ❌ BAD: Makes decisions internally
-def should_assign_to_copilot(description):
-    if complexity > 2:
-        return False  # Don't make decisions!
-```
-
-## 🪝 Strategic Hooks System
-
-**6 essential hooks that fire at workflow boundaries, not every file change:**
-
-### The 6 Working Hooks ✅
-1. **SessionStart** (`load-context.sh`) - Loads git state, issues, PRs when you start
-2. **UserPromptSubmit** (`verify-sync-before-claude.sh`) - Warns about unsynced changes before @claude
-3. **Stop** (`work-checkpoint.sh`) - Commit reminders (5+/15+ changes, 3+ unpushed)
-4. **SessionEnd** (`save-work-state.sh`) - Saves session state to work journal
-5. **PostToolUse:TodoWrite** (`TodoWrite-post.sh`) - Auto-registers todo sessions with project
-6. **Helper** (`register-session.sh`) - Links todo files to projects for proper tracking
-
-### Hook Benefits
-- **Minimal**: Only 6 hooks, all verified working
-- **Strategic**: Fire at natural pauses, not constantly
-- **Helpful**: Gentle reminders to commit and push
-- **Invisible**: JSON output to Claude, not terminal spam
-- **Auto-sync**: Todo persistence fixed automatically
-
-See `.claude/hooks/README.md` for configuration details.
-
----
-
-## 📚 Documentation
-
-Essential guides (consolidated from 84 to ~50 files):
-
-### Core Documentation
-- `README.md` - Project overview and quick start (this file)
-- `CLAUDE.md` - AI assistant configuration and instructions
-- `docs/SPEC-KIT-INTEGRATION.md` - Spec-kit integration guide
-- `docs/VSCODE-SETTINGS-INHERITANCE.md` - VSCode settings guide
-
-### Development Workflows
-- `docs/workflows/MAIN-WORKFLOW.md` - Primary development workflow
-- `docs/workflows/WORKTREE-WORKFLOW.md` - Git worktree management (includes safety rules)
-- `docs/workflows/MULTI-INSTANCE-WORKFLOW.md` - Multiple instance handling
-
-### Architecture & Planning
-- `docs/development/FIVE-TIER-SYSTEM.md` - Understanding the five tiers
-- `docs/development/DOCUMENT-GENERATION-FLOW.md` - Documentation workflow
-- `docs/architecture/INFRASTRUCTURE_GUIDE.md` - Framework automation guide
-
-### Testing
-- `docs/testing/TESTING-STRATEGY.md` - Comprehensive testing approach  
-- `docs/testing/API-MOCK-TESTING.md` - Newman/Postman API testing
-
-### Commands & Configuration
-- `docs/development/FLAGS.md` - All command flags reference
-- `docs/development/CICD.md` - CI/CD pipeline configuration
-
----
-
-## 🎯 Key Principles
-
-1. **Issue-Centric**: Everything starts with a GitHub issue
-2. **Two Commands**: `/create-issue` and `/work` handle everything
-3. **Smart Routing**: AI automatically picks Copilot vs Claude
-4. **Cost-Free**: No paid services required (uses free tiers)
-5. **Unified Deploy**: Everything goes to Vercel
-
----
-
-## 🔧 Available Commands
-
-### Planning Commands (New!)
-- `/project-setup` - Interactive discovery & create vision document
-- `/plan:generate` - Generate detailed technical docs from vision
-- `/test:generate` - Create comprehensive test suites
-
-### Implementation Commands
-- `/create-issue` - Create any type of work item
-- `/work [#issue]` - Implement issues intelligently
-- `/work [#issue] --worktree` - Work in isolated git worktree (NEW!)
-
-### Utility Commands
-- `/add-mcp` - Add MCP servers (GitHub, Supabase, Postman)
-- `/deploy` - Quick Vercel deployment
-- `/copilot-review` - Request PR review
-- `/discussions` - Manage GitHub Discussions
-
----
-
-## 💡 Complete Example: Building a SaaS App
-
-```bash
-# 1. Project Discovery (once)
-/project-setup
-> "Building a team collaboration tool"
-> B2B SaaS, subscription model
-> Creates: PROJECT_PLAN.md
-
-# 2. Generate Documentation (once)
-/plan:generate
-> Creates: Technical specs from vision
-
-# 3. Generate Tests (once)
-/test:generate --all
-> Creates: Complete test coverage
-
-# 4. Build Features (ongoing)
-/create-issue "User authentication system"
-/create-issue "Team workspace management"
-/create-issue "Real-time collaboration"
-# Creates 10-20 major feature issues
-
-# 5. Implementation
-/work #1
-> Copilot or Claude implements based on complexity
-
-# 6. Deploy
-/deploy
-> Everything to Vercel
-```
-
----
-
-## 🎨 VSCode Settings Inheritance
-
-Share consistent VSCode settings across all projects with multiple options:
-
-### Quick Setup (Recommended)
-```bash
-# Apply settings globally to ALL projects
-./scripts/utilities/vscode-settings-sync.sh --user
-```
-
-### Other Options Available:
-1. **VSCode Profiles** (`--profile`) - Switch between different development contexts
-2. **Symlink** (`--symlink`) - Projects always use latest template settings  
-3. **Copy** (`--copy`) - Independent copy per project
-4. **Git Template** (`--git-template`) - Auto-add to new git repos
-5. **Settings Sync Extension** (`--extension`) - Sync across machines via GitHub Gist
-
-See [VSCode Settings Guide](./docs/VSCODE-SETTINGS-INHERITANCE.md) for details.
-
----
-
-## 🆓 Cost-Free Development
-
-- **GitHub Copilot**: Free with GitHub Pro
-- **Claude Code**: Uses your local API key
-- **Vercel**: Generous free tier
-- **Supabase**: Free tier for database
-- **GitHub Actions**: 2000 free minutes/month
-
-No @claude GitHub App fees!
-
----
+This project sync system bridges the gap between spec-kit project initialization and full AI agent coordination, giving you the best of both worlds.
 
 ## 🤝 Contributing
 
 1. Fork the template
-2. Create issues with `/create-issue`
-3. Implement with `/work`
+2. Create issues with spec-kit or directly in GitHub
+3. Implement with AI agents
 4. Submit PRs
-5. Get Copilot reviews
+5. Get automated reviews
 
 ---
 
@@ -518,6 +338,6 @@ No @claude GitHub App fees!
 
 **Built with ❤️ by developers, for developers**
 
-[Report Issues](https://github.com/vanman2024/multi-agent-claude-code/issues) • [Documentation](./docs) • [Discord](https://discord.gg/your-discord)
+[Report Issues](https://github.com/vanman2024/multi-agent-claude-code/issues) • [Documentation](./docs)
 
-</div># Test deployment blocking Thu Sep  4 12:37:35 PDT 2025
+</div>

@@ -39,11 +39,30 @@
       "ReadMcpResourceTool",
       "BashOutput",
       "KillBash",
-      "mcp__*"
+      "mcp__*",
+      "mcp__github__*",
+      "mcp__filesystem__*",
+      "mcp__memory__*",
+      "mcp__sequential-thinking__*",
+      "mcp__playwright__*",
+      "mcp__ide__*"
     ],
     "deny": [],
-    "ask": [],
     "defaultMode": "acceptEdits"
+  },
+  "mcpServers": {
+    "preApproved": [
+      "github",
+      "filesystem", 
+      "memory",
+      "sequential-thinking",
+      "playwright",
+      "vercel",
+      "git",
+      "ide"
+    ],
+    "autoConnect": true,
+    "skipAuthPrompts": true
   },
   "additionalDirectories": [
     "/tmp",

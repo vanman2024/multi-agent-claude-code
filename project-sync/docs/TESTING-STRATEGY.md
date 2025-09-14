@@ -1,8 +1,79 @@
-# Testing Strategy Guide
+# Standardized Testing Protocol
 
 ## Overview
 
-This document outlines the comprehensive testing strategy for the Multi-Agent Claude Code template framework. The strategy emphasizes token efficiency, intelligent agent routing, and automated test generation for real projects.
+This document defines the **standardized testing protocol** for the Multi-Agent Development Framework. All agents must follow these standards to prevent testing chaos and ensure consistent behavior across projects.
+
+## 🚨 CRITICAL: Standardized Testing Commands
+
+**Claude Code (slash commands):**
+```bash
+/test                        # Universal testing (Claude Code only)
+/deploy                      # Universal deployment (Claude Code only)
+```
+
+**All Other Agents (CLI commands):**
+```bash
+npm test                     # Standard testing command
+npm run lint                 # Standard linting command  
+npm run typecheck           # Standard type checking
+npm run build               # Standard build command
+npm run deploy              # Standard deployment (if available)
+```
+
+**NO AGENT may create custom testing frameworks.** All testing MUST use these standardized commands.
+
+## Standardized Testing Protocol
+
+### Technology Stack Detection
+
+The `/test` command automatically detects your project type and runs appropriate commands:
+
+**React/Next.js Projects:**
+```bash
+npm test                     # or jest
+npm run test:unit           # unit tests only  
+npm run test:e2e            # playwright tests
+npm run lint                # eslint
+npm run typecheck           # tsc --noEmit
+```
+
+**Python Projects:**
+```bash
+pytest                      # all tests
+pytest tests/unit/          # unit tests only
+pytest tests/integration/   # integration tests
+ruff check .                # linting  
+mypy .                      # type checking
+```
+
+**Node.js Backend:**
+```bash
+npm test                    # jest tests
+npm run test:integration    # API tests
+npm run lint               # eslint
+npm run typecheck          # tsc --noEmit
+```
+
+### Agent Compliance Requirements
+
+**Claude Code ONLY:**
+- ✅ `/test` - Universal testing slash command
+- ✅ `/deploy` - Universal deployment slash command
+
+**ALL OTHER AGENTS must use:**
+- ✅ `npm test` - Standard Node.js testing
+- ✅ `pytest` - Standard Python testing
+- ✅ `npm run lint` - Standard linting
+- ✅ `npm run build` - Standard building
+- ✅ `npm run deploy` - Standard deployment (if script exists)
+
+**FORBIDDEN - All agents may NOT:**
+- ❌ Create custom test frameworks
+- ❌ Use non-standard testing commands
+- ❌ Bypass the standardized protocol
+- ❌ Create project-specific test scripts
+- ❌ Use slash commands (only Claude Code has access)
 
 ## Why Testing is Mission-Critical
 

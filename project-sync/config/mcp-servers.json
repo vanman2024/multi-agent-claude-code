@@ -1,0 +1,41 @@
+{
+  "description": "Central MCP Server Configuration - Single source of truth for all agents",
+  "servers": {
+    "filesystem": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/gotime2022"]
+    },
+    "github": {
+      "transport": "http",
+      "httpUrl": "https://api.githubcopilot.com/mcp"
+    },
+    "memory": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "sequential-thinking": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "playwright": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--isolated", "--browser", "firefox"]
+    },
+    "supabase": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase@latest"],
+      "env_required": ["SUPABASE_PROJECT_REF", "SUPABASE_ACCESS_TOKEN"],
+      "env_args": ["--project-ref=${SUPABASE_PROJECT_REF}", "--access-token=${SUPABASE_ACCESS_TOKEN}"]
+    },
+    "postman": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@postman/postman-mcp-server"]
+    }
+  }
+}

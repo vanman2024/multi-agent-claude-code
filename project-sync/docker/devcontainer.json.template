@@ -1,0 +1,99 @@
+{
+  "// NOTE": "VS Code Dev Container configuration for consistent development environments",
+  
+  "name": "Multi-Agent Development Environment",
+  "dockerComposeFile": "docker-compose.dev.yml",
+  "service": "python-dev",
+  "workspaceFolder": "/workspace",
+  
+  "// Development Settings": "",
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "python.defaultInterpreterPath": "/usr/local/bin/python",
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "black",
+    "python.testing.pytestEnabled": true,
+    "python.analysis.typeCheckingMode": "strict"
+  },
+
+  "// VS Code Extensions for Development": "",
+  "extensions": [
+    "ms-python.python",
+    "ms-python.black-formatter",
+    "ms-python.isort",
+    "ms-python.flake8",
+    "ms-python.pylint",
+    "ms-toolsai.jupyter",
+    "github.copilot",
+    "github.copilot-chat",
+    "ms-vscode.vscode-docker",
+    "redhat.vscode-yaml",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-json"
+  ],
+
+  "// Development Features": "",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+
+  "// Port Forwarding": "",
+  "forwardPorts": [8000, 3000, 5678],
+  "portsAttributes": {
+    "8000": {
+      "label": "FastAPI/Flask Dev Server",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Frontend Dev Server", 
+      "onAutoForward": "notify"
+    },
+    "5678": {
+      "label": "Python Debugger",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "// Container Lifecycle": "",
+  "postCreateCommand": "pip install -e . && pre-commit install",
+  "postStartCommand": "echo 'Development environment ready!'",
+
+  "// Development User": "",
+  "remoteUser": "devuser",
+  "containerUser": "devuser",
+
+  "// Mount Configuration": "",
+  "mounts": [
+    "source=${localWorkspaceFolder}/.env,target=/workspace/.env,type=bind,consistency=cached",
+    "source=vscode-extensions,target=/home/devuser/.vscode-server/extensions,type=volume"
+  ],
+
+  "// Environment Variables": "",
+  "containerEnv": {
+    "PYTHONPATH": "/workspace",
+    "DEVELOPMENT": "true"
+  },
+
+  "// Custom Commands": "",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.terminal.activateEnvironment": false,
+        "files.watcherExclude": {
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true,
+          "**/node_modules/**": true,
+          "**/__pycache__/**": true
+        }
+      }
+    }
+  }
+}

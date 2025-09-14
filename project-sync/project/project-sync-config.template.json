@@ -1,0 +1,159 @@
+{
+  "projectSync": {
+    "version": "2.0",
+    "description": "Comprehensive project synchronization including agents, MCP, testing, production readiness, and project essentials",
+    "components": [
+      "vscode-settings",
+      "agent-files", 
+      "mcp-configurations",
+      "testing-standards",
+      "production-readiness-tools",
+      "hooks",
+      "documentation",
+      "project-essentials"
+    ],
+    "personalCommands": {
+      "note": "Slash commands are now stored in ~/.claude/commands/ as personal commands",
+      "location": "Personal Claude Code config, not project-specific",
+      "commands": ["test", "deploy", "production-readiness", "add-mcp"]
+    },
+    "specKitIntegration": {
+      "note": "Works with spec-kit - doesn't replace project structure",
+      "avoidConflicts": true,
+      "focusOnAgentCoordination": true,
+      "enhancesSpecKit": "Adds multi-agent coordination to spec-kit projects"
+    }
+  },
+  "techStackDetection": {
+    "patterns": {
+      "react": {
+        "files": ["package.json"],
+        "dependencies": ["react", "next", "@types/react"],
+        "markers": ["src/components", "pages/", "app/"]
+      },
+      "python": {
+        "files": ["requirements.txt", "pyproject.toml", "setup.py"],
+        "dependencies": ["fastapi", "django", "flask"],
+        "markers": ["main.py", "app/", "src/"]
+      },
+      "node-backend": {
+        "files": ["package.json"],
+        "dependencies": ["express", "fastify", "nestjs"],
+        "markers": ["server/", "api/", "routes/"]
+      },
+      "full-stack": {
+        "conditions": ["frontend AND backend"],
+        "markers": ["both frontend and backend patterns detected"]
+      }
+    },
+    "testingFrameworks": {
+      "react": ["jest", "vitest", "react-testing-library", "playwright"],
+      "python": ["pytest", "unittest", "fastapi.testclient"],
+      "node": ["jest", "mocha", "supertest"],
+      "e2e": ["playwright", "cypress"]
+    }
+  },
+  "agentFiles": {
+    "required": [
+      "agents/CLAUDE.md",
+      "agents/AGENTS.md",
+      ".github/copilot-instructions.md"
+    ],
+    "optional": [
+      "agents/QWEN.md",
+      "agents/GEMINI.md"
+    ]
+  },
+  "githubWorkflows": {
+    "essential": [
+      ".github/workflows/ci-cd-pipeline.yml",
+      ".github/workflows/production-deployment.yml",
+      ".github/workflows/preview-deployment.yml"
+    ],
+    "description": "Essential GitHub Actions for deployment and CI/CD"
+  },
+  "mcpConfiguration": {
+    "standardFile": "mcp.json - Standard MCP server configuration",
+    "location": "Project root directory", 
+    "usage": "All MCP-compatible tools automatically look for mcp.json",
+    "claudeCode": "Also uses claude_desktop_config.json for global access"
+  },
+  "testingStandards": {
+    "commandsByTechStack": {
+      "react-nextjs": {
+        "test": "npm test",
+        "test:unit": "npm run test:unit || jest",
+        "test:e2e": "npm run test:e2e || playwright test",
+        "lint": "npm run lint || eslint .",
+        "typecheck": "npm run typecheck || tsc --noEmit"
+      },
+      "python-fastapi": {
+        "test": "pytest",
+        "test:unit": "pytest tests/unit/",
+        "test:integration": "pytest tests/integration/",
+        "lint": "ruff check . || flake8 .",
+        "typecheck": "mypy ."
+      },
+      "python-django": {
+        "test": "python manage.py test",
+        "test:unit": "pytest tests/unit/",
+        "lint": "ruff check . || flake8 .",
+        "typecheck": "mypy ."
+      },
+      "node-express": {
+        "test": "npm test || jest",
+        "test:unit": "jest --testPathPattern=unit",
+        "test:integration": "jest --testPathPattern=integration",
+        "lint": "eslint .",
+        "typecheck": "tsc --noEmit"
+      }
+    },
+    "sharedParameters": {
+      "coverage": "--coverage",
+      "watch": "--watch",
+      "verbose": "--verbose",
+      "ci": "--ci --coverage --watchAll=false"
+    }
+  },
+  "projectEssentials": {
+    "envTemplate": ".env.example",
+    "gitignoreAdditions": [
+      "# Project-specific",
+      ".env.local",
+      ".env.*.local", 
+      "*.log",
+      ".DS_Store",
+      "Thumbs.db"
+    ],
+    "packageJsonScripts": {
+      "dev": "Auto-detected based on framework",
+      "build": "Auto-detected based on framework", 
+      "test": "Auto-detected based on testing framework",
+      "lint": "Auto-detected based on linting tools",
+      "typecheck": "Auto-detected based on TypeScript presence"
+    }
+  },
+  "localDevelopment": {
+    "philosophy": "100% local development until deployment ready",
+    "workflow": {
+      "taskCoordination": "Local markdown files with @symbol assignments",
+      "noGitHub": "No GitHub issues/PRs until deployment phase",
+      "localTesting": "All testing runs locally without external dependencies",
+      "localDatabases": "SQLite, local PostgreSQL, or containerized DBs",
+      "localAPIs": "Development servers and mock services"
+    },
+    "agentCoordination": {
+      "specKitIntegration": "Use existing spec-kit plan and tasks structure",
+      "taskUpdates": "Agents update task status in spec-kit generated files",
+      "handoffs": "Clear handoff protocols between agents",
+      "sharedContext": "constitution.md and agent-specific memory",
+      "avoidDuplication": "Work within spec-kit framework, don't replace it"
+    },
+    "deploymentPhase": {
+      "trigger": "/deploy command when application is complete",
+      "githubSetup": "Creates repository and pushes complete application",
+      "cicdSetup": "Configures automated deployment pipeline",
+      "productionReady": "Full application tested and validated locally first"
+    }
+  }
+}

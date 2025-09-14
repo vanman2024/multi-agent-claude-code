@@ -258,69 +258,137 @@ Review all information gathered:
 
 **If any of these are incomplete, GO BACK and ask more questions.**
 
-### Phase 4: Generate PROJECT_PLAN.md Vision Document
+### Phase 4: Generate Spec-Kit Prompt
 
-Create the high-level vision document based on everything learned:
+Create a structured prompt that can be passed to spec-kit's `/specify` command:
 
-**PROJECT_PLAN.md Structure**:
-```markdown
-# 🎯 PROJECT PLAN: [Project Name]
+**Prompt Structure**:
+```
+Build a [PROJECT_TYPE] called "[PROJECT_NAME]" that [CORE_PROBLEM_SOLUTION].
 
-## Executive Summary
-[2-3 sentences describing what this application does and why it matters]
+## Context
+- Target users: [USER_DESCRIPTION]
+- Pain point: [SPECIFIC_PROBLEM] (severity: [1-10])
+- Current solutions: [EXISTING_OPTIONS] 
+- Why they fail: [SOLUTION_GAPS]
 
-## 🛠️ Technology Stack
-- **Frontend**: [Decisions from conversation]
-- **Backend**: [Decisions from conversation]
-- **Database**: [Decisions from conversation]
-- **Key Services**: [Stripe, Supabase, etc.]
+## Solution Vision
+- Core value: [UNIQUE_VALUE_PROPOSITION]
+- Key differentiator: [WHAT_MAKES_IT_10X_BETTER]
+- Must-have features: [ESSENTIAL_FEATURES_LIST]
+- Business model: [REVENUE_MODEL]
 
-## 👥 Target Users
-[Who are we building for and what problems do they have]
+## Technical Constraints
+- Tech stack preferences: [STACK_DECISIONS]
+- External services to use: [BUY_VS_BUILD_DECISIONS]
+- Scale expectations: [USER_COUNT_TIMELINE]
+- Budget constraints: [INFRASTRUCTURE_BUDGET]
 
-## ✨ Core Features
-[High-level features that deliver the unique value]
+## Success Criteria
+- Primary metric: [KEY_SUCCESS_METRIC]
+- Target outcomes: [SPECIFIC_GOALS]
 
-## 🎯 Unique Value Proposition
-[What makes this different - the core differentiator]
-
-## 💰 Business Model
-[How it makes money]
-
-## 🚀 Implementation Roadmap
-[4 phases with high-level goals]
-
-## 📊 Success Metrics
-[What success looks like]
+Please create detailed functional specifications for this application.
 ```
 
-**Key Points**:
-- This is the VISION document - high-level, strategic
-- NO detailed technical specs (those come from /plan:generate)
-- NO exhaustive feature lists (just core value)
-- Focus on the "what" and "why", not the "how"
-- Write to: docs/PROJECT_PLAN.md
+**Output the prompt to console** for easy copying to spec-kit:
+```bash
+echo "=================================="
+echo "🎯 SPEC-KIT PROMPT GENERATED"
+echo "=================================="
+echo ""
+echo "[Generated prompt above]"
+echo ""
+echo "Next step: Copy this prompt and run:"
+echo "/specify \"[paste the prompt here]\""
+echo "=================================="
+```
 
 ### Phase 4.5: Spec-Kit Integration (if detected)
 
-If spec-kit is initialized (memory/ exists):
+**Check for spec-kit:**
 ```bash
-echo "📋 PROJECT_PLAN.md created! Now let's generate specifications..."
-echo ""
-echo "Next step: Pass this vision to spec-kit's /specify command"
-echo "This will create the functional requirements (no tech stack yet)"
+if [ -d "memory" ] && [ -d "scripts" ] && [ -d "templates" ]; then
+  echo "✅ Spec-kit detected! Running /specify with generated prompt..."
+  echo ""
+  # Auto-run the /specify command with the complete prompt
+  /specify "[the complete generated prompt]"
+  echo ""
+  echo "🎉 Project setup complete with spec-kit!"
+  echo "Next steps:"
+  echo "1. Review generated specifications in specs/"
+  echo "2. Run /work to start implementation"
+  exit 0
+else
+  echo "💡 Spec-kit not detected. Continuing with standard GitHub setup..."
+fi
 ```
 
-Then automatically suggest running:
-```
-/specify "Build [Project Name] as described in PROJECT_PLAN.md: [summary of key requirements from PROJECT_PLAN]"
+### Phase 5: GitHub Repository Creation
+
+Ask user about GitHub setup:
+```bash
+echo "🐙 GitHub Setup"
+echo "==============="
+echo "Do you want to create a GitHub repository? (y/n)"
 ```
 
-### Phase 5: Project Scaffolding
+If yes, proceed with GitHub creation:
+```bash
+# Get project details
+echo "Repository name (default: [PROJECT_NAME_SLUGIFIED]):"
+read -r REPO_NAME
+REPO_NAME=${REPO_NAME:-[PROJECT_NAME_SLUGIFIED]}
+
+echo "Repository owner/organization (default: vanman2024):"
+read -r REPO_OWNER
+REPO_OWNER=${REPO_OWNER:-vanman2024}
+
+echo "Make repository private? (y/n, default: y):"
+read -r PRIVATE
+PRIVATE=${PRIVATE:-y}
+
+# Create repository
+if [ "$PRIVATE" = "y" ]; then
+  gh repo create $REPO_OWNER/$REPO_NAME --private --description "[Generated description from prompt]"
+else
+  gh repo create $REPO_OWNER/$REPO_NAME --public --description "[Generated description from prompt]"
+fi
+
+# Set up remote
+git init
+git remote add origin https://github.com/$REPO_OWNER/$REPO_NAME.git
+git branch -M main
+
+echo "✅ Repository created: https://github.com/$REPO_OWNER/$REPO_NAME"
+```
+
+### Phase 6: Project Board Creation
+
+Copy project board from template:
+```bash
+echo "📋 Creating Project Board..."
+
+# Copy project board from template #13
+PROJECT_BOARD_TITLE="$REPO_NAME Board"
+echo "Project board title (default: $PROJECT_BOARD_TITLE):"
+read -r BOARD_TITLE
+BOARD_TITLE=${BOARD_TITLE:-$PROJECT_BOARD_TITLE}
+
+# Create project board
+gh project copy 13 \
+  --source-owner vanman2024 \
+  --target-owner $REPO_OWNER \
+  --title "$BOARD_TITLE"
+
+echo "✅ Project board created: $BOARD_TITLE"
+```
+
+### Phase 7: Project Scaffolding
 
 1. **Create directory structure**:
    ```bash
-   mkdir -p frontend backend database docs .github .claude scripts/setup .claude/templates/guides
+   mkdir -p frontend backend database docs .github .claude scripts/setup .claude/templates/guides .vscode
    ```
 
 2. **Initialize configuration files**:
@@ -329,7 +397,14 @@ Then automatically suggest running:
    - Create .env.example
    - Create .gitignore
 
-3. **Setup GitHub Integration**:
+3. **Copy VS Code settings from template**:
+   ```bash
+   # Copy VS Code settings that include Vim disabled and other dev settings
+   cp /home/gotime2022/Projects/multi-agent-claude-code/.vscode/settings.json .vscode/settings.json
+   echo "⚠️  IMPORTANT: Restart VS Code to apply new settings (Vim will be disabled)"
+   ```
+
+4. **Setup GitHub Integration**:
    
    Using GitHub CLI (gh):
    ```bash
@@ -407,29 +482,42 @@ You: Based on our discussion, here's my BUY vs BUILD recommendation:
      
      Any concerns or preferences?
 
-[After confirmation, generate docs and structure]
+[After confirmation, generate prompt]
 
-You: ✅ Project setup complete! 
-     - Vision documented in docs/PROJECT_PLAN.md
-     - Repository created: github.com/user/project
-     - Project board created: #[number]
-     - Basic structure initialized
+You: 🎯 SPEC-KIT PROMPT GENERATED
+     ==================================
      
-     Next steps:
-     1. Review the PROJECT_PLAN.md vision document
-     2. Run '/plan:generate' to create detailed technical docs
-     3. Run '/test:generate' to create test suites
-     4. Use '/create-issue' to start creating tasks
-     5. Run '/work #1' to begin implementation!
+     Build a developer tool called "API Usage Tracker" that helps developers 
+     monitor and optimize their API consumption across multiple services.
+
+     ## Context
+     - Target users: Individual developers and small teams managing multiple APIs
+     - Pain point: No unified view of API usage across services (severity: 8)
+     - Current solutions: Manual spreadsheets, individual service dashboards
+     - Why they fail: Fragmented data, no usage optimization insights
+
+     ## Solution Vision
+     - Core value: Unified API usage dashboard with cost optimization
+     - Key differentiator: Predictive usage alerts and cost recommendations
+     - Must-have features: Multi-service integration, usage alerts, cost tracking
+     - Business model: Freemium SaaS ($0-49/month tiers)
+
+     [... complete prompt ...]
+     
+     Next step: Copy this prompt and run:
+     /specify "[paste the prompt here]"
+     ==================================
 ```
 
 ## Important Notes
 
+- **PRIMARY OUTPUT: Structured prompt for spec-kit** - Not documentation files
 - **ALWAYS emphasize BUY vs BUILD** - Calculate time/cost savings
 - **ALWAYS use Vercel for full application deployment** (frontend + backend, no exceptions)
 - **ALWAYS use Postman for API testing** (standard tool)
 - **ALWAYS gather ALL materials BEFORE proceeding** (Phase 1B is critical)
-- **Reference CLAUDE.md** for project configuration when it exists
+- **Generate prompt that spec-kit can consume** - Fill all template variables
+- **Auto-run /specify if spec-kit detected** - Seamless integration
 - Be conversational and explain reasoning
 - Allow users to override features BUT NOT hosting choices
 - Always use port 3002 for frontend, 8891 for backend (local development)
@@ -437,8 +525,9 @@ You: ✅ Project setup complete!
 - Show total development time saved by using external services
 - Default to Supabase for most projects (auth, database, storage)
 - Use TodoWrite to track setup progress
-- Create actual files and directories
+- Create actual files and directories (if not using spec-kit)
 - Use gh CLI for project board operations
 - Use mcp__github for issue operations
 - Use <thinking> tags for analysis between conversation steps
 - Never proceed past checkpoint without complete information
+- **Prompt must be copy-pasteable** - No placeholders left unfilled
