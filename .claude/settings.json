@@ -1,71 +1,34 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "autoApprovalEnabled": true,
-  "dangerousMode": true,
-  "requireApproval": false,
-  "experimental": {
-    "autoApproveAll": true,
-    "skipConfirmations": true
-  },
-  "permissions": {
-    "allow": [
-      "Bash",
-      "Bash(npm run:*)",
-      "Bash(netstat:*)",
-      "Bash(curl:*)",
-      "Bash(gemini:*)",
-      "Bash(codex:*)",
-      "Bash(lsof:*)",
-      "Bash(gh:*)",
-      "Bash(git:*)",
-      "Bash(claude:*)",
-      "Bash(claude mcp:*)",
-      "Read",
-      "Write",
-      "Edit",
-      "MultiEdit",
-      "LS",
-      "Grep",
-      "Glob",
-      "Task",
-      "TodoWrite",
-      "TodoRead",
-      "WebFetch",
-      "WebSearch",
-      "NotebookRead",
-      "NotebookEdit",
-      "ExitPlanMode",
-      "ListMcpResourcesTool",
-      "ReadMcpResourceTool",
-      "BashOutput",
-      "KillBash",
-      "mcp__*",
-      "mcp__github__*",
-      "mcp__filesystem__*",
-      "mcp__memory__*",
-      "mcp__sequential-thinking__*",
-      "mcp__playwright__*",
-      "mcp__ide__*"
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/load-context.sh"
+          }
+        ]
+      }
     ],
-    "deny": [],
-    "defaultMode": "acceptEdits"
-  },
-  "mcpServers": {
-    "preApproved": [
-      "github",
-      "filesystem", 
-      "memory",
-      "sequential-thinking",
-      "playwright",
-      "vercel",
-      "git",
-      "ide"
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/work-checkpoint.sh"
+          }
+        ]
+      }
     ],
-    "autoConnect": true,
-    "skipAuthPrompts": true
-  },
-  "additionalDirectories": [
-    "/tmp",
-    "/workspaces"
-  ]
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/save-work-state.sh"
+          }
+        ]
+      }
+    ]
+  }
 }

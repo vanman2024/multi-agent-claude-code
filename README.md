@@ -98,17 +98,54 @@ codex exec [command]    # Non-interactive execution
 ```
 
 ### MCP Server Configuration
+
+**Global MCP Servers (Auto-configured):**
+
+#### For Claude Code (Auto-loaded globally):
+- ✅ filesystem - File operations
+- ✅ github - GitHub integration (with token)
+- ✅ memory - Knowledge graph storage
+- ✅ sequential-thinking - Step-by-step reasoning
+- ✅ playwright - Browser automation
+- ✅ postman - API testing
+
+#### For GitHub Copilot in VS Code:
+MCP servers are configured in `.vscode/mcp.json` (already included in template).
+
+To activate in VS Code:
+1. Open `.vscode/mcp.json` 
+2. Click the "Start" button that appears
+3. Open Copilot Chat in "Agent" mode
+4. Click the tools icon to see available MCP servers
+
+**Project-Specific MCP Servers:**
+For project-specific servers like Supabase, add them manually:
+
 ```bash
-# Sync MCP servers to all agents (one-time setup)
-/home/gotime2022/Projects/multi-agent-claude-code/project-sync/scripts/sync-mcp-servers.sh
+# Add Supabase MCP server (requires project credentials)
+npx @supabase/mcp-server-supabase@latest \
+  --project-ref YOUR_PROJECT_REF \
+  --access-token YOUR_ACCESS_TOKEN
 
-# Configure project-specific settings (Supabase, etc.)
-/home/gotime2022/Projects/multi-agent-claude-code/project-sync/scripts/sync-mcp-servers.sh configure
+# Or use Claude Code CLI to add it:
+claude mcp add supabase -- npx -y @supabase/mcp-server-supabase@latest
 
-# List configured MCP servers
-/home/gotime2022/Projects/multi-agent-claude-code/project-sync/scripts/sync-mcp-servers.sh list
+# For Copilot, add to .vscode/mcp.json:
+"supabase": {
+  "command": "npx",
+  "args": ["-y", "@supabase/mcp-server-supabase@latest"],
+  "env": {
+    "SUPABASE_PROJECT_REF": "${env:SUPABASE_PROJECT_REF}",
+    "SUPABASE_ACCESS_TOKEN": "${env:SUPABASE_ACCESS_TOKEN}"
+  }
+}
 ```
 
+Then set the environment variables in your `.env`:
+```bash
+SUPABASE_PROJECT_REF=your_project_ref
+SUPABASE_ACCESS_TOKEN=your_access_token
+```
 ## 🐳 Docker for Python Development (No More WSL Issues!)
 
 If you're using Python, Docker eliminates all WSL path issues, version conflicts, and environment problems:
@@ -236,26 +273,6 @@ Edit `local-overrides/vscode-local.json`:
   "python.defaultInterpreterPath": "/usr/local/bin/python3"
 }
 ```
-
-### MCP Server Configuration
-Configure MCP servers for all agents using the central config:
-```bash
-# Edit central MCP configuration
-vi project-sync/config/mcp-servers.json
-
-# Sync to all agents (Gemini, Qwen, Codex)
-./project-sync/scripts/sync-mcp-servers.sh
-
-# For Claude Code, use the built-in command:
-/add-mcp [server-name]
-```
-
-Project-specific tokens (Supabase, etc.) go in `.env.mcp`:
-```bash
-SUPABASE_PROJECT_REF="your-project-ref"
-SUPABASE_ACCESS_TOKEN="your-access-token"
-```
-
 ## 🔒 Security
 
 - ✅ **Templates**: Safe defaults, no sensitive data

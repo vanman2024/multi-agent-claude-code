@@ -1,0 +1,134 @@
+# Multi-stage Development Dockerfile Template
+# Optimized for consistent development environments across WSL, Windows, Linux, macOS
+
+# ===== Base Stage =====
+FROM python:3.12-slim as base
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    # Essential build tools
+    build-essential \
+    curl \
+    git \
+    # Common development tools
+    vim \
+    nano \
+    htop \
+    tree \
+    # Python development dependencies
+    python3-dev \
+    python3-pip \
+    # Network tools
+    wget \
+    netcat-openbsd \
+    # For some Python packages that need compilation
+    gcc \
+    g++ \
+    make \
+    # Clean up
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and install common Python tools
+RUN pip install --no-cache-dir --upgrade \
+    pip \
+    setuptools \
+    wheel
+
+# ===== Development Stage =====
+FROM base as development
+
+# Install development tools
+RUN pip install --no-cache-dir \
+    # Development and debugging
+    debugpy \
+    ipython \
+    jupyter \
+    # Code quality tools
+    black \
+    isort \
+    flake8 \
+    mypy \
+    pylint \
+    # Testing tools
+    pytest \
+    pytest-cov \
+    pytest-mock \
+    # Common development packages
+    python-dotenv \
+    requests \
+    httpx
+
+# Create workspace directory
+WORKDIR /workspace
+
+# Copy requirements first for better Docker caching
+COPY requirements*.txt ./
+RUN if [ -f requirements.txt ]; then \
+        pip install --no-cache-dir -r requirements.txt; \
+    fi
+RUN if [ -f requirements-dev.txt ]; then \
+        pip install --no-cache-dir -r requirements-dev.txt; \
+    fi
+
+# Install common development dependencies
+RUN pip install --no-cache-dir \
+    # Web frameworks
+    fastapi \
+    uvicorn[standard] \
+    flask \
+    # Data processing
+    pandas \
+    numpy \
+    # Async support
+    asyncio \
+    aiohttp \
+    # Logging
+    structlog \
+    loguru \
+    # CLI tools
+    click \
+    typer \
+    # Validation
+    pydantic
+
+# Create non-root user for security
+RUN useradd -m -s /bin/bash devuser && \
+    chown -R devuser:devuser /workspace
+USER devuser
+
+# Set up development environment
+COPY --chown=devuser:devuser . .
+
+# Default command for development
+CMD ["bash"]
+
+# ===== Production Stage =====
+FROM base as production
+
+# Install only production dependencies
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create non-root user
+RUN useradd -m -s /bin/bash appuser && \
+    chown -R appuser:appuser /app
+USER appuser
+
+# Copy application code
+COPY --chown=appuser:appuser . .
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Default production command
+CMD ["python", "run.py"]

@@ -1,24 +1,32 @@
 {
-  // Editor Settings
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit"
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": null,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
-  "editor.rulers": [80, 120],
+  "editor.rulers": [
+    80,
+    120
+  ],
   "editor.wordWrap": "on",
   "editor.minimap.enabled": true,
   "editor.bracketPairColorization.enabled": true,
   "editor.suggestSelection": "first",
   "editor.snippetSuggestions": "top",
   "editor.inlineSuggest.enabled": true,
-
-  // File Settings
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.quickSuggestions": {
+    "other": "on",
+    "comments": "on",
+    "strings": "on"
+  },
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
   "files.exclude": {
@@ -27,8 +35,7 @@
     "**/.vscode": false,
     "**/node_modules": true,
     "**/__pycache__": true,
-    "**/*.pyc": true,
-    "**/.pytest_cache": true,
+    "**.pytest_cache": true,
     "**/.coverage": true,
     "**/.mypy_cache": true,
     "**/dist": true,
@@ -39,42 +46,15 @@
     "**/.env": false
   },
   "files.watcherExclude": {
-    "**/node_modules/**": true,
-    "**/.git/objects/**": true,
-    "**/.git/subtree-cache/**": true,
-    "**/dist/**": true,
-    "**/build/**": true,
-    "**/__pycache__/**": true
-  },
-  "files.associations": {
-    "*.md": "markdown",
-    "*.mdx": "markdown",
-    ".env*": "dotenv",
-    "*.yml": "yaml",
-    "*.yaml": "yaml",
-    "Dockerfile*": "dockerfile",
-    "docker-compose*": "yaml",
-    ".gitignore": "ignore",
-    "*.json": "jsonc"
-  },
-  "files.trimTrailingWhitespace": true,
-  "files.insertFinalNewline": true,
-  "files.encoding": "utf8",
-
-  // Search Settings
-  "search.exclude": {
-    "**/node_modules": true,
+    "**/node_modules.git/objects.git/subtree-cachedistbuild__pycache__node_modules": true,
     "**/bower_components": true,
-    "**/*.code-search": true,
-    "**/dist": true,
+    "**dist": true,
     "**/build": true,
     "**/.next": true,
     "**/__pycache__": true,
     "**/.pytest_cache": true,
     "**/.mypy_cache": true
   },
-
-  // Terminal Settings
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.defaultProfile.windows": "wsl",
   "terminal.integrated.env.linux": {
@@ -82,54 +62,50 @@
   },
   "terminal.integrated.scrollback": 10000,
   "terminal.integrated.copyOnSelection": true,
-
-  // Git Settings
   "git.enableSmartCommit": true,
   "git.autofetch": true,
   "git.confirmSync": false,
   "git.autoStash": true,
   "git.postCommitCommand": "sync",
   "git.openRepositoryInParentFolders": "always",
-
-  // Language Specific Settings
   "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.defaultFormatter": "ms-python.python",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.organizeImports": "explicit"
     }
   },
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": null,
     "editor.formatOnSave": true
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": null,
     "editor.formatOnSave": true
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": null,
     "editor.formatOnSave": true
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": null,
     "editor.formatOnSave": true
   },
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": null,
     "editor.formatOnSave": true
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": null,
     "editor.formatOnSave": true
   },
   "[yaml]": {
-    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.defaultFormatter": null,
     "editor.formatOnSave": true,
     "editor.tabSize": 2
   },
   "[markdown]": {
-    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+    "editor.defaultFormatter": null,
     "editor.wordWrap": "on",
     "editor.quickSuggestions": {
       "other": true,
@@ -138,11 +114,9 @@
     }
   },
   "[dockerfile]": {
-    "editor.defaultFormatter": "ms-azuretools.vscode-docker",
+    "editor.defaultFormatter": null,
     "editor.formatOnSave": true
   },
-
-  // Python Settings
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": true,
   "python.linting.flake8Enabled": true,
@@ -152,23 +126,19 @@
   "python.testing.unittestEnabled": false,
   "python.analysis.typeCheckingMode": "strict",
   "python.analysis.autoImportCompletions": true,
-
-  // JavaScript/TypeScript Settings
+  "python.defaultInterpreterPath": "./venv/bin/python",
+  "python.terminal.activateEnvironment": true,
   "javascript.updateImportsOnFileMove.enabled": "always",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "javascript.suggest.autoImports": true,
   "typescript.suggest.autoImports": true,
   "javascript.preferences.quoteStyle": "single",
   "typescript.preferences.quoteStyle": "single",
-
-  // Prettier Settings
   "prettier.singleQuote": true,
   "prettier.trailingComma": "es5",
   "prettier.tabWidth": 2,
   "prettier.semi": true,
   "prettier.printWidth": 80,
-
-  // ESLint Settings
   "eslint.enable": true,
   "eslint.autoFixOnSave": true,
   "eslint.validate": [
@@ -177,71 +147,53 @@
     "typescript",
     "typescriptreact"
   ],
-
-  // Extensions Settings
   "extensions.ignoreRecommendations": false,
   "extensions.autoUpdate": true,
-
-  // Workspace Settings
   "workbench.colorTheme": "Default Dark+",
-  "workbench.iconTheme": "vscode-icons",
+  "workbench.iconTheme": "vs-seti",
   "workbench.editor.enablePreview": false,
   "workbench.editor.restoreViewState": true,
   "workbench.startupEditor": "none",
-
-  // Security Settings
   "security.workspace.trust.enabled": true,
   "security.workspace.trust.untrustedFiles": "open",
-
-  // File Permissions Settings
   "files.readonlyInclude": {
-    "**/node_modules/**": true,
-    "**/.git/**": true
+    "**/node_modules.git/**": true
   },
-
-  // Claude Code Specific Settings
   "claude.enableCodeSuggestions": true,
   "claude.autoSave": true,
   "claude.formatOnSave": true,
-
-  // Docker Settings
+  "vim.disableExtension": true,
   "docker.attachShellCommand.linuxContainer": "/bin/bash",
   "docker.containers.sortBy": "CreatedTime",
-  "docker.containers.description": ["ContainerName", "Status"],
-
-  // GitHub Settings
+  "docker.containers.description": [
+    "ContainerName",
+    "Status"
+  ],
   "github.copilot.enable": {
     "*": true,
     "yaml": true,
     "plaintext": true,
     "markdown": true
   },
-
-  // Remote Development Settings
+  "github.copilot.inlineSuggest.enable": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "cSpell.enabled": false,
+  "spellright.language": [],
+  "spellright.documentTypes": [],
   "remote.SSH.remotePlatform": {
     "localhost": "linux"
   },
   "remote.autoForwardPortsSource": "hybrid",
-
-  // Live Share Settings
   "liveshare.shareExternalFiles": false,
   "liveshare.showInStatusBar": "whileCollaborating",
-
-  // Debug Settings
   "debug.console.fontSize": 14,
   "debug.internalConsoleOptions": "neverOpen",
   "debug.showInlineBreakpointCandidates": true,
-
-  // Task Settings
   "task.autoDetect": "on",
   "task.quickOpen.skip": false,
-
-  // NPM Settings
   "npm.autoDetect": "on",
   "npm.packageManager": "npm",
   "npm.scriptExplorerAction": "run",
-
-  // Problems Settings
   "problems.autoReveal": true,
   "problems.decorations.enabled": true,
   "containers.containers.description": [

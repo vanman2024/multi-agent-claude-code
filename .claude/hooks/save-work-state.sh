@@ -58,8 +58,15 @@ EOF
         )
         
         # Append to journal (keep last 100 entries)
-        cat "$WORK_JOURNAL" | jq --argjson entry "$end_entry" '.entries = ([$entry] + .entries)[0:100]' > "$WORK_JOURNAL.tmp"
-        mv "$WORK_JOURNAL.tmp" "$WORK_JOURNAL"
+        # Add error handling for jq parsing
+        if cat "$WORK_JOURNAL" | jq --argjson entry "$end_entry" '.entries = ([$entry] + .entries)[0:100]' > "$WORK_JOURNAL.tmp" 2>/dev/null; then
+            mv "$WORK_JOURNAL.tmp" "$WORK_JOURNAL"
+        else
+            # If jq fails, recreate journal with just this entry
+            echo '{"entries": []}' > "$WORK_JOURNAL"
+            echo "$end_entry" | jq '{entries: [.]}' > "$WORK_JOURNAL" 2>/dev/null || echo '{"entries": []}' > "$WORK_JOURNAL"
+            rm -f "$WORK_JOURNAL.tmp"
+        fi
         
         # Show session summary
         echo ""

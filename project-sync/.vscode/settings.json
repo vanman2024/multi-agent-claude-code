@@ -1,0 +1,204 @@
+{
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.defaultFormatter": null,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.rulers": [
+    80,
+    120
+  ],
+  "editor.wordWrap": "on",
+  "editor.minimap.enabled": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.suggestSelection": "first",
+  "editor.snippetSuggestions": "top",
+  "editor.inlineSuggest.enabled": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.quickSuggestions": {
+    "other": "on",
+    "comments": "on",
+    "strings": "on"
+  },
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "files.exclude": {
+    "**/.git": false,
+    "**/.DS_Store": true,
+    "**/.vscode": false,
+    "**/node_modules": true,
+    "**/__pycache__": true,
+    "**.pytest_cache": true,
+    "**/.coverage": true,
+    "**/.mypy_cache": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.next": true,
+    "**/.cache": true,
+    "**/.env.local": false,
+    "**/.env": false
+  },
+  "files.watcherExclude": {
+    "**/node_modules.git/objects.git/subtree-cachedistbuild__pycache__node_modules": true,
+    "**/bower_components": true,
+    "**dist": true,
+    "**/build": true,
+    "**/.next": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true
+  },
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.windows": "wsl",
+  "terminal.integrated.env.linux": {
+    "NODE_ENV": "development"
+  },
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.copyOnSelection": true,
+  "git.enableSmartCommit": true,
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.autoStash": true,
+  "git.postCommitCommand": "sync",
+  "git.openRepositoryInParentFolders": "always",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": null,
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": true,
+      "strings": true
+    }
+  },
+  "[dockerfile]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true
+  },
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.mypyEnabled": true,
+  "python.formatting.provider": "black",
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.analysis.typeCheckingMode": "strict",
+  "python.analysis.autoImportCompletions": true,
+  "python.defaultInterpreterPath": "./venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.suggest.autoImports": true,
+  "typescript.suggest.autoImports": true,
+  "javascript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "single",
+  "prettier.singleQuote": true,
+  "prettier.trailingComma": "es5",
+  "prettier.tabWidth": 2,
+  "prettier.semi": true,
+  "prettier.printWidth": 80,
+  "eslint.enable": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "extensions.ignoreRecommendations": false,
+  "extensions.autoUpdate": true,
+  "workbench.colorTheme": "Default Dark+",
+  "workbench.iconTheme": "vs-seti",
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.restoreViewState": true,
+  "workbench.startupEditor": "none",
+  "security.workspace.trust.enabled": true,
+  "security.workspace.trust.untrustedFiles": "open",
+  "files.readonlyInclude": {
+    "**/node_modules.git/**": true
+  },
+  "claude.enableCodeSuggestions": true,
+  "claude.autoSave": true,
+  "claude.formatOnSave": true,
+  "vim.disableExtension": true,
+  "docker.attachShellCommand.linuxContainer": "/bin/bash",
+  "docker.containers.sortBy": "CreatedTime",
+  "docker.containers.description": [
+    "ContainerName",
+    "Status"
+  ],
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": true,
+    "markdown": true
+  },
+  "github.copilot.inlineSuggest.enable": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "cSpell.enabled": false,
+  "spellright.language": [],
+  "spellright.documentTypes": [],
+  "remote.SSH.remotePlatform": {
+    "localhost": "linux"
+  },
+  "remote.autoForwardPortsSource": "hybrid",
+  "liveshare.shareExternalFiles": false,
+  "liveshare.showInStatusBar": "whileCollaborating",
+  "debug.console.fontSize": 14,
+  "debug.internalConsoleOptions": "neverOpen",
+  "debug.showInlineBreakpointCandidates": true,
+  "task.autoDetect": "on",
+  "task.quickOpen.skip": false,
+  "npm.autoDetect": "on",
+  "npm.packageManager": "npm",
+  "npm.scriptExplorerAction": "run",
+  "problems.autoReveal": true,
+  "problems.decorations.enabled": true,
+  "containers.containers.description": [
+    "ContainerName",
+    "Status"
+  ],
+  "containers.containers.sortBy": "CreatedTime"
+}

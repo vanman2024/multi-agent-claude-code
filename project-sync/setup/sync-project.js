@@ -183,8 +183,8 @@ class ProjectSync {
   syncVSCodeSettings() {
     console.log('⚙️  Syncing VS Code settings...');
     
-    // Sync project-level .vscode/settings.json
-    const sourceVSCodeDir = path.join(__dirname, '..', '..', '.vscode');
+    // Sync project-level .vscode/settings.json from project-sync template
+    const sourceVSCodeDir = path.join(__dirname, '..', '.vscode');
     const targetVSCodeDir = path.join(this.projectRoot, '.vscode');
     
     if (fs.existsSync(sourceVSCodeDir)) {
@@ -449,13 +449,42 @@ class ProjectSync {
     
     this.copyDirectoryRecursively(sourceClaudeDir, targetClaudeDir, false); // Don't overwrite existing
     
-    // Override with global personal settings (full MCP permissions)
+    // Now merge settings properly - keep hooks from project, add permissions from global
     const globalSettingsPath = path.join(require('os').homedir(), '.claude', 'settings.json');
     const targetSettingsPath = path.join(targetClaudeDir, 'settings.json');
+    const sourceSettingsPath = path.join(sourceClaudeDir, 'settings.json');
     
-    if (fs.existsSync(globalSettingsPath)) {
-      fs.copyFileSync(globalSettingsPath, targetSettingsPath);
-      console.log('  ✅ Applied global Claude settings with full MCP permissions');
+    try {
+      // Start with the project template settings (has hooks)
+      let settings = {};
+      if (fs.existsSync(sourceSettingsPath)) {
+        settings = JSON.parse(fs.readFileSync(sourceSettingsPath, 'utf8'));
+      }
+      
+      // Add permissions from global settings if they exist
+      if (fs.existsSync(globalSettingsPath)) {
+        const globalSettings = JSON.parse(fs.readFileSync(globalSettingsPath, 'utf8'));
+        
+        // Merge in permissions and MCP settings from global, but keep hooks from project
+        if (globalSettings.permissions) {
+          settings.permissions = globalSettings.permissions;
+        }
+        if (globalSettings.mcpServers) {
+          settings.mcpServers = globalSettings.mcpServers;
+        }
+        // Keep the hooks from the project template, don't overwrite them!
+      }
+      
+      // Write the merged settings
+      fs.writeFileSync(targetSettingsPath, JSON.stringify(settings, null, 2));
+      console.log('  ✅ Merged Claude settings (project hooks + global permissions)');
+      
+    } catch (error) {
+      console.log('  ⚠️  Could not merge Claude settings:', error.message);
+      // Fall back to copying source if merge fails
+      if (fs.existsSync(sourceSettingsPath)) {
+        fs.copyFileSync(sourceSettingsPath, targetSettingsPath);
+      }
     }
     
     // Make hook files executable
