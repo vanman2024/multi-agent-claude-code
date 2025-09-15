@@ -57,6 +57,7 @@
     "required": [
       "agents/CLAUDE.md",
       "agents/AGENTS.md",
+      "agents/README.md",
       ".github/copilot-instructions.md"
     ],
     "optional": [

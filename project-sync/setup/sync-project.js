@@ -259,20 +259,29 @@ class ProjectSync {
 
   syncProjectEssentials() {
     console.log('📋 Syncing project essentials...');
-    
+
+    // Copy README.md from root (the main multi-agent documentation)
+    const readmeTarget = path.join(this.projectRoot, 'README.md');
+    const readmeSource = path.join(__dirname, '..', '..', 'README.md');
+
+    if (!fs.existsSync(readmeTarget) && fs.existsSync(readmeSource)) {
+      fs.copyFileSync(readmeSource, readmeTarget);
+      console.log('  ✅ Created README.md (Multi-Agent Framework documentation)');
+    }
+
     // Copy .env file directly (not just example)
     const envTarget = path.join(this.projectRoot, '.env');
     const envSource = path.join(__dirname, '..', '.env');
-    
+
     if (!fs.existsSync(envTarget) && fs.existsSync(envSource)) {
       fs.copyFileSync(envSource, envTarget);
       console.log('  ✅ Created .env with API keys');
     }
-    
+
     // Copy .gitignore if it doesn't exist
     const gitignoreTarget = path.join(this.projectRoot, '.gitignore');
     const gitignoreSource = path.join(__dirname, '..', '.gitignore');
-    
+
     if (!fs.existsSync(gitignoreTarget) && fs.existsSync(gitignoreSource)) {
       fs.copyFileSync(gitignoreSource, gitignoreTarget);
       console.log('  ✅ Created .gitignore');
@@ -529,21 +538,25 @@ class ProjectSync {
 
   syncDockerTemplates() {
     console.log('🐳 Syncing Docker development environment...');
-    
+
     const sourceDockerDir = path.join(__dirname, '..', 'docker');
-    
+
     if (!fs.existsSync(sourceDockerDir)) {
       console.log('  ⚠️  Docker templates not found');
       return;
     }
-    
-    // Copy Docker files to project root (not in docker subdirectory)
+
+    // Create docker directory
+    const targetDockerDir = path.join(this.projectRoot, 'docker');
+    this.ensureDirectoryExists(targetDockerDir);
+
+    // Copy Docker files to docker/ subdirectory and some to root
     const dockerFiles = [
-      { src: 'docker-dev.template.yml', dest: 'docker-compose.dev.yml' },
-      { src: 'Dockerfile.dev.template', dest: 'Dockerfile.dev' },
-      { src: '.env.docker.example', dest: '.env.docker.example' },
-      { src: '.dockerignore', dest: '.dockerignore' },
-      { src: 'docker-scripts.sh', dest: 'docker-scripts.sh' }
+      { src: 'docker-dev.template.yml', dest: 'docker/docker-compose.dev.yml' },
+      { src: 'Dockerfile.dev.template', dest: 'docker/Dockerfile.dev' },
+      { src: '.env.docker.example', dest: 'docker/.env.docker.example' },
+      { src: '.dockerignore', dest: '.dockerignore' },  // Keep in root
+      { src: 'docker-scripts.sh', dest: 'docker-scripts.sh' }  // Keep in root for easy access
     ];
     
     let copiedCount = 0;
@@ -643,7 +656,7 @@ class ProjectSync {
 
     // These templates from setup/ directory are used for project configuration
     const setupTemplates = [
-      { source: 'vscode-settings.template.json', target: '.vscode/settings.template.json' },
+      // Removed vscode-settings.template.json since we already copy settings.json
       { source: 'wsl-setup.template.sh', target: 'scripts/wsl-setup.sh' }
     ];
     

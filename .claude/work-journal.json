@@ -1,6 +1,50 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-15T00:25:06Z",
+      "branch": "main",
+      "uncommitted": 5,
+      "unpushed": 5,
+      "last_commit": "6523078 feat: Add constitution.md integration to project-sync workflow"
+    },
+    {
+      "timestamp": "2025-09-15T00:19:20Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 5,
+      "last_commit": "6523078 feat: Add constitution.md integration to project-sync workflow"
+    },
+    {
+      "timestamp": "2025-09-15T00:13:12Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 5,
+      "last_commit": "6523078 feat: Add constitution.md integration to project-sync workflow"
+    },
+    {
+      "timestamp": "2025-09-15T00:12:47Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 5,
+      "last_commit": "6523078 feat: Add constitution.md integration to project-sync workflow"
+    },
+    {
+      "timestamp": "2025-09-15T00:12:09Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 5,
+      "last_commit": "6523078 feat: Add constitution.md integration to project-sync workflow"
+    },
+    {
+      "timestamp": "2025-09-15T00:10:38Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 5,
+      "last_commit": "6523078 feat: Add constitution.md integration to project-sync workflow"
+    },
+    {
       "timestamp": "2025-09-15T00:02:59Z",
       "branch": "main",
       "uncommitted": 2,
@@ -677,48 +721,6 @@
       "timestamp": "2025-09-10T19:59:49Z",
       "branch": "main",
       "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T19:57:14Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T19:55:00Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T19:51:01Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T19:43:23Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T18:45:02Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T18:34:47Z",
-      "branch": "main",
-      "uncommitted": 1,
       "unpushed": 0,
       "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
     }
