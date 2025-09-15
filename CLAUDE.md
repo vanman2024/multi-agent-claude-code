@@ -9,6 +9,16 @@
 
 **Important**: You are working in a template repository that will be cloned to create new projects. This is NOT the actual project - it's the framework for building projects.
 
+## CRITICAL: Project Constitution
+**ALWAYS check for and incorporate `.specify/memory/constitution.md` if it exists in the project**. This file contains project-specific principles, constraints, and rules that override general instructions. The constitution is created during project setup and contains:
+- Core development principles for the specific project
+- Technology stack constraints
+- Testing requirements
+- Project-specific workflows
+- Governance rules
+
+Check for constitution at: `.specify/memory/constitution.md`
+
 ## Template Purpose
 
 This Multi-Agent Development Framework template provides:

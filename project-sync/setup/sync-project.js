@@ -588,9 +588,59 @@ class ProjectSync {
   }
   
 
+  updateConstitution() {
+    console.log('📜 Updating project constitution with multi-agent rules...');
+
+    const constitutionPath = path.join(this.projectRoot, '.specify', 'memory', 'constitution.md');
+    const addonPath = path.join(__dirname, 'constitution-multi-agent-addon.md');
+
+    // Check if constitution.md exists (created by spec-kit)
+    if (fs.existsSync(constitutionPath)) {
+      // Read existing constitution
+      let constitutionContent = fs.readFileSync(constitutionPath, 'utf8');
+
+      // Check if multi-agent rules already added
+      if (!constitutionContent.includes('Multi-Agent Coordination Principles')) {
+        // Read addon content
+        const addonContent = fs.readFileSync(addonPath, 'utf8');
+
+        // Find where to insert (before governance section or at end)
+        const governanceIndex = constitutionContent.indexOf('## Governance');
+
+        if (governanceIndex > -1) {
+          // Insert before governance section
+          constitutionContent =
+            constitutionContent.slice(0, governanceIndex) +
+            '\n' + addonContent + '\n\n' +
+            constitutionContent.slice(governanceIndex);
+        } else {
+          // Append at end before version info
+          const versionIndex = constitutionContent.lastIndexOf('**Version**:');
+          if (versionIndex > -1) {
+            constitutionContent =
+              constitutionContent.slice(0, versionIndex) +
+              '\n' + addonContent + '\n\n' +
+              constitutionContent.slice(versionIndex);
+          } else {
+            // Just append at end
+            constitutionContent += '\n\n' + addonContent;
+          }
+        }
+
+        // Write updated constitution
+        fs.writeFileSync(constitutionPath, constitutionContent);
+        console.log('  ✅ Added multi-agent coordination principles to constitution.md');
+      } else {
+        console.log('  ℹ️  Multi-agent rules already in constitution.md');
+      }
+    } else {
+      console.log('  ⚠️  No constitution.md found. Run spec-kit init first.');
+    }
+  }
+
   syncSetupTemplates() {
     console.log('📋 Syncing setup templates...');
-    
+
     // These templates from setup/ directory are used for project configuration
     const setupTemplates = [
       { source: 'vscode-settings.template.json', target: '.vscode/settings.template.json' },
@@ -737,6 +787,7 @@ class ProjectSync {
       this.syncAgentFiles();
       this.syncClaudeDirectory();
       this.syncSpecKit();
+      this.updateConstitution();  // Update constitution after spec-kit creates it
       this.syncDockerTemplates();
       this.syncSetupTemplates();
       this.syncMcpConfigurations();
