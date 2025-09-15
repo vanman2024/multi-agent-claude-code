@@ -101,24 +101,29 @@ class ProjectSync {
     // Sync required agent files
     for (const agentFile of agentFiles.required) {
       let sourcePath;
-      
+      let targetPath;
+
       // Check if file is in project-sync first (like .github files)
       if (agentFile.startsWith('.github/')) {
         sourcePath = path.join(__dirname, '..', agentFile);
+        targetPath = path.join(this.projectRoot, agentFile);
       } else if (agentFile.startsWith('agents/')) {
-        // Agent files are in project-sync/agents/
+        // Agent files are in project-sync/agents/ but go to project root
         sourcePath = path.join(__dirname, '..', agentFile);
+        // Extract just the filename and place in project root
+        const fileName = path.basename(agentFile);
+        targetPath = path.join(this.projectRoot, fileName);
       } else {
         sourcePath = path.join(__dirname, '..', '..', agentFile);
+        targetPath = path.join(this.projectRoot, agentFile);
       }
-      
-      const targetPath = path.join(this.projectRoot, agentFile);
       
       if (fs.existsSync(sourcePath)) {
         this.ensureDirectoryExists(path.dirname(targetPath));
         fs.copyFileSync(sourcePath, targetPath);
         syncCount++;
-        console.log(`  ✅ Synced ${agentFile}`);
+        const displayPath = agentFile.startsWith('agents/') ? path.basename(agentFile) + ' (to root)' : agentFile;
+        console.log(`  ✅ Synced ${displayPath}`);
       } else {
         console.log(`  ⚠️  Source not found: ${agentFile}`);
       }
@@ -126,16 +131,25 @@ class ProjectSync {
 
     // Sync optional agent files if they exist
     for (const agentFile of agentFiles.optional || []) {
-      const sourcePath = agentFile.startsWith('agents/') ? 
-        path.join(__dirname, '..', agentFile) : 
-        path.join(__dirname, '..', '..', agentFile);
-      const targetPath = path.join(this.projectRoot, agentFile);
+      let sourcePath;
+      let targetPath;
+
+      if (agentFile.startsWith('agents/')) {
+        sourcePath = path.join(__dirname, '..', agentFile);
+        // Extract just the filename and place in project root
+        const fileName = path.basename(agentFile);
+        targetPath = path.join(this.projectRoot, fileName);
+      } else {
+        sourcePath = path.join(__dirname, '..', '..', agentFile);
+        targetPath = path.join(this.projectRoot, agentFile);
+      }
       
       if (fs.existsSync(sourcePath)) {
         this.ensureDirectoryExists(path.dirname(targetPath));
         fs.copyFileSync(sourcePath, targetPath);
         syncCount++;
-        console.log(`  ✅ Synced optional ${agentFile}`);
+        const displayPath = agentFile.startsWith('agents/') ? path.basename(agentFile) + ' (to root)' : agentFile;
+        console.log(`  ✅ Synced optional ${displayPath}`);
       }
     }
 
