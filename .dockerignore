@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+
+# Development
+.vscode
+.idea
+*.swp
+*.swo
+
+# Dependencies
+node_modules
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.docker
+
+# Build outputs
+dist
+build
+.next
+out
+
+# Logs
+*.log
+logs
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Settings sync local overrides
+settings-sync/local-overrides
+settings-sync/backups
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.temp

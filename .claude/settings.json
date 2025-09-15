@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/production_context_injector.py"
+            "command": "python3 .claude/hooks/production_context_injector.py"
           }
         ]
       }

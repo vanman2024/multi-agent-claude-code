@@ -1,0 +1,102 @@
+# Docker Compose Development Environment Template
+# This provides consistent development environments across WSL, Windows, Linux, macOS
+
+version: '3.8'
+
+services:
+  # Python Development Environment
+  python-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: "${PROJECT_NAME:-project}-python-dev"
+    volumes:
+      # Mount source code for live development
+      - .:/workspace
+      # Persist Python packages (faster rebuilds)
+      - python-packages:/usr/local/lib/python3.12/site-packages
+      # Persist pip cache
+      - pip-cache:/root/.cache/pip
+      # Mount VS Code server extensions (for dev containers)
+      - vscode-extensions:/root/.vscode-server/extensions
+    ports:
+      - "8000:8000"   # FastAPI/Flask development server
+      - "5678:5678"   # Python debugger (debugpy)
+      - "8888:8888"   # Jupyter notebook (if needed)
+    environment:
+      - PYTHONPATH=/workspace
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - DEVELOPMENT=true
+      - # Add your environment variables here
+    working_dir: /workspace
+    command: ["sleep", "infinity"]  # Keep container running for VS Code Dev Containers
+    stdin_open: true
+    tty: true
+
+  # Node.js Development Environment (for projects with frontend)
+  node-dev:
+    image: node:18-alpine
+    container_name: "${PROJECT_NAME:-project}-node-dev"
+    volumes:
+      - .:/workspace
+      - node-modules:/workspace/node_modules
+      - npm-cache:/root/.npm
+    ports:
+      - "3000:3000"   # React/Next.js development server
+      - "3001:3001"   # Additional dev server
+    environment:
+      - NODE_ENV=development
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
+    stdin_open: true
+    tty: true
+
+  # Database for Development (PostgreSQL)
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: "${PROJECT_NAME:-project}-postgres"
+    environment:
+      - POSTGRES_DB=${DB_NAME:-devdb}
+      - POSTGRES_USER=${DB_USER:-devuser}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-devpass}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d  # SQL init scripts
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # Redis for Caching/Sessions
+  redis-dev:
+    image: redis:7-alpine
+    container_name: "${PROJECT_NAME:-project}-redis"
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # Development Tools Container
+  tools:
+    image: alpine:latest
+    container_name: "${PROJECT_NAME:-project}-tools"
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: ["sleep", "infinity"]
+    profiles: ["tools"]  # Only start when explicitly requested
+
+volumes:
+  python-packages:
+  pip-cache:
+  vscode-extensions:
+  node-modules:
+  npm-cache:
+  postgres-data:
+  redis-data:
+
+networks:
+  default:
+    name: "${PROJECT_NAME:-project}-network"

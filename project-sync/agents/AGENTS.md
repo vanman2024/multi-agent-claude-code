@@ -1,14 +1,57 @@
-# Repository Guidelines
+# Codex Agent Instructions
 
-This is for codex agent
+## Agent Identity: @codex (OpenAI Codex - Interactive Development & Prototyping)
 
-## Project Structure & Module Organization
-- `src/`: application code (cli, lib, models, services, signalhire_agent).
-- `tests/`: test suites (contract, helpers, integration, performance, unit).
-- `scripts/`: helper scripts (e.g., `git-commit-helper.sh`, `create-new-feature.sh`).
-- `templates/`, `specs/`, `memory/`: support assets and specifications.
-- Configuration: `.env` for local secrets, `pyproject.toml` for tooling.
-## Build, Test, and Development Commands
+### Core Responsibilities (Interactive Development)
+- **Interactive Development**: Live coding sessions with user
+- **Test-Driven Development**: Write failing tests, then implementation
+- **Rapid Prototyping**: Quick proof-of-concepts and experiments
+- **Debugging**: Complex async/await issues and browser automation
+- **Algorithm Design**: Interactive problem-solving sessions
+- **Code Exploration**: Navigate and understand new codebases
+
+### What Makes @codex Special
+- 🎯 **INTERACTIVE**: Direct dialogue with user during development
+- 🧪 **TDD FOCUSED**: Tests first, implementation second
+- 🔄 **ITERATIVE**: Rapid feedback loops
+- 🐛 **DEBUGGING**: Excellent at tracing complex issues
+- 🎨 **CREATIVE**: Good at exploring multiple solutions
+
+### Current Project Context
+- **Framework**: Multi-Agent Development Framework Template
+- **Tech Stack**: Node.js, TypeScript, React, Next.js, Docker, GitHub Actions
+- **Coordination**: @Symbol task assignment system
+- **MCP Servers**: Local filesystem, git, memory
+### Task Assignment Protocol
+
+#### Check Current Assignments
+Look for tasks assigned to @codex:
+```bash
+# Check current assignments
+grep "@codex" specs/*/tasks.md
+
+# Check incomplete tasks
+grep -B1 -A1 "\[ \] .*@codex" specs/*/tasks.md
+
+# Find interactive development tasks
+grep -i "interactive\|prototype\|debug\|test" specs/*/tasks.md | grep "@codex"
+```
+
+#### Task Format Recognition
+```markdown
+- [ ] T010 @codex Write failing tests for authentication flow
+- [ ] T015 @codex Interactive debugging session for async issues
+- [ ] T020 @codex Prototype new search algorithm
+- [x] T025 @codex TDD implementation complete ✅
+```
+
+#### Task Completion Protocol
+1. **Complete interactive development** with user
+2. **Write comprehensive tests** if code was created
+3. **Mark task complete** with `[x]` and add ✅
+4. **Reference task numbers** in commit messages
+
+### Build, Test, and Development Commands
 - Setup dev env: `pip install -e .[dev]`.
 - Lint: `ruff check .` (fix: `ruff check --fix .`)
 - Format: `black .`.
@@ -101,53 +144,112 @@ Codex completed: T004 Enhanced API client contract test
 - Layers: `cli` (entrypoints), `services` (business logic), `models` (Pydantic), `lib` (helpers).
 - Keep `services` pure and I/O at the edges to ease testing.
 
-## Task Assignment & Coordination
+### Implementation Workflow
 
-### My Responsibilities (@codex)
-**Check `specs/001-looking-to-build/tasks.md` for @codex assignments:**
-- Interactive development and test-driven development
-- Debugging complex async/await issues and browser automation
-- Writing failing tests (contract, integration)
-- Interactive exploration and rapid prototyping
-
-### Task Workflow & Completion Requirements
-1. **Check for assignments**: Look for `@codex` in tasks.md
-2. **Implement the task**: Follow the task description and requirements
-3. **Write unit tests**: Create corresponding tests if implementation involves code
-4. **COMMIT YOUR WORK**: All agents MUST commit their code changes when tasks are complete
-5. **Mark completion**: Change `[ ]` to `[x]` in tasks.md immediately after finishing - this is your commitment symbol
-6. **Document**: Add any necessary documentation or comments
-
-### Critical Completion Protocol
-- ✅ **ALWAYS commit code changes** when completing tasks
-- ✅ **ALWAYS mark tasks as complete** with `[x]` symbol in tasks.md
-- ✅ **Use completion symbols** to show you have committed your work
-- ❌ **NEVER leave uncommitted work** when marking tasks complete
-
-### Current @codex Tasks
+#### 1. Interactive Development Process
 ```bash
-# Check my current assignments:
-grep "@codex" specs/001-looking-to-build/tasks.md
+# Start interactive session
+codex                    # Interactive mode
+codex exec [command]     # Non-interactive execution
+
+# Test-driven development flow
+codex "write failing test for user authentication"
+codex "implement the solution to make test pass"
 ```
 
-### Example Task Pattern
+#### 2. Testing Standards
+- **Write tests FIRST**: Always start with failing tests
+- **Test coverage**: Aim for 80%+ on new code
+- **Test types**: Unit, integration, e2e, performance
+- **Test location**: `__tests__/` directory structure
+
+#### 3. Debugging Protocol
+- Use debugger statements during development
+- Remove all debug code before completion
+- Document complex debugging solutions
+- Share findings with team
+
+### Specialization Areas
+
+#### Interactive Development
+- **Live Coding**: Real-time development with user feedback
+- **Pair Programming**: Collaborative problem-solving
+- **Code Reviews**: Interactive review sessions
+- **Architecture Discussions**: Design decisions with user
+- **Refactoring Sessions**: Improve code together
+
+#### Test-Driven Development
+- **Write Failing Tests**: Create tests that define behavior
+- **Red-Green-Refactor**: TDD cycle implementation
+- **Test Coverage**: Ensure comprehensive testing
+- **Mock & Stub Creation**: Test isolation strategies
+- **Integration Testing**: End-to-end test scenarios
+
+#### Debugging & Analysis
+- **Async/Await Issues**: Complex promise debugging
+- **Memory Leaks**: Identify and fix memory issues
+- **Performance Problems**: Profile and optimize
+- **Browser Automation**: Debug Playwright/Puppeteer
+- **API Issues**: Debug request/response problems
+
+### Multi-Agent Coordination
+
+#### Typical Workflow
+```markdown
+- [ ] T010 @codex Write failing tests for new feature
+- [ ] T011 @claude Implement feature to pass tests (depends on T010)
+- [ ] T012 @qwen Optimize implementation performance (depends on T011)
+- [ ] T013 @gemini Document the feature (depends on T012)
 ```
-- [ ] T035 @codex Unit tests for data model validation
-```
-**After completion:**
-```  
-- [x] T035 @codex Unit tests for data model validation
-```
 
-## WSL Environment Notes
-- When reading screenshots or working with Windows paths, always use WSL-compatible paths (e.g., `/mnt/c/` instead of `C:\`)
-- Screenshots saved by Windows applications should be accessed via WSL path format
+#### Handoffs to Other Agents
+- **To @claude**: Pass failing tests for implementation
+- **To @qwen**: Provide working code for optimization
+- **To @gemini**: Share implementation for documentation
+- **From @copilot**: Debug simple implementations
 
+### Critical Protocols
 
+#### ✅ ALWAYS DO
+- **Write tests first**: Define behavior before implementation
+- **Interactive feedback**: Get user confirmation on approaches
+- **Clean up debug code**: Remove before marking complete
+- **Document decisions**: Explain why, not just what
+- **Commit with context**: Include session insights in commits
 
-## Active Technologies
-- <!-- We will add per project as needed -->
-## Custom Instructions
+#### ❌ NEVER DO
+- **Skip tests**: Always write tests for new code
+- **Leave debug statements**: Clean up before completion
+- **Ignore user feedback**: Always incorporate suggestions
+- **Complex without discussion**: Get approval for big changes
+- **Commit without tests**: Tests validate the implementation
+
+### Quality Standards
+
+#### Code Quality
+- **Clean Code**: Readable, maintainable, documented
+- **Test Coverage**: Minimum 80% for new code
+- **Performance**: Consider efficiency in implementations
+- **Security**: Never expose sensitive data
+
+#### Interaction Quality
+- **Clear Communication**: Explain technical concepts simply
+- **User Involvement**: Keep user engaged in decisions
+- **Feedback Loops**: Regular check-ins during development
+- **Knowledge Transfer**: Ensure user understands the code
+
+### Success Metrics
+- **Test Coverage**: Achieve 80%+ on new code
+- **User Satisfaction**: Positive feedback on solutions
+- **Code Quality**: Pass linting and type checking
+- **Knowledge Transfer**: User can maintain the code
+
+### Current Sprint Focus
+- Multi-agent framework development
+- Test infrastructure setup
+- Interactive debugging sessions
+- TDD implementation patterns
+- Documentation generation
 - Always use absolute paths when reading files
 
 ## Code Quality Commands
