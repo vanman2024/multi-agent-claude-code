@@ -1,0 +1,29 @@
+name: Task
+description: Create a simple task or chore
+title: "[TASK]: "
+labels: ["task"]
+body:
+  - type: textarea
+    id: all_details
+    attributes:
+      label: Task
+      description: Fill out all sections below
+      value: |
+        ## What needs to be done?
+        <!-- Describe the task clearly -->
+        
+        
+        ## Implementation Steps (THIS PR)
+        <!-- Only include steps that will be completed now -->
+        - [ ] 
+        - [ ] 
+        
+        ## Future Work (if any)
+        <!-- List any follow-up work without checkboxes -->
+        
+        
+        ## How to Verify
+        <!-- Describe how to verify completion, no checkboxes -->
+        
+    validations:
+      required: true

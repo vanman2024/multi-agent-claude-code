@@ -194,6 +194,38 @@ class ProjectSync {
     }
   }
 
+  syncGitHubIssueTemplates() {
+    console.log('📋 Syncing GitHub issue templates...');
+    
+    const issueTemplates = [
+      '.github/ISSUE_TEMPLATE/bug_report.yml',
+      '.github/ISSUE_TEMPLATE/feature_request.yml',
+      '.github/ISSUE_TEMPLATE/task.yml',
+      '.github/ISSUE_TEMPLATE/hotfix.yml',
+      '.github/ISSUE_TEMPLATE/config.yml'
+    ];
+    
+    let templateCount = 0;
+    
+    for (const template of issueTemplates) {
+      const sourcePath = path.join(__dirname, '..', template);
+      const targetPath = path.join(this.projectRoot, template);
+      
+      if (fs.existsSync(sourcePath)) {
+        this.ensureDirectoryExists(path.dirname(targetPath));
+        fs.copyFileSync(sourcePath, targetPath);
+        templateCount++;
+        console.log(`  ✅ Synced ${path.basename(template)}`);
+      } else {
+        console.log(`  ⚠️  Template not found: ${template}`);
+      }
+    }
+    
+    if (templateCount > 0) {
+      console.log(`📋 Synced ${templateCount} issue templates`);
+    }
+  }
+
   syncMcpConfigurations() {
     console.log('🔧 MCP Server Management...');
     
@@ -826,6 +858,7 @@ class ProjectSync {
       this.syncSetupTemplates();
       this.syncMcpConfigurations();
       this.syncProjectEssentials();
+      this.syncGitHubIssueTemplates();  // Sync GitHub issue templates
 
       console.log('\n✅ Project sync completed successfully!');
       console.log('\n📋 Next steps:');

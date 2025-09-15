@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Start a Discussion
+    url: https://github.com/vanman2024/multi-agent-claude-code/discussions
+    about: For questions, brainstorming, or topics needing community input
+  - name: 📚 Documentation
+    url: https://github.com/vanman2024/multi-agent-claude-code/blob/main/README.md
+    about: Check our documentation first

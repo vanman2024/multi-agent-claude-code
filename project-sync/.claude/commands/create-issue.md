@@ -1,7 +1,7 @@
 ---
 allowed-tools: mcp__github(*), Read(*), Bash(*), TodoWrite(*)
 description: Create GitHub issues with proper templates and automatic agent assignment
-argument-hint: [--feature|--enhancement|--bug|--refactor|--chore|--docs|--quick|--hotfix] "title"
+argument-hint: [--feature|--bug|--task|--hotfix|--simple] "title"
 ---
 
 # Create Issue
@@ -20,18 +20,19 @@ WHEN NOT TO USE:
 - Documentation updates (just do them)
 
 FLAGS:
---feature    : New functionality
---bug        : Something broken
---enhancement: Improving existing features
---quick      : Skip all the questions, use defaults
---hotfix     : Emergency fix (creates branch immediately)
+--simple     : Use GitHub issue templates (simpler, no agent assignment)
+--feature    : New functionality (complex mode with agent routing)
+--bug        : Something broken (complex mode with agent routing)
+--task       : Simple task (uses GitHub template)
+--hotfix     : Emergency fix (uses GitHub template, creates branch)
 
-AUTO-ASSIGNMENT:
+AUTO-ASSIGNMENT (Complex Mode Only):
 - Copilot gets: Complexity ≤2 AND Size ≤S
 - Claude gets: Everything else
 -->
 
 ## Context
+- Current repository: !`gh repo view --json nameWithOwner -q .nameWithOwner`
 - Current branch: !`git branch --show-current`
 - Open issues: !`gh issue list --state open --limit 5 --json number,title,labels`
 - Recent issues: !`gh issue list --state open --limit 3 --json number,title`
@@ -39,6 +40,131 @@ AUTO-ASSIGNMENT:
 ## Your Task
 
 When user runs `/create-issue $ARGUMENTS`, follow these steps:
+
+### Step 0: Detect Repository Context and Mode
+
+First, get the current repository information and determine mode:
+```bash
+# Get repository owner and name
+REPO_INFO=$(gh repo view --json owner,name 2>/dev/null)
+if [ -z "$REPO_INFO" ]; then
+  echo "Error: Not in a GitHub repository or gh CLI not configured"
+  exit 1
+fi
+
+OWNER=$(echo "$REPO_INFO" | jq -r '.owner.login')
+REPO=$(echo "$REPO_INFO" | jq -r '.name')
+echo "Working in repository: $OWNER/$REPO"
+
+# Check for --simple flag or simple issue types
+ARGS="$ARGUMENTS"
+SIMPLE_MODE=false
+
+if [[ "$ARGS" == *"--simple"* ]] || [[ "$ARGS" == *"--task"* ]] || [[ "$ARGS" == *"--hotfix"* ]]; then
+  SIMPLE_MODE=true
+  echo "Using simple mode with GitHub issue templates"
+fi
+```
+
+### Step 0.5: Simple Mode - Use GitHub Issue Templates
+
+If SIMPLE_MODE is true, use a simplified workflow:
+
+```bash
+if [ "$SIMPLE_MODE" = true ]; then
+  # Parse type from arguments
+  TYPE=""
+  TITLE=""
+  
+  if [[ "$ARGS" == *"--bug"* ]]; then
+    TYPE="bug"
+    TITLE=$(echo "$ARGS" | sed 's/--bug//' | xargs)
+  elif [[ "$ARGS" == *"--feature"* ]]; then
+    TYPE="feature"
+    TITLE=$(echo "$ARGS" | sed 's/--feature//' | xargs)
+  elif [[ "$ARGS" == *"--task"* ]]; then
+    TYPE="task"
+    TITLE=$(echo "$ARGS" | sed 's/--task//' | xargs)
+  elif [[ "$ARGS" == *"--hotfix"* ]]; then
+    TYPE="hotfix"
+    TITLE=$(echo "$ARGS" | sed 's/--hotfix//' | xargs)
+  else
+    # Ask for type
+    echo "Select issue type:"
+    echo "1) Bug"
+    echo "2) Feature"
+    echo "3) Task"
+    echo "4) Hotfix"
+    read -p "Choice (1-4): " CHOICE
+    
+    case $CHOICE in
+      1) TYPE="bug";;
+      2) TYPE="feature";;
+      3) TYPE="task";;
+      4) TYPE="hotfix";;
+    esac
+    
+    TITLE=$(echo "$ARGS" | sed 's/--simple//' | xargs)
+  fi
+  
+  # Read appropriate GitHub template
+  TEMPLATE_PATH=".github/ISSUE_TEMPLATE/${TYPE}_report.yml"
+  if [[ "$TYPE" == "feature" ]]; then
+    TEMPLATE_PATH=".github/ISSUE_TEMPLATE/feature_request.yml"
+  fi
+  
+  # Simple prompts based on template
+  echo "Creating $TYPE: $TITLE"
+  
+  # Gather minimal information
+  BODY=""
+  
+  if [[ "$TYPE" == "bug" ]]; then
+    echo "What's broken? (required):"
+    read DESCRIPTION
+    echo "Steps to reproduce (or press Enter to skip):"
+    read STEPS
+    BODY="## What's broken?\n$DESCRIPTION\n\n## Steps to Reproduce\n$STEPS"
+  elif [[ "$TYPE" == "feature" ]]; then
+    echo "Describe the feature (required):"
+    read DESCRIPTION
+    echo "What problem does it solve? (or press Enter to skip):"
+    read PROBLEM
+    BODY="## Description\n$DESCRIPTION\n\n## Problem it Solves\n$PROBLEM"
+  elif [[ "$TYPE" == "task" ]]; then
+    echo "What needs to be done? (required):"
+    read DESCRIPTION
+    BODY="## Task\n$DESCRIPTION"
+  elif [[ "$TYPE" == "hotfix" ]]; then
+    echo "What's critically broken? (required):"
+    read CRITICAL
+    echo "Impact (required):"
+    read IMPACT
+    BODY="## Critical Issue\n$CRITICAL\n\n## Impact\n$IMPACT"
+  fi
+  
+  # Create issue with appropriate labels
+  LABELS="$TYPE"
+  if [[ "$TYPE" == "feature" ]]; then
+    LABELS="enhancement"
+  elif [[ "$TYPE" == "hotfix" ]]; then
+    LABELS="hotfix,urgent"
+  fi
+  
+  # Use mcp__github__create_issue
+  # owner: $OWNER
+  # repo: $REPO
+  # title: "[$TYPE]: $TITLE"
+  # body: $BODY
+  # labels: [$LABELS]
+  
+  echo "✅ Simple issue created #$ISSUE_NUMBER"
+  echo "No agent assignment or complexity estimation"
+  exit 0
+fi
+```
+
+If not in simple mode, continue with the complex workflow below...
 
 ### Step 1: Check if Creating Sub-Issue
 
@@ -142,8 +268,8 @@ Using the template structure:
 ### Step 6: Create GitHub Issue
 
 Use mcp__github__create_issue with:
-- owner: from repository context
-- repo: from repository context
+- owner: $OWNER (from Step 0)
+- repo: $REPO (from Step 0)
 - title: provided by user
 - body: filled template with metadata section + testing requirements
 - labels: [issue-type] (ONLY the type: bug, feature, enhancement, refactor, task)
@@ -168,7 +294,7 @@ For each sub-issue:
 2. Get the parent and sub-issue node IDs using GraphQL:
    ```graphql
    query {
-     repository(owner: "vanman2024", name: "multi-agent-claude-code") {
+     repository(owner: "$OWNER", name: "$REPO") {
        issue(number: ISSUE_NUMBER) { id }
      }
    }
@@ -228,8 +354,8 @@ if (shouldAutoAssignCopilot(COMPLEXITY, SIZE, ISSUE_TYPE, LABELS)) {
   // IMMEDIATELY assign Copilot using MCP
   // This triggers Copilot to start working within seconds!
   await mcp__github__assign_copilot_to_issue({
-    owner: 'vanman2024',
-    repo: 'multi-agent-claude-code',
+    owner: OWNER,
+    repo: REPO,
     issueNumber: ISSUE_NUMBER
   });
 
@@ -249,8 +375,8 @@ if (shouldAutoAssignCopilot(COMPLEXITY, SIZE, ISSUE_TYPE, LABELS)) {
 
   // Add specific instructions comment
   await mcp__github__add_issue_comment({
-    owner: 'vanman2024',
-    repo: 'multi-agent-claude-code',
+    owner: OWNER,
+    repo: REPO,
     issue_number: ISSUE_NUMBER,
     body: `🤖 **GitHub Copilot Auto-Assigned**
 
@@ -285,8 +411,8 @@ Watch for branch: \`copilot/${ISSUE_TYPE}-${ISSUE_NUMBER}\``
   else if (hasBlockingLabels) reason = "Has blocking labels";
 
   await mcp__github__add_issue_comment({
-    owner: 'vanman2024',
-    repo: 'multi-agent-claude-code',
+    owner: OWNER,
+    repo: REPO,
     issue_number: ISSUE_NUMBER,
     body: `🧠 **Requires Claude Code/Agent Orchestration**
 
@@ -347,7 +473,7 @@ Ask user if they want to assign a milestone:
 ```bash
 # List available milestones
 echo "Available milestones:"
-gh api repos/vanman2024/multi-agent-claude-code/milestones --jq '.[] | "\(.number): \(.title)"'
+gh api repos/${OWNER}/${REPO}/milestones --jq '.[] | "\(.number): \(.title)"'
 
 # Ask user to select milestone (or skip)
 echo "Select milestone number (or press Enter to skip):"
@@ -355,7 +481,7 @@ read MILESTONE_NUMBER
 
 if [[ ! -z "$MILESTONE_NUMBER" ]]; then
   # Get milestone title for confirmation
-  MILESTONE_TITLE=$(gh api repos/vanman2024/multi-agent-claude-code/milestones --jq ".[] | select(.number==$MILESTONE_NUMBER) | .title")
+  MILESTONE_TITLE=$(gh api repos/${OWNER}/${REPO}/milestones --jq ".[] | select(.number==$MILESTONE_NUMBER) | .title")
   echo "Assigning to milestone: $MILESTONE_TITLE"
   gh issue edit $ISSUE_NUMBER --milestone $MILESTONE_NUMBER
 else

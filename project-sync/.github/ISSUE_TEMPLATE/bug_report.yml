@@ -1,0 +1,77 @@
+name: Bug Report
+description: Report something that's broken
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What's broken?
+      description: Clear description of the bug
+      placeholder: "Describe what's not working as expected..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      value: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+      
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen?
+      placeholder: "Describe what you expected to happen..."
+    validations:
+      required: false
+      
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happens?
+      placeholder: "Describe what actually happened..."
+    validations:
+      required: false
+      
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs
+      description: Any error messages or logs
+      placeholder: "Paste any relevant error messages here..."
+      render: shell
+    validations:
+      required: false
+      
+  - type: textarea
+    id: fix_tasks
+    attributes:
+      label: Fix Tasks
+      description: What needs to be done in THIS PR to fix the bug?
+      value: |
+        - [ ] Reproduce the issue
+        - [ ] Implement fix
+        - [ ] Verify fix resolves the issue
+    validations:
+      required: false
+      
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Approach
+      description: How will we verify this fix? (Describe, don't use checkboxes)
+      placeholder: |
+        - Test that reproduces the bug
+        - Verification steps after fix
+        - Regression prevention strategy
+    validations:
+      required: false

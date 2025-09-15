@@ -1,0 +1,54 @@
+name: Hotfix
+description: Critical issue that needs immediate attention
+title: "[HOTFIX]: "
+labels: ["hotfix", "urgent"]
+body:
+  - type: textarea
+    id: critical_issue
+    attributes:
+      label: Critical Issue
+      description: What's broken that needs immediate fix?
+      placeholder: "Describe the critical problem..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Who or what is affected?
+      placeholder: "Describe the impact (users affected, systems down, etc.)..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: quick_fix
+    attributes:
+      label: Quick Fix
+      description: What's the fastest solution?
+      placeholder: "Describe the immediate fix needed..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Done
+      description: What testing was performed?
+      placeholder: "List any testing done to verify the fix..."
+    validations:
+      required: false
+      
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Hotfix Requirements
+      description: Minimal steps to resolve this critical issue
+      value: |
+        - [ ] Implement immediate fix
+        - [ ] Test fix in staging/dev
+        - [ ] Deploy to production
+        - [ ] Verify issue is resolved
+        - [ ] Document root cause for future prevention
+    validations:
+      required: false

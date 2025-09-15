@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-15T02:04:13Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 2,
+      "last_commit": "4c1c106 [WORKING] feat: Add /report-issue command for simple issue creation"
+    },
+    {
       "timestamp": "2025-09-15T02:00:25Z",
       "branch": "main",
       "uncommitted": 2,
@@ -718,13 +725,6 @@
       "uncommitted": 0,
       "unpushed": 0,
       "last_commit": "3141b18 docs: Add scaffold-first workflow for spec-kit integration"
-    },
-    {
-      "timestamp": "2025-09-10T20:57:41Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "6c0d456 feat: Add spec-kit integration strategy and import command"
     }
   ]
 }

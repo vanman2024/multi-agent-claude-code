@@ -1,0 +1,88 @@
+name: Feature Request
+description: Suggest a new feature or improvement
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: What kind of change is this?
+      options:
+        - "New Feature"
+        - "Enhancement"
+        - "Refactor"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What do you want to build or improve?
+      placeholder: "Describe the feature or enhancement..."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem it Solves
+      description: What problem does this feature solve?
+      placeholder: "Explain the problem or need this addresses..."
+    validations:
+      required: false
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this work?
+      placeholder: "Describe how you envision this feature working..."
+    validations:
+      required: false
+      
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Tasks
+      description: What needs to be done in THIS PR? (Only include tasks that will be completed now)
+      value: |
+        - [ ] 
+        - [ ] 
+        - [ ] 
+    validations:
+      required: false
+      
+  - type: textarea
+    id: future
+    attributes:
+      label: Future Enhancements
+      description: What could be done later? (No checkboxes - just ideas)
+      placeholder: |
+        - Additional features that could be added later
+        - Performance optimizations to consider
+        - Architectural improvements for the future
+    validations:
+      required: false
+      
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Strategy
+      description: How will this be tested? (Describe approach, don't use checkboxes)
+      placeholder: |
+        - Unit tests will cover...
+        - Integration tests will verify...
+        - Manual testing will include...
+    validations:
+      required: false
+      
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Any other approaches you've thought about?
+      placeholder: "List any alternative solutions you've considered..."
+    validations:
+      required: false
