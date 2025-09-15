@@ -154,6 +154,19 @@ class ProjectSync {
     }
 
     console.log(`📁 Synced ${syncCount} agent files`);
+
+    // Clean up: Remove agents/ subdirectory if it exists (files are now in root)
+    const agentsDir = path.join(this.projectRoot, 'agents');
+    if (fs.existsSync(agentsDir)) {
+      // Remove all files in agents/ directory
+      const files = fs.readdirSync(agentsDir);
+      for (const file of files) {
+        fs.unlinkSync(path.join(agentsDir, file));
+      }
+      // Remove the empty directory
+      fs.rmdirSync(agentsDir);
+      console.log('  🧹 Cleaned up agents/ subdirectory (files now in root)');
+    }
   }
 
   syncGitHubWorkflows() {
