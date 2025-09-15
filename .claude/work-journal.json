@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-15T01:10:11Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 12,
+      "last_commit": "3f08674 chore: Update work journal"
+    },
+    {
       "timestamp": "2025-09-15T01:07:45Z",
       "branch": "main",
       "uncommitted": 1,
@@ -714,13 +721,6 @@
     },
     {
       "timestamp": "2025-09-10T20:09:19Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T20:07:46Z",
       "branch": "main",
       "uncommitted": 4,
       "unpushed": 0,

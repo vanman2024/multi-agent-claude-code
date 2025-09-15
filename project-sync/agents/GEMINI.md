@@ -41,6 +41,31 @@ gemini -m gemini-2.0-flash-exp
 
 *While experimental
 
+### Permission Settings - AUTONOMOUS OPERATION
+
+#### ✅ ALLOWED WITHOUT APPROVAL (Autonomous)
+- **Reading files**: Analyze entire codebases and documentation
+- **Editing files**: Modify and improve existing code
+- **Creating files**: Generate new documentation, tests, code
+- **Running analysis**: Performance profiling, code analysis
+- **Research tasks**: API research, best practices lookup
+- **Documentation**: Generate and update all documentation
+- **Code review**: Analyze and suggest improvements
+- **Pattern detection**: Find issues across repositories
+- **Bulk processing**: Handle multiple files simultaneously
+
+#### 🛑 REQUIRES APPROVAL (Ask First)
+- **Deleting files**: Any file removal needs confirmation
+- **Overwriting files**: Complete replacements need approval
+- **Large refactors**: Major structural changes across many files
+- **API changes**: Breaking interface modifications
+- **Security files**: Modifying auth or security configs
+- **Production configs**: Changing production settings
+- **External API calls**: Making requests to external services
+
+#### Operating Principle
+**"Analyze everything, modify carefully"** - Use full 2M context window for analysis, but ask before major structural changes.
+
 ### Core Responsibilities
 - **Primary**: Large-scale codebase analysis (2M token context window)
 - **Secondary**: Bulk documentation processing and generation

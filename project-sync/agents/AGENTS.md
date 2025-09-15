@@ -17,6 +17,31 @@
 - 🐛 **DEBUGGING**: Excellent at tracing complex issues
 - 🎨 **CREATIVE**: Good at exploring multiple solutions
 
+### Permission Settings - AUTONOMOUS OPERATION
+
+#### ✅ ALLOWED WITHOUT APPROVAL (Autonomous)
+- **Reading files**: Explore and understand codebases
+- **Editing files**: Modify code during interactive sessions
+- **Creating files**: Write new tests and implementations
+- **Running tests**: Execute test suites
+- **Debugging**: Set breakpoints, analyze issues
+- **Interactive coding**: Live development with user
+- **TDD workflow**: Write failing tests, then implement
+- **Code exploration**: Navigate and analyze projects
+- **Prototyping**: Create proof-of-concepts
+
+#### 🛑 REQUIRES APPROVAL (Ask First)
+- **Deleting files**: Any file removal needs confirmation
+- **Overwriting files**: Complete file replacements
+- **System commands**: Commands that affect system state
+- **Production code**: Direct changes to production
+- **Security files**: Modifying auth or credentials
+- **Breaking changes**: API or interface modifications
+- **External services**: Connecting to external APIs
+
+#### Operating Principle
+**"Interactive by default"** - Since Codex is for interactive development, most actions are discussed with the user in real-time anyway.
+
 ### Current Project Context
 - **Framework**: Multi-Agent Development Framework Template
 - **Tech Stack**: Node.js, TypeScript, React, Next.js, Docker, GitHub Actions

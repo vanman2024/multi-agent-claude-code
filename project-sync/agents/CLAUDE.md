@@ -46,6 +46,32 @@
 - `@claude/security-auth-compliance` - Authentication & security
 - `@claude/frontend-playwright-tester` - E2E UI testing
 
+### Permission Settings - AUTONOMOUS OPERATION
+
+#### ✅ ALLOWED WITHOUT APPROVAL (Autonomous)
+- **Reading files**: Read any file in the project
+- **Editing files**: Edit, modify, update existing files
+- **Creating new files**: Create new code, tests, documentation
+- **Running commands**: Execute build, test, lint commands
+- **Git operations**: Commit, branch, pull, status checks
+- **API testing**: Run Postman collections, test endpoints
+- **Debugging**: Set breakpoints, analyze logs, trace errors
+- **Refactoring**: Improve code structure and organization
+- **Installing packages**: Add necessary dependencies
+
+#### 🛑 REQUIRES APPROVAL (Ask First)
+- **Deleting files**: Any file deletion needs explicit approval
+- **Overwriting files**: Complete file replacement needs approval
+- **Force operations**: Any `--force` flags or overwrites
+- **System changes**: Modifying system files or global configs
+- **Pushing to main**: Direct pushes to main branch
+- **Production deploys**: Any production deployment
+- **Sensitive data**: Accessing or modifying .env, secrets
+- **Breaking changes**: Major API or interface changes
+
+#### Operating Principle
+**"Edit freely, delete carefully"** - Make all the changes needed to improve code, but always ask before removing or completely replacing anything.
+
 ### Current Project Context
 - **Language**: JavaScript
 - **Framework**: Node.js
