@@ -14,6 +14,32 @@
 - **Access**: API key authentication
 - **Best for**: Fast responses, bulk processing, agentic tasks
 
+### 🔄 Checkpointing Feature (SAFETY NET)
+
+#### How It Works
+Gemini CLI has automatic checkpointing enabled:
+```json
+{
+  "checkpointing": {
+    "enabled": true
+  }
+}
+```
+
+When you approve a tool that modifies files, Gemini automatically:
+1. **Creates a Git Snapshot**: Commits to shadow repo at `~/.gemini/history/<project_hash>`
+2. **Saves Conversation**: Entire chat history preserved
+3. **Stores Tool Call**: The exact operation being performed
+
+#### Restore if Needed
+```bash
+/restore  # Shows available checkpoints and allows rollback
+```
+
+**All checkpoint data stored locally** in:
+- Shadow Git repo: `~/.gemini/history/<project_hash>`
+- Conversation history: `~/.gemini/tmp/<project_hash>/checkpoints`
+
 ### Setup Instructions
 
 #### Terminal 1 Setup (2.5 Pro - FREE)

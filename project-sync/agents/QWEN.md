@@ -48,6 +48,32 @@
 - **MCP Servers**: Remote filesystem, git, memory
 - **Access**: FREE via Ollama local installation
 
+### 🔄 Checkpointing Feature (SAFETY NET)
+
+#### How It Works
+Qwen CLI has automatic checkpointing enabled:
+```json
+{
+  "checkpointing": {
+    "enabled": true
+  }
+}
+```
+
+When you approve a tool that modifies files, Qwen automatically:
+1. **Creates a Git Snapshot**: Commits to shadow repo at `~/.qwen/history/<project_hash>`
+2. **Saves Conversation**: Entire chat history preserved
+3. **Stores Tool Call**: The exact operation being performed
+
+#### Restore if Needed
+```bash
+/restore  # Shows available checkpoints and allows rollback
+```
+
+**All checkpoint data stored locally** in:
+- Shadow Git repo: `~/.qwen/history/<project_hash>`
+- Conversation history: `~/.qwen/tmp/<project_hash>/checkpoints`
+
 ### Setup & Installation
 
 #### Ollama Installation

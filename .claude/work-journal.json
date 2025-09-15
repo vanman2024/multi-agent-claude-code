@@ -1,6 +1,27 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-15T01:43:49Z",
+      "branch": "fix-secrets-cleaned",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "8a611f3 fix: Properly handle newlines in hook numeric values"
+    },
+    {
+      "timestamp": "2025-09-15T01:42:20Z",
+      "branch": "fix-secrets-cleaned",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "8a611f3 fix: Properly handle newlines in hook numeric values"
+    },
+    {
+      "timestamp": "2025-09-15T01:41:55Z",
+      "branch": "fix-secrets-cleaned",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "67371b4 fix: Fix integer comparison and JSON errors in work-checkpoint hook"
+    },
+    {
       "timestamp": "2025-09-15T01:37:51Z",
       "branch": "main",
       "uncommitted": 0,
@@ -704,27 +725,6 @@
       "uncommitted": 5,
       "unpushed": 0,
       "last_commit": "5068599 fix: Fix newline escaping in claude-init.sh script"
-    },
-    {
-      "timestamp": "2025-09-10T20:29:48Z",
-      "branch": "main",
-      "uncommitted": 6,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T20:15:14Z",
-      "branch": "main",
-      "uncommitted": 6,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T20:12:37Z",
-      "branch": "main",
-      "uncommitted": 5,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
     }
   ]
 }
