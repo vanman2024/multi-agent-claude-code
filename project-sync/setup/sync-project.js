@@ -487,14 +487,17 @@ class ProjectSync {
       }
     }
     
-    // Make hook files executable
-    const hooksDir = path.join(targetClaudeDir, 'hooks');
-    if (fs.existsSync(hooksDir)) {
-      const hookFiles = fs.readdirSync(hooksDir);
-      for (const hookFile of hookFiles) {
-        if (hookFile.endsWith('.sh')) {
-          const hookPath = path.join(hooksDir, hookFile);
-          fs.chmodSync(hookPath, '755');
+    // Make hook and script files executable
+    const executableDirs = ['hooks', 'scripts'];
+    for (const dir of executableDirs) {
+      const dirPath = path.join(targetClaudeDir, dir);
+      if (fs.existsSync(dirPath)) {
+        const files = fs.readdirSync(dirPath);
+        for (const file of files) {
+          if (file.endsWith('.sh') || file.endsWith('.py')) {
+            const filePath = path.join(dirPath, file);
+            fs.chmodSync(filePath, '755');
+          }
         }
       }
     }

@@ -10,6 +10,16 @@
         ]
       }
     ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/production_context_injector.py"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

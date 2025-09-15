@@ -1,6 +1,42 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-14T23:53:59Z",
+      "branch": "main",
+      "uncommitted": 6,
+      "unpushed": 3,
+      "last_commit": "0504b5a docs: Update README with correct script paths"
+    },
+    {
+      "timestamp": "2025-09-14T23:50:27Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 3,
+      "last_commit": "0504b5a docs: Update README with correct script paths"
+    },
+    {
+      "timestamp": "2025-09-14T23:46:36Z",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 3,
+      "last_commit": "0504b5a docs: Update README with correct script paths"
+    },
+    {
+      "timestamp": "2025-09-14T23:43:00Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 1,
+      "unpushed": 3,
+      "last_commit": "0504b5a docs: Update README with correct script paths"
+    },
+    {
+      "timestamp": "2025-09-14T06:35:57Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 3,
+      "last_commit": "0504b5a docs: Update README with correct script paths"
+    },
+    {
       "timestamp": "2025-09-14T06:35:03Z",
       "branch": "main",
       "uncommitted": 27,
@@ -685,41 +721,6 @@
       "uncommitted": 1,
       "unpushed": 0,
       "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T18:33:12Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T18:28:11Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T18:10:23Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "4e1cab0 feat: Implement Layer 1 - Direct TodoWrite integration for bulk-sync (#159)"
-    },
-    {
-      "timestamp": "2025-09-10T18:08:20Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "4e1cab0 feat: Implement Layer 1 - Direct TodoWrite integration for bulk-sync (#159)"
-    },
-    {
-      "timestamp": "2025-09-10T18:05:59Z",
-      "branch": "main",
-      "uncommitted": 3,
-      "unpushed": 0,
-      "last_commit": "4e1cab0 feat: Implement Layer 1 - Direct TodoWrite integration for bulk-sync (#159)"
     }
   ]
 }

@@ -70,7 +70,7 @@ gemini -m gemini-2.0-flash-exp
 - **Coordination**: @Symbol task assignment system
 - **MCP Servers**: Local filesystem, brave-search, memory
 
-### Task Assignment Protocol
+### @Symbol Task Assignment Protocol
 
 #### Check Current Assignments
 Look for tasks assigned to @gemini:
@@ -80,14 +80,25 @@ grep "@gemini" specs/*/tasks.md
 
 # Check incomplete tasks
 grep -B1 -A1 "\[ \] .*@gemini" specs/*/tasks.md
+
+# Find analysis and documentation tasks
+grep -i "research\|document\|analyze\|analysis" specs/*/tasks.md | grep "@gemini"
 ```
 
 #### Task Format Recognition
 ```markdown
 - [ ] T020 @gemini Research caching strategies for API optimization
 - [ ] T035 @gemini Document new API endpoints with examples
-- [x] T040 @gemini Performance analysis report ✅
+- [ ] T040 @gemini Analyze performance bottlenecks across codebase
+- [x] T045 @gemini Performance analysis report complete ✅
 ```
+
+#### Task Completion Protocol
+1. **Complete analysis/documentation** using appropriate model
+2. **Verify accuracy** and completeness
+3. **Mark task complete** with `[x]` and add ✅
+4. **Reference task numbers** in commit messages
+5. **Hand off results** to implementation agents
 
 ### Implementation Workflow
 
@@ -141,26 +152,48 @@ If you were paying:
 
 **USE THEM TO THE MAX WHILE THEY'RE FREE!**
 
-### Coordination with Other Agents
+### Multi-Agent Coordination
 
 #### When to Use Gemini vs Others
-- **Use Gemini For**:
-  - Analyzing entire repositories at once
+- **Use @gemini For**:
+  - Analyzing entire repositories at once (2M context)
   - Processing large documentation sets
   - Bulk code review across multiple files
   - Finding patterns across codebases
   - Generating comprehensive documentation
+  - Research tasks requiring large context
   
-- **Use Claude For**:
-  - Complex reasoning and architecture decisions
-  - Multi-file refactoring and implementation
-  - Critical business logic
-  - When accuracy is paramount
+- **Hand Off To @claude For**:
+  - Architecture decisions after analysis
+  - Complex implementation after research
+  - Security reviews after documentation
+  - Integration work after analysis
 
-- **Use Qwen For**:
-  - Quick coding tasks (until rate limits)
-  - Simple refactoring
-  - Algorithm optimization
+- **Hand Off To @qwen For**:
+  - Performance optimization after analysis
+  - Algorithm improvements after research
+  - Database optimization after performance analysis
+
+- **Hand Off To @codex For**:
+  - Frontend documentation after backend analysis
+  - UI component documentation after system analysis
+
+- **Hand Off To @copilot For**:
+  - Simple implementation after providing patterns
+  - Boilerplate generation after establishing templates
+
+#### Typical Handoff Pattern
+```markdown
+### Analysis Phase (@gemini's domain)
+- [ ] T010 @gemini Analyze current authentication system
+- [ ] T011 @gemini Research OAuth 2.0 best practices
+- [ ] T012 @gemini Document security requirements
+
+### Implementation Phase (hand off to specialists)
+- [ ] T020 @claude Implement new auth system (depends on T010-T012)
+- [ ] T021 @codex Create auth UI components (depends on T020)
+- [ ] T022 @qwen Optimize auth performance (depends on T021)
+```
 
 ### Documentation Standards
 - All docs in Markdown format

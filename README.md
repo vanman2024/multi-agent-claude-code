@@ -210,6 +210,52 @@ Based on your detected tech stack:
 - **Python/FastAPI**: pytest, coverage, ruff/flake8, mypy
 - **Node.js/Express**: Jest, supertest, ESLint, TypeScript
 
+## 🚨 Production Readiness System
+
+### Automatic Mock Detection & Validation
+This framework includes a comprehensive production readiness system that automatically:
+- Detects mock implementations (payment, auth, database, APIs)
+- Generates tests to validate production replacements
+- Provides expert guidance for fixing critical issues
+- Injects context when deployment keywords are mentioned
+
+### Complete Production Workflow
+```bash
+# Step 1: Detect all mock implementations
+/prod-ready --verbose
+
+# Step 2: Generate tests for production validation  
+/test-prod --all
+
+# Step 3: The production-specialist agent fixes mocks
+# (Automatically receives context from steps 1 & 2)
+
+# Step 4: Run generated tests to validate fixes
+./tests/production/run_production_tests.sh
+```
+
+### Smart Context Injection
+Just mention deployment-related keywords and the system automatically:
+- ✅ Detects deployment intent ("deploy", "production", "go live")
+- ✅ Runs mock detection scan in background
+- ✅ Injects production readiness context
+- ✅ Suggests using the production-specialist sub-agent
+
+### Available Commands
+- `/prod-ready` - Comprehensive production readiness scan
+- `/prod-ready --fix` - Auto-fix simple production issues  
+- `/test-prod` - Generate tests to validate mock replacements
+- `/test-prod --api` - Generate API-specific tests only
+
+### Production Specialist Agents
+- **production-specialist** - Expert in replacing mocks with real implementations
+- **test-generator** - Creates tests to validate production readiness
+
+### What Gets Detected
+- 🚨 **Critical**: Payment mocks, auth stubs, fake databases
+- ⚠️ **Warning**: Localhost references, debug mode, placeholders
+- ℹ️ **Info**: Test servers, mock libraries in production code
+
 ## 🚀 Deployment Ready
 
 - Vercel deployment workflows
