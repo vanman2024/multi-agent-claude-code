@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-15T00:37:40Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 6,
+      "last_commit": "ac3708e fix: Improve project-sync workflow and constitution integration"
+    },
+    {
       "timestamp": "2025-09-15T00:25:06Z",
       "branch": "main",
       "uncommitted": 5,
@@ -712,13 +719,6 @@
     },
     {
       "timestamp": "2025-09-10T20:02:09Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "7b4c206 feat: Add --worktree flag to /work command and update documentation"
-    },
-    {
-      "timestamp": "2025-09-10T19:59:49Z",
       "branch": "main",
       "uncommitted": 4,
       "unpushed": 0,

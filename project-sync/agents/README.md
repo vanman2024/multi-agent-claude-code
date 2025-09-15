@@ -1,43 +1,80 @@
 # Multi-Agent Development Team
 
-## Agent Coordination System
+## Agent Coordination System (@Symbol Task Assignment)
 
-This directory contains context files for each AI agent in our multi-agent development system.
+This directory contains context files for each AI agent in our multi-agent development system using the revolutionary @symbol coordination pattern.
 
 ### Active Agents
 
-#### @claude (Architecture & Integration)
+#### @claude (CTO-Level Engineering Reviewer & Strategic Guide)
 - **File**: `CLAUDE.md`
-- **Specialization**: Complex architecture, multi-file integration, system design
-- **MCP Access**: Full local server access (filesystem, git, github, memory, etc.)
+- **Role**: Strategic technical leadership, architecture decisions, quality gates
+- **Specialization**: Complex integration, security reviews, architectural oversight
+- **Subagents**: general-purpose, code-refactorer, pr-reviewer, backend-tester, integration-architect, system-architect, security-auth-compliance, frontend-playwright-tester
+- **Usage**: Via subscription (use strategically for critical decisions)
 
-#### @copilot (Code Generation)
-- **File**: `COPILOT_SUMMARY.md` 
-- **Specialization**: Simple implementations (Complexity ≤2, Size XS/S)
-- **Auto-assignment**: Via GitHub for qualifying tasks
+#### @copilot (GitHub Copilot - Fast Development Implementation)
+- **File**: `.github/copilot-instructions.md` (not in agents folder)
+- **Powered By**: Grok AI + Claude Sonnet models
+- **Role**: Fast development implementation across all complexity levels
+- **Integration**: VS Code GitHub Copilot interface
+- **Cost**: FREE with GitHub Pro
 
-#### @gemini (Research & Documentation)
+#### @codex (OpenAI Codex - FRONTEND ONLY Specialist)
+- **File**: `CODEX.md`
+- **Role**: FRONTEND EXCLUSIVE - React, UI/UX, frontend testing
+- **Specialization**: React components, styling, frontend state, accessibility
+- **Restriction**: NEVER handles backend work (that's other agents' domain)
+- **Cost**: Via API
+
+#### @gemini (Google Gemini - Analysis & Documentation Specialist)
 - **File**: `GEMINI.md`
-- **Specialization**: Research, documentation, performance analysis
-- **MCP Access**: filesystem, brave-search, memory
+- **Dual Models**: 
+  - Gemini 2.5 Pro (OAuth): 1000 req/day FREE
+  - Gemini 2.0 Flash Exp (API): ~1000+ req/day FREE experimental
+- **Specialization**: Large codebase analysis (2M context), bulk documentation
+- **Combined Capacity**: ~2000+ requests/day between both models
+- **Cost**: Both models currently FREE
 
-#### @qwen (Performance Optimization)
+#### @qwen (Qwen CLI - Performance Optimization Specialist)
 - **File**: `QWEN.md`
-- **Specialization**: Performance optimization, algorithm improvement
-- **MCP Access**: remote-filesystem, git, memory
-- **Installation**: FREE via Ollama
+- **Access**: CLI-based interface (NOT Ollama)
+- **Capacity**: 2000 req/day FREE (OAuth)
+- **Specialization**: Performance optimization, algorithm improvement, everyday development
+- **Cost**: FREE via OAuth login
 
 
-### Task Assignment
+### Task Assignment (@Symbol Coordination System)
 
-All agents use the @symbol coordination system with markdown task files:
+The @symbol system is our revolutionary coordination pattern - simple, universal, and incredibly effective.
 
+#### Task Format in specs/*/tasks.md:
 ```markdown
-- [ ] T001 @claude Design database schema
-- [ ] T002 @copilot Implement API endpoints
-- [ ] T003 @qwen Optimize query performance
-- [ ] T005 @gemini Document API endpoints
+### Backend Tasks
+- [ ] T010 @claude Design database schema architecture
+- [ ] T011 @copilot Implement user authentication endpoints
+- [ ] T012 @qwen Optimize database query performance
+
+### Frontend Tasks  
+- [ ] T020 @codex Create responsive dashboard component
+- [ ] T021 @codex Implement user profile UI
+- [ ] T022 @codex Add form validation components
+
+### Analysis Tasks
+- [ ] T030 @gemini Research caching strategies
+- [ ] T031 @gemini Document API endpoints
+- [x] T032 @gemini Performance analysis complete ✅
+
+### Coordination Tasks
+- [ ] T040 @claude Review and integrate all components
+- [ ] T041 @claude Validate system architecture
 ```
+
+#### Task Completion Protocol:
+1. **Find your assignments**: `grep "@agent" specs/*/tasks.md`
+2. **Complete the work** according to your specialization
+3. **Mark complete**: Change `[ ]` to `[x]` and add ✅
+4. **Commit with reference**: Include task number in commit message
 
 ### Updating Agent Context
 

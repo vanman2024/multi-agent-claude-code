@@ -260,14 +260,8 @@ class ProjectSync {
   syncProjectEssentials() {
     console.log('📋 Syncing project essentials...');
 
-    // Copy README.md from root (the main multi-agent documentation)
-    const readmeTarget = path.join(this.projectRoot, 'README.md');
-    const readmeSource = path.join(__dirname, '..', '..', 'README.md');
-
-    if (!fs.existsSync(readmeTarget) && fs.existsSync(readmeSource)) {
-      fs.copyFileSync(readmeSource, readmeTarget);
-      console.log('  ✅ Created README.md (Multi-Agent Framework documentation)');
-    }
+    // Don't copy README.md - each project should have its own README
+    // The agents/README.md provides the multi-agent documentation
 
     // Copy .env file directly (not just example)
     const envTarget = path.join(this.projectRoot, '.env');
