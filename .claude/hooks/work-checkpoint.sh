@@ -19,8 +19,8 @@ update_work_journal() {
     
     # Get current state
     branch=$(git branch --show-current 2>/dev/null || echo "unknown")
-    changes=$(git status --porcelain 2>/dev/null | wc -l)
-    unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo "0")
+    changes=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l | tr -d ' ' || echo "0")
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     last_commit=$(git log -1 --oneline 2>/dev/null || echo "no commits")
     
@@ -80,7 +80,7 @@ check_and_remind() {
     fi
     
     # Check for unpushed commits
-    unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo "0")
+    unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l | tr -d ' ' || echo "0")
     if [ "$unpushed" -gt 3 ]; then
         if [ -n "$MESSAGE" ]; then
             MESSAGE="$MESSAGE
