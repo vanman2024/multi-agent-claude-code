@@ -1,3 +1,4 @@
 
 # Production readiness reports
 production_readiness_report_*
+.env
