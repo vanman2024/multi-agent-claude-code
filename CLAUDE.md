@@ -248,7 +248,9 @@ When you run `sync-project-template.sh`, you automatically get:
 
 **Daily Development:**
 ```bash
-ops qa                    # Quality checks (lint, test, format)
+ops qa                    # Quality checks (lint, test, format) - all tests
+ops qa --backend          # Backend-only QA (Python/pytest)
+ops qa --frontend         # Frontend-only QA (Playwright/TypeScript)
 ops build --target PATH  # Build production version locally
 ops verify-prod          # Test production build works
 ops status                # Show current state and versions
@@ -271,13 +273,15 @@ ops sync             # Sync to all configured targets
 ### How It Integrates with Multi-Agent Development
 
 **For @claude (You):**
-- Always run `ops qa` before completing tasks
+- Always run `ops qa --backend` for Python/API work
+- Use `ops qa --all` for full-stack changes
 - Use `ops status` to check project state
 - Run `ops env doctor` if environment issues arise
 - Ensure `ops build` succeeds before marking work complete
 
 **For @copilot:**
-- Include `ops qa` in PR workflows
+- Include `ops qa --frontend` for UI/UX work
+- Include `ops qa --all` in PR workflows
 - Check `ops status` for version information
 - Use `ops verify-prod` to validate changes
 
@@ -345,7 +349,7 @@ qa:
 
 ### Benefits for Multi-Agent Teams
 
-1. **Consistent Quality:** All agents use same QA standards via `ops qa`
+1. **Consistent Quality:** All agents use same QA standards via `ops qa` (backend/frontend/all)
 2. **Reliable Builds:** `ops build` ensures production readiness
 3. **Clear State:** `ops status` shows what's deployed where
 4. **Environment Safety:** `ops env doctor` catches WSL/path issues
@@ -355,8 +359,11 @@ qa:
 
 **With GitHub Actions:**
 ```yaml
-- name: Quality Checks
-  run: ./scripts/ops qa
+- name: Backend Quality Checks
+  run: ./scripts/ops qa --backend
+
+- name: Frontend Quality Checks  
+  run: ./scripts/ops qa --frontend
 
 - name: Production Build
   run: ./scripts/ops build --target dist/
@@ -364,8 +371,14 @@ qa:
 
 **With Local Development:**
 ```bash
-# Replaces complex script chains with simple commands
-./scripts/ops qa && ./scripts/ops build --target ~/deploy/
+# Backend development
+./scripts/ops qa --backend && ./scripts/ops build --target ~/deploy/
+
+# Frontend development
+./scripts/ops qa --frontend
+
+# Full-stack changes
+./scripts/ops qa --all && ./scripts/ops build --target ~/deploy/
 ```
 
 ### Troubleshooting for Agents
@@ -807,6 +820,45 @@ During development, maintain ONLY these essential documents:
 - Never preemptively create user guides or tutorials
 - API documentation only when API is complete and stable
 
+## Testing & QA Standards
+
+### Dual Testing Architecture
+This template provides both backend and frontend testing capabilities:
+
+**Backend Testing** (`backend-tests/`):
+- **Python/pytest** for API logic, data processing, integrations
+- **Structure**: smoke, unit, integration, contract, performance, e2e, helpers
+- **Run**: `./scripts/ops qa --backend` or `python3 run.py -m pytest backend-tests/`
+- **Coverage**: `pytest --cov=src --cov-report=term-missing backend-tests/`
+
+**Frontend Testing** (`frontend-tests/`):
+- **Playwright/TypeScript** for UI, E2E, visual, accessibility testing
+- **Structure**: e2e, api, visual, accessibility, utils, config
+- **Setup**: Run `./frontend-tests-template/setup-testing.sh` to activate
+- **Run**: `./scripts/ops qa --frontend` or `npm run test:frontend`
+
+### Testing Workflow
+```bash
+# Backend development (Python/API)
+./scripts/ops qa --backend
+
+# Frontend development (UI/UX)
+./scripts/ops qa --frontend  
+
+# Full-stack changes
+./scripts/ops qa --all
+
+# Individual test suites
+python3 run.py -m pytest backend-tests/unit/
+npm run test:frontend:e2e
+```
+
+### Agent Testing Responsibilities
+- **@claude**: Backend testing, Python/pytest, API contract tests
+- **@copilot**: Frontend testing, Playwright, UI component tests  
+- **@gemini**: Integration testing, cross-browser validation
+- **@qwen**: Performance testing, accessibility compliance
+
 ## Code Style & Conventions
 
 ### Language-Specific Rules
@@ -829,10 +881,21 @@ During development, maintain ONLY these essential documents:
 
 ### ALWAYS run these before marking any task complete:
 ```bash
-# Check if these commands exist first, then run if available:
-npm run lint        # or: eslint, ruff, flake8, etc.
-npm run typecheck   # or: tsc, mypy, etc.
-npm test           # only if tests exist
+# Backend work (Python/API)
+./scripts/ops qa --backend    # Lint, format, typecheck, test backend
+
+# Frontend work (UI/UX)
+./scripts/ops qa --frontend   # Lint, typecheck, test frontend
+
+# Full-stack changes
+./scripts/ops qa --all        # Complete QA pipeline
+
+# Individual commands (if ops not available)
+ruff check src/ --fix         # Python linting
+mypy src/                     # Python type checking
+python3 run.py -m pytest backend-tests/  # Backend tests
+npm run lint:frontend         # Frontend linting  
+npm run test:frontend         # Frontend tests
 ```
 
 ### If commands are unknown:

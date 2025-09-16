@@ -94,9 +94,11 @@ gemini -m gemini-2.0-flash-exp
 
 ### Core Responsibilities
 - **Primary**: Large-scale codebase analysis (2M token context window)
-- **Secondary**: Bulk documentation processing and generation
+- **Secondary**: Integration testing between frontend and backend
+- **Tertiary**: Bulk documentation processing and generation
 - Research and analysis for best practices and integrations
 - Code review across multiple files simultaneously
+- Cross-browser testing and validation
 - Pattern detection across entire repositories
 
 ## 🚀 Ops CLI Automation Integration
@@ -107,17 +109,23 @@ As @gemini, your role focuses on research, documentation, and large-scale analys
 
 #### Before Starting Analysis Tasks
 ```bash
-./scripts/ops status    # Understand current project state and deployment targets
-./scripts/ops qa        # Check current codebase quality before analysis
+./scripts/ops status           # Understand current project state and deployment targets
+./scripts/ops qa --all         # Check both frontend and backend quality
+./scripts/ops qa --backend     # Backend-specific analysis
+./scripts/ops qa --frontend    # Frontend-specific analysis
 ```
 
 #### Quality Assurance Integration
 ```bash
 # After documentation/research work:
-./scripts/ops qa        # Ensure your docs follow project standards
+./scripts/ops qa --all         # Ensure your docs follow project standards
+
+# For integration testing:
+./scripts/ops qa --backend     # Test backend integration points
+./scripts/ops qa --frontend    # Test frontend integration points
 
 # For environment-related research:
-./scripts/ops env doctor  # Check WSL/Windows setup issues to document
+./scripts/ops env doctor       # Check WSL/Windows setup issues to document
 ```
 
 #### Research and Documentation Workflow

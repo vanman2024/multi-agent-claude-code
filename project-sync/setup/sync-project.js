@@ -839,65 +839,87 @@ class ProjectSync {
   syncTestingStructure() {
     console.log('🧪 Syncing testing structure...');
     
-    const testingConfig = this.config.testingStructure;
-    if (!testingConfig || !testingConfig.enabled) {
-      console.log('  ⏭️  Testing structure sync disabled');
-      return;
-    }
-
     let syncCount = 0;
-
-    // Create testing directories
-    for (const dir of testingConfig.directories) {
-      const sourcePath = path.join(__dirname, '..', dir);
-      const targetPath = path.join(this.projectRoot, dir.replace('testing/structure/', ''));
-      
-      this.ensureDirectoryExists(targetPath);
+    
+    // Sync backend tests
+    const backendTestsSource = path.join(__dirname, '..', 'templates', 'backend-tests');
+    const backendTestsTarget = path.join(this.projectRoot, 'backend-tests');
+    
+    if (fs.existsSync(backendTestsSource)) {
+      console.log('  🐍 Syncing backend tests (Python/pytest)...');
+      this.copyDirectoryRecursive(backendTestsSource, backendTestsTarget);
+      syncCount++;
     }
-
-    // Copy testing files
-    for (const file of testingConfig.files) {
-      const sourcePath = path.join(__dirname, '..', file);
-      let targetPath;
+    
+    // Sync frontend tests (optional - only if it's a full-stack project)
+    const frontendTestsSource = path.join(__dirname, '..', 'templates', 'frontend-tests-template');
+    const packageJsonPath = path.join(this.projectRoot, 'package.json');
+    
+    if (fs.existsSync(packageJsonPath)) {
+      console.log('  🎭 Detected Node.js project - syncing frontend tests...');
       
-      if (file.endsWith('.template')) {
-        // Remove .template extension and replace PROJECT_NAME placeholder
-        const targetFile = file.replace('.template', '').replace('testing/', '');
-        targetPath = path.join(this.projectRoot, targetFile);
+      // Run the frontend testing setup script
+      const setupScript = path.join(frontendTestsSource, 'setup-testing.sh');
+      if (fs.existsSync(setupScript)) {
+        // Copy the template first
+        const frontendTemplateTarget = path.join(this.projectRoot, 'frontend-tests-template');
+        this.copyDirectoryRecursive(frontendTestsSource, frontendTemplateTarget);
         
-        if (fs.existsSync(sourcePath)) {
-          let content = fs.readFileSync(sourcePath, 'utf8');
-          const projectName = path.basename(this.projectRoot);
-          content = content.replace(/PROJECT_NAME/g, projectName);
-          
-          this.ensureDirectoryExists(path.dirname(targetPath));
-          fs.writeFileSync(targetPath, content);
-          syncCount++;
-        }
-      } else {
-        // Regular file copy
-        targetPath = path.join(this.projectRoot, file.replace('testing/structure/', ''));
-        
-        if (fs.existsSync(sourcePath)) {
-          this.ensureDirectoryExists(path.dirname(targetPath));
-          fs.copyFileSync(sourcePath, targetPath);
-          syncCount++;
-        }
+        console.log('  📋 Frontend testing template ready - run ./frontend-tests-template/setup-testing.sh to activate');
+        syncCount++;
       }
     }
-
+    
     if (syncCount > 0) {
-      console.log(`  ✅ Synced ${syncCount} testing files and directories`);
+      console.log(`  ✅ Synced ${syncCount} testing suites`);
       console.log('  📁 Created standardized testing structure:');
-      console.log('     • tests/smoke/ - Quick validation tests');
-      console.log('     • tests/unit/ - Individual component tests');
-      console.log('     • tests/integration/ - External service tests');
-      console.log('     • tests/contract/ - API contract tests');
-      console.log('     • tests/performance/ - Performance benchmarks');
-      console.log('     • tests/e2e/ - End-to-end workflow tests');
-      console.log('     • tests/helpers/ - Shared fixtures and utilities');
+      console.log('     • backend-tests/ - Python/pytest backend testing');
+      console.log('       • backend-tests/smoke/ - Quick validation tests');
+      console.log('       • backend-tests/unit/ - Individual component tests');
+      console.log('       • backend-tests/integration/ - External service tests');
+      console.log('       • backend-tests/contract/ - API contract tests');
+      console.log('       • backend-tests/performance/ - Performance benchmarks');
+      console.log('       • backend-tests/e2e/ - End-to-end workflow tests');
+      if (fs.existsSync(packageJsonPath)) {
+        console.log('     • frontend-tests-template/ - Playwright/TypeScript frontend testing');
+        console.log('       • Run ./frontend-tests-template/setup-testing.sh to activate');
+      }
     } else {
-      console.log('  ⚠️  No testing files found to sync');
+      console.log('  ⚠️  No testing templates found to sync');
+    }
+  }
+  
+  copyDirectoryRecursive(source, target) {
+    if (!fs.existsSync(target)) {
+      fs.mkdirSync(target, { recursive: true });
+    }
+    
+    const items = fs.readdirSync(source);
+    
+    for (const item of items) {
+      const sourcePath = path.join(source, item);
+      const targetPath = path.join(target, item);
+      
+      const stat = fs.statSync(sourcePath);
+      
+      if (stat.isDirectory()) {
+        this.copyDirectoryRecursive(sourcePath, targetPath);
+      } else {
+        // Handle template files
+        if (item.includes('PROJECT_NAME')) {
+          const projectName = path.basename(this.projectRoot);
+          let content = fs.readFileSync(sourcePath, 'utf8');
+          content = content.replace(/PROJECT_NAME/g, projectName);
+          fs.writeFileSync(targetPath, content);
+        } else {
+          fs.copyFileSync(sourcePath, targetPath);
+        }
+        
+        // Preserve executable permissions
+        if (stat.mode & parseInt('111', 8)) {
+          fs.chmodSync(targetPath, '755');
+        }
+      }
     }
   }
 

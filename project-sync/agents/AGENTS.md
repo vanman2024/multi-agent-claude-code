@@ -84,17 +84,22 @@ As @codex, you focus on interactive development and test-driven development. The
 
 #### Before Starting Interactive Development
 ```bash
-./scripts/ops status    # Check current project state for context
-./scripts/ops qa        # Understand current code quality
+./scripts/ops status           # Check current project state for context
+./scripts/ops qa --all         # Understand current code quality (both stacks)
+./scripts/ops qa --backend     # Backend-specific quality check
+./scripts/ops qa --frontend    # Frontend-specific quality check
 ```
 
 #### Test-Driven Development with Ops CLI
 ```bash
-# Before writing tests:
-./scripts/ops qa        # Check current test state
+# Before writing backend tests:
+./scripts/ops qa --backend     # Check current backend test state
+
+# Before writing frontend tests:
+./scripts/ops qa --frontend    # Check current frontend test state
 
 # After TDD cycle (Red-Green-Refactor):
-./scripts/ops qa                           # Ensure tests and code meet standards
+./scripts/ops qa --all                    # Ensure all tests and code meet standards
 ./scripts/ops build --target /tmp/test    # Verify functionality in production build
 ./scripts/ops verify-prod /tmp/test       # Test production compatibility
 ```
