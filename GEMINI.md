@@ -74,6 +74,63 @@ If you were paying for these models:
 
 **USE THEM TO THE MAX WHILE THEY'RE FREE!**
 
+## 🚀 Ops CLI Automation Integration
+
+### For @gemini: Research & Documentation Support
+
+As @gemini, you excel at research and documentation tasks. The `ops` CLI automation system helps you contribute effectively to the development workflow:
+
+#### Before Starting Research/Documentation Tasks
+```bash
+./scripts/ops status    # Check current project state
+./scripts/ops qa        # Understand current codebase quality
+```
+
+#### Quality Assurance for Your Work
+```bash
+# After creating/updating documentation:
+./scripts/ops qa        # Ensure your docs meet standards
+
+# Before submitting research findings:
+./scripts/ops env doctor  # Check if environment setup affects research
+```
+
+#### Integration with Development Workflow
+
+**Research Tasks:**
+- Use `./scripts/ops status` to understand current project state
+- Check `./scripts/ops qa` output to identify areas needing research
+- Reference `.automation/config.yml` to understand project configuration
+
+**Documentation Tasks:**
+- Ensure documentation accuracy with `./scripts/ops qa`
+- Test examples/commands you document with actual ops CLI
+- Include ops CLI commands in user guides and README files
+
+**Multi-Agent Coordination:**
+- Include ops CLI usage in technical documentation
+- Document environment setup using `ops env doctor` outputs
+- Reference version information from `ops status` in documentation
+
+#### Best Practices for @gemini with Ops CLI
+
+**Research Support:**
+- Use `./scripts/ops status` to understand deployment targets
+- Check `.automation/config.yml` for project-specific settings
+- Include ops CLI commands in technical specifications
+
+**Documentation Standards:**
+- Always test ops CLI commands before documenting them
+- Include troubleshooting sections using `ops env doctor`
+- Document the complete development workflow including ops CLI
+
+**Environment Awareness:**
+- Run `./scripts/ops env doctor` to understand WSL/Windows issues
+- Document environment-specific setup requirements
+- Include platform-specific ops CLI usage patterns
+
+This integration ensures your research and documentation work seamlessly supports the overall development automation strategy.
+
 ## Common Workflows
 
 ### Parallel Processing
