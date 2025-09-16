@@ -1124,6 +1124,12 @@ Tag naming convention:
 - Don't explain what was done
 - Don't summarize changes
 - Don't suggest next steps (unless asked)
+
+### Ops CLI Testing (CLI-first)
+- Use `./project-sync/scripts/ops qa --backend` for backend tests (fast lane)
+- Use `./project-sync/scripts/ops qa --cli` for CLI contract tests
+- Use `./project-sync/scripts/ops qa --mcp` for MCP in-memory tests
+- Set `RUN_MCP_TRANSPORT=1` to include transport/subprocess MCP tests
 <!-- AUTO-CONTEXT-START -->
 
 **Current Branch**: main

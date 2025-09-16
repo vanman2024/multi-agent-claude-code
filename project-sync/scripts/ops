@@ -134,8 +134,13 @@ run_pytest() {
     local args="$@"
     activate_venv
     if command -v uv >/dev/null 2>&1; then
-        uv run pytest $args
-    elif command -v pytest >/dev/null 2>&1; then
+        if uv run pytest $args; then
+            return 0
+        else
+            print_warning "uv run pytest failed, falling back to pytest"
+        fi
+    fi
+    if command -v pytest >/dev/null 2>&1; then
         pytest $args
     else
         python3 -m pytest $args

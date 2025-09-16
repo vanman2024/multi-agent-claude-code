@@ -142,6 +142,21 @@ gemini -p "Analyze the architecture and suggest improvements"
 gemini -m gemini-2.0-flash-exp -p "Generate the code for this feature"
 ```
 
+## Ops CLI for Testing (CLI-first)
+
+Use the ops CLI to run fast tests without any UI:
+
+```
+./project-sync/scripts/ops qa --backend   # backend fast lane
+./project-sync/scripts/ops qa --cli       # CLI contract tests
+./project-sync/scripts/ops qa --mcp       # MCP tests (in-memory)
+```
+
+Enable transport MCP tests when needed:
+```
+RUN_MCP_TRANSPORT=1 ./project-sync/scripts/ops qa --mcp
+```
+
 ### Sequential Enhancement
 1. Start with Flash Exp for rapid prototype
 2. Refine with 2.5 Pro for quality

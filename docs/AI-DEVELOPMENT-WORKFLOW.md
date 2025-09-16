@@ -158,6 +158,29 @@ grep -B1 -A1 "\[ \] .*@claude" specs/*/tasks.md
 - [ ] T027 @qwen Optimize schema queries after implementation (depends on T026)
 ```
 
+## CLI-First, Agentic Development (No Frontend Required)
+
+Many services here are backend-only and managed via agentic CLIs. Use the ops CLI for fast, deterministic testing without any UI:
+
+```
+# Backend fast lane
+./project-sync/scripts/ops qa --backend
+
+# CLI contract tests (JSON-first outputs)
+./project-sync/scripts/ops qa --cli
+
+# MCP tests (in-memory path by default)
+./project-sync/scripts/ops qa --mcp
+
+# Enable transport/subprocess MCP tests when needed
+RUN_MCP_TRANSPORT=1 ./project-sync/scripts/ops qa --mcp
+```
+
+Principles:
+- JSON-first outputs for CLIs to enable agent orchestration and chaining
+- In-memory tests by default; real transports gated by env flags
+- Deterministic, fast test runs to support frequent iteration
+
 ## 🎯 Agent Specializations & Task Assignment
 
 ### Task Assignment Strategy

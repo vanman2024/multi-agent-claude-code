@@ -199,6 +199,32 @@ If you're using Python, Docker eliminates all WSL path issues, version conflicts
 
 ## 🔄 Updating Existing Projects
 
+### CLI-First Testing via ops (No Frontend Required)
+
+Standardize your local testing with the ops CLI:
+
+```
+# Backend unit/contract/smoke (fast lane)
+./project-sync/scripts/ops qa --backend
+
+# CLI contract tests (golden JSON outputs, exit codes)
+./project-sync/scripts/ops qa --cli
+
+# MCP server tests (in-memory by default)
+./project-sync/scripts/ops qa --mcp
+
+# Everything fast (excludes slow/subprocess by default)
+./project-sync/scripts/ops qa --all
+
+# Include transport/subprocess MCP tests when needed
+RUN_MCP_TRANSPORT=1 ./project-sync/scripts/ops qa --mcp
+```
+
+Notes:
+- Tests live under `project-sync/testing/backend-tests/` and are organized by suite (cli, mcp, unit, etc.).
+- MCP tests auto-skip if `fastmcp` isn’t installed.
+- If `pytest` isn’t available in your env, install it or activate your venv. The ops CLI falls back from `uv` → `pytest` → `python -m pytest` automatically.
+
 If you already ran the setup and need to update/add missing files:
 
 ```bash
