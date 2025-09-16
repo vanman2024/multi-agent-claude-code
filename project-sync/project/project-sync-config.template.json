@@ -68,6 +68,36 @@
       "agents/GEMINI.md"
     ]
   },
+  "testingStructure": {
+    "enabled": true,
+    "directories": [
+      "testing/structure/tests/smoke",
+      "testing/structure/tests/unit", 
+      "testing/structure/tests/integration/api",
+      "testing/structure/tests/integration/database",
+      "testing/structure/tests/contract",
+      "testing/structure/tests/performance",
+      "testing/structure/tests/e2e",
+      "testing/structure/tests/helpers"
+    ],
+    "files": [
+      "testing/README.md.template",
+      "testing/structure/tests/conftest.py",
+      "testing/structure/tests/smoke/test_deps.py",
+      "testing/structure/tests/unit/test_models.py",
+      "testing/structure/tests/unit/test_services.py", 
+      "testing/structure/tests/unit/test_utils.py",
+      "testing/structure/tests/integration/api/test_endpoints.py",
+      "testing/structure/tests/integration/database/test_repositories.py",
+      "testing/structure/tests/contract/test_external_apis.py",
+      "testing/structure/tests/performance/test_benchmarks.py",
+      "testing/structure/tests/e2e/test_workflows.py",
+      "testing/structure/tests/helpers/fixtures.py",
+      "testing/structure/pytest.ini",
+      "testing/structure/jest.config.js",
+      "testing/structure/package.json.testing-scripts"
+    ]
+  },
   "githubWorkflows": {
     "essential": [
       ".github/workflows/ci-cd-pipeline.yml",
