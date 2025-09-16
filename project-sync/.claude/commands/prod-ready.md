@@ -1,28 +1,41 @@
 ---
-description: Scan project for mock implementations and production readiness issues
-argument-hint: [--fix] [--verbose] [--format json|markdown]
+description: Run comprehensive production readiness scan and tests
+argument-hint: [--fix] [--verbose] [--test-only]
 allowed-tools: Bash, Read, Write, Task
 ---
 
-Run comprehensive production readiness scan using the mock detection script and production specialist sub-agent.
+# Production Readiness Scanner
 
-## Execution Process
+Run comprehensive production readiness analysis using integrated testing and mock detection.
 
-### Step 1: Run Mock Detection Script
+## Your Task
+
+### Step 1: Run Integrated Production Tests
 ```bash
-python .claude/scripts/mock_detector.py --verbose --format markdown
+!./scripts/ops qa --production --verbose
 ```
 
-### Step 2: Pass Results to Production Specialist
+### Step 2: Run Mock Detection Script
+```bash
+!python ../.claude/scripts/mock_detector.py --verbose --format markdown
+```
+
+### Step 3: Analyze Results
 Use the production-specialist sub-agent to:
-- Analyze the script results provided above
-- Fix critical mock implementations found
-- Validate the fixes work correctly
-- Perform additional targeted scans with grep/read tools
+- Review both test results and mock detection output
+- Identify critical production readiness issues
+- Provide specific fixes for mock implementations
+- Validate environment configurations
 
-### Step 3: Handle Arguments
-- If `--fix` is provided, ask the production-specialist to attempt auto-fixes
-- If `--verbose` is provided, include detailed file contents in analysis
-- If `--format json` is provided, also generate JSON output for programmatic use
+## Argument Handling
+- If `--fix` provided: Use production-specialist to attempt auto-fixes
+- If `--verbose` provided: Include detailed analysis in output
+- If `--test-only` provided: Only run production tests, skip mock detection
 
-The production-specialist sub-agent will provide specific implementation steps for each critical issue found.
+## Integration Benefits
+- Uses standardized testing pipeline (ops qa --production)
+- Integrated with backend testing framework
+- Consistent with other QA processes
+- Results can be used in CI/CD automation
+
+The production-specialist sub-agent will analyze the combined results for comprehensive production readiness assessment.
