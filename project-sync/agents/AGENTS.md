@@ -76,6 +76,90 @@ grep -i "interactive\|prototype\|debug\|test" specs/*/tasks.md | grep "@codex"
 3. **Mark task complete** with `[x]` and add ✅
 4. **Reference task numbers** in commit messages
 
+## 🚀 Ops CLI Automation Integration
+
+### For @codex: Interactive Development & TDD Support
+
+As @codex, you focus on interactive development and test-driven development. The `ops` CLI automation system enhances your development workflow:
+
+#### Before Starting Interactive Development
+```bash
+./scripts/ops status           # Check current project state for context
+./scripts/ops qa --all         # Understand current code quality (both stacks)
+./scripts/ops qa --backend     # Backend-specific quality check
+./scripts/ops qa --frontend    # Frontend-specific quality check
+```
+
+#### Test-Driven Development with Ops CLI
+```bash
+# Before writing backend tests:
+./scripts/ops qa --backend     # Check current backend test state
+
+# Before writing frontend tests:
+./scripts/ops qa --frontend    # Check current frontend test state
+
+# After TDD cycle (Red-Green-Refactor):
+./scripts/ops qa --all                    # Ensure all tests and code meet standards
+./scripts/ops build --target /tmp/test    # Verify functionality in production build
+./scripts/ops verify-prod /tmp/test       # Test production compatibility
+```
+
+#### Interactive Development Workflow
+
+**Live Coding Sessions:**
+- Use `./scripts/ops status` to understand project context before starting
+- Run `./scripts/ops qa` after significant changes
+- Check `.automation/config.yml` for project-specific development standards
+
+**Prototyping and Experimentation:**
+- Always run `./scripts/ops qa` before committing experimental code
+- Use `./scripts/ops build` to test if prototypes work in production
+- Verify experiments with `./scripts/ops verify-prod`
+
+**Debugging Integration:**
+- Use `./scripts/ops env doctor` to diagnose environment-related issues
+- Check `./scripts/ops status` for deployment context during debugging
+- Run `./scripts/ops qa` to ensure fixes don't break other areas
+
+#### Multi-Agent Coordination Support
+
+**Supporting @claude (Technical Leader):**
+- Include ops CLI verification in interactive development summaries
+- Report development progress using `ops qa` metrics
+- Coordinate testing with `ops build` verification
+
+**Working with @copilot, @gemini, and @qwen:**
+- Document interactive development patterns using ops CLI standards
+- Share TDD workflows that integrate with automation
+- Include ops CLI commands in development guides
+
+#### Environment and Platform Development
+
+**Cross-Platform Development:**
+- Use `./scripts/ops env doctor` to identify platform-specific issues
+- Test interactive development setup across different environments
+- Document platform-specific development patterns
+
+**Build Integration:**
+- Ensure interactive development works with `ops build` process
+- Test TDD workflows in production-like environments
+- Verify interactive prototypes meet `ops verify-prod` standards
+
+#### Interactive Quality Assurance
+
+**Real-Time Quality Checks:**
+```bash
+# During development sessions:
+./scripts/ops qa        # Quick quality verification
+
+# Before session completion:
+./scripts/ops qa                           # Full quality assurance
+./scripts/ops build --target /tmp/test    # Production build verification
+./scripts/ops verify-prod /tmp/test       # Production compatibility check
+```
+
+This integration ensures your interactive development and TDD practices work seamlessly with the overall development automation strategy while maintaining production quality standards.
+
 ### Build, Test, and Development Commands
 - Setup dev env: `pip install -e .[dev]`.
 - Lint: `ruff check .` (fix: `ruff check --fix .`)

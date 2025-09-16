@@ -1,0 +1,54 @@
+{
+  "name": "frontend-testing-suite-template",
+  "version": "1.0.0",
+  "description": "Universal, battle-tested frontend testing suite template for full-stack projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:api": "playwright test tests/api/",
+    "test:e2e": "playwright test tests/e2e/",
+    "test:visual": "playwright test tests/visual/",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:accessibility": "playwright test tests/accessibility/",
+    "report": "playwright show-report",
+    "install:browsers": "playwright install",
+    "install:deps": "playwright install-deps",
+    "codegen": "playwright codegen",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix",
+    "type-check": "tsc --noEmit",
+    "setup": "npm run install:browsers && npm run install:deps",
+    "ci": "npm run lint && npm run type-check && npm run test",
+    "test:parallel": "playwright test --workers=4",
+    "test:shard": "playwright test --shard=1/4"
+  },
+  "keywords": [
+    "testing",
+    "playwright",
+    "e2e",
+    "frontend",
+    "automation",
+    "universal",
+    "cross-platform"
+  ],
+  "author": "Solo Founder Testing Suite",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "prettier": "^3.0.0",
+    "axe-playwright": "^1.0.0",
+    "playwright-visual-regression": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

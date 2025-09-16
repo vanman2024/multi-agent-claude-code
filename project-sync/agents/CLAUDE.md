@@ -135,6 +135,70 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - ✅ **ALWAYS reference task numbers in commits**
 - ❌ **NEVER leave uncommitted work**
 
+## 🚀 Ops CLI Automation Integration
+
+### Critical: Always Use Ops CLI for Quality Assurance
+
+This project includes a powerful `ops` CLI automation system. As the strategic technical leader (@claude), you MUST ensure all work meets production standards using these commands:
+
+#### Before Starting Any Task
+```bash
+git pull                 # Get latest changes
+./scripts/ops status     # Check current project state  
+./scripts/ops qa         # Ensure clean starting point
+```
+
+#### Before Completing Any Task (MANDATORY)
+```bash
+./scripts/ops qa                           # Lint, test, format all code
+./scripts/ops build --target /tmp/test    # Verify production build
+./scripts/ops verify-prod /tmp/test       # Test production works
+# Only then commit and mark task complete
+```
+
+#### Release Coordination (Strategic Decision)
+```bash
+./scripts/ops release patch    # For bug fixes (you decide when)
+./scripts/ops release minor    # For features (you approve) 
+./scripts/ops release major    # For breaking changes (your call)
+```
+
+### Strategic Use of Ops CLI
+
+**As @claude, you coordinate:**
+- **Quality Gates**: Ensure `ops qa` passes before any major integration
+- **Release Decisions**: Use `ops release` when strategically appropriate
+- **Environment Issues**: Run `ops env doctor` to diagnose WSL/path problems
+- **Build Verification**: Mandate `ops build` success for all deployments
+
+### Integration with Other Agents
+
+**For @copilot work you review:**
+- Verify they ran `ops qa` before PR submission
+- Check `ops status` for version/deployment state
+- Require `ops verify-prod` for production changes
+
+**For @gemini and @qwen outputs:**
+- Ensure their work passes `ops qa` standards
+- Guide them to use `ops env doctor` for environment issues
+- Coordinate releases using `ops release` commands
+
+### Troubleshooting Protocol
+
+**Before escalating any technical issue:**
+1. Run `./scripts/ops env doctor` - Check environment setup
+2. Check `./scripts/ops status` - Verify project configuration  
+3. Try `./scripts/ops qa` - Test if basic operations work
+4. Review `.automation/config.yml` - Check automation settings
+
+**Common Issue Resolution:**
+- WSL/Windows path problems → `ops env doctor`
+- Build failures → `ops qa` then `ops build --target /tmp/test`
+- Version mismatches → `ops status` and check git tags
+- Test failures → `ops qa` with detailed output
+
+This automation system eliminates the confusion of multiple scripts and provides the single, reliable interface that you as @claude use to maintain technical excellence across all agent work.
+
 ### Specialization Areas
 
 #### General Purpose (@claude/general-purpose)

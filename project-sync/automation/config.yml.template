@@ -1,0 +1,24 @@
+# Ops CLI Automation Configuration Template
+# This file will be copied to .automation/config.yml in new projects
+
+versioning:
+  strategy: conventional_commits
+  source: package.json  # or pyproject.toml for Python projects
+
+targets:
+  - PROJECT_NAME-deploy  # Will be replaced with actual project name
+
+release:
+  changelog: true
+  tag_prefix: v
+
+qa:
+  lint: true          # Auto-detects linters (eslint, ruff, etc.)
+  typecheck: true     # Auto-detects type checkers (tsc, mypy, etc.)
+  tests: "not slow"   # Runs appropriate test command
+
+env:
+  wsl_check: true     # Check for WSL/Windows environment issues
+
+hooks:
+  auto_sync: false    # Manual sync by default

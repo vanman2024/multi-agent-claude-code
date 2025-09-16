@@ -117,6 +117,80 @@ grep -i "performance\|optimize\|speed\|efficiency" specs/*/tasks.md
 - [x] T040 @qwen Performance analysis complete ✅
 ```
 
+## 🚀 Ops CLI Automation Integration
+
+### For @qwen: Performance & Development Optimization
+
+As @qwen, you specialize in performance optimization and rapid development tasks. The `ops` CLI automation system ensures your optimizations maintain production quality:
+
+#### Before Starting Performance Work
+```bash
+./scripts/ops status    # Check current project state and performance baselines
+./scripts/ops qa        # Get baseline quality and performance metrics
+```
+
+#### Performance Optimization Workflow
+```bash
+# Before optimization:
+./scripts/ops qa        # Baseline performance metrics
+
+# After optimization:
+./scripts/ops qa                           # Ensure optimizations maintain quality
+./scripts/ops build --target /tmp/perf    # Test performance in production build
+./scripts/ops verify-prod /tmp/perf       # Verify optimizations work correctly
+```
+
+#### Integration with Development Process
+
+**Performance Tasks:**
+- Always run `./scripts/ops qa` before and after performance changes
+- Use `./scripts/ops status` to understand current deployment state
+- Check `.automation/config.yml` for performance testing configuration
+
+**Quality Assurance:**
+- Ensure all optimizations pass `./scripts/ops qa` standards
+- Test production compatibility with `./scripts/ops build`
+- Verify no regressions with `./scripts/ops verify-prod`
+
+**Environment Optimization:**
+- Use `./scripts/ops env doctor` to identify environment bottlenecks
+- Optimize development setup for better local performance
+- Document WSL/Windows performance optimizations
+
+#### Multi-Agent Coordination with Ops CLI
+
+**Supporting @claude (Technical Leader):**
+- Report performance improvements using `ops qa` metrics
+- Include ops CLI verification in optimization plans
+- Coordinate performance testing with build verification
+
+**Working with @copilot and @gemini:**
+- Document performance optimizations using ops CLI standards
+- Share optimization patterns that work with automation workflow
+- Include ops CLI commands in performance guides
+
+#### Performance Monitoring Protocol
+
+**Baseline Measurement:**
+```bash
+./scripts/ops qa        # Document current performance state
+./scripts/ops status    # Record project version and configuration
+```
+
+**Post-Optimization Verification:**
+```bash
+./scripts/ops qa        # Verify optimizations maintain quality standards
+./scripts/ops build --target /tmp/test    # Test performance in production build
+./scripts/ops verify-prod /tmp/test       # Ensure production compatibility
+```
+
+**Continuous Monitoring:**
+- Include performance metrics in commit messages
+- Reference ops CLI results in optimization reports
+- Use automation config for performance testing standards
+
+This integration ensures your performance optimizations work seamlessly with the development automation strategy while maintaining production quality and reliability.
+
 ### Specialization Areas
 
 #### Performance Optimization

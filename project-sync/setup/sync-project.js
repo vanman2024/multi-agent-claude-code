@@ -113,6 +113,24 @@ class ProjectSync {
         // Extract just the filename and place in project root
         const fileName = path.basename(agentFile);
         targetPath = path.join(this.projectRoot, fileName);
+      } else if (agentFile.startsWith('scripts/')) {
+        // Scripts are in project-sync/scripts/
+        sourcePath = path.join(__dirname, '..', agentFile);
+        targetPath = path.join(this.projectRoot, agentFile);
+      } else if (agentFile.startsWith('automation/')) {
+        // Automation config template
+        sourcePath = path.join(__dirname, '..', agentFile);
+        if (agentFile.endsWith('.template')) {
+          // Remove .template extension for target
+          const targetFile = agentFile.replace('.template', '');
+          targetPath = path.join(this.projectRoot, '.automation', path.basename(targetFile));
+        } else {
+          targetPath = path.join(this.projectRoot, '.automation', path.basename(agentFile));
+        }
+      } else if (agentFile.startsWith('docs/')) {
+        // Documentation files
+        sourcePath = path.join(__dirname, '..', agentFile);
+        targetPath = path.join(this.projectRoot, agentFile);
       } else {
         sourcePath = path.join(__dirname, '..', '..', agentFile);
         targetPath = path.join(this.projectRoot, agentFile);
@@ -121,6 +139,16 @@ class ProjectSync {
       if (fs.existsSync(sourcePath)) {
         this.ensureDirectoryExists(path.dirname(targetPath));
         fs.copyFileSync(sourcePath, targetPath);
+        
+        // Make scripts executable
+        if (agentFile.startsWith('scripts/')) {
+          try {
+            fs.chmodSync(targetPath, 0o755);
+          } catch (error) {
+            console.log(`  ⚠️  Could not make ${agentFile} executable: ${error.message}`);
+          }
+        }
+        
         syncCount++;
         const displayPath = agentFile.startsWith('agents/') ? path.basename(agentFile) + ' (to root)' : agentFile;
         console.log(`  ✅ Synced ${displayPath}`);
@@ -840,8 +868,200 @@ class ProjectSync {
     }
   }
 
+  syncTestingStructure() {
+    console.log('🧪 Syncing testing structure...');
+    
+    let syncCount = 0;
+    const packageJsonPath = path.join(this.projectRoot, 'package.json');
+    const pyprojectPath = path.join(this.projectRoot, 'pyproject.toml');
+    const requirementsPath = path.join(this.projectRoot, 'requirements.txt');
+    
+    // Check for skip flags
+    const skipBackend = process.argv.includes('--frontend-only') || process.argv.includes('--no-testing');
+    const skipFrontend = process.argv.includes('--backend-only') || process.argv.includes('--no-testing');
+    
+    // Auto-detect project type
+    const isPython = fs.existsSync(pyprojectPath) || fs.existsSync(requirementsPath);
+    const isNode = fs.existsSync(packageJsonPath);
+    
+    console.log(`  🔍 Project detection: Python=${isPython}, Node.js=${isNode}`);
+    
+    // Sync backend tests
+    if (!skipBackend && isPython) {
+      const backendTestsSource = path.join(__dirname, '..', 'testing', 'backend-tests');
+      const backendTestsTarget = path.join(this.projectRoot, 'backend-tests');
+      
+      if (fs.existsSync(backendTestsSource)) {
+        console.log('  🐍 Syncing backend tests (Python/pytest)...');
+        this.copyDirectoryRecursive(backendTestsSource, backendTestsTarget);
+        syncCount++;
+      }
+    } else if (!skipBackend && !isPython) {
+      console.log('  ⚠️  Backend testing skipped (no Python project detected)');
+    }
+    
+    // Sync frontend tests
+    if (!skipFrontend && isNode) {
+      const frontendTestsSource = path.join(__dirname, '..', 'testing', 'frontend-tests-template');
+      const frontendTemplateTarget = path.join(this.projectRoot, 'frontend-tests-template');
+      
+      if (fs.existsSync(frontendTestsSource)) {
+        console.log('  🎭 Syncing frontend tests (Playwright/TypeScript)...');
+        
+        // Copy frontend tests but exclude .github folder (we'll merge it separately)
+        this.copyDirectoryRecursiveWithExclusions(frontendTestsSource, frontendTemplateTarget, ['.github']);
+        
+        // Merge frontend CI workflow into root .github folder
+        const frontendGithubSource = path.join(frontendTestsSource, '.github');
+        const rootGithubTarget = path.join(this.projectRoot, '.github');
+        
+        if (fs.existsSync(frontendGithubSource)) {
+          this.ensureDirectoryExists(rootGithubTarget);
+          this.ensureDirectoryExists(path.join(rootGithubTarget, 'workflows'));
+          
+          // Copy CI workflow with descriptive name
+          const frontendCiSource = path.join(frontendGithubSource, 'workflows', 'ci.yml');
+          const frontendCiTarget = path.join(rootGithubTarget, 'workflows', 'frontend-tests.yml');
+          
+          if (fs.existsSync(frontendCiSource)) {
+            fs.copyFileSync(frontendCiSource, frontendCiTarget);
+            console.log('  📋 Merged frontend CI workflow to .github/workflows/frontend-tests.yml');
+          }
+        }
+        
+        console.log('  📋 Frontend testing template ready - run ./frontend-tests-template/setup-testing.sh to activate');
+        syncCount++;
+      }
+    } else if (!skipFrontend && !isNode) {
+      console.log('  ⚠️  Frontend testing skipped (no Node.js project detected)');
+    }
+    
+    // Show skip messages
+    if (skipBackend && isPython) {
+      console.log('  ⏭️  Backend testing skipped (--frontend-only or --no-testing flag)');
+    }
+    if (skipFrontend && isNode) {
+      console.log('  ⏭️  Frontend testing skipped (--backend-only or --no-testing flag)');
+    }
+    
+    if (syncCount > 0) {
+      console.log(`  ✅ Synced ${syncCount} testing suites`);
+      console.log('  📁 Created dual testing architecture:');
+      
+      if (!skipBackend && isPython) {
+        console.log('     • backend-tests/ - Python/pytest backend testing');
+        console.log('       • backend-tests/smoke/ - Quick validation tests');
+        console.log('       • backend-tests/unit/ - Individual component tests');
+        console.log('       • backend-tests/integration/ - External service tests');
+        console.log('       • backend-tests/contract/ - API contract tests');
+        console.log('       • backend-tests/performance/ - Performance benchmarks');
+        console.log('       • Run: ./scripts/ops qa --backend');
+      }
+      
+      if (!skipFrontend && isNode) {
+        console.log('     • frontend-tests-template/ - Playwright/TypeScript frontend testing');
+        console.log('       • Smart E2E strategy (5-10% critical journeys)');
+        console.log('       • Visual regression, accessibility, API testing');
+        console.log('       • Run: ./frontend-tests-template/setup-testing.sh to activate');
+        console.log('       • Then: ./scripts/ops qa --frontend');
+      }
+      
+      if (!skipBackend && !skipFrontend && isPython && isNode) {
+        console.log('     • Full-stack testing: ./scripts/ops qa --all');
+      }
+    } else if (process.argv.includes('--no-testing')) {
+      console.log('  ⏭️  Testing setup skipped (--no-testing flag)');
+    } else {
+      console.log('  ⚠️  No matching project types detected for testing templates');
+    }
+  }
+  
+  copyDirectoryRecursive(source, target) {
+    if (!fs.existsSync(target)) {
+      fs.mkdirSync(target, { recursive: true });
+    }
+    
+    const items = fs.readdirSync(source);
+    
+    for (const item of items) {
+      const sourcePath = path.join(source, item);
+      const targetPath = path.join(target, item);
+      
+      const stat = fs.statSync(sourcePath);
+      
+      if (stat.isDirectory()) {
+        this.copyDirectoryRecursive(sourcePath, targetPath);
+      } else {
+        // Handle template files
+        if (item.includes('PROJECT_NAME')) {
+          const projectName = path.basename(this.projectRoot);
+          let content = fs.readFileSync(sourcePath, 'utf8');
+          content = content.replace(/PROJECT_NAME/g, projectName);
+          fs.writeFileSync(targetPath, content);
+        } else {
+          fs.copyFileSync(sourcePath, targetPath);
+        }
+        
+        // Preserve executable permissions
+        if (stat.mode & parseInt('111', 8)) {
+          fs.chmodSync(targetPath, '755');
+        }
+      }
+    }
+  }
+
+  copyDirectoryRecursiveWithExclusions(source, target, exclusions = []) {
+    if (!fs.existsSync(target)) {
+      fs.mkdirSync(target, { recursive: true });
+    }
+    
+    const items = fs.readdirSync(source);
+    
+    for (const item of items) {
+      // Skip excluded items
+      if (exclusions.includes(item)) {
+        continue;
+      }
+      
+      const sourcePath = path.join(source, item);
+      const targetPath = path.join(target, item);
+      
+      const stat = fs.statSync(sourcePath);
+      
+      if (stat.isDirectory()) {
+        this.copyDirectoryRecursiveWithExclusions(sourcePath, targetPath, exclusions);
+      } else {
+        // Handle template files
+        if (item.includes('PROJECT_NAME')) {
+          const projectName = path.basename(this.projectRoot);
+          let content = fs.readFileSync(sourcePath, 'utf8');
+          content = content.replace(/PROJECT_NAME/g, projectName);
+          fs.writeFileSync(targetPath, content);
+        } else {
+          fs.copyFileSync(sourcePath, targetPath);
+        }
+        
+        // Preserve executable permissions
+        if (stat.mode & parseInt('111', 8)) {
+          fs.chmodSync(targetPath, '755');
+        }
+      }
+    }
+  }
+
   async run() {
     console.log('🚀 Starting comprehensive project sync...\n');
+    
+    // Show available flags
+    if (process.argv.includes('--help')) {
+      console.log('📁 Available flags:');
+      console.log('  --backend-only    : Skip frontend testing setup');
+      console.log('  --frontend-only   : Skip backend testing setup');
+      console.log('  --no-testing      : Skip all testing setup');
+      console.log('  --help           : Show this help');
+      console.log('');
+      return;
+    }
     
     try {
       // 1. Detect technology stack
@@ -857,6 +1077,7 @@ class ProjectSync {
       this.syncDockerTemplates();
       this.syncSetupTemplates();
       this.syncMcpConfigurations();
+      this.syncTestingStructure();
       this.syncProjectEssentials();
       this.syncGitHubIssueTemplates();  // Sync GitHub issue templates
 

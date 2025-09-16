@@ -21,7 +21,8 @@ Agents MUST incorporate context in this order:
 | Architecture | @claude/system-architect | Only with user approval |
 | Security | @claude/security-auth-compliance | NEVER - security always wins |
 | Code Quality | @claude/pr-reviewer | Can suggest, cannot block |
-| Testing | @claude/backend-tester, @claude/frontend-playwright-tester | Can block deployment |
+| Backend Testing | @claude (Python/pytest/API) | Can block deployment |
+| Frontend Testing | @copilot (Playwright/E2E/Visual) | Can block deployment |
 | Refactoring | @claude/code-refactorer | Requires approval for large changes |
 
 ### 4. Communication Protocol
@@ -36,11 +37,24 @@ Agents MUST incorporate context in this order:
 - No agent can bypass security reviews
 - Authentication and authorization are mandatory
 
-### Rule 2: Test Before Deploy
-- All code changes require appropriate testing
-- Backend changes need API tests
-- Frontend changes need UI tests
-- Breaking tests block all deployments
+### Rule 2: Dual Testing Architecture
+**Backend Testing** (`backend-tests/`):
+- All backend changes require Python/pytest validation
+- API endpoints need contract testing
+- Database changes need integration testing
+- @claude responsible for backend test quality
+
+**Frontend Testing** (`frontend-tests/`):
+- Critical user journeys require E2E testing (5-10% smart coverage)
+- Visual changes need regression testing
+- Accessibility compliance mandatory (WCAG 2.1 AA)
+- @copilot responsible for frontend test quality
+
+**Ops CLI Integration**:
+- `./scripts/ops qa --backend` for Python/API changes
+- `./scripts/ops qa --frontend` for UI/UX changes  
+- `./scripts/ops qa --all` for full-stack changes
+- Breaking tests block ALL deployments
 
 ### Rule 3: Documentation as Code
 - All architectural decisions must be documented
@@ -86,8 +100,10 @@ When agents disagree:
 |------------|----------------|----------|
 | Security | ALWAYS | @claude/security-auth-compliance |
 | Architecture | Major changes | @claude/system-architect |
-| API | ALWAYS | @claude/backend-tester |
-| UI | Visual changes | @claude/frontend-playwright-tester |
+| API | ALWAYS | @claude (backend-tests/) |
+| UI | Visual changes | @copilot (frontend-tests/) |
+| Accessibility | ALWAYS | @copilot (WCAG compliance) |
+| User Journeys | Critical flows | @copilot (E2E smart coverage) |
 | Refactor | Large scope | @claude/code-refactorer |
 
 ### 3. Deployment Gates

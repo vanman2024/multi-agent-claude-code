@@ -24,8 +24,19 @@ specify init --here --ai copilot
 
 ### Step 2: Add Multi-Agent Coordination
 ```bash
-# From your new project directory, run:
+# From your new project directory, run one of these:
+
+# Full-stack project (backend + frontend testing)
 /home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh
+
+# Backend-only project (Python/pytest)
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --backend-only
+
+# Frontend-only project (Playwright/TypeScript)
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --frontend-only
+
+# Skip all testing templates
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --no-testing
 
 # That's it! Your spec-kit project now has full multi-agent coordination.
 ```
@@ -55,6 +66,12 @@ specify init --here --ai copilot
 - Session context loading for agents
 - Work state preservation between sessions
 - Automatic git state tracking
+
+### 🎭 Testing Templates
+- **Backend Tests**: Complete Python/pytest structure with examples
+- **Frontend Tests**: Professional Playwright suite with smart E2E strategy
+- **Universal Templates**: Cross-framework compatibility (React, Vue, Angular)
+- **Agent Coordination**: Clear testing responsibilities for each agent
 
 ## 🤖 AI Agent CLI Setup
 
@@ -203,12 +220,60 @@ node /home/gotime2022/Projects/multi-agent-claude-code/project-sync/scripts/sync
 - Research → Gemini CLI
 - Interactive development → Codex API
 
-## 🧪 Testing Infrastructure
+## 🧪 Dual Testing Architecture
 
-Based on your detected tech stack:
-- **React/Next.js**: Jest, Playwright, ESLint, TypeScript checking
-- **Python/FastAPI**: pytest, coverage, ruff/flake8, mypy
-- **Node.js/Express**: Jest, supertest, ESLint, TypeScript
+### Professional-Grade Testing Templates
+This framework provides comprehensive testing templates for both backend and frontend:
+
+**Backend Testing** (`backend-tests/`):
+- **Python/pytest**: API logic, data processing, integrations
+- **Structure**: smoke, unit, integration, contract, performance, e2e, helpers
+- **Coverage**: Comprehensive test coverage with real examples
+- **Agent**: @claude handles backend testing responsibilities
+
+**Frontend Testing** (`frontend-tests/`):
+- **Playwright/TypeScript**: UI, E2E, visual regression, accessibility testing
+- **Smart Strategy**: Focus on critical user journeys (5-10% E2E), not every page
+- **Coverage**: Visual regression, accessibility compliance, API contracts, user workflows
+- **Agent**: @copilot handles frontend testing responsibilities
+
+### Ops CLI Integration
+```bash
+# Backend development (Python/API)
+./scripts/ops qa --backend
+
+# Frontend development (UI/UX)
+./scripts/ops qa --frontend
+
+# Full-stack changes
+./scripts/ops qa --all
+```
+
+### Smart Testing Strategy
+**✅ What TO E2E Test (5-10% of tests):**
+- Critical user journeys (signup → dashboard → primary feature)
+- Payment/checkout flows
+- Authentication workflows
+- Core business processes
+
+**❌ What NOT to E2E Test (90-95% of pages):**
+- Static content pages (About, Terms, Privacy)
+- Admin panels (unless core business)
+- Individual component variations
+- Every form permutation
+
+**Better Alternatives:**
+- **Static pages** → Visual regression tests
+- **Components** → Integration tests  
+- **Business logic** → Unit tests
+
+### Project Type Detection & Testing Templates
+The setup script automatically detects your project type and installs appropriate testing:
+
+- **Python projects** (`pyproject.toml`, `requirements.txt`): Gets `backend-tests/` with pytest structure
+- **Node.js projects** (`package.json`): Gets `frontend-tests-template/` with Playwright suite  
+- **Full-stack projects**: Gets both testing templates automatically
+- **Override detection**: Use `--backend-only`, `--frontend-only`, or `--no-testing` flags to override automatic detection
 
 ## 🚨 Production Readiness System
 
