@@ -1,10 +1,10 @@
-# Multi-Agent Development Team
+# Solo Developer AI Agent Team
 
-## Agent Coordination System (@Symbol Task Assignment)
+## Personal AI Development Partners (@Symbol Coordination)
 
-This directory contains context files for each AI agent in our multi-agent development system using the revolutionary @symbol coordination pattern.
+This directory contains context files for each AI agent in your personal development toolkit using the @symbol coordination pattern for individual productivity.
 
-### Active Agents
+### Your AI Development Partners
 
 #### @claude (CTO-Level Engineering Reviewer & Strategic Guide)
 - **File**: `CLAUDE.md`
@@ -21,7 +21,7 @@ This directory contains context files for each AI agent in our multi-agent devel
 - **Cost**: FREE with GitHub Pro
 
 #### @codex (OpenAI Codex - FRONTEND ONLY Specialist)
-- **File**: `CODEX.md`
+- **File**: `AGENTS.md`
 - **Role**: FRONTEND EXCLUSIVE - React, UI/UX, frontend testing
 - **Specialization**: React components, styling, frontend state, accessibility
 - **Restriction**: NEVER handles backend work (that's other agents' domain)
@@ -29,7 +29,7 @@ This directory contains context files for each AI agent in our multi-agent devel
 
 #### @gemini (Google Gemini - Analysis & Documentation Specialist)
 - **File**: `GEMINI.md`
-- **Dual Models**: 
+- **Dual Models**:
   - Gemini 2.5 Pro (OAuth): 1000 req/day FREE
   - Gemini 2.0 Flash Exp (API): ~1000+ req/day FREE experimental
 - **Specialization**: Large codebase analysis (2M context), bulk documentation
@@ -42,8 +42,6 @@ This directory contains context files for each AI agent in our multi-agent devel
 - **Capacity**: 2000 req/day FREE (OAuth)
 - **Specialization**: Performance optimization, algorithm improvement, everyday development
 - **Cost**: FREE via OAuth login
-
-
 ### Task Assignment (@Symbol Coordination System)
 
 The @symbol system is our revolutionary coordination pattern - simple, universal, and incredibly effective.

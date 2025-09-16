@@ -172,7 +172,7 @@ cp -r project-sync/testing/frontend-tests-template ./
 ### For Complex Projects
 - **Scalable Architecture**: Testing grows with your application
 - **Professional Patterns**: Industry-standard testing approaches
-- **Multi-Agent Coordination**: AI agents handle different testing domains
+- **Solo Developer Coordination**: AI agents handle different testing domains
 
 ---
 

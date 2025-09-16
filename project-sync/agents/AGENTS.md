@@ -56,7 +56,7 @@
 **"Frontend Only, Always"** - @codex exclusively handles frontend work. All backend, infrastructure, and non-frontend tasks go to other agents.
 
 ### Current Project Context
-- **Framework**: Multi-Agent Development Framework Template
+- **Framework**: Solo Developer Framework Template
 - **Tech Stack**: Node.js, TypeScript, React, Next.js, Docker, GitHub Actions
 - **Coordination**: @Symbol task assignment system
 - **MCP Servers**: Local filesystem, git, memory
@@ -135,7 +135,7 @@ As @codex, you focus on interactive development and test-driven development. The
 - Check `./scripts/ops status` for deployment context during debugging
 - Run `./scripts/ops qa` to ensure fixes don't break other areas
 
-#### Multi-Agent Coordination Support
+#### Solo Developer Coordination Support
 
 **Supporting @claude (Technical Leader):**
 - Include ops CLI verification in interactive development summaries
@@ -313,7 +313,7 @@ codex "add responsive design with Tailwind CSS"
 - **Visual Regression**: Chromatic, Percy, screenshot comparison
 - **E2E Testing**: Playwright for critical user flows (coordinate with @claude)
 
-### Multi-Agent Coordination
+### Solo Developer Coordination
 
 #### Typical Workflow
 ```markdown
@@ -386,7 +386,7 @@ codex "add responsive design with Tailwind CSS"
 - **Mobile Experience**: Perfect mobile responsiveness
 
 ### Current Sprint Focus
-- Building reusable component library for multi-agent framework
+- Building reusable component library for solo developer framework
 - Implementing responsive design system
 - Setting up comprehensive component testing
 - Creating accessible UI patterns

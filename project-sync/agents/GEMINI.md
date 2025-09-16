@@ -146,7 +146,7 @@ As @gemini, your role focuses on research, documentation, and large-scale analys
 - Check build status with `./scripts/ops build --target /tmp/test`
 - Analyze deployment readiness with `./scripts/ops verify-prod`
 
-#### Multi-Agent Coordination
+#### Solo Developer Coordination
 
 **Supporting @claude (Technical Leader):**
 - Include ops CLI integration in architectural documentation
@@ -189,7 +189,7 @@ This integration ensures your research and analysis work directly supports the a
 - **Architecture review** - Full context analysis
 
 ### Current Project Context
-- **Framework**: Multi-Agent Development Framework Template
+- **Framework**: Solo Developer Framework Template
 - **Tech Stack**: Node.js, TypeScript, React, Next.js, Docker, GitHub Actions
 - **Coordination**: @Symbol task assignment system
 - **MCP Servers**: Local filesystem, brave-search, memory
@@ -276,7 +276,7 @@ If you were paying:
 
 **USE THEM TO THE MAX WHILE THEY'RE FREE!**
 
-### Multi-Agent Coordination
+### Solo Developer Coordination
 
 #### When to Use Gemini vs Others
 - **Use @gemini For**:

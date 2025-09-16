@@ -42,7 +42,7 @@
 **"Optimize freely, restructure carefully"** - Make code faster without breaking functionality, ask before major architectural changes.
 
 ### Current Project Context
-- **Framework**: Multi-Agent Development Framework Template
+- **Framework**: Solo Developer Framework Template
 - **Tech Stack**: Node.js, TypeScript, React, Next.js, Docker, GitHub Actions
 - **Coordination**: @Symbol task assignment system
 - **MCP Servers**: Remote filesystem, git, memory
@@ -157,7 +157,7 @@ As @qwen, you specialize in performance optimization and rapid development tasks
 - Optimize development setup for better local performance
 - Document WSL/Windows performance optimizations
 
-#### Multi-Agent Coordination with Ops CLI
+#### Solo Developer Coordination with Ops CLI
 
 **Supporting @claude (Technical Leader):**
 - Report performance improvements using `ops qa` metrics
@@ -353,7 +353,7 @@ clinic doctor -- node app.js
 EXPLAIN ANALYZE SELECT * FROM users WHERE created_at > '2023-01-01';
 ```
 
-### Multi-Agent Coordination
+### Solo Developer Coordination
 
 #### Typical Workflow
 ```markdown
@@ -405,7 +405,7 @@ EXPLAIN ANALYZE SELECT * FROM users WHERE created_at > '2023-01-01';
 - **Knowledge Transfer**: Share optimization techniques with team
 
 ### Current Sprint Focus
-- Multi-agent framework performance optimization
+- Solo developer framework performance optimization
 - MCP server response time improvements
 - GitHub automation workflow efficiency  
 - Template framework startup performance

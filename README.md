@@ -67,11 +67,35 @@ specify init --here --ai copilot
 - Work state preservation between coding sessions
 - Automatic git state tracking for personal project management
 
-### 🎭 Professional Testing Templates
-- **Backend Tests**: Complete Python/pytest structure for API development
-- **Frontend Tests**: Professional Playwright suite for UI validation
-- **Universal Templates**: Cross-framework compatibility (React, Vue, Angular)
-- **Personal Quality Assurance**: Clear testing responsibilities for your development workflow
+### 🎭 Professional Testing Architecture
+
+#### Backend Testing (Python/pytest)
+- **Generic test patterns** for any backend project
+- **7 test categories**: unit, integration, contract, e2e, performance, CLI, MCP
+- **JSON-first CLI template** for agent-friendly commands
+- **No app-specific code** - pure patterns ready for customization
+
+#### Frontend Testing (Playwright/TypeScript)
+- **E2E test suite** with visual regression and accessibility
+- **API testing patterns** for frontend-backend integration
+- **Cross-browser support** with automated test generation
+- **Component testing** for React, Vue, Angular frameworks
+
+#### Ops CLI Testing Integration
+```bash
+# Backend development (Python/API)
+ops qa --backend        # Runs pytest suite
+
+# Frontend development (UI/UX)
+ops qa --frontend       # Runs Playwright tests
+
+# Full-stack development
+ops qa --all           # Runs complete test suite
+
+# Individual test categories
+ops qa --unit         # Unit tests only
+ops qa --e2e          # End-to-end tests only
+```
 
 ## 🤖 Your Personal AI Development Team
 
@@ -263,6 +287,7 @@ This framework is designed for solo developers who want AI agents as intelligent
 ### Professional-Grade Testing Templates
 This framework provides comprehensive testing templates for both backend and frontend:
 
+
 **Backend Testing** (`backend-tests/`):
 - **Python/pytest**: API logic, data processing, integrations
 - **Structure**: smoke, unit, integration, contract, performance, e2e, helpers
@@ -434,7 +459,7 @@ Edit `local-overrides/vscode-local.json`:
 The project sync system works seamlessly with spec-kit projects:
 
 1. **Initialize with spec-kit**: Use spec-kit to create your project structure and initial planning
-2. **Add AI coordination**: Run `./sync-project-template.sh` to layer on the multi-agent system
+2. **Add AI coordination**: Run `./sync-project-template.sh` to layer on the solo developer AI system
 3. **Start developing**: Use @symbol coordination with spec-kit's generated plans
 
 ### Example Workflow:
@@ -455,7 +480,7 @@ cd my-app
 code .
 ```
 
-Now you have both spec-kit's planning capabilities AND the full multi-agent coordination system ready to go!
+Now you have both spec-kit's planning capabilities AND the full solo developer AI coordination system ready to go!
 
 ## 🎯 Why This Works for Solo Developers
 
