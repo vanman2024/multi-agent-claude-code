@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-16T18:52:41Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 0,
+      "last_commit": "4f13e8e fix: Use absolute paths for Claude hooks to prevent subdirectory errors"
+    },
+    {
       "timestamp": "2025-09-16T18:45:57Z",
       "branch": "main",
       "uncommitted": 0,
@@ -718,13 +725,6 @@
       "uncommitted": 0,
       "unpushed": 0,
       "last_commit": "cbb9761 docs: Consolidate 6 spec-kit docs into 1 comprehensive guide"
-    },
-    {
-      "timestamp": "2025-09-10T21:38:54Z",
-      "branch": "main",
-      "uncommitted": 2,
-      "unpushed": 0,
-      "last_commit": "9c450c6 feat: Add spec-kit task import to Claude Code TodoWrite"
     }
   ]
 }
