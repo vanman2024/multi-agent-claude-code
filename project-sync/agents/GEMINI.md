@@ -99,6 +99,71 @@ gemini -m gemini-2.0-flash-exp
 - Code review across multiple files simultaneously
 - Pattern detection across entire repositories
 
+## 🚀 Ops CLI Automation Integration
+
+### For @gemini: Research & Large-Scale Analysis Support
+
+As @gemini, your role focuses on research, documentation, and large-scale analysis. The `ops` CLI automation system enhances your contributions to the development workflow:
+
+#### Before Starting Analysis Tasks
+```bash
+./scripts/ops status    # Understand current project state and deployment targets
+./scripts/ops qa        # Check current codebase quality before analysis
+```
+
+#### Quality Assurance Integration
+```bash
+# After documentation/research work:
+./scripts/ops qa        # Ensure your docs follow project standards
+
+# For environment-related research:
+./scripts/ops env doctor  # Check WSL/Windows setup issues to document
+```
+
+#### Research and Documentation Workflow
+
+**Project State Analysis:**
+- Run `./scripts/ops status` to understand project version and targets
+- Check `.automation/config.yml` for tech stack and configuration
+- Use `./scripts/ops qa` output to identify areas needing improvement
+
+**Documentation Tasks:**
+- Always test ops CLI commands before documenting them
+- Include troubleshooting using `ops env doctor` in your guides
+- Document version management using `ops release` commands
+- Reference automation configuration in technical specifications
+
+**Large-Scale Codebase Analysis:**
+- Use `./scripts/ops qa` to understand current quality metrics
+- Check build status with `./scripts/ops build --target /tmp/test`
+- Analyze deployment readiness with `./scripts/ops verify-prod`
+
+#### Multi-Agent Coordination
+
+**Supporting @claude (Technical Leader):**
+- Include ops CLI integration in architectural documentation
+- Research and document best practices for ops CLI usage
+- Analyze project patterns and suggest ops CLI improvements
+
+**Supporting @copilot and @qwen:**
+- Document ops CLI workflows in user guides
+- Create troubleshooting documentation using `ops env doctor`
+- Research and document platform-specific usage patterns
+
+#### Environment and Platform Research
+
+**WSL/Windows Documentation:**
+- Use `./scripts/ops env doctor` to identify common issues
+- Document platform-specific automation setup
+- Research cross-platform ops CLI compatibility
+
+**Build and Deployment Analysis:**
+- Analyze `.automation/config.yml` patterns across projects
+- Document best practices for different tech stacks
+- Research automation integration with CI/CD systems
+
+This integration ensures your research and analysis work directly supports the automation strategy and helps other agents use the ops CLI effectively.
+
 ### Strategic Usage - Maximize Both Models
 
 #### Use Gemini 2.0 Flash Experimental For:
