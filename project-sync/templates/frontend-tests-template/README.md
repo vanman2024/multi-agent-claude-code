@@ -2,7 +2,57 @@
 
 A universal, battle-tested frontend testing suite built with Playwright for solo founders and development teams working across multiple full-stack projects.
 
-## 🎯 Why This Template?
+## 🎯 Testing Strategy: Smart Coverage, Not Exhaustive Coverage
+
+**❌ NO, you should NOT test every page with E2E tests!**
+
+Instead, focus on **user journeys** and **business-critical workflows**. Here's the smart approach:
+
+### 📊 What to E2E Test (5-10% of your tests)
+- ✅ **Critical User Journeys**: Signup → Dashboard → Primary Feature → Completion
+- ✅ **Payment/Checkout Flows**: High business risk, complex interactions
+- ✅ **Authentication Flows**: Login, password reset, account recovery
+- ✅ **Core Business Workflows**: Whatever makes your app valuable
+
+### 🚫 What NOT to E2E Test (90-95% of pages)
+- ❌ **Static Content Pages**: About, Terms, Privacy, Marketing pages
+- ❌ **Admin Panels**: Unless they're core to your business
+- ❌ **Every Form Variation**: Save that for unit tests
+- ❌ **Individual Component States**: Better as integration tests
+
+### 🎯 Better Alternatives for Other Pages
+
+**Static Pages** → Visual Regression Tests
+```typescript
+test('about page looks correct', async ({ page }) => {
+  await page.goto('/about');
+  await expect(page).toHaveScreenshot('about-page.png');
+});
+```
+
+**Component Interactions** → Integration Tests
+```typescript
+test('settings form saves correctly', async ({ page }) => {
+  // Test the interaction without full E2E journey
+});
+```
+
+**Business Logic** → Unit Tests
+```typescript
+test('price calculation is correct', () => {
+  expect(calculatePrice(items)).toBe(expectedTotal);
+});
+```
+
+## 📚 Testing Strategy Documents
+
+For detailed guidance on testing strategy:
+
+- **[📋 Testing Strategy Guide](docs/TESTING_STRATEGY.md)**: Complete framework for deciding what to test
+- **[🎯 Test Type Selection Guide](docs/TEST_TYPE_GUIDE.md)**: Quick reference for choosing test types
+- **[🔍 Example Test Suites](tests/e2e/user-journeys.spec.ts)**: Real examples of smart E2E testing
+
+## 🚀 Why This Template?
 
 - **Framework Agnostic**: Works with React, Vue, Angular, Svelte, or vanilla JavaScript
 - **Cross-Platform**: Tests across Chrome, Firefox, Safari, Edge, and mobile browsers
@@ -11,210 +61,168 @@ A universal, battle-tested frontend testing suite built with Playwright for solo
 - **CI/CD Ready**: Pre-configured for GitHub Actions and other CI platforms
 - **Solo Founder Optimized**: Simple setup, clear documentation, easy maintenance
 
-## 🚀 Quick Start
-
-### 1. Scaffold into a project (solo/agent friendly)
-
-```bash
-# From your project root (with package.json)
-./frontend-testing-suite-template/setup-testing.sh --yes --skip-install
-
-# Install deps when ready (choose your PM)
-npm i -D @playwright/test @types/node eslint typescript \
-  @typescript-eslint/eslint-plugin @typescript-eslint/parser prettier \
-  axe-playwright playwright-visual-regression
-
-# Install browsers (Chromium first for speed/stability)
-npx playwright install chromium
-# On Linux/WSL: system libs for Chromium
-npx playwright install-deps chromium
-
-# Run fast smoke tests
-./tests/run-smoke.sh
-# Or via npm: npm run test:smoke
-```
-
-### 2. Configure for Your Project
-
-Edit `playwright.config.ts`:
-```typescript
-export default defineConfig({
-  // Update baseURL for your development server
-  use: {
-    baseURL: 'http://localhost:3000', // Change this to your dev server
-  },
-
-  // Update webServer command for your framework
-  webServer: process.env.SKIP_WEBSERVER ? undefined : {
-    command: 'npm run dev', // Change to your dev command
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-  },
-});
-```
-
 ## 📁 Project Structure
 
 ```
 frontend-testing-suite-template/
 ├── package.json                 # Dependencies and scripts
 ├── playwright.config.ts         # Playwright configuration
+├── setup-testing.sh            # One-command setup script
+├── README.md                   # This file
+├── docs/
+│   ├── TESTING_STRATEGY.md     # Complete testing strategy guide
+│   └── TEST_TYPE_GUIDE.md      # Test type selection guide
 ├── tests/
-│   ├── global-setup.ts          # Global test setup
-│   ├── global-teardown.ts       # Global test cleanup
+│   ├── global-setup.ts         # Test environment setup
+│   ├── global-teardown.ts      # Test cleanup
 │   ├── utils/
-│   │   └── test-utils.ts        # Shared utilities and page objects
-│   ├── e2e/                     # End-to-end tests
-│   ├── api/                     # API tests
-│   ├── visual/                  # Visual regression tests
-│   └── accessibility/           # Accessibility tests
-└── README.md                    # This file
+│   │   └── test-utils.ts       # Shared utilities and page objects
+│   ├── e2e/
+│   │   ├── homepage.spec.ts    # Example E2E tests
+│   │   └── user-journeys.spec.ts # Smart journey-focused tests
+│   ├── api/
+│   │   └── users.spec.ts       # Example API tests
+│   ├── visual/                 # Visual regression tests
+│   └── accessibility/          # Accessibility tests
+└── .github/workflows/ci.yml    # GitHub Actions CI/CD
 ```
 
-## 🧪 Test Types
+## 🧪 Test Types Included
 
-### E2E Tests (`tests/e2e/`)
-User journey tests that simulate real user interactions.
-
+### 🎯 E2E Tests (`tests/e2e/`)
+**Strategic user journey tests** - not every page, but critical workflows:
 ```typescript
-import { test, expect } from '@playwright/test';
-import { BasePage } from '../utils/test-utils';
-
-test('user can sign up and log in', async ({ page }) => {
-  const homePage = new BasePage(page);
-
-  await homePage.goto('/');
-  await homePage.clickSafely('[data-testid="signup-button"]');
-  // ... test implementation
+test('complete user registration and first login @critical', async ({ page }) => {
+  // Tests: Landing → Signup → Email Verify → Login → Dashboard
+  // Covers 5+ pages in ONE test!
 });
 ```
 
-### API Tests (`tests/api/`)
-Backend API testing without UI.
-
+### 🔧 API Tests (`tests/api/`)
+Backend API testing without UI:
 ```typescript
-import { test, expect } from '@playwright/test';
-import { ApiUtils } from '../utils/test-utils';
-
-test('GET /api/users returns user list', async () => {
+test('GET /users returns user list', async () => {
   const response = await ApiUtils.get('/api/users');
   expect(response.status).toBe(200);
-
-  const users = await response.json();
-  expect(Array.isArray(users)).toBe(true);
 });
 ```
 
-### Visual Tests (`tests/visual/`)
-Screenshot comparison for UI consistency.
-
+### 👁️ Visual Tests (`tests/visual/`)
+Screenshot comparison for UI consistency:
 ```typescript
-import { test, expect } from '@playwright/test';
-
 test('homepage looks correct', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveScreenshot('homepage.png');
 });
 ```
 
-### Accessibility Tests (`tests/accessibility/`)
-WCAG compliance and accessibility checks.
-
+### ♿ Accessibility Tests (`tests/accessibility/`)
+WCAG compliance testing:
 ```typescript
-import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
-
 test('homepage is accessible', async ({ page }) => {
   await page.goto('/');
-
-  const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
-  expect(accessibilityScanResults.violations).toEqual([]);
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
 });
+```
+
+## 🚀 Quick Start
+
+### 1. Copy to New Project
+```bash
+# Copy the template to your new project
+cp -r frontend-testing-suite-template your-project/tests/
+
+# Navigate to your project
+cd your-project
+
+# Run setup
+./tests/setup-testing.sh
+```
+
+### 2. Configure for Your Project
+Edit `playwright.config.ts`:
+```typescript
+export default defineConfig({
+  use: {
+    baseURL: 'http://localhost:3000', // Your dev server
+  },
+  webServer: {
+    command: 'npm run dev', // Your dev command
+    url: 'http://localhost:3000',
+  },
+});
+```
+
+### 3. Run Your Tests
+```bash
+npm test              # Run all tests
+npm run test:headed   # See tests running
+npm run test:ui       # Interactive test UI
+npm run test:smoke    # Quick smoke tests
+npm run codegen       # Generate tests from interactions
 ```
 
 ## 🛠️ Available Commands
 
 ```bash
-# Run all tests
-npm test
+# Core Testing
+npm test                    # Run all tests
+npm run test:headed        # Tests with browser visible
+npm run test:debug         # Debug failing tests
+npm run test:ui            # Open interactive test UI
 
-# Run tests in headed mode (see browser)
-npm run test:headed
+# Test Types
+npm run test:e2e           # E2E tests only
+npm run test:api           # API tests only
+npm run test:visual        # Visual regression tests
+npm run test:accessibility # Accessibility tests
 
-# Debug tests
-npm run test:debug
+# Tagged Tests
+npm run test:smoke         # Smoke tests (@smoke)
+npm run test:regression    # Regression tests (@regression)
+npm run test:critical      # Critical tests (@critical)
 
-# Open test UI
-npm run test:ui
+# Development
+npm run codegen            # Generate tests from user interactions
+npm run report             # View test reports
+npm run lint               # Lint code
+npm run type-check         # TypeScript checking
 
-# Run specific test types
-npm run test:e2e        # E2E tests only
-npm run test:api        # API tests only
-npm run test:visual     # Visual tests only
-npm run test:accessibility  # Accessibility tests only
-
-# Run tagged tests
-npm run test:smoke      # Tests tagged with @smoke
-npm run test:regression # Tests tagged with @regression
-
-# Code quality
-npm run lint           # Lint code
-npm run lint:fix       # Fix linting issues
-npm run type-check     # TypeScript type checking
-
-# Setup
-npm run setup          # Install browsers and dependencies
-npm run install:browsers    # Install Playwright browsers
-npm run install:deps        # Install system dependencies
+# Setup & Maintenance
+npm run setup              # Install browsers and dependencies
+npm run install:browsers   # Install Playwright browsers
+npm run install:deps       # Install system dependencies
 
 # CI/CD
-npm run ci             # Full CI pipeline (lint + type-check + test)
-npm run test:parallel  # Run tests in parallel
-npm run test:shard     # Run tests in shards (for CI distribution)
-
-# Utilities
-npm run codegen        # Generate tests from user interactions
-npm run report         # View test reports
-
-# Local smoke runner (script)
-./tests/run-smoke.sh [--headed] [--debug]
+npm run ci                 # Full CI pipeline
+npm run test:parallel      # Run tests in parallel
+npm run test:shard         # Run tests in shards
 ```
 
 ## ⚙️ Configuration
 
 ### Environment Variables
-
 ```bash
-# Base URL for tests
+# Test Configuration
 BASE_URL=http://localhost:3000
+API_BASE_URL=http://localhost:3001
+API_TOKEN=your-api-token
 
-# Skip web server startup (for CI or when dev server is already running)
-SKIP_WEBSERVER=true
+# Test Data Setup
+SETUP_TEST_DB=false
+SETUP_TEST_DATA=false
+CLEANUP_TEST_DB=false
+CLEANUP_TEST_DATA=false
 
-# Enable other browsers beyond Chromium
-ALL_BROWSERS=1
-
-# Disable Chromium sandbox (CI/WSL friendly)
-PW_NO_SANDBOX=1
-
-# Browser installation
-INSTALL_BROWSERS=true
-
-# Test data setup/cleanup
-SETUP_TEST_DB=true
-SETUP_TEST_DATA=true
-CLEANUP_TEST_DB=true
-CLEANUP_TEST_DATA=true
-CLEANUP_TEMP_FILES=true
+# Browser Installation
+INSTALL_BROWSERS=false
 ```
 
-### Custom Configuration
-
+### Custom Test Configuration
 Create `tests/config/custom.config.ts`:
-
 ```typescript
 export const customConfig = {
-  // Your custom test configuration
   apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:3001',
   testUser: {
     email: 'test@example.com',
@@ -229,7 +237,7 @@ export const customConfig = {
 
 ## 🤖 Agent Collaboration
 
-This template is designed for seamless collaboration between AI agents and human developers:
+This template is designed for seamless collaboration:
 
 ### For AI Agents:
 - Clear, consistent code patterns
@@ -245,73 +253,41 @@ This template is designed for seamless collaboration between AI agents and human
 
 ## 🔄 CI/CD Integration
 
-### GitHub Actions Example
+### GitHub Actions (Included)
+- **Parallel Testing**: Sharded across multiple browsers
+- **Test Reporting**: HTML and JSON reports
+- **PR Comments**: Automatic test result summaries
+- **Artifact Storage**: Screenshots and test results saved
 
+### Custom CI/CD
 ```yaml
-name: Frontend Tests
-on: [push, pull_request]
+# For other CI platforms
+- name: Run Tests
+  run: npm run ci
 
-jobs:
-  test-chromium:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - name: Install deps
-        run: npm ci
-      - name: Setup Playwright (cached)
-        uses: microsoft/playwright-github-action@v1
-        with:
-          browsers: 'chromium'
-      - name: Run smoke tests (Chromium)
-        env:
-          BASE_URL: http://localhost:3000
-          SKIP_WEBSERVER: true
-          PW_NO_SANDBOX: '1'
-        run: ./tests/run-smoke.sh
-
-  # Optional nightly full matrix
-  nightly-all-browsers:
-    if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - uses: microsoft/playwright-github-action@v1
-        with:
-          browsers: 'all'
-      - name: Run full suite
-        env:
-          BASE_URL: http://localhost:3000
-          ALL_BROWSERS: '1'
-          SKIP_WEBSERVER: true
-        run: npm test
+- name: Upload Results
+  uses: actions/upload-artifact@v4
+  with:
+    name: test-results
+    path: test-results/
 ```
 
 ## 📊 Test Reporting
 
 ### HTML Reports
 ```bash
-npm run report  # Opens HTML test report in browser
+npm run report  # Opens interactive report in browser
 ```
 
 ### JSON Reports
-Test results are automatically saved to `test-results.json` for CI integration.
+Test results automatically saved to `test-results.json` for CI integration.
 
-### JUnit Reports
-XML reports available at `test-results.xml` for CI tools like Jenkins.
+### JUnit XML
+XML reports available at `test-results.xml` for CI tools.
 
 ## 🎨 Extending the Template
 
 ### Adding New Page Objects
-
 ```typescript
 // tests/utils/pages/LoginPage.ts
 import { BasePage } from '../test-utils';
@@ -326,7 +302,6 @@ export class LoginPage extends BasePage {
 ```
 
 ### Adding Custom Test Utilities
-
 ```typescript
 // tests/utils/custom-utils.ts
 import { TestUtils } from './test-utils';
@@ -334,7 +309,7 @@ import { TestUtils } from './test-utils';
 export class CustomUtils extends TestUtils {
   static randomUser() {
     return {
-      name: this.randomString(10),
+      name: this.randomString(8),
       email: this.randomEmail(),
       age: this.randomNumber(18, 65)
     };
@@ -345,14 +320,14 @@ export class CustomUtils extends TestUtils {
 ## 🚨 Best Practices
 
 ### Test Organization
-- Group related tests in describe blocks
+- Group related tests in `describe` blocks
 - Use clear, descriptive test names
-- Tag tests appropriately (`@smoke`, `@regression`, etc.)
+- Tag tests appropriately (`@smoke`, `@regression`, `@critical`)
 
 ### Page Objects
-- Create one page object per page/component
+- Create one page object per logical page/component
 - Keep selectors in constants at the top
-- Use data-testid attributes for reliable selection
+- Use `data-testid` attributes for reliable selection
 
 ### Test Data
 - Use factories for test data creation
@@ -373,18 +348,9 @@ export class CustomUtils extends TestUtils {
 - Use `TestUtils.retry()` for flaky operations
 - Check for race conditions
 
-**Chromium fails to launch (CI/WSL/Linux)?**
+**Browser not found?**
 ```bash
-# Install Chromium only (faster)
-npx playwright install chromium
-
-# Install required system libraries
-npx playwright install-deps chromium
-
-# Disable sandbox (common in CI/WSL)
-PW_NO_SANDBOX=1 ./tests/run-smoke.sh
-
-# Still failing? Check missing libs from the error and install via apt/yum.
+npm run install:browsers
 ```
 
 **TypeScript errors?**
@@ -407,12 +373,11 @@ npm run lint:fix
 
 ## 🤝 Contributing
 
-When adding new tests or utilities:
-
+When adding new tests:
 1. Follow the existing patterns
 2. Add TypeScript types
 3. Include JSDoc comments
-4. Update this README if needed
+4. Update documentation if needed
 5. Test across all browsers
 
 ---
