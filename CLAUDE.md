@@ -231,6 +231,157 @@ Run: !git [actual command that works]
 - Creates issue using appropriate template
 - Adds comment to discussion linking to new issue
 
+## 🚀 Ops CLI Automation System
+
+### Solo Developer Automation Made Simple
+
+This template includes a powerful `ops` CLI automation system designed specifically for solo developers working with multiple AI agents. The system provides a unified interface for all development operations without over-engineering.
+
+### Quick Setup for New Projects
+
+When you run `sync-project-template.sh`, you automatically get:
+- **scripts/ops** - Single automation CLI command
+- **.automation/config.yml** - Unified configuration
+- **Automated git hooks** (optional) for seamless workflow
+
+### Core Operations Workflow
+
+**Daily Development:**
+```bash
+ops qa                    # Quality checks (lint, test, format)
+ops build --target PATH  # Build production version locally
+ops verify-prod          # Test production build works
+ops status                # Show current state and versions
+```
+
+**Release When Ready:**
+```bash
+ops release patch    # For bug fixes (v0.4.2 → v0.4.3)
+ops release minor    # For new features (v0.4.2 → v0.5.0) 
+ops release major    # For breaking changes (v0.4.2 → v1.0.0)
+```
+
+**Environment Management:**
+```bash
+ops env doctor       # Check WSL/Windows environment issues
+ops setup TARGET     # Setup operations and target directory
+ops sync             # Sync to all configured targets
+```
+
+### How It Integrates with Multi-Agent Development
+
+**For @claude (You):**
+- Always run `ops qa` before completing tasks
+- Use `ops status` to check project state
+- Run `ops env doctor` if environment issues arise
+- Ensure `ops build` succeeds before marking work complete
+
+**For @copilot:**
+- Include `ops qa` in PR workflows
+- Check `ops status` for version information
+- Use `ops verify-prod` to validate changes
+
+**For @gemini and @qwen:**
+- Reference `ops status` for current project state
+- Include automation commands in documentation
+- Validate environment with `ops env doctor`
+
+### Agent Coordination with Ops CLI
+
+**Before Starting Any Task:**
+```bash
+git pull                 # Get latest changes
+ops status              # Check current project state
+ops qa                  # Ensure clean starting point
+```
+
+**Before Completing Any Task:**
+```bash
+ops qa                  # Lint, test, format all code
+ops build --target /tmp/test-build  # Verify production build
+ops verify-prod /tmp/test-build     # Test production works
+# Only then commit and mark task complete
+```
+
+**For Release Coordination:**
+```bash
+# Agents should suggest release when ready:
+ops release patch       # For completed bug fixes
+ops release minor       # For completed features
+ops release major       # For breaking changes
+```
+
+### Configuration for Different Project Types
+
+The `.automation/config.yml` adapts to your project:
+
+**Python Projects:**
+```yaml
+versioning:
+  source: pyproject.toml
+qa:
+  lint: ruff check .
+  typecheck: mypy src
+  tests: pytest -m "not slow"
+```
+
+**Node.js Projects:**
+```yaml
+versioning:
+  source: package.json
+qa:
+  lint: npm run lint
+  typecheck: npm run typecheck
+  tests: npm test
+```
+
+**Multi-Language Projects:**
+```yaml
+qa:
+  lint: true           # Auto-detects linters
+  typecheck: true      # Auto-detects type checkers
+  tests: "not slow"    # Runs appropriate test command
+```
+
+### Benefits for Multi-Agent Teams
+
+1. **Consistent Quality:** All agents use same QA standards via `ops qa`
+2. **Reliable Builds:** `ops build` ensures production readiness
+3. **Clear State:** `ops status` shows what's deployed where
+4. **Environment Safety:** `ops env doctor` catches WSL/path issues
+5. **Simple Releases:** Semantic versioning with `ops release`
+
+### Integration with Existing Workflows
+
+**With GitHub Actions:**
+```yaml
+- name: Quality Checks
+  run: ./scripts/ops qa
+
+- name: Production Build
+  run: ./scripts/ops build --target dist/
+```
+
+**With Local Development:**
+```bash
+# Replaces complex script chains with simple commands
+./scripts/ops qa && ./scripts/ops build --target ~/deploy/
+```
+
+### Troubleshooting for Agents
+
+**Common Issues:**
+- `ops env doctor` - Diagnose WSL/Windows path problems
+- `ops status` - Check if project is properly configured
+- `ops qa --help` - Get available quality check options
+
+**Before Asking User:**
+1. Run `ops env doctor` to check environment
+2. Check `ops status` for configuration issues
+3. Try `ops qa` to see if basic operations work
+
+This automation system eliminates the confusion of multiple scripts and provides a single, reliable interface that all agents can use consistently.
+
 ## System Architecture: The House Metaphor 🏗️
 
 Think of our system like building a house:
