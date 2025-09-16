@@ -24,8 +24,19 @@ specify init --here --ai copilot
 
 ### Step 2: Add Multi-Agent Coordination
 ```bash
-# From your new project directory, run:
+# From your new project directory, run one of these:
+
+# Full-stack project (backend + frontend testing)
 /home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh
+
+# Backend-only project (Python/pytest)
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --backend-only
+
+# Frontend-only project (Playwright/TypeScript)
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --frontend-only
+
+# Skip all testing templates
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --no-testing
 
 # That's it! Your spec-kit project now has full multi-agent coordination.
 ```
@@ -256,10 +267,13 @@ This framework provides comprehensive testing templates for both backend and fro
 - **Components** → Integration tests  
 - **Business logic** → Unit tests
 
-### Tech Stack Detection
-- **React/Next.js**: Complete frontend testing suite with Playwright
-- **Python/FastAPI**: Comprehensive backend testing with pytest
-- **Node.js/Express**: Both frontend and backend testing capabilities
+### Project Type Detection & Testing Templates
+The setup script automatically detects your project type and installs appropriate testing:
+
+- **Python projects** (`pyproject.toml`, `requirements.txt`): Gets `backend-tests/` with pytest structure
+- **Node.js projects** (`package.json`): Gets `frontend-tests-template/` with Playwright suite  
+- **Full-stack projects**: Gets both testing templates automatically
+- **Override detection**: Use `--backend-only`, `--frontend-only`, or `--no-testing` flags to override automatic detection
 
 ## 🚨 Production Readiness System
 

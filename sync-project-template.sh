@@ -1,6 +1,12 @@
 #!/bin/bash
 # Sync Project Template - Complete Development Environment Setup
 # Syncs all development tools, configurations, and AI agent coordination to your project
+#
+# Usage:
+#   ./sync-project-template.sh                    # Full-stack project (backend + frontend testing)
+#   ./sync-project-template.sh --backend-only     # Backend-only project (Python/pytest)
+#   ./sync-project-template.sh --frontend-only    # Frontend-only project (Playwright/TypeScript)
+#   ./sync-project-template.sh --no-testing       # Skip all testing templates
 
 set -e
 
@@ -27,7 +33,7 @@ fi
 # Run the project sync
 echo "🚀 Running project sync..."
 if [ -f "$(dirname "$0")/project-sync/setup/sync-project.js" ]; then
-  node "$(dirname "$0")/project-sync/setup/sync-project.js" "$PROJECT_DIR"
+  node "$(dirname "$0")/project-sync/setup/sync-project.js" "$PROJECT_DIR" "$@"
 else
   echo "❌ Project sync script not found!"
   echo "Make sure you're running this from the template directory"
@@ -41,7 +47,7 @@ echo "📋 What was configured:"
 echo "  • AI Agent coordination (Claude, Copilot, Qwen, Gemini, Codex)"
 echo "  • Ops CLI automation system (scripts/ops with .automation/config.yml)"
 echo "  • Release system documentation (docs/RELEASE_SYSTEM.md)"
-echo "  • Standardized testing structure (tests/ with smoke, unit, integration, etc.)"
+echo "  • Dual testing architecture (backend-tests/ + frontend-tests/ as appropriate)"
 echo "  • VS Code settings with file icons and extensions"
 echo "  • Docker development environment (Python/Node.js)"
 echo "  • GitHub workflows for CI/CD"
