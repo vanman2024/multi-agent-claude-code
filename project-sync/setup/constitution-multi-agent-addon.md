@@ -8,10 +8,10 @@ Each AI agent operates independently within its specialized domain; Agents coord
 All agents MUST check and incorporate context in this order: 1) Project Constitution (.specify/memory/constitution.md) - Project-specific rules, 2) CLAUDE.md - General AI assistant instructions, 3) Agent-specific context (.claude/agents/*.md) - Domain expertise, 4) Current project state - Active issues, PRs, dependencies
 
 ### VIII. Agent Decision Authority
-@claude/system-architect controls architecture, DB schema, API design (can block structural changes); @claude/security-auth-compliance has VETO power for security/auth/compliance (cannot be overridden); @claude/pr-reviewer provides code quality advisory; @claude/backend-tester and @claude/frontend-playwright-tester can block deployment; @claude/code-refactorer requires approval for major changes; @copilot auto-assigned for simple tasks (Complexity ≤2, Size XS-S)
+@claude controls backend architecture, API design, Python/pytest testing (backend-tests/); @copilot controls frontend development, UI/UX, Playwright testing (frontend-tests/); @claude/security-auth-compliance has VETO power for security/auth/compliance (cannot be overridden); @claude/pr-reviewer provides code quality advisory; @claude/code-refactorer requires approval for major changes; @copilot auto-assigned for simple tasks (Complexity ≤2, Size XS-S)
 
-### IX. Testing Requirements (Agent-Enforced)
-Backend changes MUST pass API tests (@claude/backend-tester); Frontend changes MUST pass UI tests (@claude/frontend-playwright-tester); Security changes MUST pass security review (@claude/security-auth-compliance); Architecture changes MUST be approved (@claude/system-architect); All tests must pass before deployment
+### IX. Dual Testing Architecture (Agent-Enforced)
+**Backend Testing** (@claude): Python/pytest in backend-tests/ for API logic, data processing, integrations; Contract testing for external APIs; Performance and load testing; **Frontend Testing** (@copilot): Playwright/TypeScript in frontend-tests/ for UI, E2E, visual regression, accessibility; Smart E2E strategy (5-10% critical journeys, 90-95% other test types); WCAG 2.1 AA compliance mandatory; **Ops Integration**: ./scripts/ops qa --backend, --frontend, --all for quality gates; All tests must pass before deployment
 
 ### X. Agent Conflict Resolution
 When agents disagree: Security concerns override all other considerations; Architecture decisions win for structural changes; Testing agents can block but not modify code; User makes final decision if deadlock occurs; All conflicts logged for review
