@@ -1,43 +1,37 @@
 ---
-description: Generate tests to validate production readiness and mock replacements
-argument-hint: [--integration] [--unit] [--api] [--all]
-allowed-tools: Bash, Read, Write, Edit, Task
+description: Run production readiness tests to validate mock replacements
+argument-hint: [--verbose] [--fix]
+allowed-tools: Bash, Read, Write, Edit
 ---
 
-Generate comprehensive tests to validate that mock implementations have been properly replaced with real production code.
+# Production Readiness Testing
 
-## Execution Process
+Run comprehensive production readiness tests using the integrated testing framework.
 
-### Step 1: Read Mock Detection Results
+## Your Task
+
+Run the production readiness tests that are now integrated into our backend testing structure:
+
 ```bash
-# Check if we have recent mock detection results
-if [ -f "/tmp/mock_report.json" ]; then
-    cat /tmp/mock_report.json
-else
-    echo "No recent mock detection results found. Run /prod-ready first."
-    python .claude/scripts/mock_detector.py --format json --output /tmp/mock_report.json
-fi
+!cd project-sync && ./scripts/ops qa --production --verbose
 ```
 
-### Step 2: Generate Tests Based on Found Issues
-Use the test-generator sub-agent to:
-- Analyze the mock detection results
-- Generate specific tests for each critical mock found
-- Create integration tests for API endpoints  
-- Generate unit tests for replaced implementations
-- Create environment validation tests
+## Additional Options
 
-### Step 3: Create Test Structure
-The sub-agent should create:
-- `tests/production/` directory structure
-- Individual test files for each mock category
-- Test fixtures and setup helpers
-- CI/CD integration scripts
+If `--fix` argument is provided, also run the mock detector and suggest fixes:
 
-### Step 4: Handle Arguments
-- `--integration`: Generate integration tests only
-- `--unit`: Generate unit tests only  
-- `--api`: Generate API endpoint tests only
-- `--all`: Generate comprehensive test suite (default)
+```bash
+!python .claude/scripts/mock_detector.py --target project-sync/testing/backend-tests/production --format json
+```
 
-The test-generator sub-agent will create executable tests that can validate production readiness before deployment.
+## What This Tests
+
+The production readiness tests validate:
+- No mock implementations in production code
+- Environment variables are configured
+- Debug flags are disabled
+- Authentication uses secure implementations
+- API endpoints use real implementations
+- Integration with mock detector script
+
+All tests are located in `project-sync/testing/backend-tests/production/` and run via pytest as part of our standard testing pipeline.

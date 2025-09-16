@@ -115,6 +115,9 @@ cmd_qa() {
         --mcp|mcp)
             qa_mcp "$verbose"
             ;;
+        --production|production)
+            qa_production "$verbose"
+            ;;
         --all|all|"")
             qa_all "$verbose"
             ;;
@@ -207,6 +210,21 @@ qa_mcp() {
     print_success "MCP tests complete"
 }
 
+qa_production() {
+    local verbose="$1"
+    print_status "Production readiness tests"
+    if [[ -d "$BACKEND_TESTS/production" ]]; then
+        cd "$BACKEND_TESTS"
+        local pytest_args="production/ -m 'not slow'"
+        [[ -n "$verbose" ]] && pytest_args="$pytest_args -v"
+        run_pytest $pytest_args || true
+        cd "$REPO_ROOT"
+    else
+        print_warning "No production tests at $BACKEND_TESTS/production"
+    fi
+    print_success "Production readiness tests complete"
+}
+
 qa_frontend() {
     print_warning "Frontend tests not configured for CLI-first projects (skipping)"
 }
@@ -216,6 +234,7 @@ qa_all() {
     qa_backend "$verbose"; echo
     qa_cli "$verbose"; echo
     qa_mcp "$verbose"; echo
+    qa_production "$verbose"; echo
     qa_frontend "$verbose"
     print_success "All QA complete"
 }
@@ -228,6 +247,7 @@ Types:
   --backend     Backend tests (Python, API)
   --cli         CLI contract tests
   --mcp         MCP server tests
+  --production  Production readiness tests
   --all         All tests (default)
 
 Options:
