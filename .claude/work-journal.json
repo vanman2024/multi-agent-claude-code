@@ -1,6 +1,42 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-16T20:18:37Z",
+      "branch": "main",
+      "uncommitted": 9,
+      "unpushed": 0,
+      "last_commit": "4357125 fix: Revert to relative paths for Claude hooks"
+    },
+    {
+      "timestamp": "2025-09-16T20:07:16Z",
+      "branch": "main",
+      "uncommitted": 4,
+      "unpushed": 0,
+      "last_commit": "4357125 fix: Revert to relative paths for Claude hooks"
+    },
+    {
+      "timestamp": "2025-09-16T19:12:22Z",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "4357125 fix: Revert to relative paths for Claude hooks"
+    },
+    {
+      "timestamp": "2025-09-16T19:09:43Z",
+      "event": "session_end",
+      "branch": "main",
+      "uncommitted": 3,
+      "unpushed": 0,
+      "last_commit": "4357125 fix: Revert to relative paths for Claude hooks"
+    },
+    {
+      "timestamp": "2025-09-16T19:03:44Z",
+      "branch": "main",
+      "uncommitted": 2,
+      "unpushed": 0,
+      "last_commit": "4357125 fix: Revert to relative paths for Claude hooks"
+    },
+    {
       "timestamp": "2025-09-16T18:52:41Z",
       "branch": "main",
       "uncommitted": 0,
@@ -690,41 +726,6 @@
       "uncommitted": 2,
       "unpushed": 0,
       "last_commit": "6745e86 fix: Update project-setup to work with spec-kit initialized directories"
-    },
-    {
-      "timestamp": "2025-09-11T01:54:10Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "6745e86 fix: Update project-setup to work with spec-kit initialized directories"
-    },
-    {
-      "timestamp": "2025-09-11T01:49:57Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "6745e86 fix: Update project-setup to work with spec-kit initialized directories"
-    },
-    {
-      "timestamp": "2025-09-11T01:36:02Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "6745e86 fix: Update project-setup to work with spec-kit initialized directories"
-    },
-    {
-      "timestamp": "2025-09-11T01:33:24Z",
-      "branch": "main",
-      "uncommitted": 1,
-      "unpushed": 0,
-      "last_commit": "cbb9761 docs: Consolidate 6 spec-kit docs into 1 comprehensive guide"
-    },
-    {
-      "timestamp": "2025-09-10T21:42:33Z",
-      "branch": "main",
-      "uncommitted": 0,
-      "unpushed": 0,
-      "last_commit": "cbb9761 docs: Consolidate 6 spec-kit docs into 1 comprehensive guide"
     }
   ]
 }

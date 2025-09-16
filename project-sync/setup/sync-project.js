@@ -551,6 +551,28 @@ class ProjectSync {
         settings = JSON.parse(fs.readFileSync(sourceSettingsPath, 'utf8'));
       }
       
+      // Convert relative hook paths to absolute paths for this specific project
+      if (settings.hooks) {
+        for (const eventType in settings.hooks) {
+          const eventHooks = settings.hooks[eventType];
+          for (const hookGroup of eventHooks) {
+            if (hookGroup.hooks) {
+              for (const hook of hookGroup.hooks) {
+                if (hook.type === 'command' && hook.command) {
+                  // Replace relative .claude/hooks/ paths with absolute paths
+                  if (hook.command.includes('.claude/hooks/')) {
+                    const scriptName = hook.command.split('.claude/hooks/')[1];
+                    const commandPrefix = hook.command.split(' ')[0]; // bash or python3
+                    hook.command = `${commandPrefix} ${path.join(this.projectRoot, '.claude', 'hooks', scriptName)}`;
+                  }
+                }
+              }
+            }
+          }
+        }
+        console.log('  ✅ Converted hook paths to absolute for current project');
+      }
+      
       // Add permissions from global settings if they exist
       if (fs.existsSync(globalSettingsPath)) {
         const globalSettings = JSON.parse(fs.readFileSync(globalSettingsPath, 'utf8'));
