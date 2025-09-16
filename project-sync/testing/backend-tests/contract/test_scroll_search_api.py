@@ -1,28 +1,50 @@
+"""
+API Contract Tests
+==================
+
+Purpose: Verify that API endpoints adhere to their documented contracts.
+These tests validate request/response formats, data types, and business rules.
+
+Test Strategy:
+  - RED phase: Tests should fail initially before implementation
+  - GREEN phase: Implement API client to make tests pass
+  - REFACTOR phase: Optimize implementation while keeping tests green
+
+Run with:
+  pytest tests/contract/ -v
+  pytest tests/contract/ -m contract
+
+Notes:
+  - Uses mocked responses to avoid external API calls
+  - Validates both successful and error scenarios
+  - Ensures backward compatibility when API changes
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode due to legacy contract dependencies", allow_module_level=True)
 """
-Contract tests for SignalHire Scroll Search API pagination
+Contract tests for API Service Scroll Search API pagination
 
 These tests MUST FAIL initially (RED phase) before implementing pagination.
-Tests verify the contract with SignalHire's pagination using scrollId mechanism.
+Tests verify the contract with API's pagination using cursor mechanism.
 """
 
 import pytest
 import httpx
 from unittest.mock import patch, AsyncMock
 from src.models.search_criteria import SearchCriteria
-from src.models.prospect import Prospect
-from src.services.signalhire_client import SignalHireClient
+from src.models.Result import Result
+from src.services.api_client import APIClient
 from src.models.search_result import SearchResult, PaginationState
 
 
 class TestScrollSearchAPIContract:
-    """Test contract compliance with SignalHire Scroll Search pagination"""
+    """Test contract compliance with API Service Scroll Search pagination"""
 
     @pytest.fixture
     def api_client(self):
-        """Create SignalHire client for testing"""
-        return SignalHireClient(api_key="test-api-key-12345")
+        """Create API Service client for testing"""
+        return APIClient(api_key="test-api-key-12345")
 
     @pytest.fixture
     def search_criteria(self):
@@ -35,16 +57,16 @@ class TestScrollSearchAPIContract:
 
     @pytest.fixture
     def mock_initial_search_response(self):
-        """Mock first page of search results with scrollId"""
+        """Mock first page of search results with cursor"""
         return {
-            "scrollId": "scroll_abc123def456ghi789jkl012",
+            "cursor": "scroll_abc123def456ghi789jkl012",
             "totalCount": 1547,  # Large result set requiring pagination
             "data": [
                 {
-                    "uid": f"prospect{i:032d}",
+                    "uid": f"Result{i:032d}",
                     "fullName": f"Engineer {i}",
-                    "currentTitle": "Software Engineer",
-                    "currentCompany": f"TechCorp {i}",
+                    "title": "Software Engineer",
+                    "organization": f"TechCorp {i}",
                     "location": "San Francisco, CA",
                     "skills": ["Python", "JavaScript"],
                     "openToWork": True
@@ -57,14 +79,14 @@ class TestScrollSearchAPIContract:
     def mock_continuation_response(self):
         """Mock subsequent page of search results"""
         return {
-            "scrollId": "scroll_def456ghi789jkl012mno345",
+            "cursor": "scroll_def456ghi789jkl012mno345",
             "totalCount": 1547,  # Same total
             "data": [
                 {
-                    "uid": f"prospect{i:032d}",
+                    "uid": f"Result{i:032d}",
                     "fullName": f"Engineer {i}",
-                    "currentTitle": "Senior Software Engineer", 
-                    "currentCompany": f"InnovateCorp {i}",
+                    "title": "Senior Software Engineer", 
+                    "organization": f"InnovateCorp {i}",
                     "location": "San Francisco, CA",
                     "skills": ["Java", "React"],
                     "openToWork": False
@@ -77,14 +99,14 @@ class TestScrollSearchAPIContract:
     def mock_final_page_response(self):
         """Mock final page with fewer results"""
         return {
-            "scrollId": None,  # No more pages
+            "cursor": None,  # No more pages
             "totalCount": 1547,
             "data": [
                 {
-                    "uid": f"prospect{i:032d}",
+                    "uid": f"Result{i:032d}",
                     "fullName": f"Engineer {i}",
-                    "currentTitle": "Lead Software Engineer",
-                    "currentCompany": f"StartupCorp {i}",
+                    "title": "Lead Software Engineer",
+                    "organization": f"StartupCorp {i}",
                     "location": "San Francisco, CA", 
                     "skills": ["Go", "TypeScript"],
                     "openToWork": True
@@ -107,20 +129,20 @@ class TestScrollSearchAPIContract:
             assert call_args[0][0] == "POST"
             assert call_args[0][1] == "/api/v1/search"
             
-            # Verify no scrollId in initial request
+            # Verify no cursor in initial request
             request_body = call_args[1]["json"]
-            assert "scrollId" not in request_body
+            assert "cursor" not in request_body
             
             # Verify pagination info in response
             assert isinstance(result, SearchResult)
             assert result.scroll_id == "scroll_abc123def456ghi789jkl012"
             assert result.total_count == 1547
-            assert len(result.prospects) == 100
+            assert len(result.results) == 100
             assert result.has_more_results() is True
 
     @pytest.mark.contract
     async def test_continue_search_with_scroll_id(self, api_client, mock_continuation_response):
-        """Test continuation of search using scrollId"""
+        """Test continuation of search using cursor"""
         
         scroll_id = "scroll_abc123def456ghi789jkl012"
         
@@ -134,24 +156,24 @@ class TestScrollSearchAPIContract:
             assert call_args[0][0] == "POST"
             assert call_args[0][1] == "/api/v1/search"
             
-            # Verify scrollId is included in request
+            # Verify cursor is included in request
             request_body = call_args[1]["json"]
-            assert request_body["scrollId"] == scroll_id
+            assert request_body["cursor"] == scroll_id
             
             # Verify response structure
             assert result.scroll_id == "scroll_def456ghi789jkl012"
             assert result.total_count == 1547
-            assert len(result.prospects) == 100
+            assert len(result.results) == 100
 
     @pytest.mark.contract
     async def test_scroll_id_timeout_handling(self, api_client):
-        """Test handling of expired scrollId (15-second timeout)"""
+        """Test handling of expired cursor (15-second timeout)"""
         
         expired_scroll_id = "scroll_expired_123456789"
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
             mock_request.side_effect = httpx.HTTPStatusError(
-                "ScrollId expired or invalid",
+                "cursor expired or invalid",
                 request=httpx.Request("POST", "http://test.com"),
                 response=httpx.Response(400)
             )
@@ -191,17 +213,17 @@ class TestScrollSearchAPIContract:
         
         responses = [
             {
-                "scrollId": "scroll_page_1",
+                "cursor": "scroll_page_1",
                 "totalCount": 250,
                 "data": [{"uid": f"p{i:032d}"} for i in range(100)]
             },
             {
-                "scrollId": "scroll_page_2", 
+                "cursor": "scroll_page_2", 
                 "totalCount": 250,
                 "data": [{"uid": f"p{i:032d}"} for i in range(100, 200)]
             },
             {
-                "scrollId": None,  # Final page
+                "cursor": None,  # Final page
                 "totalCount": 250,
                 "data": [{"uid": f"p{i:032d}"} for i in range(200, 250)]
             }
@@ -210,19 +232,19 @@ class TestScrollSearchAPIContract:
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
             mock_request.side_effect = responses
             
-            all_prospects = []
+            all_results = []
             
             # Initial search
             result = await api_client.search(search_criteria)
-            all_prospects.extend(result.prospects)
+            all_results.extend(result.results)
             
             # Continue until no more pages
             while result.has_more_results():
                 result = await api_client.continue_search(result.scroll_id)
-                all_prospects.extend(result.prospects)
+                all_results.extend(result.results)
             
             # Verify complete result set
-            assert len(all_prospects) == 250
+            assert len(all_results) == 250
             assert mock_request.call_count == 3
 
     @pytest.mark.contract
@@ -232,9 +254,9 @@ class TestScrollSearchAPIContract:
         batch_processor = MagicMock()
         
         responses = [
-            {"scrollId": "s1", "totalCount": 300, "data": [{"uid": f"p{i:032d}"} for i in range(100)]},
-            {"scrollId": "s2", "totalCount": 300, "data": [{"uid": f"p{i:032d}"} for i in range(100, 200)]},
-            {"scrollId": None, "totalCount": 300, "data": [{"uid": f"p{i:032d}"} for i in range(200, 300)]}
+            {"cursor": "s1", "totalCount": 300, "data": [{"uid": f"p{i:032d}"} for i in range(100)]},
+            {"cursor": "s2", "totalCount": 300, "data": [{"uid": f"p{i:032d}"} for i in range(100, 200)]},
+            {"cursor": None, "totalCount": 300, "data": [{"uid": f"p{i:032d}"} for i in range(200, 300)]}
         ]
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
@@ -260,9 +282,9 @@ class TestScrollSearchAPIContract:
         
         # Mock large result set
         large_response = {
-            "scrollId": "scroll_large_123",
+            "cursor": "scroll_large_123",
             "totalCount": 50000,  # Very large result set
-            "data": [{"uid": f"prospect{i:032d}"} for i in range(100)]
+            "data": [{"uid": f"Result{i:032d}"} for i in range(100)]
         }
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
@@ -270,7 +292,7 @@ class TestScrollSearchAPIContract:
             
             # Use async generator for memory efficiency
             async for batch in api_client.search_paginated(search_criteria, batch_size=100):
-                assert len(batch.prospects) <= 100
+                assert len(batch.results) <= 100
                 assert isinstance(batch, SearchResult)
                 
                 # Only process first batch in test
@@ -284,9 +306,9 @@ class TestScrollSearchAPIContract:
         """Test error recovery during pagination"""
         
         responses = [
-            {"scrollId": "scroll_1", "totalCount": 200, "data": [{"uid": f"p{i:032d}"} for i in range(100)]},
+            {"cursor": "scroll_1", "totalCount": 200, "data": [{"uid": f"p{i:032d}"} for i in range(100)]},
             httpx.HTTPStatusError("Network error", request=httpx.Request("POST", "http://test.com"), response=httpx.Response(500)),
-            {"scrollId": None, "totalCount": 200, "data": [{"uid": f"p{i:032d}"} for i in range(100, 200)]}
+            {"cursor": None, "totalCount": 200, "data": [{"uid": f"p{i:032d}"} for i in range(100, 200)]}
         ]
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
@@ -294,7 +316,7 @@ class TestScrollSearchAPIContract:
             
             # Initial search succeeds
             result = await api_client.search(search_criteria)
-            assert len(result.prospects) == 100
+            assert len(result.results) == 100
             
             # Second request fails
             with pytest.raises(httpx.HTTPStatusError):
@@ -308,7 +330,7 @@ class TestScrollSearchAPIContract:
             mock_limiter.check_rate_limit.return_value = True
             
             with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
-                mock_request.return_value = {"scrollId": "s1", "totalCount": 100, "data": []}
+                mock_request.return_value = {"cursor": "s1", "totalCount": 100, "data": []}
                 
                 await api_client.search(search_criteria)
                 await api_client.continue_search("scroll_123")
@@ -318,9 +340,9 @@ class TestScrollSearchAPIContract:
 
     @pytest.mark.contract
     async def test_scroll_id_validation(self, api_client):
-        """Test validation of scrollId format and content"""
+        """Test validation of cursor format and content"""
         
-        # Test invalid scrollId formats
+        # Test invalid cursor formats
         invalid_scroll_ids = [
             "",
             None,
@@ -330,18 +352,18 @@ class TestScrollSearchAPIContract:
         ]
         
         for invalid_id in invalid_scroll_ids:
-            with pytest.raises(ValueError, match="Invalid scrollId"):
+            with pytest.raises(ValueError, match="Invalid cursor"):
                 await api_client.continue_search(invalid_id)
 
     @pytest.mark.contract
     async def test_pagination_concurrent_requests(self, api_client, search_criteria):
         """Test handling of concurrent pagination requests"""
         
-        # Multiple search operations with different scrollIds
+        # Multiple search operations with different cursors
         scroll_ids = ["scroll_1", "scroll_2", "scroll_3"]
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
-            mock_request.return_value = {"scrollId": "next", "totalCount": 100, "data": []}
+            mock_request.return_value = {"cursor": "next", "totalCount": 100, "data": []}
             
             # Simulate concurrent continuation requests
             tasks = [

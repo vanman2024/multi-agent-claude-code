@@ -1,9 +1,26 @@
+"""
+Unit Tests
+==========
+
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode (legacy service rate limiter)", allow_module_level=True)
 
 import asyncio
 
-# from signalhire_agent.services.rate_limiter import RateLimiterService
+# from API Service_agent.services.rate_limiter import RateLimiterService
 
 
 @pytest.mark.unit

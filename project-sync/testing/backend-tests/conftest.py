@@ -62,8 +62,8 @@ def sample_search_criteria():
 
 
 @pytest.fixture
-def sample_prospects():
-    """Provide sample prospect data for testing."""
+def sample_results():
+    """Provide sample Result data for testing."""
     return [
         {
             "uid": "test_001",

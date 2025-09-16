@@ -1,24 +1,39 @@
 """
-Contract tests for SignalHire Credits API
+API Contract Tests
+==================
 
-These tests MUST FAIL initially (RED phase) before implementing the credits client.
-Tests verify the contract with SignalHire's Credits API for monitoring usage.
+Purpose: Verify that API endpoints adhere to their documented contracts.
+These tests validate request/response formats, data types, and business rules.
+
+Test Strategy:
+  - RED phase: Tests should fail initially before implementation
+  - GREEN phase: Implement API client to make tests pass
+  - REFACTOR phase: Optimize implementation while keeping tests green
+
+Run with:
+  pytest tests/contract/ -v
+  pytest tests/contract/ -m contract
+
+Notes:
+  - Uses mocked responses to avoid external API calls
+  - Validates both successful and error scenarios
+  - Ensures backward compatibility when API changes
 """
 
 import pytest
 import httpx
 from unittest.mock import patch, AsyncMock
-from src.services.signalhire_client import SignalHireClient
+from src.services.api_client import APIClient
 from src.models.credit_usage import CreditUsage, CreditBalance
 
 
 class TestCreditsAPIContract:
-    """Test contract compliance with SignalHire Credits API"""
+    """Test contract compliance with API Service Credits API"""
 
     @pytest.fixture
     def api_client(self):
-        """Create SignalHire client for testing"""
-        return SignalHireClient(api_key="test-api-key-12345")
+        """Create API Service client for testing"""
+        return APIClient(api_key="test-api-key-12345")
 
     @pytest.fixture
     def mock_credits_response(self):
@@ -203,11 +218,11 @@ class TestCreditsAPIContract:
         assert search_estimate == 1  # Searches typically cost 1 credit
         
         # Test reveal operation estimation
-        reveal_estimate = api_client.estimate_reveal_credits(prospect_count=25)
-        assert reveal_estimate == 25  # 1 credit per prospect reveal
+        reveal_estimate = api_client.estimate_reveal_credits(Result_count=25)
+        assert reveal_estimate == 25  # 1 credit per Result reveal
         
         # Test batch reveal estimation  
-        batch_estimate = api_client.estimate_batch_reveal_credits(prospect_count=150)
+        batch_estimate = api_client.estimate_batch_reveal_credits(Result_count=150)
         assert batch_estimate == 150
 
     @pytest.mark.contract

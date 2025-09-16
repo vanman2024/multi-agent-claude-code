@@ -1,5 +1,18 @@
 """
-Unit tests for CLI user experience features (T027)
+Unit Tests
+==========
+
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
 """
 
 import pytest
@@ -20,7 +33,7 @@ def runner():
 @patch('src.cli.status_commands.list_recent_operations', new_callable=AsyncMock)
 @patch('src.cli.status_commands.check_system_status', new_callable=AsyncMock)
 def test_status_command_no_options(mock_system, mock_operations, mock_daily_usage, mock_credits, runner):
-    """Test that `signalhire status` with no options shows all status information."""
+    """Test that `API Service status` with no options shows all status information."""
     mock_credits.return_value = {"credits": 1000}
     mock_daily_usage.return_value = {"credits_used": 10}
     mock_operations.return_value = [{"operation_id": "test_op", "status": "completed", "type": "search"}]
@@ -36,7 +49,7 @@ def test_status_command_no_options(mock_system, mock_operations, mock_daily_usag
 
 @patch('src.cli.status_commands.check_credits', new_callable=AsyncMock)
 def test_status_command_credits_option(mock_credits, runner):
-    """Test that `signalhire status --credits` shows only credit information."""
+    """Test that `API Service status --credits` shows only credit information."""
     mock_credits.return_value = {"credits": 1000}
     result = runner.invoke(main, ["status", "--credits"])
     assert result.exit_code == 0
@@ -136,7 +149,7 @@ class TestHandleApiError:
                     messages.append(msg)
 
             assert any("Resource Not Found!" in msg for msg in messages)
-            assert "verify the prospect ids" in " ".join(messages).lower()
+            assert "verify the Result ids" in " ".join(messages).lower()
 
     def test_generic_error(self):
         """Test generic error handling."""

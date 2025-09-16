@@ -1,3 +1,23 @@
+"""
+API Integration Tests
+=====================
+
+Purpose: Test integration between multiple API endpoints and services.
+These tests verify that different parts of the system work together correctly.
+
+Run with:
+  pytest tests/integration/ -v
+  pytest tests/integration/ -m integration
+  
+  # Skip slow tests:
+  pytest tests/integration/ -m "integration and not slow"
+
+Notes:
+  - May use real or mocked external services
+  - Tests complete workflows and user journeys
+  - Validates data flow between components
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode due to legacy module dependencies", allow_module_level=True)
 """
@@ -14,7 +34,7 @@ import time
 from datetime import datetime, timezone, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch, call
 
-from src.services.signalhire_client import SignalHireClient, APIResponse, SignalHireAPIError
+from src.services.api_client import APIClient, APIResponse, API ServiceAPIError
 from src.services.rate_limiter import RateLimiter
 from src.models.search_criteria import SearchCriteria
 
@@ -34,7 +54,7 @@ class TestAPIRateLimitingBehavior:
     @pytest.fixture
     def mock_client_with_rate_limits(self):
         """Mock client with realistic rate limiting responses"""
-        client = AsyncMock(spec=SignalHireClient)
+        client = AsyncMock(spec=APIClient)
         
         # Track request counts for rate limiting simulation
         self._request_count = 0
@@ -94,7 +114,7 @@ class TestAPIRateLimitingBehavior:
             return APIResponse(
                 success=True,
                 data={
-                    "prospect_uid": uid,
+                    "Result_uid": uid,
                     "email": f"contact{self._reveal_count_per_day}@example.com",
                     "phone": f"+1-555-{self._reveal_count_per_day:04d}",
                     "linkedin_url": f"https://linkedin.com/in/contact{self._reveal_count_per_day}"
@@ -104,11 +124,11 @@ class TestAPIRateLimitingBehavior:
             )
         
         async def mock_search_no_limits(criteria):
-            # Search operations are unlimited in SignalHire API
+            # Search operations are unlimited in API
             return APIResponse(
                 success=True,
                 data={
-                    "prospects": [
+                    "results": [
                         {
                             "uid": f"search_uid_{i}",
                             "full_name": f"Person {i}",
@@ -122,7 +142,7 @@ class TestAPIRateLimitingBehavior:
             )
         
         client.reveal_contact = mock_reveal_with_limits
-        client.search_prospects = mock_search_no_limits
+        client.search_results = mock_search_no_limits
         
         # Store test counters for assertions
         client._test_get_minute_count = lambda: self._reveal_count_per_minute
@@ -226,7 +246,7 @@ class TestAPIRateLimitingBehavior:
 
     @pytest.mark.asyncio
     async def test_search_unlimited_rate_limits(self, mock_client_with_rate_limits):
-        """Test that search operations are unlimited (as per SignalHire API)
+        """Test that search operations are unlimited (as per API)
         
         Verifies:
         - Search operations don't count against rate limits
@@ -241,7 +261,7 @@ class TestAPIRateLimitingBehavior:
         start_time = time.time()
         search_responses = []
         for i in range(50):  # High number to test unlimited nature
-            response = await client.search_prospects(search_criteria)
+            response = await client.search_results(search_criteria)
             search_responses.append(response)
         end_time = time.time()
         
@@ -309,9 +329,9 @@ class TestAPIRateLimitingBehavior:
         # Attempt batch of 10 (should only complete 5)
         uids = [f"batch_uid_{i}" for i in range(10)]
         
-        async def mock_batch_reveal(prospect_uids):
+        async def mock_batch_reveal(Result_uids):
             responses = []
-            for uid in prospect_uids:
+            for uid in Result_uids:
                 response = await client.reveal_contact(uid)
                 responses.append(response)
                 if not response.success:

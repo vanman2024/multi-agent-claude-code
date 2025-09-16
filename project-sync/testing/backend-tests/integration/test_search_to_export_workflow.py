@@ -1,7 +1,27 @@
+"""
+API Integration Tests
+=====================
+
+Purpose: Test integration between multiple API endpoints and services.
+These tests verify that different parts of the system work together correctly.
+
+Run with:
+  pytest tests/integration/ -v
+  pytest tests/integration/ -m integration
+  
+  # Skip slow tests:
+  pytest tests/integration/ -m "integration and not slow"
+
+Notes:
+  - May use real or mocked external services
+  - Tests complete workflows and user journeys
+  - Validates data flow between components
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode due to legacy module dependencies", allow_module_level=True)
 """
-Integration tests for SignalHire Agent end-to-end workflows
+Integration tests for API Service Agent end-to-end workflows
 
 These tests MUST FAIL initially (RED phase) before implementing the services.
 Tests verify complete workflows from search through export.
@@ -16,10 +36,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from src.services.search_service import SearchService
 from src.services.reveal_service import RevealService
 from src.services.export_service import ExportService
-from src.lib.signalhire_client import SignalHireClient
+from src.lib.api_client import APIClient
 from src.lib.browser_client import BrowserClient
 from src.models.search_criteria import SearchCriteria
-from src.models.prospect import Prospect
+from src.models.Result import Result
 
 
 class TestSearchToExportWorkflow:
@@ -46,19 +66,19 @@ class TestSearchToExportWorkflow:
 
     @pytest.fixture
     def mock_search_results(self):
-        """Mock search results with prospects"""
+        """Mock search results with results"""
         return {
             "operation_id": "search_integration_123",
             "scroll_id": "scroll_abc123def456",
             "total_count": 15,
-            "prospects": [
+            "results": [
                 {
-                    "uid": f"prospect{i:030d}",
+                    "uid": f"Result{i:030d}",
                     "full_name": f"Test Person {i}",
                     "current_title": "Software Engineer",
                     "current_company": "TechCorp Inc",
                     "location": "San Francisco, CA",
-                    "profile_url": f"https://signalhire.com/profiles/test{i}"
+                    "profile_url": f"https://API Service.com/profiles/test{i}"
                 }
                 for i in range(1, 16)
             ]
@@ -70,9 +90,9 @@ class TestSearchToExportWorkflow:
         return {
             "operation_id": "reveal_integration_456",
             "status": "COMPLETED",
-            "prospects": [
+            "results": [
                 {
-                    "uid": f"prospect{i:030d}",
+                    "uid": f"Result{i:030d}",
                     "full_name": f"Test Person {i}",
                     "current_title": "Software Engineer",
                     "current_company": "TechCorp Inc",
@@ -80,7 +100,7 @@ class TestSearchToExportWorkflow:
                     "email_work": f"test.person{i}@techcorp.com",
                     "phone_work": f"+1415555{i:04d}",
                     "linkedin_url": f"https://linkedin.com/in/testperson{i}",
-                    "profile_url": f"https://signalhire.com/profiles/test{i}"
+                    "profile_url": f"https://API Service.com/profiles/test{i}"
                 }
                 for i in range(1, 16)
             ]
@@ -99,7 +119,7 @@ class TestSearchToExportWorkflow:
         
         output_file = Path(temp_output_dir) / "integration_test_results.csv"
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             # Setup mock client responses
             mock_client = MockClient.return_value
             
@@ -123,13 +143,13 @@ class TestSearchToExportWorkflow:
             assert search_result is not None
             # Note: Will fail until SearchService is implemented
             
-            # Step 2: Extract prospect UIDs
-            prospect_uids = [p["uid"] for p in search_result.prospects]
-            assert len(prospect_uids) == 15
+            # Step 2: Extract Result UIDs
+            Result_uids = [p["uid"] for p in search_result.results]
+            assert len(Result_uids) == 15
             
             # Step 3: Reveal contacts
             reveal_result = await reveal_service.reveal_contacts(
-                prospect_uids=prospect_uids,
+                Result_uids=Result_uids,
                 include_phone=True,
                 include_linkedin=True
             )
@@ -140,7 +160,7 @@ class TestSearchToExportWorkflow:
             
             # Step 4: Export to CSV
             export_result = await export_service.export_to_csv(
-                prospects=reveal_result.prospects,
+                results=reveal_result.results,
                 output_file=str(output_file),
                 include_contacts=True
             )
@@ -161,7 +181,7 @@ class TestSearchToExportWorkflow:
         
         output_file = Path(temp_output_dir) / "paginated_results.json"
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock paginated responses
@@ -169,14 +189,14 @@ class TestSearchToExportWorkflow:
                 operation_id="search_paginated_123",
                 scroll_id="scroll_page1",
                 total_count=150,
-                prospects=[{"uid": f"p{i:030d}"} for i in range(1, 101)]
+                results=[{"uid": f"p{i:030d}"} for i in range(1, 101)]
             )
             
             page2_response = MagicMock(
                 operation_id="search_paginated_123", 
                 scroll_id="scroll_page2",
                 total_count=150,
-                prospects=[{"uid": f"p{i:030d}"} for i in range(101, 151)]
+                results=[{"uid": f"p{i:030d}"} for i in range(101, 151)]
             )
             
             mock_client.search = AsyncMock(return_value=page1_response)
@@ -186,24 +206,24 @@ class TestSearchToExportWorkflow:
             search_service = SearchService(client=mock_client)
             
             # Execute paginated search
-            all_prospects = []
+            all_results = []
             
             # First page
             search_result = await search_service.search(search_criteria)
-            all_prospects.extend(search_result.prospects)
+            all_results.extend(search_result.results)
             
             # Subsequent pages via scroll
-            while len(all_prospects) < search_result.total_count:
+            while len(all_results) < search_result.total_count:
                 scroll_result = await search_service.scroll_search(
                     scroll_id=search_result.scroll_id
                 )
-                all_prospects.extend(scroll_result.prospects)
+                all_results.extend(scroll_result.results)
                 
-                if not scroll_result.prospects:
+                if not scroll_result.results:
                     break
             
             # Verify paginated collection
-            assert len(all_prospects) == 150
+            assert len(all_results) == 150
             # Note: Will fail until SearchService pagination is implemented
 
     @pytest.mark.integration  
@@ -213,31 +233,31 @@ class TestSearchToExportWorkflow:
         temp_output_dir,
         mock_revealed_contacts
     ):
-        """Test batch reveal workflow for large prospect lists"""
+        """Test batch reveal workflow for large Result lists"""
         
-        # Create large prospect list (simulate 500 prospects)
-        large_prospect_list = [f"prospect{i:030d}" for i in range(1, 501)]
+        # Create large Result list (simulate 500 results)
+        large_Result_list = [f"Result{i:030d}" for i in range(1, 501)]
         
         output_file = Path(temp_output_dir) / "batch_reveal_results.json"
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock batch reveal responses
             def mock_batch_reveal(*args, **kwargs):
                 # Simulate processing in batches of 50
-                prospect_uids = kwargs.get('prospect_uids', [])
-                batch_size = min(50, len(prospect_uids))
+                Result_uids = kwargs.get('Result_uids', [])
+                batch_size = min(50, len(Result_uids))
                 
                 return MagicMock(
-                    operation_id=f"batch_reveal_{len(prospect_uids)}",
+                    operation_id=f"batch_reveal_{len(Result_uids)}",
                     status="COMPLETED",
-                    prospects=[
+                    results=[
                         {
                             "uid": uid,
                             "email_work": f"contact{uid[-3:]}@company.com"
                         }
-                        for uid in prospect_uids[:batch_size]
+                        for uid in Result_uids[:batch_size]
                     ]
                 )
             
@@ -250,15 +270,15 @@ class TestSearchToExportWorkflow:
             batch_size = 50
             all_revealed = []
             
-            for i in range(0, len(large_prospect_list), batch_size):
-                batch = large_prospect_list[i:i + batch_size]
+            for i in range(0, len(large_Result_list), batch_size):
+                batch = large_Result_list[i:i + batch_size]
                 
                 reveal_result = await reveal_service.reveal_contacts(
-                    prospect_uids=batch,
+                    Result_uids=batch,
                     include_phone=True
                 )
                 
-                all_revealed.extend(reveal_result.prospects)
+                all_revealed.extend(reveal_result.results)
                 
                 # Simulate rate limiting delay
                 await asyncio.sleep(0.1)
@@ -285,7 +305,7 @@ class TestSearchToExportWorkflow:
             mock_browser.login = AsyncMock()
             mock_browser.search = AsyncMock()
             mock_browser.search.return_value = MagicMock(
-                prospects_found=1247,
+                results_found=1247,
                 search_id="browser_search_789"
             )
             
@@ -303,7 +323,7 @@ class TestSearchToExportWorkflow:
             
             # Step 2: Browser search
             search_result = await mock_browser.search(search_criteria)
-            assert search_result.prospects_found > 1000
+            assert search_result.results_found > 1000
             
             # Step 3: Bulk reveal and export via browser
             exported_file = await mock_browser.bulk_reveal_and_export(
@@ -327,7 +347,7 @@ class TestSearchToExportWorkflow:
         
         output_file = Path(temp_output_dir) / "hybrid_workflow_results.csv"
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockAPI, \
+        with patch('src.lib.api_client.APIClient') as MockAPI, \
              patch('src.lib.browser_client.BrowserClient') as MockBrowser:
             
             # Setup API mock
@@ -336,7 +356,7 @@ class TestSearchToExportWorkflow:
             mock_api_client.search.return_value = MagicMock(
                 operation_id="hybrid_search_123",
                 total_count=1500,  # Large result set
-                prospects=[{"uid": f"p{i:030d}"} for i in range(1, 101)]
+                results=[{"uid": f"p{i:030d}"} for i in range(1, 101)]
             )
             
             # Setup browser mock  
@@ -367,7 +387,7 @@ class TestSearchToExportWorkflow:
             else:
                 # Use API for small result sets
                 reveal_result = await reveal_service.reveal_contacts(
-                    prospect_uids=[p["uid"] for p in api_search_result.prospects]
+                    Result_uids=[p["uid"] for p in api_search_result.results]
                 )
                 
                 assert reveal_result is not None
@@ -383,7 +403,7 @@ class TestSearchToExportWorkflow:
     ):
         """Test workflow error handling and recovery mechanisms"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock intermittent failures
@@ -395,7 +415,7 @@ class TestSearchToExportWorkflow:
                     raise Exception("Temporary API error")
                 return MagicMock(
                     operation_id="recovered_search_123",
-                    prospects=[{"uid": "p001"}]
+                    results=[{"uid": "p001"}]
                 )
             
             mock_client.search = AsyncMock(side_effect=mock_search_with_failures)
@@ -437,7 +457,7 @@ class TestSearchToExportWorkflow:
             
             mock_limiter.acquire = AsyncMock(side_effect=track_acquire)
             
-            with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+            with patch('src.lib.api_client.APIClient') as MockClient:
                 mock_client = MockClient.return_value
                 mock_client.search = AsyncMock()
                 mock_client.reveal_contacts = AsyncMock()
@@ -472,7 +492,7 @@ class TestSearchToExportWorkflow:
     ):
         """Test workflow with credits monitoring and management"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock credits responses
@@ -497,11 +517,11 @@ class TestSearchToExportWorkflow:
             )
             
             # Execute operations with credits monitoring
-            prospect_uids = [f"p{i:030d}" for i in range(1, 101)]
+            Result_uids = [f"p{i:030d}" for i in range(1, 101)]
             
             # Should trigger credits warning
             reveal_result = await reveal_service.reveal_contacts(
-                prospect_uids=prospect_uids,
+                Result_uids=Result_uids,
                 include_phone=True
             )
             
@@ -518,7 +538,7 @@ class TestSearchToExportWorkflow:
         # Create test configuration
         test_config = {
             "api_settings": {
-                "base_url": "https://api.signalhire.com/v1",
+                "base_url": "https://api.API Service.com/v1",
                 "timeout": 30,
                 "max_retries": 3
             },
@@ -572,7 +592,7 @@ class TestSearchToExportWorkflow:
         async def progress_callback(update):
             progress_updates.append(update)
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock operations with progress simulation
@@ -593,7 +613,7 @@ class TestSearchToExportWorkflow:
             
             # Execute with progress callback
             await reveal_service.reveal_contacts(
-                prospect_uids=["p001", "p002", "p003"],
+                Result_uids=["p001", "p002", "p003"],
                 progress_callback=progress_callback
             )
             

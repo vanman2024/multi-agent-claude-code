@@ -1,9 +1,18 @@
 """
-Unit tests for enhanced rate limiting (T026)
+Unit Tests
+==========
 
-Covers:
-- Concurrency limiting via SignalHireClient.max_concurrency during batch operations
-- Basic RateLimiter.wait_if_needed behavior when limits are exceeded
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
 """
 
 import asyncio
@@ -12,7 +21,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from src.services.signalhire_client import APIResponse, RateLimiter, SignalHireClient
+from src.services.api_client import APIResponse, RateLimiter, APIClient
 
 
 pytestmark = pytest.mark.unit
@@ -20,7 +29,7 @@ pytestmark = pytest.mark.unit
 
 @pytest.mark.asyncio
 async def test_batch_max_concurrency_enforced(monkeypatch):
-    client = SignalHireClient(api_key="test-key")
+    client = APIClient(api_key="test-key")
     client.max_concurrency = 2
 
     in_flight = 0
@@ -71,7 +80,7 @@ async def test_rate_limiter_daily_boundary(monkeypatch):
         def now(cls):
             return datetime.now() + timedelta(days=1)
 
-    monkeypatch.setattr('src.services.signalhire_client.datetime', MockDateTime)
+    monkeypatch.setattr('src.services.api_client.datetime', MockDateTime)
     
     mock_usage = {"credits_used": 0, "reveals": 0, "search_profiles": 0} # Reset for the new day
     

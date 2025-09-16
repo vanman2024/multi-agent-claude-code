@@ -1,15 +1,21 @@
 """
-Real SignalHire API Endpoint Tests
+API Integration Tests
+=====================
 
-Tests actual API endpoints with real credentials to validate:
-- Data quality and structure
-- Result counts and accuracy
-- Response times and performance
-- Rate limiting behavior
-- Error handling
+Purpose: Test integration between multiple API endpoints and services.
+These tests verify that different parts of the system work together correctly.
 
-These tests require real SignalHire credentials and hit live endpoints.
-Mark with @pytest.mark.live to distinguish from mocked tests.
+Run with:
+  pytest tests/integration/ -v
+  pytest tests/integration/ -m integration
+  
+  # Skip slow tests:
+  pytest tests/integration/ -m "integration and not slow"
+
+Notes:
+  - May use real or mocked external services
+  - Tests complete workflows and user journeys
+  - Validates data flow between components
 """
 
 import pytest
@@ -19,27 +25,27 @@ from datetime import datetime
 from pathlib import Path
 
 from src.models.search_criteria import SearchCriteria
-from src.services.signalhire_client import SignalHireClient
+from src.services.api_client import APIClient
 from src.lib.config import get_config
 
 
 @pytest.mark.live
 @pytest.mark.asyncio  
-class TestRealSignalHireAPI:
-    """Test real SignalHire API endpoints with live data"""
+class TestRealAPI ServiceAPI:
+    """Test real API endpoints with live data"""
 
     @pytest.fixture(scope="class")
     def real_client(self):
-        """Create real SignalHire client with API key"""
+        """Create real API Service client with API key"""
         config = get_config()
         
         # Skip if no real API key (for now we'll use API key instead of email/password)
-        if not config.signalhire.api_key:
-            pytest.skip("Real SignalHire API key required. Set SIGNALHIRE_API_KEY")
+        if not config.API Service.api_key:
+            pytest.skip("Real API key required. Set API_KEY")
         
-        client = SignalHireClient(
-            api_key=config.signalhire.api_key,
-            base_url="https://api.signalhire.com"
+        client = APIClient(
+            api_key=config.API Service.api_key,
+            base_url="https://api.API Service.com"
         )
         return client
 
@@ -60,7 +66,7 @@ class TestRealSignalHireAPI:
         )
         
         start_time = time.time()
-        response = await real_client.search_prospects(search_criteria.dict())
+        response = await real_client.search_results(search_criteria.dict())
         end_time = time.time()
         
         # Response time validation
@@ -70,44 +76,44 @@ class TestRealSignalHireAPI:
         # API response validation
         assert response.success is True, f"Search failed: {response.error}"
         assert response.data is not None
-        assert "prospects" in response.data
+        assert "results" in response.data
         
-        prospects = response.data["prospects"]
+        results = response.data["results"]
         
         # Result count validation
-        assert len(prospects) > 0, "No Heavy Equipment Mechanic prospects found in Canada"
-        print(f"✅ Found {len(prospects)} Heavy Equipment Mechanic prospects in Canada")
+        assert len(results) > 0, "No Heavy Equipment Mechanic results found in Canada"
+        print(f"✅ Found {len(results)} Heavy Equipment Mechanic results in Canada")
         
         # Data quality validation
-        for i, prospect in enumerate(prospects[:5]):  # Check first 5 for quality
+        for i, Result in enumerate(results[:5]):  # Check first 5 for quality
             # Required fields
-            assert "uid" in prospect, f"Prospect {i} missing uid"
-            assert "current_title" in prospect, f"Prospect {i} missing current_title" 
-            assert "location" in prospect, f"Prospect {i} missing location"
+            assert "uid" in Result, f"Result {i} missing uid"
+            assert "current_title" in Result, f"Result {i} missing current_title" 
+            assert "location" in Result, f"Result {i} missing location"
             
             # Validate job title relevance
-            title = prospect["current_title"].lower()
-            location = prospect["location"].lower()
+            title = Result["current_title"].lower()
+            location = Result["location"].lower()
             
             # Check title relevance (should contain mechanic-related keywords)
             title_keywords = ["mechanic", "technician", "operator", "maintenance", "equipment", "heavy"]
             title_relevant = any(keyword in title for keyword in title_keywords)
             if not title_relevant:
-                print(f"⚠️  Title '{prospect['current_title']}' may not be relevant to Heavy Equipment Mechanic")
+                print(f"⚠️  Title '{Result['current_title']}' may not be relevant to Heavy Equipment Mechanic")
             
             # Check Canada location
             canada_keywords = ["canada", "ontario", "alberta", "british columbia", "quebec", "manitoba", "saskatchewan"]
             location_relevant = any(keyword in location for keyword in canada_keywords)
             if not location_relevant:
-                print(f"⚠️  Location '{prospect['location']}' may not be in Canada")
+                print(f"⚠️  Location '{Result['location']}' may not be in Canada")
         
         # Performance logging
         print(f"📊 Search Performance:")
         print(f"   Response Time: {response_time:.2f}s")
-        print(f"   Results: {len(prospects)}")
-        print(f"   Rate: {len(prospects)/response_time:.1f} results/second")
+        print(f"   Results: {len(results)}")
+        print(f"   Rate: {len(results)/response_time:.1f} results/second")
         
-        return prospects
+        return results
 
     @pytest.mark.asyncio
     async def test_credits_check_real_api(self, real_client):
@@ -150,27 +156,27 @@ class TestRealSignalHireAPI:
 
     @pytest.mark.asyncio
     async def test_contact_reveal_real_api(self, real_client):
-        """Test real contact reveal API with actual prospect data
+        """Test real contact reveal API with actual Result data
         
         This test:
-        1. Searches for prospects
+        1. Searches for results
         2. Attempts to reveal contact info for one
         3. Validates response structure and data quality
         """
-        # First get some prospects
+        # First get some results
         search_criteria = SearchCriteria(title="Heavy Equipment Mechanic", location="Canada", limit=5)
-        search_response = await real_client.search_prospects(search_criteria.dict())
+        search_response = await real_client.search_results(search_criteria.dict())
         
         assert search_response.success is True, "Search failed"
-        prospects = search_response.data["prospects"]
-        assert len(prospects) > 0, "No prospects found for reveal test"
+        results = search_response.data["results"]
+        assert len(results) > 0, "No results found for reveal test"
         
-        # Try to reveal first prospect
-        prospect = prospects[0]
-        prospect_uid = prospect["uid"]
+        # Try to reveal first Result
+        Result = results[0]
+        Result_uid = Result["uid"]
         
         start_time = time.time()
-        reveal_response = await real_client.reveal_contact(prospect_uid)
+        reveal_response = await real_client.reveal_contact(Result_uid)
         end_time = time.time()
         
         response_time = end_time - start_time
@@ -187,7 +193,7 @@ class TestRealSignalHireAPI:
             assert len(found_fields) > 0, "No contact information revealed"
             
             print(f"📞 Contact Reveal Success:")
-            print(f"   Prospect: {prospect.get('current_title', 'Unknown')} at {prospect.get('current_company', 'Unknown')}")
+            print(f"   Result: {Result.get('current_title', 'Unknown')} at {Result.get('current_company', 'Unknown')}")
             print(f"   Response Time: {response_time:.2f}s")
             print(f"   Fields Revealed: {', '.join(found_fields)}")
             
@@ -229,7 +235,7 @@ class TestRealSignalHireAPI:
                 location="Canada", 
                 limit=5
             )
-            requests.append(real_client.search_prospects(search_criteria.dict()))
+            requests.append(real_client.search_results(search_criteria.dict()))
         
         # Execute all requests concurrently
         responses = await asyncio.gather(*requests, return_exceptions=True)
@@ -273,19 +279,19 @@ class TestRealSignalHireAPI:
                 limit=10
             )
             
-            response = await real_client.search_prospects(search_criteria.dict())
+            response = await real_client.search_results(search_criteria.dict())
             
             if response.success:
-                prospects = response.data["prospects"]
-                location_results[location] = len(prospects)
+                results = response.data["results"]
+                location_results[location] = len(results)
                 
                 # Validate location relevance for first few results
-                for prospect in prospects[:3]:
-                    prospect_location = prospect.get("location", "").lower()
+                for Result in results[:3]:
+                    Result_location = Result.get("location", "").lower()
                     city = location.split(",")[0].lower()
                     
-                    if city not in prospect_location:
-                        print(f"⚠️  Location mismatch: searched '{location}', got '{prospect['location']}'")
+                    if city not in Result_location:
+                        print(f"⚠️  Location mismatch: searched '{location}', got '{Result['location']}'")
             
             else:
                 location_results[location] = 0
@@ -324,32 +330,32 @@ class TestAPIDataQuality:
                 limit=20
             )
             
-            response = await real_client.search_prospects(search_criteria.dict())
+            response = await real_client.search_results(search_criteria.dict())
             
             if not response.success:
                 print(f"❌ Search failed for '{search_title}': {response.error}")
                 continue
             
-            prospects = response.data["prospects"]
-            if len(prospects) == 0:
+            results = response.data["results"]
+            if len(results) == 0:
                 print(f"⚠️  No results for '{search_title}'")
                 continue
             
             # Analyze title relevance
             relevant_count = 0
-            for prospect in prospects:
-                actual_title = prospect.get("current_title", "").lower()
+            for Result in results:
+                actual_title = Result.get("current_title", "").lower()
                 
                 # Check if any expected keywords are in the actual title
                 matches = [kw for kw in expected_keywords if kw in actual_title]
                 if matches:
                     relevant_count += 1
                 else:
-                    print(f"   Less relevant: '{prospect['current_title']}'")
+                    print(f"   Less relevant: '{Result['current_title']}'")
             
-            relevance_score = (relevant_count / len(prospects)) * 100
+            relevance_score = (relevant_count / len(results)) * 100
             print(f"🎯 Title Relevance for '{search_title}':")
-            print(f"   Results: {len(prospects)}")
+            print(f"   Results: {len(results)}")
             print(f"   Relevant: {relevant_count} ({relevance_score:.1f}%)")
             
             # At least 50% should be relevant

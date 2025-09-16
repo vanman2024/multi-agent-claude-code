@@ -1,10 +1,23 @@
 """
-Enhanced API client contract tests (Phase 3.2)
+API Contract Tests
+==================
 
-These tests define the enhanced behavior expected from the SignalHire API
-client for professional, API-first workflows. They MUST be written first
-and are expected to FAIL initially until the implementation (T014–T017)
-adds the required capabilities.
+Purpose: Verify that API endpoints adhere to their documented contracts.
+These tests validate request/response formats, data types, and business rules.
+
+Test Strategy:
+  - RED phase: Tests should fail initially before implementation
+  - GREEN phase: Implement API client to make tests pass
+  - REFACTOR phase: Optimize implementation while keeping tests green
+
+Run with:
+  pytest tests/contract/ -v
+  pytest tests/contract/ -m contract
+
+Notes:
+  - Uses mocked responses to avoid external API calls
+  - Validates both successful and error scenarios
+  - Ensures backward compatibility when API changes
 """
 
 import asyncio
@@ -13,7 +26,7 @@ from typing import Any, Dict, List
 import pytest
 from unittest.mock import AsyncMock, patch
 
-from src.services.signalhire_client import SignalHireClient, APIResponse, SignalHireAPIError
+from src.services.api_client import APIClient, APIResponse, API ServiceAPIError
 
 
 pytestmark = pytest.mark.contract
@@ -22,7 +35,7 @@ pytestmark = pytest.mark.contract
 @pytest.mark.asyncio
 async def test_batch_reveal_supports_progress_callback():
     """Batch reveal should accept a progress callback and call it periodically."""
-    client = SignalHireClient(api_key="test-key")
+    client = APIClient(api_key="test-key")
 
     progress_events: List[Dict[str, Any]] = []
 
@@ -31,9 +44,9 @@ async def test_batch_reveal_supports_progress_callback():
 
     # Expect: new kwarg progress_callback is supported and invoked
     # Current implementation does not accept this kwarg, so this should fail initially
-    prospect_ids = [f"prospect{i:02d}" for i in range(1, 6)]
+    Result_ids = [f"Result{i:02d}" for i in range(1, 6)]
     with patch.object(client, "reveal_contact", return_value=APIResponse(success=True)):
-        await client.batch_reveal_contacts(prospect_ids, batch_size=2, progress_callback=progress_cb)  # type: ignore[arg-type]
+        await client.batch_reveal_contacts(Result_ids, batch_size=2, progress_callback=progress_cb)  # type: ignore[arg-type]
 
     # At least one progress event should be emitted
     assert any("current" in e and "total" in e for e in progress_events)
@@ -42,7 +55,7 @@ async def test_batch_reveal_supports_progress_callback():
 @pytest.mark.asyncio
 async def test_queue_management_limits_concurrency(monkeypatch):
     """Batch operations must obey a configurable max_concurrency (queueing beyond limit)."""
-    client = SignalHireClient(api_key="test-key")
+    client = APIClient(api_key="test-key")
 
     # Expect: client exposes max_concurrency and batch method enforces it
     client.max_concurrency = 3  # type: ignore[attr-defined]
@@ -50,13 +63,13 @@ async def test_queue_management_limits_concurrency(monkeypatch):
     in_flight = 0
     observed_max = 0
 
-    async def fake_reveal(prospect_id: str):
+    async def fake_reveal(Result_id: str):
         nonlocal in_flight, observed_max
         in_flight += 1
         observed_max = max(observed_max, in_flight)
         await asyncio.sleep(0.05)
         in_flight -= 1
-        return APIResponse(success=True, data={"prospect_id": prospect_id})
+        return APIResponse(success=True, data={"Result_id": Result_id})
 
     monkeypatch.setattr(client, "reveal_contact", fake_reveal)
 
@@ -70,7 +83,7 @@ async def test_queue_management_limits_concurrency(monkeypatch):
 @pytest.mark.asyncio
 async def test_retry_logic_on_transient_failures(monkeypatch):
     """Transient HTTP failures (timeouts/5xx) should be retried before failing."""
-    client = SignalHireClient(api_key="test-key")
+    client = APIClient(api_key="test-key")
 
     attempts = {"count": 0}
 
@@ -84,7 +97,7 @@ async def test_retry_logic_on_transient_failures(monkeypatch):
     monkeypatch.setattr(client, "_make_request", flaky_request)
 
     # Expect: reveal_contact performs internal retry and succeeds after transient errors
-    resp = await client.reveal_contact("prospect123")
+    resp = await client.reveal_contact("Result123")
     assert resp.success is True
     assert attempts["count"] >= 3
 
@@ -92,7 +105,7 @@ async def test_retry_logic_on_transient_failures(monkeypatch):
 @pytest.mark.asyncio
 async def test_credit_precheck_before_batch_operations(monkeypatch):
     """Client should pre-check available credits and block batches if insufficient."""
-    client = SignalHireClient(api_key="test-key")
+    client = APIClient(api_key="test-key")
 
     async def fake_credits():
         return APIResponse(success=True, data={"credits_remaining": 2})
@@ -103,6 +116,6 @@ async def test_credit_precheck_before_batch_operations(monkeypatch):
     # Need 5 credits but only 2 remain → expect error
     ids = [f"p{i}" for i in range(5)]
 
-    with pytest.raises(SignalHireAPIError):
+    with pytest.raises(API ServiceAPIError):
         await client.batch_reveal_contacts(ids, batch_size=2)
 

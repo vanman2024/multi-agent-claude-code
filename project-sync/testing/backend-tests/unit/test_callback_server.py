@@ -1,3 +1,20 @@
+"""
+Unit Tests
+==========
+
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
+"""
+
 import pytest
 import asyncio
 import json
@@ -23,7 +40,7 @@ def test_client(callback_server):
 
 @pytest.fixture
 def sample_callback_data():
-    """Sample callback data matching SignalHire Person API format."""
+    """Sample callback data matching API Service Person API format."""
     return [
         {
             "status": "success",
@@ -86,11 +103,11 @@ class TestCallbackServer:
     def test_get_callback_url(self, callback_server):
         """Test callback URL generation."""
         url = callback_server.get_callback_url()
-        assert url == "http://127.0.0.1:8899/signalhire/callback"
+        assert url == "http://127.0.0.1:8899/API Service/callback"
         
         # Test with external host
         external_url = callback_server.get_callback_url("example.com")
-        assert external_url == "http://example.com:8899/signalhire/callback"
+        assert external_url == "http://example.com:8899/API Service/callback"
 
     def test_handler_registration(self, callback_server):
         """Test handler registration and unregistration."""
@@ -137,7 +154,7 @@ class TestCallbackEndpoints:
         response = test_client.get("/")
         assert response.status_code == 200
         data = response.json()
-        assert data["service"] == "SignalHire Callback Server"
+        assert data["service"] == "API Service Callback Server"
         assert "endpoints" in data
 
     def test_health_endpoint(self, test_client):
@@ -150,7 +167,7 @@ class TestCallbackEndpoints:
     def test_callback_endpoint_success(self, test_client, sample_callback_data):
         """Test successful callback processing."""
         headers = {"Request-Id": "test123", "Content-Type": "application/json"}
-        response = test_client.post("/signalhire/callback", json=sample_callback_data, headers=headers)
+        response = test_client.post("/API Service/callback", json=sample_callback_data, headers=headers)
         
         assert response.status_code == 200
         data = response.json()
@@ -159,14 +176,14 @@ class TestCallbackEndpoints:
 
     def test_callback_endpoint_missing_request_id(self, test_client, sample_callback_data):
         """Test callback without Request-Id header."""
-        response = test_client.post("/signalhire/callback", json=sample_callback_data)
+        response = test_client.post("/API Service/callback", json=sample_callback_data)
         assert response.status_code == 400
 
     def test_callback_endpoint_invalid_data(self, test_client):
         """Test callback with invalid data."""
         headers = {"Request-Id": "test123", "Content-Type": "application/json"}
         invalid_data = [{"invalid": "data"}]
-        response = test_client.post("/signalhire/callback", json=invalid_data, headers=headers)
+        response = test_client.post("/API Service/callback", json=invalid_data, headers=headers)
         assert response.status_code == 422
 
     @pytest.mark.asyncio

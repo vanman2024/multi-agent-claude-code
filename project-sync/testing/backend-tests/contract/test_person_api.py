@@ -1,26 +1,41 @@
 """
-Contract tests for SignalHire Person API with callback handling
+API Contract Tests
+==================
 
-These tests MUST FAIL initially (RED phase) before implementing the person API client.
-Tests verify the contract with SignalHire's Person API including asynchronous callbacks.
+Purpose: Verify that API endpoints adhere to their documented contracts.
+These tests validate request/response formats, data types, and business rules.
+
+Test Strategy:
+  - RED phase: Tests should fail initially before implementation
+  - GREEN phase: Implement API client to make tests pass
+  - REFACTOR phase: Optimize implementation while keeping tests green
+
+Run with:
+  pytest tests/contract/ -v
+  pytest tests/contract/ -m contract
+
+Notes:
+  - Uses mocked responses to avoid external API calls
+  - Validates both successful and error scenarios
+  - Ensures backward compatibility when API changes
 """
 
 import pytest
 import httpx
 from unittest.mock import patch, AsyncMock, MagicMock
-from src.models.prospect import Prospect
+from src.models.Result import Result
 from src.models.contact_info import ContactInfo
-from src.services.signalhire_client import SignalHireClient
+from src.services.api_client import APIClient
 from src.lib.callback_server import CallbackServer
 
 
 class TestPersonAPIContract:
-    """Test contract compliance with SignalHire Person API"""
+    """Test contract compliance with API Service Person API"""
 
     @pytest.fixture
     def api_client(self):
-        """Create SignalHire client for testing"""
-        return SignalHireClient(api_key="test-api-key-12345")
+        """Create API Service client for testing"""
+        return APIClient(api_key="test-api-key-12345")
 
     @pytest.fixture
     def callback_server(self):
@@ -28,17 +43,17 @@ class TestPersonAPIContract:
         return CallbackServer(host="localhost", port=8080)
 
     @pytest.fixture
-    def sample_prospects(self):
-        """Sample prospects for reveal testing"""
+    def sample_results(self):
+        """Sample results for reveal testing"""
         return [
-            Prospect(
-                uid="prospect123456789012345678901234",
+            Result(
+                uid="Result123456789012345678901234",
                 full_name="John Doe",
                 current_title="Senior Software Engineer",
                 current_company="TechCorp Inc"
             ),
-            Prospect(
-                uid="prospect567890123456789012345678",
+            Result(
+                uid="Result567890123456789012345678",
                 full_name="Jane Smith", 
                 current_title="Product Manager",
                 current_company="InnovateCorp"
@@ -56,13 +71,13 @@ class TestPersonAPIContract:
 
     @pytest.fixture
     def mock_callback_data(self):
-        """Mock callback data received from SignalHire"""
+        """Mock callback data received from API Service"""
         return {
             "operationId": "reveal_op_abc123def456ghi789",
             "status": "COMPLETED",
             "results": [
                 {
-                    "uid": "prospect123456789012345678901234",
+                    "uid": "Result123456789012345678901234",
                     "status": "SUCCESS",
                     "credits": 1,
                     "contacts": [
@@ -79,7 +94,7 @@ class TestPersonAPIContract:
                     ]
                 },
                 {
-                    "uid": "prospect567890123456789012345678",
+                    "uid": "Result567890123456789012345678",
                     "status": "FAILED",
                     "credits": 0,
                     "error": "Contact information not available"
@@ -88,7 +103,7 @@ class TestPersonAPIContract:
         }
 
     @pytest.mark.contract
-    async def test_person_reveal_request_format(self, api_client, sample_prospects):
+    async def test_person_reveal_request_format(self, api_client, sample_results):
         """Test that person reveal requests are formatted correctly"""
         
         callback_url = "http://localhost:8080/callback"
@@ -100,7 +115,7 @@ class TestPersonAPIContract:
                 "message": "Request accepted"
             }
             
-            await api_client.reveal_contacts(sample_prospects, callback_url)
+            await api_client.reveal_contacts(sample_results, callback_url)
             
             # Verify request format
             call_args = mock_request.call_args
@@ -117,17 +132,17 @@ class TestPersonAPIContract:
             assert "callbackUrl" in request_body
             assert request_body["callbackUrl"] == callback_url
             assert len(request_body["uids"]) == 2
-            assert "prospect123456789012345678901234" in request_body["uids"]
-            assert "prospect567890123456789012345678" in request_body["uids"]
+            assert "Result123456789012345678901234" in request_body["uids"]
+            assert "Result567890123456789012345678" in request_body["uids"]
 
     @pytest.mark.contract
     async def test_person_api_batch_size_limit(self, api_client):
         """Test that Person API respects 100 element batch size limit"""
         
-        # Create 101 prospects (exceeds limit)
-        prospects = [
-            Prospect(
-                uid=f"prospect{i:032d}",
+        # Create 101 results (exceeds limit)
+        results = [
+            Result(
+                uid=f"Result{i:032d}",
                 full_name=f"Person {i}",
                 current_title="Engineer"
             )
@@ -136,11 +151,11 @@ class TestPersonAPIContract:
         
         callback_url = "http://localhost:8080/callback"
         
-        with pytest.raises(ValueError, match="Maximum 100 prospects per reveal request"):
-            await api_client.reveal_contacts(prospects, callback_url)
+        with pytest.raises(ValueError, match="Maximum 100 results per reveal request"):
+            await api_client.reveal_contacts(results, callback_url)
 
     @pytest.mark.contract
-    async def test_person_api_response_parsing(self, api_client, sample_prospects, mock_person_api_response):
+    async def test_person_api_response_parsing(self, api_client, sample_results, mock_person_api_response):
         """Test parsing of Person API response"""
         
         callback_url = "http://localhost:8080/callback"
@@ -148,7 +163,7 @@ class TestPersonAPIContract:
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
             mock_request.return_value = mock_person_api_response
             
-            result = await api_client.reveal_contacts(sample_prospects, callback_url)
+            result = await api_client.reveal_contacts(sample_results, callback_url)
             
             # Verify response structure
             assert hasattr(result, 'operation_id')
@@ -175,7 +190,7 @@ class TestPersonAPIContract:
 
     @pytest.mark.contract
     async def test_callback_data_processing(self, callback_server, mock_callback_data):
-        """Test processing of callback data from SignalHire"""
+        """Test processing of callback data from API Service"""
         
         # Mock the callback handler
         with patch.object(callback_server, 'process_callback_data') as mock_process:
@@ -220,7 +235,7 @@ class TestPersonAPIContract:
         
         contact = contacts[0]
         assert isinstance(contact, ContactInfo)
-        assert contact.prospect_uid == "prospect123456789012345678901234"
+        assert contact.Result_uid == "Result123456789012345678901234"
         assert contact.email_work == "john.doe@techcorp.com"
         assert contact.phone_work == "+1-555-123-4567"
         assert contact.email_confirmed is True
@@ -245,7 +260,7 @@ class TestPersonAPIContract:
 
     @pytest.mark.contract
     async def test_callback_error_handling(self, callback_server):
-        """Test handling of error callbacks from SignalHire"""
+        """Test handling of error callbacks from API Service"""
         
         error_callback_data = {
             "operationId": "test_op_error_123",
@@ -284,7 +299,7 @@ class TestPersonAPIContract:
                 mock_store.assert_called_once_with(op_id, callback_data)
 
     @pytest.mark.contract
-    async def test_person_api_rate_limiting(self, api_client, sample_prospects):
+    async def test_person_api_rate_limiting(self, api_client, sample_results):
         """Test rate limiting compliance (600 elements per minute)"""
         
         callback_url = "http://localhost:8080/callback"
@@ -296,13 +311,13 @@ class TestPersonAPIContract:
             with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
                 mock_request.return_value = {"operationId": "test", "status": "ACCEPTED"}
                 
-                await api_client.reveal_contacts(sample_prospects, callback_url)
+                await api_client.reveal_contacts(sample_results, callback_url)
                 
                 # Verify rate limiting was checked
                 mock_limiter.check_rate_limit.assert_called_once()
 
     @pytest.mark.contract
-    async def test_person_api_authentication_error(self, api_client, sample_prospects):
+    async def test_person_api_authentication_error(self, api_client, sample_results):
         """Test authentication error handling"""
         
         callback_url = "http://localhost:8080/callback"
@@ -315,7 +330,7 @@ class TestPersonAPIContract:
             )
             
             with pytest.raises(httpx.HTTPStatusError) as exc_info:
-                await api_client.reveal_contacts(sample_prospects, callback_url)
+                await api_client.reveal_contacts(sample_results, callback_url)
             assert exc_info.value.response.status_code == 401
 
 # This test file MUST initially fail because the implementation doesn't exist yet.

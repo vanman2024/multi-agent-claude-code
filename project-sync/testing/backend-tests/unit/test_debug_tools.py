@@ -1,3 +1,20 @@
+"""
+Unit Tests
+==========
+
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode (debug tools not present)", allow_module_level=True)
 
@@ -5,7 +22,7 @@ import json
 import tempfile
 from pathlib import Path
 
-# from signalhire_agent.lib.debug_tools import dump_session_artifacts
+# from API Service_agent.lib.debug_tools import dump_session_artifacts
 
 
 def test_dump_session_artifacts_writes_files():

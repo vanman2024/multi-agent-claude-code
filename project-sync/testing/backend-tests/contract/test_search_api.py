@@ -1,25 +1,40 @@
 """
-Contract tests for SignalHire Search API
+API Contract Tests
+==================
 
-These tests MUST FAIL initially (RED phase) before implementing the search client.
-Tests verify the contract with SignalHire's Search API as documented.
+Purpose: Verify that API endpoints adhere to their documented contracts.
+These tests validate request/response formats, data types, and business rules.
+
+Test Strategy:
+  - RED phase: Tests should fail initially before implementation
+  - GREEN phase: Implement API client to make tests pass
+  - REFACTOR phase: Optimize implementation while keeping tests green
+
+Run with:
+  pytest tests/contract/ -v
+  pytest tests/contract/ -m contract
+
+Notes:
+  - Uses mocked responses to avoid external API calls
+  - Validates both successful and error scenarios
+  - Ensures backward compatibility when API changes
 """
 
 import pytest
 import httpx
 from unittest.mock import patch, AsyncMock
 from src.models.search_criteria import SearchCriteria
-from src.models.prospect import Prospect
-from src.services.signalhire_client import SignalHireClient
+from src.models.Result import Result
+from src.services.api_client import APIClient
 
 
 class TestSearchAPIContract:
-    """Test contract compliance with SignalHire Search API"""
+    """Test contract compliance with API Service Search API"""
 
     @pytest.fixture
     def api_client(self):
-        """Create SignalHire client for testing"""
-        return SignalHireClient(api_key="test-api-key-12345")
+        """Create API Service client for testing"""
+        return APIClient(api_key="test-api-key-12345")
 
     @pytest.fixture
     def basic_search_criteria(self):
@@ -32,17 +47,17 @@ class TestSearchAPIContract:
 
     @pytest.fixture
     def mock_search_response(self):
-        """Mock response from SignalHire Search API"""
+        """Mock response from API Service Search API"""
         return {
-            "scrollId": "abc123def456ghi789",
+            "cursor": "abc123def456ghi789",
             "totalCount": 156,
             "data": [
                 {
-                    "uid": "prospect123456789012345678901234",
+                    "uid": "Result123456789012345678901234",
                     "fullName": "John Doe",
                     "location": "San Francisco, CA",
-                    "currentTitle": "Senior Software Engineer",
-                    "currentCompany": "TechCorp Inc",
+                    "title": "Senior Software Engineer",
+                    "organization": "TechCorp Inc",
                     "skills": ["Python", "JavaScript", "React"],
                     "experience": [
                         {
@@ -69,10 +84,10 @@ class TestSearchAPIContract:
 
     @pytest.mark.contract
     async def test_search_request_format(self, api_client, basic_search_criteria):
-        """Test that search requests are formatted correctly for SignalHire API"""
+        """Test that search requests are formatted correctly for API"""
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
-            mock_request.return_value = {"scrollId": "test123", "totalCount": 0, "data": []}
+            mock_request.return_value = {"cursor": "test123", "totalCount": 0, "data": []}
             
             await api_client.search(basic_search_criteria)
             
@@ -90,10 +105,10 @@ class TestSearchAPIContract:
             
             # Check request body structure
             request_body = call_args[1]["json"]
-            assert "currentTitle" in request_body
+            assert "title" in request_body
             assert "location" in request_body
             assert "size" in request_body
-            assert request_body["currentTitle"] == "Software Engineer"
+            assert request_body["title"] == "Software Engineer"
             assert request_body["location"] == "San Francisco, California, United States"
             assert request_body["size"] == 10
 
@@ -109,21 +124,21 @@ class TestSearchAPIContract:
             # Verify response structure
             assert hasattr(result, 'scroll_id')
             assert hasattr(result, 'total_count')
-            assert hasattr(result, 'prospects')
+            assert hasattr(result, 'results')
             
             # Verify data types
             assert isinstance(result.scroll_id, str)
             assert isinstance(result.total_count, int)
-            assert isinstance(result.prospects, list)
+            assert isinstance(result.results, list)
             
-            # Verify prospect data
-            assert len(result.prospects) == 1
-            prospect = result.prospects[0]
-            assert isinstance(prospect, Prospect)
-            assert prospect.uid == "prospect123456789012345678901234"
-            assert prospect.full_name == "John Doe"
-            assert prospect.current_title == "Senior Software Engineer"
-            assert prospect.current_company == "TechCorp Inc"
+            # Verify Result data
+            assert len(result.results) == 1
+            Result = result.results[0]
+            assert isinstance(Result, Result)
+            assert Result.uid == "Result123456789012345678901234"
+            assert Result.full_name == "John Doe"
+            assert Result.current_title == "Senior Software Engineer"
+            assert Result.current_company == "TechCorp Inc"
 
     @pytest.mark.contract
     async def test_search_with_boolean_queries(self, api_client):
@@ -137,13 +152,13 @@ class TestSearchAPIContract:
         )
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
-            mock_request.return_value = {"scrollId": "test123", "totalCount": 0, "data": []}
+            mock_request.return_value = {"cursor": "test123", "totalCount": 0, "data": []}
             
             await api_client.search(criteria)
             
             request_body = mock_request.call_args[1]["json"]
-            assert request_body["currentTitle"] == "(Senior OR Lead) AND Engineer"
-            assert request_body["currentCompany"] == "NOT (Facebook OR Meta)"
+            assert request_body["title"] == "(Senior OR Lead) AND Engineer"
+            assert request_body["organization"] == "NOT (Facebook OR Meta)"
             assert request_body["keywords"] == "Python AND (Django OR Flask)"
 
     @pytest.mark.contract
@@ -158,7 +173,7 @@ class TestSearchAPIContract:
         )
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
-            mock_request.return_value = {"scrollId": "test123", "totalCount": 0, "data": []}
+            mock_request.return_value = {"cursor": "test123", "totalCount": 0, "data": []}
             
             await api_client.search(criteria)
             
@@ -168,10 +183,10 @@ class TestSearchAPIContract:
 
     @pytest.mark.contract
     async def test_search_pagination_with_scroll_id(self, api_client):
-        """Test pagination using scrollId parameter"""
+        """Test pagination using cursor parameter"""
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
-            mock_request.return_value = {"scrollId": "next123", "totalCount": 156, "data": []}
+            mock_request.return_value = {"cursor": "next123", "totalCount": 156, "data": []}
             
             await api_client.continue_search(scroll_id="previous123")
             
@@ -181,7 +196,7 @@ class TestSearchAPIContract:
             assert call_args[0][1] == "/api/v1/search"
             
             request_body = call_args[1]["json"]
-            assert request_body["scrollId"] == "previous123"
+            assert request_body["cursor"] == "previous123"
 
     @pytest.mark.contract
     async def test_search_error_handling(self, api_client, basic_search_criteria):

@@ -1,3 +1,20 @@
+"""
+Unit Tests
+==========
+
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
+"""
+
 #!/usr/bin/env python3
 """
 Test script for ExportService functionality.
@@ -11,10 +28,10 @@ from src.services.export_service import ExportService, ExportServiceConfig
 async def test_comprehensive_export():
     """Test comprehensive export functionality."""
     
-    # Sample prospect data with various fields
-    prospects = [
+    # Sample Result data with various fields
+    results = [
         {
-            "uid": "prospect_001",
+            "uid": "Result_001",
             "full_name": "John Doe",
             "first_name": "John",
             "last_name": "Doe",
@@ -22,10 +39,10 @@ async def test_comprehensive_export():
             "current_company": "TechCorp Inc",
             "location": "San Francisco, CA",
             "linkedin_url": "https://linkedin.com/in/johndoe",
-            "profile_url": "https://signalhire.com/profiles/johndoe"
+            "profile_url": "https://API Service.com/profiles/johndoe"
         },
         {
-            "uid": "prospect_002", 
+            "uid": "Result_002", 
             "full_name": "Jane Smith",
             "first_name": "Jane",
             "last_name": "Smith",
@@ -33,10 +50,10 @@ async def test_comprehensive_export():
             "current_company": "StartupXYZ",
             "location": "New York, NY",
             "linkedin_url": "https://linkedin.com/in/janesmith",
-            "profile_url": "https://signalhire.com/profiles/janesmith"
+            "profile_url": "https://API Service.com/profiles/janesmith"
         },
         {
-            "uid": "prospect_003",
+            "uid": "Result_003",
             "full_name": "Bob Johnson",
             "first_name": "Bob", 
             "last_name": "Johnson",
@@ -44,13 +61,13 @@ async def test_comprehensive_export():
             "current_company": "DataCorp",
             "location": "Austin, TX",
             "linkedin_url": "https://linkedin.com/in/bobjohnson",
-            "profile_url": "https://signalhire.com/profiles/bobjohnson"
+            "profile_url": "https://API Service.com/profiles/bobjohnson"
         }
     ]
     
     # Sample contact information
     contacts = {
-        "prospect_001": {
+        "Result_001": {
             "contacts": [
                 {"type": "email", "value": "john.doe@techcorp.com", "primary": True},
                 {"type": "email", "value": "john@gmail.com", "primary": False},
@@ -59,7 +76,7 @@ async def test_comprehensive_export():
             "credits_used": 2,
             "reveal_timestamp": "2025-09-11T14:00:00Z"
         },
-        "prospect_002": {
+        "Result_002": {
             "contacts": [
                 {"type": "email", "value": "jane.smith@startupxyz.com", "primary": True},
                 {"type": "phone", "value": "+1-212-555-5678", "primary": True}
@@ -71,7 +88,7 @@ async def test_comprehensive_export():
     
     # Sample experience data
     experiences = {
-        "prospect_001": [
+        "Result_001": [
             {
                 "company": "TechCorp Inc",
                 "title": "Senior Software Engineer",
@@ -93,7 +110,7 @@ async def test_comprehensive_export():
     
     # Sample education data
     education = {
-        "prospect_001": [
+        "Result_001": [
             {
                 "university": "Stanford University",
                 "degree": "Master of Science",
@@ -115,7 +132,7 @@ async def test_comprehensive_export():
     service = ExportService(config)
     
     result = await service.export_to_csv(
-        prospects=prospects,
+        results=results,
         contacts=contacts,
         experiences=experiences,
         education=education,
@@ -133,14 +150,14 @@ async def test_comprehensive_export():
     
     # Test 2: Export with invalid data (should handle gracefully)
     print("\n=== Test 2: Export with Invalid Data ===")
-    invalid_prospects = [
+    invalid_results = [
         {"uid": "", "full_name": ""},  # Invalid: empty fields
         {"uid": "valid_001", "full_name": "Valid Person"},  # Valid
         {"uid": None, "full_name": None}  # Invalid: null fields
     ]
     
     result2 = await service.export_to_csv(
-        prospects=invalid_prospects,
+        results=invalid_results,
         output_file="invalid_data_export.csv"
     )
     
@@ -167,7 +184,7 @@ async def test_comprehensive_export():
             "status": "completed",
             "created_at": "2025-09-11T14:01:00Z",
             "completed_at": "2025-09-11T14:01:45Z",
-            "prospects_revealed": 25,
+            "results_revealed": 25,
             "credits_used": 50
         }
     ]
@@ -182,7 +199,7 @@ async def test_comprehensive_export():
     
     # Test 4: Process from JSON file
     print("\n=== Test 4: Export from JSON File ===")
-    json_data = {"prospects": prospects[:2]}  # First 2 prospects
+    json_data = {"results": results[:2]}  # First 2 results
     json_file = "test_input.json"
     
     with open(json_file, 'w') as f:

@@ -1,8 +1,21 @@
 """
-Integration tests for SignalHire Agent QuickStart workflow
+API Integration Tests
+=====================
 
-These tests MUST FAIL initially (RED phase) before implementing the enhanced API-first services.
-Tests verify the complete quickstart workflow as documented in quickstart.md.
+Purpose: Test integration between multiple API endpoints and services.
+These tests verify that different parts of the system work together correctly.
+
+Run with:
+  pytest tests/integration/ -v
+  pytest tests/integration/ -m integration
+  
+  # Skip slow tests:
+  pytest tests/integration/ -m "integration and not slow"
+
+Notes:
+  - May use real or mocked external services
+  - Tests complete workflows and user journeys
+  - Validates data flow between components
 """
 
 import pytest
@@ -14,8 +27,8 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch, call
 from datetime import datetime, timezone
 
-from src.services.signalhire_client import SignalHireClient, APIResponse
-from src.models.prospect import Prospect
+from src.services.api_client import APIClient, APIResponse
+from src.models.Result import Result
 from src.models.search_criteria import SearchCriteria
 
 
@@ -33,8 +46,8 @@ class TestQuickStartWorkflow:
 
     @pytest.fixture
     def mock_client(self):
-        """Mock SignalHire client with API-first behavior"""
-        client = AsyncMock(spec=SignalHireClient)
+        """Mock API Service client with API-first behavior"""
+        client = AsyncMock(spec=APIClient)
         
         # Mock credit check response
         client.check_credits.return_value = APIResponse(
@@ -48,10 +61,10 @@ class TestQuickStartWorkflow:
         )
         
         # Mock search response
-        client.search_prospects.return_value = APIResponse(
+        client.search_results.return_value = APIResponse(
             success=True,
             data={
-                "prospects": [
+                "results": [
                     {
                         "uid": f"abc123def456ghi789jkl012mno345p{i}",
                         "full_name": f"John Doe {i}",
@@ -68,7 +81,7 @@ class TestQuickStartWorkflow:
         client.reveal_contact.return_value = APIResponse(
             success=True,
             data={
-                "prospect_uid": "abc123def456ghi789jkl012mno345p0",
+                "Result_uid": "abc123def456ghi789jkl012mno345p0",
                 "email": "john.doe0@example.com",
                 "phone": "+1-555-0123",
                 "linkedin_url": "https://linkedin.com/in/johndoe0"
@@ -82,7 +95,7 @@ class TestQuickStartWorkflow:
             APIResponse(
                 success=True,
                 data={
-                    "prospect_uid": f"abc123def456ghi789jkl012mno345p{i}",
+                    "Result_uid": f"abc123def456ghi789jkl012mno345p{i}",
                     "email": f"john.doe{i}@example.com" if i % 5 != 4 else None,
                     "phone": f"+1-555-012{i}" if i % 5 != 4 else None,
                     "linkedin_url": f"https://linkedin.com/in/johndoe{i}" if i % 5 != 4 else None
@@ -113,7 +126,7 @@ class TestQuickStartWorkflow:
     async def test_quickstart_step1_check_credits(self, mock_client):
         """Test QuickStart Step 1: Check Your Credits
         
-        Expected CLI command: signalhire credits --check
+        Expected CLI command: API Service credits --check
         Expected output format from quickstart.md:
         ✅ Available credits: 85
         📊 Daily usage: 15/100 contacts revealed  
@@ -147,40 +160,40 @@ class TestQuickStartWorkflow:
         assert reset_time.endswith("T00:00:00Z")
 
     @pytest.mark.asyncio
-    async def test_quickstart_step2_search_prospects(self, mock_client, search_criteria, temp_output_dir):
-        """Test QuickStart Step 2: Search for Prospects
+    async def test_quickstart_step2_search_results(self, mock_client, search_criteria, temp_output_dir):
+        """Test QuickStart Step 2: Search for results
         
-        Expected CLI command: signalhire search --title "Software Engineer" --location "San Francisco" --limit 20
+        Expected CLI command: API Service search --title "Software Engineer" --location "San Francisco" --limit 20
         Expected output format from quickstart.md:
-        🔍 Searching prospects...
-        ✅ Found 127 prospects matching criteria
+        🔍 Searching results...
+        ✅ Found 127 results matching criteria
         📄 Results saved to: search_results_20250911_153045.csv
         """
         # Execute search
-        response = await mock_client.search_prospects(search_criteria)
+        response = await mock_client.search_results(search_criteria)
         
         # Verify search response
         assert response.success is True
         assert response.data is not None
-        assert "prospects" in response.data
+        assert "results" in response.data
         
-        prospects = response.data["prospects"]
-        assert len(prospects) == 20  # Should match the limit
+        results = response.data["results"]
+        assert len(results) == 20  # Should match the limit
         
-        # Verify prospect structure matches quickstart expectations
-        for i, prospect in enumerate(prospects):
-            assert "uid" in prospect
-            assert "full_name" in prospect
-            assert "current_title" in prospect
-            assert "current_company" in prospect
-            assert "location" in prospect
+        # Verify Result structure matches quickstart expectations
+        for i, Result in enumerate(results):
+            assert "uid" in Result
+            assert "full_name" in Result
+            assert "current_title" in Result
+            assert "current_company" in Result
+            assert "location" in Result
             
             # Verify specific values
-            assert prospect["uid"] == f"abc123def456ghi789jkl012mno345p{i}"
-            assert prospect["full_name"] == f"John Doe {i}"
-            assert prospect["current_title"] == "Software Engineer"
-            assert prospect["current_company"] == "TechCorp"
-            assert prospect["location"] == "San Francisco, CA"
+            assert Result["uid"] == f"abc123def456ghi789jkl012mno345p{i}"
+            assert Result["full_name"] == f"John Doe {i}"
+            assert Result["current_title"] == "Software Engineer"
+            assert Result["current_company"] == "TechCorp"
+            assert Result["location"] == "San Francisco, CA"
         
         # Verify file would be saved with timestamp format
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -193,13 +206,13 @@ class TestQuickStartWorkflow:
     async def test_quickstart_step3_single_reveal(self, mock_client):
         """Test QuickStart Step 3a: Reveal Single Contact
         
-        Expected CLI command: signalhire reveal abc123def456ghi789jkl012mno345pq
+        Expected CLI command: API Service reveal abc123def456ghi789jkl012mno345pq
         Expected behavior: Costs 1 credit, returns contact information
         """
-        prospect_uid = "abc123def456ghi789jkl012mno345p0"
+        Result_uid = "abc123def456ghi789jkl012mno345p0"
         
         # Execute single reveal
-        response = await mock_client.reveal_contact(prospect_uid)
+        response = await mock_client.reveal_contact(Result_uid)
         
         # Verify reveal response
         assert response.success is True
@@ -209,13 +222,13 @@ class TestQuickStartWorkflow:
         
         # Verify contact data structure
         contact_data = response.data
-        assert "prospect_uid" in contact_data
+        assert "Result_uid" in contact_data
         assert "email" in contact_data
         assert "phone" in contact_data
         assert "linkedin_url" in contact_data
         
         # Verify specific values
-        assert contact_data["prospect_uid"] == prospect_uid
+        assert contact_data["Result_uid"] == Result_uid
         assert contact_data["email"] == "john.doe0@example.com"
         assert contact_data["phone"] == "+1-555-0123"
         assert contact_data["linkedin_url"] == "https://linkedin.com/in/johndoe0"
@@ -224,18 +237,18 @@ class TestQuickStartWorkflow:
     async def test_quickstart_step3_batch_reveal(self, mock_client, temp_output_dir):
         """Test QuickStart Step 3b: Reveal Multiple Contacts from CSV
         
-        Expected CLI command: signalhire reveal --input search_results.csv --limit 10 --output contacts.csv
+        Expected CLI command: API Service reveal --input search_results.csv --limit 10 --output contacts.csv
         Expected output format from quickstart.md:
         🔓 Revealing contacts... [██████████] 100% (10/10)
         ✅ Credits used: 10
         📧 Contacts revealed: 8 successful, 2 failed
         📄 Results saved to: contacts.csv
         """
-        # Create prospect UIDs list (simulating CSV input)
-        prospect_uids = [f"abc123def456ghi789jkl012mno345p{i}" for i in range(10)]
+        # Create Result UIDs list (simulating CSV input)
+        Result_uids = [f"abc123def456ghi789jkl012mno345p{i}" for i in range(10)]
         
         # Execute batch reveal
-        responses = await mock_client.batch_reveal_contacts(prospect_uids)
+        responses = await mock_client.batch_reveal_contacts(Result_uids)
         
         # Verify batch response structure
         assert len(responses) == 10
@@ -256,7 +269,7 @@ class TestQuickStartWorkflow:
         successful_responses = [r for r in responses if r.success]
         for i, response in enumerate(successful_responses):
             assert response.data is not None
-            assert "prospect_uid" in response.data
+            assert "Result_uid" in response.data
             assert "email" in response.data
             assert "phone" in response.data
             assert "linkedin_url" in response.data
@@ -277,7 +290,7 @@ class TestQuickStartWorkflow:
     async def test_quickstart_step4_complete_workflow(self, mock_client, temp_output_dir):
         """Test QuickStart Step 4: Complete Workflow
         
-        Expected CLI command: signalhire workflow --search '{"title":"Engineer","location":"SF"}' --reveal-all --max-reveals 25
+        Expected CLI command: API Service workflow --search '{"title":"Engineer","location":"SF"}' --reveal-all --max-reveals 25
         This tests the full integration: search → reveal → export
         """
         # Step 1: Search (part of workflow)
@@ -285,21 +298,21 @@ class TestQuickStartWorkflow:
             title="Engineer", 
             location="SF"
         )
-        search_response = await mock_client.search_prospects(search_criteria)
+        search_response = await mock_client.search_results(search_criteria)
         
         assert search_response.success is True
-        prospects = search_response.data["prospects"]
+        results = search_response.data["results"]
         
         # Step 2: Reveal with max limit (part of workflow)
-        max_reveals = min(25, len(prospects))  # Respect both limit and available prospects
-        prospect_uids = [p["uid"] for p in prospects[:max_reveals]]
+        max_reveals = min(25, len(results))  # Respect both limit and available results
+        Result_uids = [p["uid"] for p in results[:max_reveals]]
         
         # Mock adjusted for max_reveals
         mock_client.batch_reveal_contacts.return_value = [
             APIResponse(
                 success=True,
                 data={
-                    "prospect_uid": f"abc123def456ghi789jkl012mno345p{i}",
+                    "Result_uid": f"abc123def456ghi789jkl012mno345p{i}",
                     "email": f"engineer{i}@example.com",
                     "phone": f"+1-555-{i:04d}",
                     "linkedin_url": f"https://linkedin.com/in/engineer{i}"
@@ -310,7 +323,7 @@ class TestQuickStartWorkflow:
             for i in range(min(20, max_reveals))  # Up to 20 from search, up to 25 from max_reveals
         ]
         
-        reveal_responses = await mock_client.batch_reveal_contacts(prospect_uids[:20])  # Limited by search results
+        reveal_responses = await mock_client.batch_reveal_contacts(Result_uids[:20])  # Limited by search results
         
         # Verify workflow completion
         assert len(reveal_responses) == 20
@@ -323,7 +336,7 @@ class TestQuickStartWorkflow:
         
         # Verify data integrity through the workflow
         for i, response in enumerate(reveal_responses):
-            assert response.data["prospect_uid"] == f"abc123def456ghi789jkl012mno345p{i}"
+            assert response.data["Result_uid"] == f"abc123def456ghi789jkl012mno345p{i}"
             assert response.data["email"].startswith("engineer")
             assert response.data["phone"].startswith("+1-555-")
             assert response.data["linkedin_url"].startswith("https://linkedin.com/in/engineer")
@@ -368,13 +381,13 @@ class TestQuickStartWorkflow:
         Verifies graceful degradation when parts of the workflow fail
         """
         # Test search failure
-        mock_client.search_prospects.return_value = APIResponse(
+        mock_client.search_results.return_value = APIResponse(
             success=False,
             error="Search service temporarily unavailable",
             status_code=503
         )
         
-        search_response = await mock_client.search_prospects(SearchCriteria(title="Engineer"))
+        search_response = await mock_client.search_results(SearchCriteria(title="Engineer"))
         assert search_response.success is False
         assert "Search service temporarily unavailable" in search_response.error
         
@@ -408,11 +421,11 @@ class TestQuickStartWorkflow:
         }
         
         # Test that batch size is respected
-        prospect_uids = [f"uid_{i}" for i in range(15)]
+        Result_uids = [f"uid_{i}" for i in range(15)]
         batch_size = config["batch_size"]
         
         # Split into batches
-        batches = [prospect_uids[i:i+batch_size] for i in range(0, len(prospect_uids), batch_size)]
+        batches = [Result_uids[i:i+batch_size] for i in range(0, len(Result_uids), batch_size)]
         assert len(batches) == 2  # 15 UIDs should create 2 batches of 10 and 5
         assert len(batches[0]) == 10
         assert len(batches[1]) == 5
@@ -436,25 +449,25 @@ class TestQuickStartWorkflow:
         Verifies CSV, JSON export formats work correctly with revealed data
         """
         # Get some test data
-        search_response = await mock_client.search_prospects(
+        search_response = await mock_client.search_results(
             SearchCriteria(title="Engineer", limit=5)
         )
-        prospects = search_response.data["prospects"]
+        results = search_response.data["results"]
         
         reveal_responses = await mock_client.batch_reveal_contacts(
-            [p["uid"] for p in prospects[:3]]
+            [p["uid"] for p in results[:3]]
         )
         
         # Test CSV export format (default)
         csv_data = []
-        for i, (prospect, reveal_response) in enumerate(zip(prospects[:3], reveal_responses)):
+        for i, (Result, reveal_response) in enumerate(zip(results[:3], reveal_responses)):
             if reveal_response.success:
                 csv_row = {
-                    "uid": prospect["uid"],
-                    "full_name": prospect["full_name"],
-                    "current_title": prospect["current_title"],
-                    "current_company": prospect["current_company"],
-                    "location": prospect["location"],
+                    "uid": Result["uid"],
+                    "full_name": Result["full_name"],
+                    "current_title": Result["current_title"],
+                    "current_company": Result["current_company"],
+                    "location": Result["location"],
                     "email": reveal_response.data.get("email", ""),
                     "phone": reveal_response.data.get("phone", ""),
                     "linkedin_url": reveal_response.data.get("linkedin_url", ""),
@@ -469,24 +482,24 @@ class TestQuickStartWorkflow:
         # Test JSON export format  
         json_data = {
             "export_timestamp": datetime.now(timezone.utc).isoformat(),
-            "total_prospects": len(prospects),
+            "total_results": len(results),
             "revealed_contacts": len([r for r in reveal_responses if r.success]),
             "contacts": [
                 {
-                    "prospect": prospect,
+                    "Result": Result,
                     "contact": reveal_response.data if reveal_response.success else None,
                     "success": reveal_response.success
                 }
-                for prospect, reveal_response in zip(prospects[:3], reveal_responses)
+                for Result, reveal_response in zip(results[:3], reveal_responses)
             ]
         }
         
         assert "export_timestamp" in json_data
-        assert json_data["total_prospects"] == 5
+        assert json_data["total_results"] == 5
         assert json_data["revealed_contacts"] >= 0
         assert len(json_data["contacts"]) == 3
         
         # Verify JSON serialization works
         json_str = json.dumps(json_data, indent=2)
         parsed_data = json.loads(json_str)
-        assert parsed_data["total_prospects"] == json_data["total_prospects"]
+        assert parsed_data["total_results"] == json_data["total_results"]

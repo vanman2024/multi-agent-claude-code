@@ -1,3 +1,23 @@
+"""
+Performance Tests
+=================
+
+Purpose: Measure and validate performance characteristics of the system.
+These tests ensure the application meets performance requirements.
+
+Run with:
+  pytest tests/performance/ -v
+  pytest tests/performance/ -m performance
+  
+  # Run with profiling:
+  pytest tests/performance/ --profile
+
+Notes:
+  - Measures response times, throughput, and resource usage
+  - Compares different implementation approaches
+  - Identifies performance bottlenecks
+"""
+
 import time
 import tempfile
 import json

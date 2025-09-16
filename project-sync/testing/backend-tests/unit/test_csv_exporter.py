@@ -1,16 +1,33 @@
+"""
+Unit Tests
+==========
+
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
+"""
+
 import pytest
 import pandas as pd
 from pathlib import Path
 
-from src.models.prospect import Prospect
+from src.models.Result import Result
 from src.models.contact_info import ContactInfo
 from src.services.csv_exporter import CSVExporter
 
 @pytest.fixture
-def sample_prospects():
-    """Provides a list of sample Prospect objects for testing."""
+def sample_results():
+    """Provides a list of sample Result objects for testing."""
     return [
-        Prospect(
+        Result(
             name="John Doe",
             title="Software Engineer",
             company="Tech Corp",
@@ -21,7 +38,7 @@ def sample_prospects():
                 linkedin="https://linkedin.com/in/johndoe"
             )
         ),
-        Prospect(
+        Result(
             name="Jane Smith",
             title="Product Manager",
             company="Innovate Inc.",
@@ -34,14 +51,14 @@ def sample_prospects():
         ),
     ]
 
-def test_export_to_csv_creates_file_with_correct_headers(sample_prospects, tmp_path):
+def test_export_to_csv_creates_file_with_correct_headers(sample_results, tmp_path):
     """
     Tests that export_to_csv creates a file with the expected headers.
     """
     exporter = CSVExporter()
-    output_file = tmp_path / "prospects.csv"
+    output_file = tmp_path / "results.csv"
     
-    exporter.export_to_csv(sample_prospects, output_file)
+    exporter.export_to_csv(sample_results, output_file)
     
     assert output_file.exists()
     
@@ -52,14 +69,14 @@ def test_export_to_csv_creates_file_with_correct_headers(sample_prospects, tmp_p
     ]
     assert list(df.columns) == expected_headers
 
-def test_export_to_csv_writes_correct_data(sample_prospects, tmp_path):
+def test_export_to_csv_writes_correct_data(sample_results, tmp_path):
     """
-    Tests that export_to_csv writes the correct prospect data to the file.
+    Tests that export_to_csv writes the correct Result data to the file.
     """
     exporter = CSVExporter()
-    output_file = tmp_path / "prospects.csv"
+    output_file = tmp_path / "results.csv"
     
-    exporter.export_to_csv(sample_prospects, output_file)
+    exporter.export_to_csv(sample_results, output_file)
     
     df = pd.read_csv(output_file)
     

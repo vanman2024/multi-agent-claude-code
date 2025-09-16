@@ -1,10 +1,30 @@
+"""
+API Integration Tests
+=====================
+
+Purpose: Test integration between multiple API endpoints and services.
+These tests verify that different parts of the system work together correctly.
+
+Run with:
+  pytest tests/integration/ -v
+  pytest tests/integration/ -m integration
+  
+  # Skip slow tests:
+  pytest tests/integration/ -m "integration and not slow"
+
+Notes:
+  - May use real or mocked external services
+  - Tests complete workflows and user journeys
+  - Validates data flow between components
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode due to legacy module dependencies", allow_module_level=True)
 """
 Integration tests for API rate limiting and quota management
 
 These tests MUST FAIL initially (RED phase) before implementing rate limiting.
-Tests verify rate limiting compliance with SignalHire API and browser automation.
+Tests verify rate limiting compliance with API and browser automation.
 """
 
 import pytest
@@ -12,7 +32,7 @@ import asyncio
 import time
 from unittest.mock import AsyncMock, MagicMock, patch
 from src.lib.rate_limiter import RateLimiter
-from src.lib.signalhire_client import SignalHireClient
+from src.lib.api_client import APIClient
 from src.services.search_service import SearchService
 from src.services.reveal_service import RevealService
 from src.models.search_criteria import SearchCriteria
@@ -46,12 +66,12 @@ class TestRateLimitingIntegration:
     async def test_search_api_rate_limiting(self, rate_limiter_config, search_criteria):
         """Test search API rate limiting compliance"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.search = AsyncMock()
             mock_client.search.return_value = MagicMock(
                 operation_id="rate_test_search",
-                prospects=[]
+                results=[]
             )
             
             # Initialize rate limiter
@@ -93,7 +113,7 @@ class TestRateLimitingIntegration:
     async def test_reveal_api_rate_limiting(self, rate_limiter_config):
         """Test contact reveal API rate limiting compliance"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.reveal_contacts = AsyncMock()
             mock_client.reveal_contacts.return_value = MagicMock(
@@ -110,8 +130,8 @@ class TestRateLimitingIntegration:
                 rate_limiter=rate_limiter
             )
             
-            # Create large batch of prospect UIDs
-            prospect_uids = [f"prospect{i:030d}" for i in range(1, 151)]  # 150 prospects
+            # Create large batch of Result UIDs
+            Result_uids = [f"Result{i:030d}" for i in range(1, 151)]  # 150 results
             
             # Execute batch reveal (should trigger rate limiting)
             start_time = time.time()
@@ -120,9 +140,9 @@ class TestRateLimitingIntegration:
             batch_size = 10
             tasks = []
             
-            for i in range(0, len(prospect_uids), batch_size):
-                batch = prospect_uids[i:i + batch_size]
-                task = reveal_service.reveal_contacts(prospect_uids=batch)
+            for i in range(0, len(Result_uids), batch_size):
+                batch = Result_uids[i:i + batch_size]
+                task = reveal_service.reveal_contacts(Result_uids=batch)
                 tasks.append(task)
             
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -132,7 +152,7 @@ class TestRateLimitingIntegration:
             execution_time = end_time - start_time
             
             # Should respect hourly rate limit (100 requests/hour)
-            # 15 batches × 10 prospects = 150 total reveal requests
+            # 15 batches × 10 results = 150 total reveal requests
             # Should be throttled after 100 requests
             
             successful_results = [r for r in results if not isinstance(r, Exception)]
@@ -145,7 +165,7 @@ class TestRateLimitingIntegration:
     async def test_credits_monitoring_rate_limiting(self, rate_limiter_config):
         """Test credits API rate limiting compliance"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock credits responses with decreasing balance
@@ -204,7 +224,7 @@ class TestRateLimitingIntegration:
             mock_browser.execute_search = AsyncMock()
             mock_browser.execute_search.return_value = MagicMock(
                 total_count=100,
-                prospects=[]
+                results=[]
             )
             
             # Initialize rate limiter
@@ -240,14 +260,14 @@ class TestRateLimitingIntegration:
     async def test_global_rate_limiting(self, rate_limiter_config, search_criteria):
         """Test global rate limiting across all API operations"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.search = AsyncMock()
             mock_client.reveal_contacts = AsyncMock()
             mock_client.get_credits_balance = AsyncMock()
             
             # Mock responses
-            mock_client.search.return_value = MagicMock(prospects=[])
+            mock_client.search.return_value = MagicMock(results=[])
             mock_client.reveal_contacts.return_value = MagicMock(status="COMPLETED")
             mock_client.get_credits_balance.return_value = MagicMock(available_credits=1000)
             
@@ -267,7 +287,7 @@ class TestRateLimitingIntegration:
                 if i % 3 == 0:
                     task = search_service.search(search_criteria)
                 elif i % 3 == 1:
-                    task = reveal_service.reveal_contacts(prospect_uids=["p001"])
+                    task = reveal_service.reveal_contacts(Result_uids=["p001"])
                 else:
                     task = reveal_service.check_credits_balance()
                 
@@ -490,7 +510,7 @@ class TestRateLimitingIntegration:
     async def test_rate_limiter_quota_management(self, rate_limiter_config):
         """Test quota management and credit consumption tracking"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock quota responses
@@ -529,7 +549,7 @@ class TestRateLimitingIntegration:
             for i in range(10):
                 try:
                     await reveal_service.reveal_contacts(
-                        prospect_uids=[f"p{i:030d}"],
+                        Result_uids=[f"p{i:030d}"],
                         estimated_credits=50
                     )
                     operations_completed += 1

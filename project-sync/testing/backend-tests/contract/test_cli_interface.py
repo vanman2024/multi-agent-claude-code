@@ -1,7 +1,29 @@
+"""
+API Contract Tests
+==================
+
+Purpose: Verify that API endpoints adhere to their documented contracts.
+These tests validate request/response formats, data types, and business rules.
+
+Test Strategy:
+  - RED phase: Tests should fail initially before implementation
+  - GREEN phase: Implement API client to make tests pass
+  - REFACTOR phase: Optimize implementation while keeping tests green
+
+Run with:
+  pytest tests/contract/ -v
+  pytest tests/contract/ -m contract
+
+Notes:
+  - Uses mocked responses to avoid external API calls
+  - Validates both successful and error scenarios
+  - Ensures backward compatibility when API changes
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode (legacy CLI contract variants)", allow_module_level=True)
 """
-Contract tests for SignalHire Agent CLI interface
+Contract tests for API Service Agent CLI interface
 
 These tests MUST FAIL initially (RED phase) before implementing the CLI.
 Tests verify the contract with the CLI commands and user interface.
@@ -43,9 +65,9 @@ class TestCLIInterfaceContract:
             "operation_id": "search_abc123def456",
             "scroll_id": "scroll_xyz789",
             "total_count": 156,
-            "prospects": [
+            "results": [
                 {
-                    "uid": "prospect123456789012345678901234",
+                    "uid": "Result123456789012345678901234",
                     "full_name": "John Doe",
                     "current_title": "Software Engineer",
                     "current_company": "TechCorp Inc",
@@ -62,7 +84,7 @@ class TestCLIInterfaceContract:
         
         # Verify CLI structure
         assert result.exit_code == 0
-        assert "SignalHire Lead Generation Agent" in result.output
+        assert "API Service Lead Generation Agent" in result.output
         assert "search" in result.output
         assert "reveal" in result.output
         assert "export" in result.output
@@ -73,13 +95,13 @@ class TestCLIInterfaceContract:
     def test_search_command_interface(self, cli_runner, temp_output_file):
         """Test search command interface and parameters"""
         
-        with patch('src.cli.search_commands.SignalHireClient') as MockClient:
+        with patch('src.cli.search_commands.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.search = AsyncMock()
             mock_client.search.return_value = MagicMock(
                 operation_id="test_op_123",
                 total_count=50,
-                prospects=[]
+                results=[]
             )
             
             result = cli_runner.invoke(search, [
@@ -93,7 +115,7 @@ class TestCLIInterfaceContract:
             # Verify command structure
             assert result.exit_code == 0
             assert "Operation ID:" in result.output
-            assert "prospects found" in result.output
+            assert "results found" in result.output
 
     @pytest.mark.contract
     def test_search_command_validation(self, cli_runner):
@@ -116,10 +138,10 @@ class TestCLIInterfaceContract:
     def test_search_boolean_query_support(self, cli_runner, temp_output_file):
         """Test boolean query support in search command"""
         
-        with patch('src.cli.search_commands.SignalHireClient') as MockClient:
+        with patch('src.cli.search_commands.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.search = AsyncMock()
-            mock_client.search.return_value = MagicMock(prospects=[])
+            mock_client.search.return_value = MagicMock(results=[])
             
             result = cli_runner.invoke(search, [
                 '--title', '(Senior OR Lead) AND Engineer',
@@ -136,11 +158,11 @@ class TestCLIInterfaceContract:
         
         # Create mock search results file
         mock_search_file = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
-        json.dump({"prospects": [{"uid": "test123"}]}, mock_search_file)
+        json.dump({"results": [{"uid": "test123"}]}, mock_search_file)
         mock_search_file.close()
         
         try:
-            with patch('src.cli.reveal_commands.SignalHireClient') as MockClient:
+            with patch('src.cli.reveal_commands.APIClient') as MockClient:
                 mock_client = MockClient.return_value
                 mock_client.reveal_contacts = AsyncMock()
                 mock_client.reveal_contacts.return_value = MagicMock(
@@ -161,9 +183,9 @@ class TestCLIInterfaceContract:
 
     @pytest.mark.contract
     def test_reveal_command_direct_uids(self, cli_runner, temp_output_file):
-        """Test reveal command with direct prospect UIDs"""
+        """Test reveal command with direct Result UIDs"""
         
-        with patch('src.cli.reveal_commands.SignalHireClient') as MockClient:
+        with patch('src.cli.reveal_commands.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.reveal_contacts = AsyncMock()
             mock_client.reveal_contacts.return_value = MagicMock(
@@ -171,8 +193,8 @@ class TestCLIInterfaceContract:
             )
             
             result = cli_runner.invoke(reveal, [
-                'prospect123456789012345678901234',
-                'prospect567890123456789012345678',
+                'Result123456789012345678901234',
+                'Result567890123456789012345678',
                 '--output', temp_output_file
             ])
             
@@ -204,7 +226,7 @@ class TestCLIInterfaceContract:
         # Create mock revealed contacts file
         mock_contacts_file = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
         json.dump({
-            "prospects": [
+            "results": [
                 {
                     "uid": "test123",
                     "full_name": "John Doe", 
@@ -238,7 +260,7 @@ class TestCLIInterfaceContract:
         """Test export command with specific column selection"""
         
         mock_data_file = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
-        json.dump({"prospects": []}, mock_data_file)
+        json.dump({"results": []}, mock_data_file)
         mock_data_file.close()
         
         try:
@@ -259,7 +281,7 @@ class TestCLIInterfaceContract:
     def test_status_command_interface(self, cli_runner):
         """Test status command for credits and operations"""
         
-        with patch('src.cli.status_commands.SignalHireClient') as MockClient:
+        with patch('src.cli.status_commands.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.get_credits_balance = AsyncMock()
             mock_client.get_credits_balance.return_value = MagicMock(
@@ -279,7 +301,7 @@ class TestCLIInterfaceContract:
     def test_status_operation_monitoring(self, cli_runner):
         """Test status command for operation monitoring"""
         
-        with patch('src.cli.status_commands.SignalHireClient') as MockClient:
+        with patch('src.cli.status_commands.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.get_operation_status = AsyncMock()
             mock_client.get_operation_status.return_value = MagicMock(
@@ -337,7 +359,7 @@ class TestCLIInterfaceContract:
     def test_verbose_output_option(self, cli_runner):
         """Test verbose output options"""
         
-        with patch('src.cli.search_commands.SignalHireClient'):
+        with patch('src.cli.search_commands.APIClient'):
             result = cli_runner.invoke(main, [
                 '--verbose',
                 'search', '--title', 'Engineer'
@@ -350,12 +372,12 @@ class TestCLIInterfaceContract:
     def test_dry_run_option(self, cli_runner):
         """Test dry-run option for operations"""
         
-        with patch('src.cli.reveal_commands.SignalHireClient') as MockClient:
+        with patch('src.cli.reveal_commands.APIClient') as MockClient:
             mock_client = MockClient.return_value
             mock_client.estimate_reveal_credits = MagicMock(return_value=25)
             
             result = cli_runner.invoke(reveal, [
-                'prospect123456789012345678901234',
+                'Result123456789012345678901234',
                 '--dry-run'
             ])
             
@@ -403,7 +425,7 @@ class TestCLIInterfaceContract:
     def test_progress_display_interface(self, cli_runner):
         """Test progress display during long operations"""
         
-        with patch('src.cli.reveal_commands.SignalHireClient') as MockClient:
+        with patch('src.cli.reveal_commands.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock progress callback
@@ -416,7 +438,7 @@ class TestCLIInterfaceContract:
             mock_client.reveal_contacts = mock_reveal_with_progress
             
             result = cli_runner.invoke(reveal, [
-                'prospect123456789012345678901234',
+                'Result123456789012345678901234',
                 '--show-progress'
             ])
             

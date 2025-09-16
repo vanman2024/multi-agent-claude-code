@@ -1,3 +1,23 @@
+"""
+API Integration Tests
+=====================
+
+Purpose: Test integration between multiple API endpoints and services.
+These tests verify that different parts of the system work together correctly.
+
+Run with:
+  pytest tests/integration/ -v
+  pytest tests/integration/ -m integration
+  
+  # Skip slow tests:
+  pytest tests/integration/ -m "integration and not slow"
+
+Notes:
+  - May use real or mocked external services
+  - Tests complete workflows and user journeys
+  - Validates data flow between components
+"""
+
 import json
 import tempfile
 from pathlib import Path

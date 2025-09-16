@@ -1,8 +1,21 @@
 """
-Integration tests for SignalHire Agent Credit Management workflow
+API Integration Tests
+=====================
 
-These tests MUST FAIL initially (RED phase) before implementing the enhanced API-first services.
-Tests verify comprehensive credit management, usage tracking, and daily limit handling.
+Purpose: Test integration between multiple API endpoints and services.
+These tests verify that different parts of the system work together correctly.
+
+Run with:
+  pytest tests/integration/ -v
+  pytest tests/integration/ -m integration
+  
+  # Skip slow tests:
+  pytest tests/integration/ -m "integration and not slow"
+
+Notes:
+  - May use real or mocked external services
+  - Tests complete workflows and user journeys
+  - Validates data flow between components
 """
 
 import pytest
@@ -10,7 +23,7 @@ import asyncio
 from datetime import datetime, timezone, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch, call
 
-from src.services.signalhire_client import SignalHireClient, APIResponse
+from src.services.api_client import APIClient, APIResponse
 
 
 class TestCreditManagementWorkflow:
@@ -18,8 +31,8 @@ class TestCreditManagementWorkflow:
 
     @pytest.fixture
     def mock_client_with_credits(self):
-        """Mock SignalHire client with detailed credit management"""
-        client = AsyncMock(spec=SignalHireClient)
+        """Mock API Service client with detailed credit management"""
+        client = AsyncMock(spec=APIClient)
         
         # Track credits internally for realistic simulation
         self._credits_remaining = 100
@@ -58,7 +71,7 @@ class TestCreditManagementWorkflow:
             return APIResponse(
                 success=True,
                 data={
-                    "prospect_uid": uid,
+                    "Result_uid": uid,
                     "email": f"contact{self._daily_used}@example.com",
                     "phone": f"+1-555-{self._daily_used:04d}",
                     "linkedin_url": f"https://linkedin.com/in/contact{self._daily_used}"

@@ -1,3 +1,23 @@
+"""
+Performance Tests
+=================
+
+Purpose: Measure and validate performance characteristics of the system.
+These tests ensure the application meets performance requirements.
+
+Run with:
+  pytest tests/performance/ -v
+  pytest tests/performance/ -m performance
+  
+  # Run with profiling:
+  pytest tests/performance/ --profile
+
+Notes:
+  - Measures response times, throughput, and resource usage
+  - Compares different implementation approaches
+  - Identifies performance bottlenecks
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode; browser mode removed", allow_module_level=True)
 """
@@ -19,7 +39,7 @@ from typing import List, Dict, Any
 from unittest.mock import AsyncMock, MagicMock, patch
 from dataclasses import dataclass
 
-from src.services.signalhire_client import SignalHireClient, APIResponse
+from src.services.api_client import APIClient, APIResponse
 from src.services.browser_client import BrowserClient
 from src.services.csv_exporter import CSVExporter, ExportConfig
 
@@ -48,20 +68,20 @@ class TestAPICToBrowserModeComparison:
     @pytest.fixture
     def mock_api_client(self):
         """Mock API client with realistic performance characteristics"""
-        client = AsyncMock(spec=SignalHireClient)
+        client = AsyncMock(spec=APIClient)
         
-        async def mock_fast_reveal(prospect_id):
+        async def mock_fast_reveal(Result_id):
             # Simulate fast API response (100-500ms)
-            delay = 0.1 + (hash(prospect_id) % 5) * 0.08  # 100-500ms range
+            delay = 0.1 + (hash(Result_id) % 5) * 0.08  # 100-500ms range
             await asyncio.sleep(delay)
             
             return APIResponse(
                 success=True,
                 data={
-                    "prospect_uid": prospect_id,
-                    "email": f"contact@example{hash(prospect_id) % 1000}.com",
-                    "phone": f"+1-555-{abs(hash(prospect_id)) % 10000:04d}",
-                    "linkedin_url": f"https://linkedin.com/in/prospect{abs(hash(prospect_id)) % 1000}"
+                    "Result_uid": Result_id,
+                    "email": f"contact@example{hash(Result_id) % 1000}.com",
+                    "phone": f"+1-555-{abs(hash(Result_id)) % 10000:04d}",
+                    "linkedin_url": f"https://linkedin.com/in/Result{abs(hash(Result_id)) % 1000}"
                 },
                 credits_used=1,
                 credits_remaining=99
@@ -74,9 +94,9 @@ class TestAPICToBrowserModeComparison:
             return APIResponse(
                 success=True,
                 data={
-                    "prospects": [
+                    "results": [
                         {
-                            "uid": f"api_prospect_{i}_{abs(hash(str(criteria))) % 1000}",
+                            "uid": f"api_Result_{i}_{abs(hash(str(criteria))) % 1000}",
                             "full_name": f"API Person {i}",
                             "current_title": "Engineer",
                             "current_company": "TechCorp",
@@ -100,7 +120,7 @@ class TestAPICToBrowserModeComparison:
             )
         
         client.reveal_contact = mock_fast_reveal
-        client.search_prospects = mock_fast_search
+        client.search_results = mock_fast_search
         client.check_credits = mock_check_credits
         
         return client
@@ -110,21 +130,21 @@ class TestAPICToBrowserModeComparison:
         """Mock browser client with realistic performance characteristics"""
         client = AsyncMock(spec=BrowserClient)
         
-        async def mock_slow_reveal(prospect_id):
+        async def mock_slow_reveal(Result_id):
             # Simulate slower browser automation (5-30 seconds)
-            delay = 5 + (hash(prospect_id) % 25)  # 5-30 second range
+            delay = 5 + (hash(Result_id) % 25)  # 5-30 second range
             await asyncio.sleep(delay)
             
             # Simulate 70% success rate (browser automation challenges)
-            success = abs(hash(prospect_id)) % 10 < 7
+            success = abs(hash(Result_id)) % 10 < 7
             
             if success:
                 return {
                     "success": True,
-                    "prospect_uid": prospect_id,
-                    "email": f"browser@example{hash(prospect_id) % 1000}.com",
-                    "phone": f"+1-555-{abs(hash(prospect_id)) % 10000:04d}",
-                    "linkedin_url": f"https://linkedin.com/in/browser{abs(hash(prospect_id)) % 1000}"
+                    "Result_uid": Result_id,
+                    "email": f"browser@example{hash(Result_id) % 1000}.com",
+                    "phone": f"+1-555-{abs(hash(Result_id)) % 10000:04d}",
+                    "linkedin_url": f"https://linkedin.com/in/browser{abs(hash(Result_id)) % 1000}"
                 }
             else:
                 return {
@@ -142,9 +162,9 @@ class TestAPICToBrowserModeComparison:
             if success:
                 return {
                     "success": True,
-                    "prospects": [
+                    "results": [
                         {
-                            "uid": f"browser_prospect_{i}_{abs(hash(str(criteria))) % 1000}",
+                            "uid": f"browser_Result_{i}_{abs(hash(str(criteria))) % 1000}",
                             "full_name": f"Browser Person {i}",
                             "current_title": "Engineer", 
                             "current_company": "TechCorp",
@@ -160,7 +180,7 @@ class TestAPICToBrowserModeComparison:
                 }
         
         client.reveal_contact = mock_slow_reveal
-        client.search_prospects = mock_slow_search
+        client.search_results = mock_slow_search
         
         return client
 
@@ -200,13 +220,13 @@ class TestAPICToBrowserModeComparison:
     @pytest.mark.asyncio
     async def test_single_contact_reveal_performance_comparison(self, mock_api_client, mock_browser_client):
         """Compare performance of single contact reveals between API and browser modes"""
-        test_prospect_ids = [f"test_prospect_{i}" for i in range(5)]
+        test_Result_ids = [f"test_Result_{i}" for i in range(5)]
         
         # Test API Mode Performance
         api_start = time.time()
         api_results = []
-        for prospect_id in test_prospect_ids:
-            result = await mock_api_client.reveal_contact(prospect_id)
+        for Result_id in test_Result_ids:
+            result = await mock_api_client.reveal_contact(Result_id)
             api_results.append(result)
         api_end = time.time()
         
@@ -216,8 +236,8 @@ class TestAPICToBrowserModeComparison:
         # Test Browser Mode Performance (simulate shorter for testing)
         browser_start = time.time()
         browser_results = []
-        for prospect_id in test_prospect_ids[:2]:  # Test fewer for speed
-            result = await mock_browser_client.reveal_contact(prospect_id)
+        for Result_id in test_Result_ids[:2]:  # Test fewer for speed
+            result = await mock_browser_client.reveal_contact(Result_id)
             browser_results.append(result)
         browser_end = time.time()
         
@@ -242,12 +262,12 @@ class TestAPICToBrowserModeComparison:
         batch_sizes = [5, 10]
         
         for batch_size in batch_sizes:
-            prospect_ids = [f"batch_prospect_{i}" for i in range(batch_size)]
+            Result_ids = [f"batch_Result_{i}" for i in range(batch_size)]
             
             # API Batch Performance
             api_start = time.time()
             api_results = await asyncio.gather(*[
-                mock_api_client.reveal_contact(pid) for pid in prospect_ids
+                mock_api_client.reveal_contact(pid) for pid in Result_ids
             ])
             api_end = time.time()
             
@@ -255,7 +275,7 @@ class TestAPICToBrowserModeComparison:
                                                   f"batch_reveal_{batch_size}", "api")
             
             # Browser Batch Performance (limited for testing)
-            test_browser_batch = prospect_ids[:min(3, batch_size)]  # Limit for test speed
+            test_browser_batch = Result_ids[:min(3, batch_size)]  # Limit for test speed
             browser_start = time.time()
             browser_results = await asyncio.gather(*[
                 mock_browser_client.reveal_contact(pid) for pid in test_browser_batch
@@ -285,19 +305,19 @@ class TestAPICToBrowserModeComparison:
         
         # API Search Performance
         api_start = time.time()
-        api_search_result = await mock_api_client.search_prospects(search_criteria)
+        api_search_result = await mock_api_client.search_results(search_criteria)
         api_end = time.time()
         
         api_metrics = self.measure_performance(api_start, api_end, [api_search_result],
-                                              "search_prospects", "api")
+                                              "search_results", "api")
         
         # Browser Search Performance
         browser_start = time.time()
-        browser_search_result = await mock_browser_client.search_prospects(search_criteria)
+        browser_search_result = await mock_browser_client.search_results(search_criteria)
         browser_end = time.time()
         
         browser_metrics = self.measure_performance(browser_start, browser_end, [browser_search_result],
-                                                  "search_prospects", "browser")
+                                                  "search_results", "browser")
         
         # Search Performance Assertions
         assert api_metrics.total_time < 1.0, f"API search should be <1s, got {api_metrics.total_time:.2f}s"
@@ -380,18 +400,18 @@ class TestAPICToBrowserModeComparison:
     async def test_error_recovery_performance(self, mock_api_client, mock_browser_client):
         """Test performance of error handling and recovery"""
         # Create mock clients that occasionally fail
-        async def api_with_occasional_failures(prospect_id):
-            if hash(prospect_id) % 20 == 0:  # 5% failure rate
+        async def api_with_occasional_failures(Result_id):
+            if hash(Result_id) % 20 == 0:  # 5% failure rate
                 return APIResponse(success=False, error="Rate limit exceeded", status_code=429)
             await asyncio.sleep(0.1)  # Fast operation
-            return APIResponse(success=True, data={"prospect_uid": prospect_id})
+            return APIResponse(success=True, data={"Result_uid": Result_id})
         
-        async def browser_with_frequent_failures(prospect_id):
-            if hash(prospect_id) % 3 == 0:  # 33% failure rate
+        async def browser_with_frequent_failures(Result_id):
+            if hash(Result_id) % 3 == 0:  # 33% failure rate
                 await asyncio.sleep(2)  # Still takes time to fail
                 return {"success": False, "error": "Cloudflare challenge"}
             await asyncio.sleep(8)  # Slow operation
-            return {"success": True, "prospect_uid": prospect_id}
+            return {"success": True, "Result_uid": Result_id}
         
         mock_api_client.reveal_contact = api_with_occasional_failures
         mock_browser_client.reveal_contact = browser_with_frequent_failures
@@ -436,7 +456,7 @@ class TestAPICToBrowserModeComparison:
         # Test API mode export (fast data collection + export)
         api_export_start = time.time()
         api_exporter = CSVExporter(ExportConfig(output_path="api_test_export.csv"))
-        api_result = api_exporter.export_prospects(medium_dataset)
+        api_result = api_exporter.export_results(medium_dataset)
         api_export_end = time.time()
         
         # Test browser mode export (slower data collection simulation + export)
@@ -444,7 +464,7 @@ class TestAPICToBrowserModeComparison:
         # Simulate slower browser data collection
         await asyncio.sleep(5)  # Simulate 5 seconds of browser data collection
         browser_exporter = CSVExporter(ExportConfig(output_path="browser_test_export.csv"))
-        browser_result = browser_exporter.export_prospects(small_dataset)  # Less data due to failures
+        browser_result = browser_exporter.export_results(small_dataset)  # Less data due to failures
         browser_export_end = time.time()
         
         # Export Performance Assertions

@@ -1,9 +1,23 @@
 """
-CSV export enhanced contract tests (Phase 3.2)
+API Contract Tests
+==================
 
-These tests define enhanced export expectations including timestamped
-filenames and Excel (xlsx) support pathways. They are expected to FAIL
-initially where features are placeholders or missing.
+Purpose: Verify that API endpoints adhere to their documented contracts.
+These tests validate request/response formats, data types, and business rules.
+
+Test Strategy:
+  - RED phase: Tests should fail initially before implementation
+  - GREEN phase: Implement API client to make tests pass
+  - REFACTOR phase: Optimize implementation while keeping tests green
+
+Run with:
+  pytest tests/contract/ -v
+  pytest tests/contract/ -m contract
+
+Notes:
+  - Uses mocked responses to avoid external API calls
+  - Validates both successful and error scenarios
+  - Ensures backward compatibility when API changes
 """
 
 from pathlib import Path
@@ -67,13 +81,13 @@ async def test_export_service_supports_xlsx_future_path(tmp_path):
     out_file = tmp_path / "svc_export.xlsx"
     # Contract: provide an async method or parameter to export to xlsx
     # This will FAIL until implemented (e.g., export_to_excel or export with format)
-    prospects = [
+    results = [
         {"uid": "p1", "full_name": "Jane Doe", "current_title": "SE", "current_company": "Acme"}
     ]
 
     # Placeholder expected API; adjust when implementing
     if hasattr(service, "export_to_excel"):
-        res = await service.export_to_excel(prospects=prospects, output_file=str(out_file))  # type: ignore[attr-defined]
+        res = await service.export_to_excel(results=results, output_file=str(out_file))  # type: ignore[attr-defined]
         assert res.success is True
         assert Path(res.file_path).exists()
     else:

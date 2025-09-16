@@ -1,3 +1,23 @@
+"""
+API Integration Tests
+=====================
+
+Purpose: Test integration between multiple API endpoints and services.
+These tests verify that different parts of the system work together correctly.
+
+Run with:
+  pytest tests/integration/ -v
+  pytest tests/integration/ -m integration
+  
+  # Skip slow tests:
+  pytest tests/integration/ -m "integration and not slow"
+
+Notes:
+  - May use real or mocked external services
+  - Tests complete workflows and user journeys
+  - Validates data flow between components
+"""
+
 import pytest
 pytest.skip("Skipped in API-only mode due to legacy module dependencies", allow_module_level=True)
 """
@@ -16,11 +36,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from src.services.search_service import SearchService
 from src.services.reveal_service import RevealService
 from src.services.export_service import ExportService
-from src.lib.signalhire_client import SignalHireClient
+from src.lib.api_client import APIClient
 from src.lib.browser_client import BrowserClient
 from src.models.search_criteria import SearchCriteria
 from src.models.exceptions import (
-    SignalHireAPIError,
+    API ServiceAPIError,
     RateLimitExceededError,
     InsufficientCreditsError,
     BrowserAutomationError,
@@ -55,14 +75,14 @@ class TestErrorHandlingIntegration:
     async def test_api_error_handling_and_recovery(self, search_criteria):
         """Test API error handling with automatic recovery"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Simulate API error sequence: fail, fail, succeed
             error_sequence = [
-                SignalHireAPIError("Internal Server Error", status_code=500),
-                SignalHireAPIError("Service Unavailable", status_code=503),
-                MagicMock(operation_id="recovered_search_123", prospects=[])
+                API ServiceAPIError("Internal Server Error", status_code=500),
+                API ServiceAPIError("Service Unavailable", status_code=503),
+                MagicMock(operation_id="recovered_search_123", results=[])
             ]
             
             call_count = 0
@@ -101,14 +121,14 @@ class TestErrorHandlingIntegration:
     async def test_rate_limit_error_handling(self, search_criteria):
         """Test rate limit error handling with intelligent backoff"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Simulate rate limit errors with retry-after headers
             rate_limit_sequence = [
                 RateLimitExceededError("Rate limit exceeded", retry_after=5),
                 RateLimitExceededError("Rate limit exceeded", retry_after=10),
-                MagicMock(operation_id="rate_limit_recovered", prospects=[])
+                MagicMock(operation_id="rate_limit_recovered", results=[])
             ]
             
             call_count = 0
@@ -152,7 +172,7 @@ class TestErrorHandlingIntegration:
     async def test_insufficient_credits_error_handling(self):
         """Test insufficient credits error handling and user notification"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Mock credits check and reveal with insufficient credits
@@ -183,7 +203,7 @@ class TestErrorHandlingIntegration:
             error_captured = None
             try:
                 await reveal_service.reveal_contacts(
-                    prospect_uids=["p001", "p002", "p003"],
+                    Result_uids=["p001", "p002", "p003"],
                     include_phone=True
                 )
             except InsufficientCreditsError as e:
@@ -209,7 +229,7 @@ class TestErrorHandlingIntegration:
             browser_error_sequence = [
                 BrowserAutomationError("Element not found: search button"),
                 BrowserAutomationError("Page timeout: search results"),
-                MagicMock(total_count=100, prospects=[])
+                MagicMock(total_count=100, results=[])
             ]
             
             call_count = 0
@@ -251,14 +271,14 @@ class TestErrorHandlingIntegration:
     async def test_network_timeout_error_handling(self, search_criteria):
         """Test network timeout error handling with progressive timeouts"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Simulate network timeout errors
             timeout_sequence = [
                 NetworkTimeoutError("Request timeout after 30s"),
                 NetworkTimeoutError("Request timeout after 60s"),
-                MagicMock(operation_id="timeout_recovered", prospects=[])
+                MagicMock(operation_id="timeout_recovered", results=[])
             ]
             
             call_count = 0
@@ -300,7 +320,7 @@ class TestErrorHandlingIntegration:
     async def test_authentication_error_handling(self, search_criteria):
         """Test authentication error handling with re-authentication"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient, \
+        with patch('src.lib.api_client.APIClient') as MockClient, \
              patch('src.lib.browser_client.BrowserClient') as MockBrowser:
             
             mock_client = MockClient.return_value
@@ -310,7 +330,7 @@ class TestErrorHandlingIntegration:
             auth_error_sequence = [
                 AuthenticationError("Invalid token", status_code=401),
                 AuthenticationError("Token expired", status_code=401),
-                MagicMock(operation_id="auth_recovered", prospects=[])
+                MagicMock(operation_id="auth_recovered", results=[])
             ]
             
             call_count = 0
@@ -356,9 +376,9 @@ class TestErrorHandlingIntegration:
         # Create malformed data file
         malformed_data_file = Path(temp_output_dir) / "malformed_data.json"
         malformed_data = {
-            "prospects": [
+            "results": [
                 {
-                    "uid": "valid_prospect_123",
+                    "uid": "valid_Result_123",
                     "full_name": "John Doe",
                     "email_work": "john@example.com"
                 },
@@ -368,7 +388,7 @@ class TestErrorHandlingIntegration:
                     "email_work": "invalid-email"  # Invalid: malformed email
                 },
                 {
-                    "uid": "another_valid_prospect_456",
+                    "uid": "another_valid_Result_456",
                     "full_name": "Jane Smith",
                     "email_work": "jane@example.com"
                 }
@@ -442,7 +462,7 @@ class TestErrorHandlingIntegration:
             
             # Execute export with file system error handling
             export_result = await export_service.export_to_csv(
-                prospects=[{"uid": "p001", "name": "Test"}],
+                results=[{"uid": "p001", "name": "Test"}],
                 output_file="/protected/file.csv"  # Will fail
             )
             
@@ -458,19 +478,19 @@ class TestErrorHandlingIntegration:
     async def test_concurrent_operation_error_isolation(self, search_criteria):
         """Test error isolation in concurrent operations"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Create mixed success/failure operations
             async def mock_operation_with_mixed_results(operation_id):
                 if operation_id % 3 == 0:
-                    raise SignalHireAPIError(f"API Error for operation {operation_id}")
+                    raise API ServiceAPIError(f"API Error for operation {operation_id}")
                 elif operation_id % 5 == 0:
                     raise NetworkTimeoutError(f"Timeout for operation {operation_id}")
                 else:
                     return MagicMock(
                         operation_id=f"success_{operation_id}",
-                        prospects=[]
+                        results=[]
                     )
             
             # Initialize service with error isolation
@@ -515,12 +535,12 @@ class TestErrorHandlingIntegration:
         # Setup error logging
         error_log_file = Path(temp_output_dir) / "error_log.json"
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Simulate various error types
             errors_to_simulate = [
-                SignalHireAPIError("Internal Server Error", status_code=500),
+                API ServiceAPIError("Internal Server Error", status_code=500),
                 RateLimitExceededError("Rate limit exceeded", retry_after=30),
                 InsufficientCreditsError("Insufficient credits", required_credits=50, available_credits=10),
                 NetworkTimeoutError("Request timeout after 60s"),
@@ -534,7 +554,7 @@ class TestErrorHandlingIntegration:
                     error = errors_to_simulate[error_index]
                     error_index += 1
                     raise error
-                return MagicMock(operation_id="final_success", prospects=[])
+                return MagicMock(operation_id="final_success", results=[])
             
             mock_client.search = AsyncMock(side_effect=mock_search_with_various_errors)
             
@@ -577,20 +597,20 @@ class TestErrorHandlingIntegration:
     async def test_graceful_degradation_on_errors(self, search_criteria):
         """Test graceful degradation when services are unavailable"""
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient, \
+        with patch('src.lib.api_client.APIClient') as MockClient, \
              patch('src.lib.browser_client.BrowserClient') as MockBrowser:
             
             mock_client = MockClient.return_value
             mock_browser = MockBrowser.return_value
             
             # Simulate API completely unavailable
-            mock_client.search = AsyncMock(side_effect=SignalHireAPIError("Service Unavailable", status_code=503))
+            mock_client.search = AsyncMock(side_effect=API ServiceAPIError("Service Unavailable", status_code=503))
             
             # But browser automation works
             mock_browser.execute_search = AsyncMock()
             mock_browser.execute_search.return_value = MagicMock(
                 total_count=75,
-                prospects=[{"uid": "browser_p001"}]
+                results=[{"uid": "browser_p001"}]
             )
             
             # Initialize service with graceful degradation
@@ -607,7 +627,7 @@ class TestErrorHandlingIntegration:
             # Verify graceful degradation
             assert search_result is not None
             assert search_result.total_count == 75
-            assert search_result.prospects[0]["uid"] == "browser_p001"
+            assert search_result.results[0]["uid"] == "browser_p001"
             
             # Should have attempted API first, then fallen back to browser
             assert mock_client.search.call_count >= 1
@@ -623,7 +643,7 @@ class TestErrorHandlingIntegration:
         # State file for recovery persistence
         recovery_state_file = Path(temp_output_dir) / "recovery_state.json"
         
-        with patch('src.lib.signalhire_client.SignalHireClient') as MockClient:
+        with patch('src.lib.api_client.APIClient') as MockClient:
             mock_client = MockClient.return_value
             
             # Simulate persistent operation that fails and needs recovery
@@ -658,7 +678,7 @@ class TestErrorHandlingIntegration:
             mock_client.search = AsyncMock()  # Now works
             mock_client.search.return_value = MagicMock(
                 operation_id="recovered_after_restart",
-                prospects=[]
+                results=[]
             )
             
             # New service instance should recover from saved state

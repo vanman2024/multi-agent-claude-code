@@ -1,3 +1,20 @@
+"""
+Unit Tests
+==========
+
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
+"""
+
 import os
 import tempfile
 import pytest
@@ -8,7 +25,7 @@ from src.lib.config import (
     Config, 
     Environment, 
     LogLevel,
-    SignalHireConfig,
+    API ServiceConfig,
     CallbackServerConfig, 
     BrowserConfig,
     RateLimitConfig,
@@ -16,7 +33,7 @@ from src.lib.config import (
     load_config,
     get_config,
     create_test_config,
-    get_signalhire_credentials,
+    get_API Service_credentials,
 )
 
 
@@ -26,7 +43,7 @@ def clean_env():
     original_env = dict(os.environ)
     # Clear relevant env vars
     env_vars_to_clear = [
-        'SIGNALHIRE_EMAIL', 'SIGNALHIRE_PASSWORD', 'SIGNALHIRE_API_KEY',
+        'API Service_EMAIL', 'API Service_PASSWORD', 'API_KEY',
         'OPENAI_API_KEY', 'GEMINI_API_KEY', 'ENVIRONMENT'
     ]
     for var in env_vars_to_clear:
@@ -43,8 +60,8 @@ def clean_env():
 def temp_env_file():
     """Create a temporary .env file for testing."""
     content = """
-SIGNALHIRE_EMAIL=test@example.com
-SIGNALHIRE_PASSWORD=testpass123
+API Service_EMAIL=test@example.com
+API Service_PASSWORD=testpass123
 OPENAI_API_KEY=sk-test123
 GEMINI_API_KEY=ai-test456
 ENVIRONMENT=development
@@ -78,20 +95,20 @@ class TestEnvironmentEnums:
 class TestConfigModels:
     """Test individual configuration models."""
     
-    def test_signalhire_config_validation(self):
-        """Test SignalHire config validation."""
+    def test_api_config_validation(self):
+        """Test API Service config validation."""
         # Valid config
-        config = SignalHireConfig(
+        config = API ServiceConfig(
             email="test@example.com",
             password="password123"
         )
         assert config.email == "test@example.com"
         assert config.password == "password123"
-        assert config.base_url == "https://www.signalhire.com"
+        assert config.base_url == "https://www.API Service.com"
         
         # Invalid email
         with pytest.raises(ValueError, match="Invalid email format"):
-            SignalHireConfig(email="invalid-email")
+            API ServiceConfig(email="invalid-email")
     
     def test_callback_server_config_validation(self):
         """Test callback server config validation."""
@@ -143,7 +160,7 @@ class TestMainConfig:
         assert config.environment == Environment.DEVELOPMENT
         assert config.debug is False
         assert config.log_level == LogLevel.INFO
-        assert isinstance(config.signalhire, SignalHireConfig)
+        assert isinstance(config.API Service, API ServiceConfig)
         assert isinstance(config.callback_server, CallbackServerConfig)
         assert isinstance(config.browser, BrowserConfig)
         assert isinstance(config.rate_limit, RateLimitConfig)
@@ -155,16 +172,16 @@ class TestMainConfig:
         config = Config()
         assert config.environment == Environment.PRODUCTION
     
-    def test_signalhire_credentials_loading(self, clean_env):
-        """Test SignalHire credentials loading from env."""
-        os.environ['SIGNALHIRE_EMAIL'] = 'test@example.com'
-        os.environ['SIGNALHIRE_PASSWORD'] = 'testpass'
-        os.environ['SIGNALHIRE_API_KEY'] = 'api-key-123'
+    def test_API Service_credentials_loading(self, clean_env):
+        """Test API Service credentials loading from env."""
+        os.environ['API Service_EMAIL'] = 'test@example.com'
+        os.environ['API Service_PASSWORD'] = 'testpass'
+        os.environ['API_KEY'] = 'api-key-123'
         
         config = Config()
-        assert config.signalhire.email == 'test@example.com'
-        assert config.signalhire.password == 'testpass'
-        assert config.signalhire.api_key == 'api-key-123'
+        assert config.API Service.email == 'test@example.com'
+        assert config.API Service.password == 'testpass'
+        assert config.API Service.api_key == 'api-key-123'
     
     def test_api_keys_loading(self, clean_env):
         """Test external API keys loading."""
@@ -181,18 +198,18 @@ class TestMainConfig:
         
         # No credentials set
         missing = config.validate_required_credentials()
-        assert 'SIGNALHIRE_EMAIL' in missing
-        assert 'SIGNALHIRE_PASSWORD' in missing
+        assert 'API Service_EMAIL' in missing
+        assert 'API Service_PASSWORD' in missing
         
         # Set credentials
-        config.signalhire.email = 'test@example.com'
-        config.signalhire.password = 'testpass'
+        config.API Service.email = 'test@example.com'
+        config.API Service.password = 'testpass'
         missing = config.validate_required_credentials()
         assert len(missing) == 0
         
-        # Don't require SignalHire
-        config.signalhire.email = None
-        missing = config.validate_required_credentials(require_signalhire=False)
+        # Don't require API Service
+        config.API Service.email = None
+        missing = config.validate_required_credentials(require_API Service=False)
         assert len(missing) == 0
     
     def test_get_callback_url(self, clean_env):
@@ -201,17 +218,17 @@ class TestMainConfig:
         
         # Default host
         url = config.get_callback_url()
-        assert url == "http://localhost:8000/signalhire/callback"
+        assert url == "http://localhost:8000/API Service/callback"
         
         # External host set
         config.callback_server.external_host = "example.com"
         url = config.get_callback_url()
-        assert url == "http://example.com:8000/signalhire/callback"
+        assert url == "http://example.com:8000/API Service/callback"
         
         # Custom port
         config.callback_server.port = 9000
         url = config.get_callback_url()
-        assert url == "http://example.com:9000/signalhire/callback"
+        assert url == "http://example.com:9000/API Service/callback"
     
     def test_environment_checks(self, clean_env):
         """Test environment check methods."""
@@ -255,8 +272,8 @@ class TestConfigLoading:
         """Test loading config from .env file."""
         config = load_config(env_file=temp_env_file, validate_credentials=False)
         
-        assert config.signalhire.email == "test@example.com"
-        assert config.signalhire.password == "testpass123"
+        assert config.API Service.email == "test@example.com"
+        assert config.API Service.password == "testpass123"
         assert config.openai_api_key == "sk-test123"
         assert config.gemini_api_key == "ai-test456"
         assert config.environment == Environment.DEVELOPMENT
@@ -280,26 +297,26 @@ class TestConfigLoading:
     def test_create_test_config(self, clean_env):
         """Test test configuration creation."""
         config = create_test_config(
-            signalhire__email="custom@test.com",
+            API Service__email="custom@test.com",
             callback_server__port=9999
         )
         
         assert config.environment == Environment.TEST
         assert config.debug is True
         assert config.log_level == LogLevel.DEBUG
-        assert config.signalhire.email == "custom@test.com"
+        assert config.API Service.email == "custom@test.com"
         assert config.callback_server.port == 9999
 
 
 class TestConvenienceFunctions:
     """Test convenience functions."""
     
-    def test_get_signalhire_credentials(self, clean_env):
-        """Test get_signalhire_credentials function."""
-        os.environ['SIGNALHIRE_EMAIL'] = 'test@example.com'
-        os.environ['SIGNALHIRE_PASSWORD'] = 'testpass'
+    def test_get_API Service_credentials(self, clean_env):
+        """Test get_API Service_credentials function."""
+        os.environ['API Service_EMAIL'] = 'test@example.com'
+        os.environ['API Service_PASSWORD'] = 'testpass'
         
-        email, password = get_signalhire_credentials()
+        email, password = get_API Service_credentials()
         assert email == 'test@example.com'
         assert password == 'testpass'
     
@@ -337,5 +354,5 @@ class TestConfigValidation:
         """Test config loading with all credentials present."""
         # Should not raise warnings
         config = load_config(env_file=temp_env_file, validate_credentials=True)
-        assert config.signalhire.email == "test@example.com"
-        assert config.signalhire.password == "testpass123"
+        assert config.API Service.email == "test@example.com"
+        assert config.API Service.password == "testpass123"

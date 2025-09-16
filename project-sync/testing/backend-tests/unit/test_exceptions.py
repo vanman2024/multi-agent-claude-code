@@ -1,3 +1,20 @@
+"""
+Unit Tests
+==========
+
+Purpose: Test individual functions and classes in isolation.
+These tests verify that each component works correctly on its own.
+
+Run with:
+  pytest tests/unit/ -v
+  pytest tests/unit/ -m unit
+
+Notes:
+  - All external dependencies are mocked
+  - Tests are fast and deterministic
+  - Focus on edge cases and error handling
+"""
+
 import pytest
 
 from src.models.exceptions import (
@@ -12,23 +29,23 @@ from src.models.exceptions import (
     NetworkTimeoutError,
     RateLimitError,
     RateLimitExceededError,
-    SignalHireAPIError,
-    SignalHireError,
+    API ServiceAPIError,
+    API ServiceError,
 )
 
 
-def test_signalhire_error_requires_non_empty_message():
+def test_API Service_error_requires_non_empty_message():
     with pytest.raises(ValueError):
-        SignalHireError("")
+        API ServiceError("")
     # Valid case
-    err = SignalHireError("boom", details="x")
+    err = API ServiceError("boom", details="x")
     assert str(err) == "boom"
     assert err.details == "x"
 
 
-def test_signalhire_api_error_attributes():
-    err = SignalHireAPIError("api", status_code=429, response_body="{\"e\":1}")
-    assert isinstance(err, SignalHireError)
+def test_API Service_api_error_attributes():
+    err = API ServiceAPIError("api", status_code=429, response_body="{\"e\":1}")
+    assert isinstance(err, API ServiceError)
     assert err.status_code == 429
     assert err.response_body == '{"e":1}'
 
@@ -83,9 +100,9 @@ def test_data_validation_error_fields():
 
 
 def test_data_extraction_and_config_and_file_errors():
-    assert isinstance(DataExtractionError("parse"), SignalHireError)
-    assert isinstance(ConfigurationError("cfg"), SignalHireError)
-    assert isinstance(FileOperationError("file", file_path="/tmp/test.csv"), SignalHireError)
+    assert isinstance(DataExtractionError("parse"), API ServiceError)
+    assert isinstance(ConfigurationError("cfg"), API ServiceError)
+    assert isinstance(FileOperationError("file", file_path="/tmp/test.csv"), API ServiceError)
     with pytest.raises(ValueError):
         FileOperationError("file", file_path=123)  # type: ignore[arg-type]
 
