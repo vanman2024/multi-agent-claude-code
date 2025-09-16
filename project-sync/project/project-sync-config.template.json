@@ -58,7 +58,9 @@
       "agents/CLAUDE.md",
       "agents/AGENTS.md",
       "agents/README.md",
-      ".github/copilot-instructions.md"
+      ".github/copilot-instructions.md",
+      "scripts/ops",
+      "automation/config.yml.template"
     ],
     "optional": [
       "agents/QWEN.md",

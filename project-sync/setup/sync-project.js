@@ -113,6 +113,20 @@ class ProjectSync {
         // Extract just the filename and place in project root
         const fileName = path.basename(agentFile);
         targetPath = path.join(this.projectRoot, fileName);
+      } else if (agentFile.startsWith('scripts/')) {
+        // Scripts are in project-sync/scripts/
+        sourcePath = path.join(__dirname, '..', agentFile);
+        targetPath = path.join(this.projectRoot, agentFile);
+      } else if (agentFile.startsWith('automation/')) {
+        // Automation config template
+        sourcePath = path.join(__dirname, '..', agentFile);
+        if (agentFile.endsWith('.template')) {
+          // Remove .template extension for target
+          const targetFile = agentFile.replace('.template', '');
+          targetPath = path.join(this.projectRoot, '.automation', path.basename(targetFile));
+        } else {
+          targetPath = path.join(this.projectRoot, '.automation', path.basename(agentFile));
+        }
       } else {
         sourcePath = path.join(__dirname, '..', '..', agentFile);
         targetPath = path.join(this.projectRoot, agentFile);
@@ -121,6 +135,16 @@ class ProjectSync {
       if (fs.existsSync(sourcePath)) {
         this.ensureDirectoryExists(path.dirname(targetPath));
         fs.copyFileSync(sourcePath, targetPath);
+        
+        // Make scripts executable
+        if (agentFile.startsWith('scripts/')) {
+          try {
+            fs.chmodSync(targetPath, 0o755);
+          } catch (error) {
+            console.log(`  ⚠️  Could not make ${agentFile} executable: ${error.message}`);
+          }
+        }
+        
         syncCount++;
         const displayPath = agentFile.startsWith('agents/') ? path.basename(agentFile) + ' (to root)' : agentFile;
         console.log(`  ✅ Synced ${displayPath}`);
