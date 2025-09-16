@@ -526,7 +526,18 @@ case "${1:-help}" in
         cmd_setup "$@"
         ;;
     qa)
-        cmd_qa
+        shift
+        cmd_qa "$@"
+        ;;
+    demo)
+        shift
+        print_status "Running demo CLI via Python"
+        if [[ -f "$REPO_ROOT/cli/demo_cli.py" ]]; then
+            python3 "$REPO_ROOT/cli/demo_cli.py" "$@"
+        else
+            print_error "Demo CLI not found: $REPO_ROOT/cli/demo_cli.py"
+            exit 1
+        fi
         ;;
     build)
         shift
