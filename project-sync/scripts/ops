@@ -8,6 +8,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BACKEND_TESTS="$REPO_ROOT/testing/backend-tests"
 CONFIG_FILE="$REPO_ROOT/.automation/config.yml"
 
 # Colors
@@ -96,22 +97,142 @@ EOF
 }
 
 cmd_qa() {
-    print_status "Running quality assurance checks"
+    local test_type="${1:-all}"
+    local verbose="${2:-}"
+
+    print_status "Running quality assurance checks ($test_type)"
+
+    case "$test_type" in
+        --backend|backend)
+            qa_backend "$verbose"
+            ;;
+        --frontend|frontend)
+            qa_frontend "$verbose"
+            ;;
+        --cli|cli)
+            qa_cli "$verbose"
+            ;;
+        --mcp|mcp)
+            qa_mcp "$verbose"
+            ;;
+        --all|all|"")
+            qa_all "$verbose"
+            ;;
+        --help|help)
+            qa_help
+            ;;
+        *)
+            print_error "Unknown test type: $test_type"
+            qa_help
+            return 1
+            ;;
+    esac
+}
+
+# Helper: run pytest via uv/pytest/python
+run_pytest() {
+    local args="$@"
     activate_venv
-    
-    echo "🧹 Linting and fixing..."
-    ruff check src/ --fix || true
-    
-    echo "🎨 Formatting..."
-    black src/ || true
-    
-    echo "🔍 Type checking..."
-    mypy src/ || true
-    
-    echo "🧪 Running fast tests..."
-    python3 run.py -m pytest -m "not slow" || true
-    
-    print_success "QA complete"
+    if command -v uv >/dev/null 2>&1; then
+        uv run pytest $args
+    elif command -v pytest >/dev/null 2>&1; then
+        pytest $args
+    else
+        python3 -m pytest $args
+    fi
+}
+
+qa_backend() {
+    local verbose="$1"
+    print_status "Backend: lint, typecheck, tests"
+    activate_venv
+
+    if command -v ruff >/dev/null 2>&1; then
+        echo "🧹 ruff..."; ruff check src/ --fix || true
+    fi
+    if command -v black >/dev/null 2>&1; then
+        echo "🎨 black..."; black src/ || true
+    fi
+    if command -v mypy >/dev/null 2>&1; then
+        echo "🔍 mypy..."; mypy src/ || true
+    fi
+
+    if [[ -d "$BACKEND_TESTS" ]]; then
+        cd "$BACKEND_TESTS"
+        local pytest_args="-m 'not slow and not client_process'"
+        [[ -n "$verbose" ]] && pytest_args="$pytest_args -v"
+        run_pytest $pytest_args || true
+        cd "$REPO_ROOT"
+    else
+        print_warning "No backend tests found at $BACKEND_TESTS"
+    fi
+    print_success "Backend QA complete"
+}
+
+qa_cli() {
+    local verbose="$1"
+    print_status "CLI contract tests"
+    if [[ -d "$BACKEND_TESTS/cli" ]]; then
+        cd "$BACKEND_TESTS"
+        local pytest_args="cli/ -m cli"
+        [[ -n "$verbose" ]] && pytest_args="$pytest_args -v"
+        run_pytest $pytest_args || true
+        cd "$REPO_ROOT"
+    else
+        print_warning "No CLI tests at $BACKEND_TESTS/cli"
+    fi
+    print_success "CLI tests complete"
+}
+
+qa_mcp() {
+    local verbose="$1"
+    print_status "MCP server tests"
+    if [[ -d "$BACKEND_TESTS/mcp" ]]; then
+        cd "$BACKEND_TESTS"
+        local pytest_args="mcp/ -m 'mcp and not client_process'"
+        if [[ -n "$RUN_MCP_TRANSPORT" ]]; then
+            pytest_args="mcp/ -m mcp"
+        fi
+        [[ -n "$verbose" ]] && pytest_args="$pytest_args -v"
+        run_pytest $pytest_args || true
+        cd "$REPO_ROOT"
+    else
+        print_warning "No MCP tests at $BACKEND_TESTS/mcp"
+    fi
+    print_success "MCP tests complete"
+}
+
+qa_frontend() {
+    print_warning "Frontend tests not configured for CLI-first projects (skipping)"
+}
+
+qa_all() {
+    local verbose="$1"
+    qa_backend "$verbose"; echo
+    qa_cli "$verbose"; echo
+    qa_mcp "$verbose"; echo
+    qa_frontend "$verbose"
+    print_success "All QA complete"
+}
+
+qa_help() {
+    cat << EOF
+Usage: ops qa [TYPE] [OPTIONS]
+
+Types:
+  --backend     Backend tests (Python, API)
+  --cli         CLI contract tests
+  --mcp         MCP server tests
+  --all         All tests (default)
+
+Options:
+  -v, --verbose  Verbose output
+
+Env gates:
+  RUN_MCP_TRANSPORT=1   Include subprocess/transport MCP tests
+  RUN_LIVE=1            Enable live integration tests
+  RUN_SLOW=1            Include slow tests
+EOF
 }
 
 cmd_build() {

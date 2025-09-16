@@ -23,7 +23,7 @@ Notes:
 import pytest
 pytest.skip("Skipped in API-only mode due to legacy contract dependencies", allow_module_level=True)
 """
-Contract tests for API Service Scroll Search API pagination
+Contract tests for API Service Pagination API pagination
 
 These tests MUST FAIL initially (RED phase) before implementing pagination.
 Tests verify the contract with API's pagination using cursor mechanism.

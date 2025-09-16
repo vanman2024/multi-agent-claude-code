@@ -485,7 +485,7 @@ class TestDataExportWorkflow:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_credits_monitoring_workflow(
+    async def test_usage_monitoring_workflow(
         self,
         search_criteria,
         temp_output_dir

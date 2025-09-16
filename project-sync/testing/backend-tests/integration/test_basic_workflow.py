@@ -33,7 +33,7 @@ from src.models.search_criteria import SearchCriteria
 
 
 class TestQuickStartWorkflow:
-    """Test the complete QuickStart workflow from the quickstart guide"""
+    """Test the complete QuickStart workflow from the basic guide"""
 
     @pytest.fixture
     def temp_output_dir(self):
@@ -115,7 +115,7 @@ class TestQuickStartWorkflow:
 
     @pytest.fixture
     def search_criteria(self):
-        """Standard search criteria from quickstart guide"""
+        """Standard search criteria from basic guide"""
         return SearchCriteria(
             title="Software Engineer",
             location="San Francisco",
@@ -123,11 +123,11 @@ class TestQuickStartWorkflow:
         )
 
     @pytest.mark.asyncio
-    async def test_quickstart_step1_check_credits(self, mock_client):
+    async def test_basic_step1_check_credits(self, mock_client):
         """Test QuickStart Step 1: Check Your Credits
         
         Expected CLI command: API Service credits --check
-        Expected output format from quickstart.md:
+        Expected output format from basic.md:
         ✅ Available credits: 85
         📊 Daily usage: 15/100 contacts revealed  
         ⏰ Resets at: 2025-09-12 00:00:00 UTC
@@ -143,7 +143,7 @@ class TestQuickStartWorkflow:
         assert "used_today" in response.data
         assert "reset_time" in response.data
         
-        # Verify expected values from quickstart
+        # Verify expected values from basic
         assert response.data["credits"] == 85
         assert response.data["daily_limit"] == 100
         assert response.data["used_today"] == 15
@@ -160,11 +160,11 @@ class TestQuickStartWorkflow:
         assert reset_time.endswith("T00:00:00Z")
 
     @pytest.mark.asyncio
-    async def test_quickstart_step2_search_results(self, mock_client, search_criteria, temp_output_dir):
+    async def test_basic_step2_search_results(self, mock_client, search_criteria, temp_output_dir):
         """Test QuickStart Step 2: Search for results
         
         Expected CLI command: API Service search --title "Software Engineer" --location "San Francisco" --limit 20
-        Expected output format from quickstart.md:
+        Expected output format from basic.md:
         🔍 Searching results...
         ✅ Found 127 results matching criteria
         📄 Results saved to: search_results_20250911_153045.csv
@@ -180,7 +180,7 @@ class TestQuickStartWorkflow:
         results = response.data["results"]
         assert len(results) == 20  # Should match the limit
         
-        # Verify Result structure matches quickstart expectations
+        # Verify Result structure matches basic expectations
         for i, Result in enumerate(results):
             assert "uid" in Result
             assert "full_name" in Result
@@ -203,7 +203,7 @@ class TestQuickStartWorkflow:
         assert expected_filename_pattern.startswith("search_results_2025")
 
     @pytest.mark.asyncio
-    async def test_quickstart_step3_single_reveal(self, mock_client):
+    async def test_basic_step3_single_reveal(self, mock_client):
         """Test QuickStart Step 3a: Reveal Single Contact
         
         Expected CLI command: API Service reveal abc123def456ghi789jkl012mno345pq
@@ -234,11 +234,11 @@ class TestQuickStartWorkflow:
         assert contact_data["linkedin_url"] == "https://linkedin.com/in/johndoe0"
 
     @pytest.mark.asyncio
-    async def test_quickstart_step3_batch_reveal(self, mock_client, temp_output_dir):
+    async def test_basic_step3_batch_reveal(self, mock_client, temp_output_dir):
         """Test QuickStart Step 3b: Reveal Multiple Contacts from CSV
         
         Expected CLI command: API Service reveal --input search_results.csv --limit 10 --output contacts.csv
-        Expected output format from quickstart.md:
+        Expected output format from basic.md:
         🔓 Revealing contacts... [██████████] 100% (10/10)
         ✅ Credits used: 10
         📧 Contacts revealed: 8 successful, 2 failed
@@ -287,7 +287,7 @@ class TestQuickStartWorkflow:
             assert response.credits_used == 1  # Still charged for failed attempts
 
     @pytest.mark.asyncio
-    async def test_quickstart_step4_complete_workflow(self, mock_client, temp_output_dir):
+    async def test_basic_step4_complete_workflow(self, mock_client, temp_output_dir):
         """Test QuickStart Step 4: Complete Workflow
         
         Expected CLI command: API Service workflow --search '{"title":"Engineer","location":"SF"}' --reveal-all --max-reveals 25
@@ -343,7 +343,7 @@ class TestQuickStartWorkflow:
 
     @pytest.mark.asyncio  
     async def test_api_rate_limiting_integration(self, mock_client):
-        """Test API rate limiting behavior within quickstart workflow
+        """Test API rate limiting behavior within basic workflow
         
         Verifies that rate limiting is properly handled during normal operations
         """
@@ -376,7 +376,7 @@ class TestQuickStartWorkflow:
 
     @pytest.mark.asyncio
     async def test_error_handling_in_workflow(self, mock_client):
-        """Test error handling throughout the quickstart workflow
+        """Test error handling throughout the basic workflow
         
         Verifies graceful degradation when parts of the workflow fail
         """
@@ -404,12 +404,12 @@ class TestQuickStartWorkflow:
 
     @pytest.mark.asyncio
     async def test_configuration_integration(self, mock_client, temp_output_dir):
-        """Test configuration management within quickstart workflow
+        """Test configuration management within basic workflow
         
         Verifies that API-first configuration is properly applied
         """
         # This test verifies that the workflow respects API-first configuration
-        # as documented in the quickstart guide configuration section
+        # as documented in the basic guide configuration section
         
         # Simulate configuration settings
         config = {
@@ -444,7 +444,7 @@ class TestQuickStartWorkflow:
 
     @pytest.mark.asyncio
     async def test_export_formats_integration(self, mock_client, temp_output_dir):
-        """Test different export formats as shown in quickstart guide
+        """Test different export formats as shown in basic guide
         
         Verifies CSV, JSON export formats work correctly with revealed data
         """

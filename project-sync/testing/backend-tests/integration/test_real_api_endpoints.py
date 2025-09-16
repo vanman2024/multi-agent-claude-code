@@ -116,7 +116,7 @@ class TestRealAPI ServiceAPI:
         return results
 
     @pytest.mark.asyncio
-    async def test_credits_check_real_api(self, real_client):
+    async def test_usage_check_real_api(self, real_client):
         """Test real credits API to validate actual account status"""
         start_time = time.time()
         response = await real_client.check_credits()

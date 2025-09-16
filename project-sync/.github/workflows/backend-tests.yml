@@ -15,9 +15,6 @@ on:
 jobs:
   python-backend-tests:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: project-sync/testing/backend-tests
     steps:
       - uses: actions/checkout@v4
 
@@ -34,7 +31,9 @@ jobs:
           # Optional MCP dependency
           pip install fastmcp || echo "fastmcp optional"
 
-      - name: Run fast backend tests (CLI-first defaults)
+      - name: Run via ops CLI (backend + MCP fast lane)
+        working-directory: project-sync
         run: |
-          pytest -m "not slow and not client_process" -q
-
+          chmod +x scripts/ops
+          ./scripts/ops qa --backend
+          ./scripts/ops qa --mcp

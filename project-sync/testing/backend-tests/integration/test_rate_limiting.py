@@ -162,7 +162,7 @@ class TestRateLimitingIntegration:
 
     @pytest.mark.integration
     @pytest.mark.asyncio
-    async def test_credits_monitoring_rate_limiting(self, rate_limiter_config):
+    async def test_usage_monitoring_rate_limiting(self, rate_limiter_config):
         """Test credits API rate limiting compliance"""
         
         with patch('src.lib.api_client.APIClient') as MockClient:

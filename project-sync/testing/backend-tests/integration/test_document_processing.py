@@ -31,7 +31,7 @@ def make_json_file(tmp_path, contacts, filename):
         json.dump(contacts, f)
     return str(file_path)
 
-def test_resume_reveal_progress(tmp_path):
+def test_document_reveal_progress(tmp_path):
     # Prepare contacts for reveal
     contacts = [
         {"name": "Alice", "uid": "1"},

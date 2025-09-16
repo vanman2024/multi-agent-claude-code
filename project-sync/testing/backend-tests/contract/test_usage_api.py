@@ -28,7 +28,7 @@ from src.models.credit_usage import CreditUsage, CreditBalance
 
 
 class TestUsageAPIContract:
-    """Test contract compliance with API Service Credits API"""
+    """Test contract compliance with API Service Usage API"""
 
     @pytest.fixture
     def api_client(self):
@@ -37,7 +37,7 @@ class TestUsageAPIContract:
 
     @pytest.fixture
     def mock_credits_response(self):
-        """Mock response from Credits API"""
+        """Mock response from Usage API"""
         return {
             "credits": 1247,
             "creditsUsed": 153,
@@ -80,7 +80,7 @@ class TestUsageAPIContract:
         }
 
     @pytest.mark.contract
-    async def test_credits_balance_request_format(self, api_client):
+    async def test_usage_balance_request_format(self, api_client):
         """Test that credits balance requests are formatted correctly"""
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
@@ -102,7 +102,7 @@ class TestUsageAPIContract:
             assert call_args[1]["headers"]["Content-Type"] == "application/json"
 
     @pytest.mark.contract
-    async def test_credits_balance_response_parsing(self, api_client, mock_credits_response):
+    async def test_usage_balance_response_parsing(self, api_client, mock_credits_response):
         """Test parsing of credits balance response"""
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
@@ -124,7 +124,7 @@ class TestUsageAPIContract:
             assert result.exports == 12
 
     @pytest.mark.contract
-    async def test_credits_usage_history_request(self, api_client):
+    async def test_usage_usage_history_request(self, api_client):
         """Test credits usage history request format"""
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
@@ -141,7 +141,7 @@ class TestUsageAPIContract:
             assert call_args[1]["params"]["period"] == "last30days"
 
     @pytest.mark.contract
-    async def test_credits_usage_history_response_parsing(self, api_client, mock_usage_history_response):
+    async def test_usage_usage_history_response_parsing(self, api_client, mock_usage_history_response):
         """Test parsing of credits usage history response"""
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
@@ -164,8 +164,8 @@ class TestUsageAPIContract:
             assert day1.exports == 3
 
     @pytest.mark.contract
-    async def test_credits_low_balance_warning(self, api_client):
-        """Test detection of low credit balance"""
+    async def test_usage_low_balance_warning(self, api_client):
+        """Test detection of low usage balance"""
         
         low_credits_response = {
             "credits": 25,  # Low balance
@@ -185,7 +185,7 @@ class TestUsageAPIContract:
             assert result.is_low_balance(threshold=20) is False
 
     @pytest.mark.contract
-    async def test_credits_exhausted_detection(self, api_client):
+    async def test_usage_exhausted_detection(self, api_client):
         """Test detection of exhausted credits"""
         
         no_credits_response = {
@@ -206,7 +206,7 @@ class TestUsageAPIContract:
             assert result.available_credits == 0
 
     @pytest.mark.contract
-    async def test_credits_usage_estimation(self, api_client):
+    async def test_usage_usage_estimation(self, api_client):
         """Test estimation of credit usage for operations"""
         
         # Test search operation estimation
@@ -226,7 +226,7 @@ class TestUsageAPIContract:
         assert batch_estimate == 150
 
     @pytest.mark.contract
-    async def test_credits_insufficient_error(self, api_client):
+    async def test_usage_insufficient_error(self, api_client):
         """Test handling of insufficient credits error"""
         
         with patch.object(api_client, '_make_request', new_callable=AsyncMock) as mock_request:
@@ -241,7 +241,7 @@ class TestUsageAPIContract:
             assert exc_info.value.response.status_code == 402
 
     @pytest.mark.contract
-    async def test_credits_rate_limit_tracking(self, api_client):
+    async def test_usage_rate_limit_tracking(self, api_client):
         """Test tracking of credits against rate limits"""
         
         # Mock current usage
@@ -260,7 +260,7 @@ class TestUsageAPIContract:
             assert can_proceed is True  # Within limit
 
     @pytest.mark.contract
-    async def test_credits_plan_limits(self, api_client):
+    async def test_usage_plan_limits(self, api_client):
         """Test plan-specific credit limits and features"""
         
         # Test different plan types
@@ -286,7 +286,7 @@ class TestUsageAPIContract:
                 assert result.plan_type == config["planType"]
 
     @pytest.mark.contract
-    async def test_credits_reset_cycle_tracking(self, api_client):
+    async def test_usage_reset_cycle_tracking(self, api_client):
         """Test tracking of credit reset cycles"""
         
         reset_response = {

@@ -30,7 +30,7 @@ from src.lib.callback_server import CallbackServer
 
 
 class TestResourceAPIContract:
-    """Test contract compliance with API Service Person API"""
+    """Test contract compliance with API Service Resource API"""
 
     @pytest.fixture
     def api_client(self):
@@ -62,7 +62,7 @@ class TestResourceAPIContract:
 
     @pytest.fixture
     def mock_resource_api_response(self):
-        """Mock response from Person API request"""
+        """Mock response from Resource API request"""
         return {
             "operationId": "reveal_op_abc123def456ghi789",
             "status": "ACCEPTED",
@@ -103,7 +103,7 @@ class TestResourceAPIContract:
         }
 
     @pytest.mark.contract
-    async def test_person_reveal_request_format(self, api_client, sample_results):
+    async def test_resource_reveal_request_format(self, api_client, sample_results):
         """Test that person reveal requests are formatted correctly"""
         
         callback_url = "http://localhost:8080/callback"
@@ -137,7 +137,7 @@ class TestResourceAPIContract:
 
     @pytest.mark.contract
     async def test_resource_api_batch_size_limit(self, api_client):
-        """Test that Person API respects 100 element batch size limit"""
+        """Test that Resource API respects 100 element batch size limit"""
         
         # Create 101 results (exceeds limit)
         results = [
@@ -156,7 +156,7 @@ class TestResourceAPIContract:
 
     @pytest.mark.contract
     async def test_resource_api_response_parsing(self, api_client, sample_results, mock_resource_api_response):
-        """Test parsing of Person API response"""
+        """Test parsing of Resource API response"""
         
         callback_url = "http://localhost:8080/callback"
         
