@@ -875,7 +875,27 @@ class ProjectSync {
       
       if (fs.existsSync(frontendTestsSource)) {
         console.log('  🎭 Syncing frontend tests (Playwright/TypeScript)...');
-        this.copyDirectoryRecursive(frontendTestsSource, frontendTemplateTarget);
+        
+        // Copy frontend tests but exclude .github folder (we'll merge it separately)
+        this.copyDirectoryRecursiveWithExclusions(frontendTestsSource, frontendTemplateTarget, ['.github']);
+        
+        // Merge frontend CI workflow into root .github folder
+        const frontendGithubSource = path.join(frontendTestsSource, '.github');
+        const rootGithubTarget = path.join(this.projectRoot, '.github');
+        
+        if (fs.existsSync(frontendGithubSource)) {
+          this.ensureDirectoryExists(rootGithubTarget);
+          this.ensureDirectoryExists(path.join(rootGithubTarget, 'workflows'));
+          
+          // Copy CI workflow with descriptive name
+          const frontendCiSource = path.join(frontendGithubSource, 'workflows', 'ci.yml');
+          const frontendCiTarget = path.join(rootGithubTarget, 'workflows', 'frontend-tests.yml');
+          
+          if (fs.existsSync(frontendCiSource)) {
+            fs.copyFileSync(frontendCiSource, frontendCiTarget);
+            console.log('  📋 Merged frontend CI workflow to .github/workflows/frontend-tests.yml');
+          }
+        }
         
         console.log('  📋 Frontend testing template ready - run ./frontend-tests-template/setup-testing.sh to activate');
         syncCount++;
@@ -939,6 +959,45 @@ class ProjectSync {
       
       if (stat.isDirectory()) {
         this.copyDirectoryRecursive(sourcePath, targetPath);
+      } else {
+        // Handle template files
+        if (item.includes('PROJECT_NAME')) {
+          const projectName = path.basename(this.projectRoot);
+          let content = fs.readFileSync(sourcePath, 'utf8');
+          content = content.replace(/PROJECT_NAME/g, projectName);
+          fs.writeFileSync(targetPath, content);
+        } else {
+          fs.copyFileSync(sourcePath, targetPath);
+        }
+        
+        // Preserve executable permissions
+        if (stat.mode & parseInt('111', 8)) {
+          fs.chmodSync(targetPath, '755');
+        }
+      }
+    }
+  }
+
+  copyDirectoryRecursiveWithExclusions(source, target, exclusions = []) {
+    if (!fs.existsSync(target)) {
+      fs.mkdirSync(target, { recursive: true });
+    }
+    
+    const items = fs.readdirSync(source);
+    
+    for (const item of items) {
+      // Skip excluded items
+      if (exclusions.includes(item)) {
+        continue;
+      }
+      
+      const sourcePath = path.join(source, item);
+      const targetPath = path.join(target, item);
+      
+      const stat = fs.statSync(sourcePath);
+      
+      if (stat.isDirectory()) {
+        this.copyDirectoryRecursiveWithExclusions(sourcePath, targetPath, exclusions);
       } else {
         // Handle template files
         if (item.includes('PROJECT_NAME')) {
