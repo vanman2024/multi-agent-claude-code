@@ -60,7 +60,8 @@
       "agents/README.md",
       ".github/copilot-instructions.md",
       "scripts/ops",
-      "automation/config.yml.template"
+      "automation/config.yml.template",
+      "docs/RELEASE_SYSTEM.md"
     ],
     "optional": [
       "agents/QWEN.md",

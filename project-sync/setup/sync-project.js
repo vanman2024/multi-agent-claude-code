@@ -127,6 +127,10 @@ class ProjectSync {
         } else {
           targetPath = path.join(this.projectRoot, '.automation', path.basename(agentFile));
         }
+      } else if (agentFile.startsWith('docs/')) {
+        // Documentation files
+        sourcePath = path.join(__dirname, '..', agentFile);
+        targetPath = path.join(this.projectRoot, agentFile);
       } else {
         sourcePath = path.join(__dirname, '..', '..', agentFile);
         targetPath = path.join(this.projectRoot, agentFile);
