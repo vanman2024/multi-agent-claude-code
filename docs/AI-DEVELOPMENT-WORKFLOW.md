@@ -76,7 +76,7 @@ In tasks.md - Simple, clear, effective:
   - Fast bulk processing, rapid documentation
   - May have separate quota from 2.5 Pro
 - **Combined Capacity**: ~2000+ requests/day between both models
-- **Best For**: 
+- **Best For**:
   - Large codebase analysis (2M context)
   - Documentation generation
   - Research tasks
@@ -92,6 +92,25 @@ In tasks.md - Simple, clear, effective:
   - Query optimization
   - Daily coding tasks
 - **Cost**: FREE (via OAuth login)
+
+### 📡 API Testing & Contract Validation
+**Postman (MCP Server Integration)**
+- **Role**: API testing and contract validation specialist
+- **Integration**: Available to all agents via MCP functions
+- **Primary Functions**:
+  - API contract testing
+  - Collection management
+  - Environment configuration
+  - Mock server creation
+  - Newman CLI execution for CI/CD
+- **Best Used By**:
+  - @claude for API architecture validation
+  - @copilot for endpoint implementation testing
+  - @codex for frontend API integration testing
+- **Key Commands**:
+  - `mcp__postman__*` functions for programmatic access
+  - `newman run` for CI/CD pipeline integration
+- **Cost**: FREE tier available, Pro features for teams
 
 ### Agent Context Files (Living Documentation)
 
@@ -123,6 +142,11 @@ Each agent has their own "job description" that stays current:
 ### Integration Tasks
 - [ ] T030 @claude Coordinate API integration testing
 - [ ] T031 @copilot Implement error handling patterns
+
+### API Testing Tasks (Using Postman MCP)
+- [ ] T040 @claude Create API contract tests with Postman
+- [ ] T041 @copilot Implement mock server for development
+- [ ] T042 @codex Test frontend API integration
 ```
 
 ### 2. Agent Task Execution
@@ -193,6 +217,7 @@ Principles:
 | **Performance** | @qwen | Optimization specialist |
 | **Documentation** | @gemini | Bulk docs, analysis |
 | **Security** | @claude/security | Security subagent |
+| **API Testing** | Postman MCP + @claude/@copilot | Contract testing, mock servers |
 | **Testing** | @claude/testers for E2E, @codex for frontend |
 | **Bulk Generation** | @copilot (Grok) | Fastest for repetitive tasks |
 

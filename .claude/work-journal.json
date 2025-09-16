@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-16T21:13:31Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 6,
+      "last_commit": "27d2d1d docs: Add comprehensive Postman integration documentation"
+    },
+    {
       "timestamp": "2025-09-16T21:08:54Z",
       "branch": "main",
       "uncommitted": 3,
@@ -719,13 +726,6 @@
       "uncommitted": 0,
       "unpushed": 0,
       "last_commit": "2dd7a25 feat: Integrate spec-kit with test generation and implement commands"
-    },
-    {
-      "timestamp": "2025-09-11T03:32:21Z",
-      "branch": "main",
-      "uncommitted": 8,
-      "unpushed": 0,
-      "last_commit": "ec3fc88 docs: Consolidate documentation from 84 to ~60 files"
     }
   ]
 }
