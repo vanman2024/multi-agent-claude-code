@@ -2,7 +2,14 @@
 
 This directory provides professional-grade testing templates for both backend and frontend development, designed for solo developers working with multiple AI agents.
 
-## 🎯 Smart Testing Strategy: Efficient Coverage, Not Exhaustive Coverage
+## 📚 Testing Strategy Documentation
+
+**Two focused testing strategies for clean agent separation:**
+
+- **📋 [Backend Testing Strategy](../../../docs/TESTING-STRATEGY.md)** - Python/pytest, API testing, mock patterns (@claude)
+- **🎭 [Frontend Testing Strategy](frontend-tests-template/docs/TESTING_STRATEGY.md)** - Playwright/TypeScript, visual regression, E2E (@copilot)
+
+## 🎯 Smart Testing Architecture: Agent Specialization
 
 ### Backend Testing (`backend-tests/`)
 - **Python/pytest** for API logic, data processing, integrations
