@@ -843,7 +843,7 @@ This template provides both backend and frontend testing capabilities:
 ./scripts/ops qa --backend
 
 # Frontend development (UI/UX)
-./scripts/ops qa --frontend  
+./scripts/ops qa --frontend
 
 # Full-stack changes
 ./scripts/ops qa --all
@@ -852,6 +852,13 @@ This template provides both backend and frontend testing capabilities:
 python3 run.py -m pytest backend-tests/unit/
 npm run test:frontend:e2e
 ```
+
+### API Testing with Postman
+- **Postman MCP server**: Pre-configured for all agents
+- **Contract Testing**: Use `mcp__postman__*` functions for API testing
+- **Newman CLI**: Run collections with `newman run collection.json`
+- **Mock Servers**: Create mock APIs for frontend development
+- **Integration**: Part of `ops qa --backend` pipeline
 
 ### Agent Testing Responsibilities
 - **@claude**: Backend testing, Python/pytest, API contract tests

@@ -139,6 +139,29 @@ codex exec [command]    # Non-interactive execution
 # Acts as architect/reviewer for your development work
 ```
 
+### Postman API Testing Integration
+
+**Automatic Setup:**
+- Postman MCP server pre-configured in all AI agents
+- API key managed through `.env` file
+- Newman CLI for command-line testing
+- Integrated with `ops qa --backend` for contract testing
+
+**Available Postman Features:**
+```bash
+# Create API collections
+mcp__postman__createCollection
+
+# Generate tests from OpenAPI specs
+mcp__postman__syncCollectionWithSpec
+
+# Run contract tests locally
+newman run collection.json --environment test.json
+
+# Through ops CLI
+ops qa --backend  # Includes Postman contract tests
+```
+
 ### MCP Server Configuration
 
 **Global MCP Servers (Auto-configured):**
@@ -149,7 +172,7 @@ codex exec [command]    # Non-interactive execution
 - ✅ memory - Knowledge graph storage
 - ✅ sequential-thinking - Step-by-step reasoning
 - ✅ playwright - Browser automation
-- ✅ postman - API testing
+- ✅ postman - API testing and documentation (collections, mocks, contract tests)
 
 #### For GitHub Copilot in VS Code:
 MCP servers are configured in `.vscode/mcp.json` (already included in template).
@@ -286,6 +309,7 @@ This framework is designed for solo developers who want AI agents as intelligent
 
 ### Professional-Grade Testing Templates
 This framework provides comprehensive testing templates for both backend and frontend:
+
 
 
 **Backend Testing** (`backend-tests/`):

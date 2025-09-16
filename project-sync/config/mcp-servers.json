@@ -56,13 +56,11 @@
       ],
       "env_required": [
         "SUPABASE_PROJECT_REF",
-
-
-        "SUPABASE_SERVICE_KEY"
+        "SUPABASE_ACCESS_TOKEN"
       ],
       "env_args": [
         "--project-ref=${SUPABASE_PROJECT_REF}",
-        "--access-token=${SUPABASE_SERVICE_KEY}"
+        "--access-token=${SUPABASE_ACCESS_TOKEN}"
       ]
     },
     "postman": {
