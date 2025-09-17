@@ -87,6 +87,66 @@ Use the update script to keep agent context current:
 ./scripts/update-agent-context.sh gemini
 ```
 
+## 🚀 Parallel Agent Swarm Deployment
+
+### Single Command Parallel AI Development
+
+Deploy multiple agents simultaneously for 9x speed improvement:
+
+```bash
+# Quick swarm deployment
+./.claude/scripts/swarm /path/to/project "Feature description"
+./.claude/scripts/swarm /path/to/project --analysis
+
+# Three deployment modes:
+# 1. Task-based: Uses tasks.md with @symbol assignments
+# 2. Analysis: Each agent analyzes different codebase areas  
+# 3. Generic: Simple feature development
+```
+
+### Agent Swarm Specializations
+
+**@gemini (Architecture & Dependencies)**
+- System architecture analysis
+- Service dependencies and integration patterns
+- API design and data flow
+- Configuration management
+
+**@qwen (Performance & Optimization)**  
+- Database queries and connection patterns
+- Algorithm efficiency and bottlenecks
+- Memory usage and resource allocation
+- Caching strategies
+
+**@codex (Frontend/UI or Code Quality)**
+- Component architecture and reusability
+- State management patterns
+- Bundle size and build optimization
+- User experience and accessibility
+
+**@claude (Coordination & Integration)**
+- Reviews and integrates all agent outputs
+- Validates security implications
+- Ensures architectural consistency
+- Makes final integration decisions
+
+### Monitoring Swarm Progress
+
+```bash
+# Monitor all agents in real-time
+tail -f /tmp/agent-swarm-logs/*.log
+
+# Monitor specific agents
+tail -f /tmp/agent-swarm-logs/gemini.log
+tail -f /tmp/agent-swarm-logs/qwen.log
+tail -f /tmp/agent-swarm-logs/codex.log
+
+# Kill all agents
+./.claude/scripts/swarm --kill
+```
+
+**📚 Complete Documentation:** See `docs/AI-DEVELOPMENT-WORKFLOW.md` for detailed workflow guide.
+
 ### Agent Communication
 
 Agents coordinate through:
@@ -94,4 +154,5 @@ Agents coordinate through:
 - **Shared memory**: MCP memory server
 - **Git commits**: Standardized commit messages with agent identity
 - **Issue comments**: Progress updates and coordination
+- **Swarm logs**: Real-time parallel execution monitoring
 
