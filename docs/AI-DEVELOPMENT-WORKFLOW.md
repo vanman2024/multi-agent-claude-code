@@ -681,6 +681,101 @@ codex exec "Create responsive user dashboard component with form validation"
 
 **Total Time: Large features in 1-2 hours instead of days!**
 
+#### Complete Step-by-Step Workflow Guide
+
+**🎯 DAILY USAGE: Follow This Exact Process**
+
+### Step 1: Choose Your Deployment Mode (30 seconds)
+
+**Option A: Task-Based (Best for Features)**
+```bash
+# Create specific assignments for each agent
+cat > /target/project/tasks.md << 'EOF'
+- [ ] T001 @gemini Research authentication requirements and architecture
+- [ ] T002 @qwen Optimize authentication performance and security  
+- [ ] T003 @codex Build login/register UI components
+- [ ] T004 @claude Integrate components and security review
+EOF
+```
+
+**Option B: Analysis Mode (Best for New Codebases)**
+```bash
+# No setup needed - agents automatically get focused analysis areas
+# @gemini: Architecture & Dependencies
+# @qwen: Performance & Optimization
+# @codex: Frontend/UI or Code Quality
+```
+
+**Option C: Generic Mode (Simple Features)**
+```bash
+# No setup needed - agents get generic feature development prompts
+```
+
+### Step 2: Deploy Swarm (30 seconds)
+
+```bash
+# Task-based deployment
+swarm /target/project "Add authentication system"
+
+# Analysis deployment  
+swarm /target/project --analysis
+
+# Generic deployment
+swarm /target/project "Add simple contact form"
+
+# Swarm starts all agents simultaneously with background processes
+```
+
+### Step 3: Monitor Progress (ongoing)
+
+```bash
+# Watch all agents work in real-time
+tail -f /tmp/agent-swarm-logs/*.log
+
+# Monitor specific agents
+tail -f /tmp/agent-swarm-logs/gemini.log    # Architecture analysis
+tail -f /tmp/agent-swarm-logs/qwen.log      # Performance optimization  
+tail -f /tmp/agent-swarm-logs/codex.log     # Frontend/UI development
+
+# Check which agents are still running
+ps aux | grep -E '(gemini|qwen|codex)'
+```
+
+### Step 4: Claude Coordination (15-30 minutes)
+
+```bash
+# After agents complete their work, Claude integrates everything
+claude /work "Review and integrate all swarm outputs for authentication system"
+
+# Tasks get marked complete automatically:
+# - [x] T001 @gemini Research authentication architecture ✅
+# - [x] T002 @qwen Optimize login performance ✅  
+# - [x] T003 @codex Create login UI components ✅
+# - [ ] T004 @claude Integration and review (Claude completes this)
+```
+
+### Step 5: Quality Validation (5 minutes)
+
+```bash
+# Run comprehensive quality checks
+cd /target/project
+./ops/ops qa
+
+# Address any issues found
+# Commit integrated work
+git add . && git commit -m "feat: Add authentication system via agent swarm"
+```
+
+### Step 6: Cleanup (10 seconds)
+
+```bash
+# Kill all background agent processes
+swarm --kill
+
+# Or check if they auto-completed
+ps aux | grep -E '(gemini|qwen|codex)'  # Should show no processes
+```
+
 #### Real-World Deployment Strategy
 
 **🚀 SINGLE COMMAND DEPLOYMENT (30 seconds)**
