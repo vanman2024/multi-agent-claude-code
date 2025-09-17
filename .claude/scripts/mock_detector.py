@@ -109,11 +109,11 @@ class MockDetector:
         
     def scan_project(self) -> ProductionReport:
         """Main method to scan project for production readiness"""
-        print("🔍 Starting production readiness scan...")
+        print("[SCAN] Starting production readiness scan...")
         
         # Get all scannable files
         files_to_scan = self._get_files_to_scan()
-        print(f"📁 Found {len(files_to_scan)} files to scan")
+        print(f"[FILES] Found {len(files_to_scan)} files to scan")
         
         # Scan for mocks
         for file_path in files_to_scan:
@@ -170,7 +170,7 @@ class MockDetector:
                                 self.mock_issues.append(issue)
                                 
         except Exception as e:
-            print(f"⚠️  Error scanning {file_path}: {e}")
+            print(f"[WARNING] Error scanning {file_path}: {e}")
 
     def _check_configuration_files(self) -> None:
         """Check configuration files for production readiness"""
@@ -315,28 +315,28 @@ class MockDetector:
                 json.dump(asdict(report), f, indent=2)
         else:
             filepath = f"{filename}.md"
-            with open(filepath, 'w') as f:
+            with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(self._format_markdown_report(report))
                 
         return filepath
 
     def _format_markdown_report(self, report: ProductionReport) -> str:
         """Format report as markdown"""
-        md = f"""# 🚨 Production Readiness Report
+        md = f"""# [CRITICAL] Production Readiness Report
 
 **Generated:** {report.timestamp}  
 **Project:** {report.project_name}  
 **Files Scanned:** {report.total_files_scanned}
 
-## 📊 Executive Summary
+## [SUMMARY] Executive Summary
 
 - **Total Issues Found:** {report.summary['total_issues']}
-- **Critical Issues:** {report.summary['critical_issues']} 🚨
-- **Warning Issues:** {report.summary['warning_issues']} ⚠️
-- **Info Issues:** {report.summary['info_issues']} ℹ️
+- **Critical Issues:** {report.summary['critical_issues']} [CRITICAL]
+- **Warning Issues:** {report.summary['warning_issues']} [WARNING]
+- **Info Issues:** {report.summary['info_issues']} [INFO]
 - **API Endpoints:** {report.summary['api_endpoints_ready']}/{report.summary['api_endpoints_total']} ready
 
-## 🚨 CRITICAL MOCK IMPLEMENTATIONS
+## [CRITICAL] MOCK IMPLEMENTATIONS
 
 """
         
@@ -351,31 +351,31 @@ class MockDetector:
 
 """
         else:
-            md += "✅ No critical mock implementations found!\n\n"
+            md += "[OK] No critical mock implementations found!\n\n"
 
-        md += "## ⚠️ WARNING ISSUES\n\n"
+        md += "## [WARNING] WARNING ISSUES\n\n"
         warning_issues = [i for i in report.mock_issues if i.severity == 'warning']
         for issue in warning_issues:
             md += f"- **{issue.file_path}:{issue.line_number}** - {issue.suggestion}\n"
 
-        md += "\n## 🌐 API ENDPOINT STATUS\n\n"
+        md += "\n## [API] ENDPOINT STATUS\n\n"
         if report.api_endpoints:
             for endpoint, status in report.api_endpoints.items():
-                emoji = "✅" if status == "ready" else "🚨" if status == "mock_implementation" else "⚠️"
+                emoji = "[OK]" if status == "ready" else "[CRITICAL]" if status == "mock_implementation" else "[WARNING]"
                 md += f"- {emoji} `{endpoint}` - {status.replace('_', ' ').title()}\n"
         else:
             md += "No API endpoints detected.\n"
 
-        md += "\n## ⚙️ CONFIGURATION ISSUES\n\n"
+        md += "\n## [CONFIG] CONFIGURATION ISSUES\n\n"
         for issue in report.config_issues:
-            md += f"- ⚠️ {issue}\n"
+            md += f"- [WARNING] {issue}\n"
 
-        md += "\n## 🔐 SECURITY ISSUES\n\n"
+        md += "\n## [SECURITY] SECURITY ISSUES\n\n"
         for issue in report.security_issues:
-            md += f"- 🚨 {issue}\n"
+            md += f"- [CRITICAL] {issue}\n"
 
         md += f"""
-## 🎯 NEXT STEPS
+## [NEXT] STEPS
 
 ### Priority 1: Critical Issues ({report.summary['critical_issues']} items)
 Fix all critical mock implementations before production deployment.
@@ -389,7 +389,7 @@ Test and validate all API endpoints work with real data.
 ### Priority 4: Security Review ({len(report.security_issues)} items)
 Address all security concerns before going live.
 
-## 📈 PRODUCTION READINESS SCORE
+## [SCORE] PRODUCTION READINESS SCORE
 
 **{((report.summary['api_endpoints_ready'] / max(report.summary['api_endpoints_total'], 1)) * 100 * 
    (1 - (report.summary['critical_issues'] / max(report.summary['total_issues'], 1)))):.0f}%**
@@ -419,9 +419,9 @@ def main():
     # Save report
     output_file = detector.save_report(report, args.format, args.output)
     
-    print(f"\n✅ Production readiness scan complete!")
-    print(f"📊 Found {report.summary['total_issues']} issues ({report.summary['critical_issues']} critical)")
-    print(f"📄 Report saved to: {output_file}")
+    print(f"\n[COMPLETE] Production readiness scan complete!")
+    print(f"[SUMMARY] Found {report.summary['total_issues']} issues ({report.summary['critical_issues']} critical)")
+    print(f"[REPORT] Report saved to: {output_file}")
     
     # Print summary to stdout
     if args.verbose or args.format == 'json':
