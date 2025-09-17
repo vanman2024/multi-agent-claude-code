@@ -41,6 +41,25 @@ specify init --here --ai copilot
 # That's it! You now have AI agents as your development partners.
 ```
 
+### Step 3: Initialize Your Development Environment
+```bash
+# After template sync, the DevOps system will auto-configure your project
+# You can also run the setup manually for customization:
+
+# Auto-setup (recommended)
+./devops/setup-devops.sh --project-name my-awesome-app
+
+# Custom setup options
+./devops/setup-devops.sh --backend-only --python-version 3.12
+./devops/setup-devops.sh --frontend-only --node-version 20
+./devops/setup-devops.sh --no-testing --no-agents
+
+# Preview what will be configured
+./devops/setup-devops.sh --dry-run
+
+# Your project is now ready for development!
+```
+
 ## 📋 Your Personal AI Development Toolkit
 
 ### 🤖 Specialized AI Agents as Your Development Partners
@@ -211,6 +230,34 @@ Then set the environment variables in your `.env`:
 SUPABASE_PROJECT_REF=your_project_ref
 SUPABASE_ACCESS_TOKEN=your_access_token
 ```
+## 🔧 DevOps System - Your Development Powerhouse
+
+The template includes a complete DevOps system that handles all your development needs:
+
+```bash
+# Quality checks (lint, format, typecheck, test)
+./devops/ops/ops qa
+
+# Build for production
+./devops/ops/ops build
+
+# Deploy to production 
+./devops/deploy/deploy production
+
+# Check project status
+./devops/ops/ops status
+
+# Setup development environment
+./devops/ops/ops setup
+```
+
+### DevOps Features
+- **Smart Testing**: Automatically detects Python/Node.js and runs appropriate tests
+- **Quality Gates**: Comprehensive linting, formatting, and type checking
+- **Deployment**: Production-ready deployment scripts with environment management
+- **Environment Setup**: Automatic Python virtual environment and Node.js dependency management
+- **CI/CD Integration**: GitHub Actions workflows that use the DevOps system
+
 ## 🐳 Docker for Python Development (No More WSL Issues!)
 
 If you're using Python, Docker eliminates all WSL path issues, version conflicts, and environment problems:

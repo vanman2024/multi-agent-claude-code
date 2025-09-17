@@ -40,14 +40,18 @@ else
   exit 1
 fi
 
+# DevOps setup is now integrated into sync-project.js
+echo "✅ DevOps system setup integrated into main sync process"
+
 echo ""
 echo "✅ Project template sync complete!"
 echo ""
 echo "📋 What was configured:"
 echo "  • AI Agent coordination (Claude, Copilot, Qwen, Gemini, Codex)"
-echo "  • Ops CLI automation system (scripts/ops with .automation/config.yml)"
-echo "  • Release system documentation (docs/RELEASE_SYSTEM.md)"
-echo "  • Dual testing architecture (backend-tests/ + frontend-tests/ as appropriate)"
+echo "  • Complete DevOps system (devops/ops/, devops/deploy/, devops/ci/)"
+echo "  • Testing architecture (testing/backend/ + testing/frontend/ as appropriate)"
+echo "  • Development environment setup (.env.example, gitignore, agent config)"
+echo "  • Project-specific configuration and documentation"
 echo "  • VS Code settings with file icons and extensions"
 echo "  • Docker development environment (Python/Node.js)"
 echo "  • GitHub workflows for CI/CD"
