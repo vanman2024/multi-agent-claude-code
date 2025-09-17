@@ -2,15 +2,15 @@
 
 **Version:** v0.1.1  
 **Commit:** f5d02e02b17e8b1e15dd831fcaad0bd199446650  
-**Built:** 2025-09-17T22:32:13Z  
+**Built:** 2025-09-17T22:43:33Z  
 **Build Type:** Production
 
 ## Files Included
-- `src/` - Core application code
-- `requirements.txt` - Production dependencies only
-- `VERSION` - Version information (JSON)
-- `install.sh` - Installation script
-- `signalhire-agent` - CLI wrapper script
+- `agentswarm/` - Core application code
+- `agentswarm/requirements.txt` - Production dependencies only
+- `agentswarm/VERSION` - Version information (JSON)
+- `agentswarm/install.sh` - Installation script
+- `agentswarm/agentswarm` - CLI wrapper script
 - `.env` - Production environment file (automatically created with your credentials)
 - Essential documentation files only (README, QUICKSTART, etc.)
 - `.github/copilot-instructions.md` - GitHub Copilot instructions
@@ -34,4 +34,4 @@
 3. Test: `./signalhire-agent --help`
 
 ## Version Check
-Check `VERSION` file for build information (JSON format).
+Check `agentswarm/VERSION` file for build information (JSON format).

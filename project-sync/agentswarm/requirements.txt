@@ -1,0 +1,9 @@
+# AgentSwarm Production Dependencies
+# Generated on 2025-09-17T22:43:33Z
+
+click>=8.1.0
+pyyaml>=6.0
+psutil>=5.9.0
+rich>=13.0.0
+asyncio-mqtt>=0.11.0
+tomli>=2.0.0

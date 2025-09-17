@@ -1,0 +1,30 @@
+#!/bin/bash
+# SignalHire Agent CLI Wrapper
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Force WSL Python (avoid Windows Python in WSL)
+PYTHON_CMD="python3"
+if [ -n "${WSL_DISTRO_NAME:-}" ] && command -v /usr/bin/python3 >/dev/null 2>&1; then
+    PYTHON_CMD="/usr/bin/python3"
+fi
+
+# Check if virtual environment exists and use it
+if [ -d "$SCRIPT_DIR/venv" ]; then
+    # shellcheck disable=SC1091
+    source "$SCRIPT_DIR/venv/bin/activate"
+    # After activation, pick up the venv python
+    if command -v python3 >/dev/null 2>&1; then
+        PYTHON_CMD="$(command -v python3)"
+    fi
+fi
+
+export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
+
+# Load .env if it exists
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    export $(grep -v '^#' "$SCRIPT_DIR/.env" | xargs)
+fi
+
+# Run the CLI with correct Python
+$PYTHON_CMD -m agentswarm.cli.main "$@"
