@@ -908,27 +908,40 @@ class ProjectSync {
     
     console.log(`  🔍 Project detection: Python=${isPython}, Node.js=${isNode}`);
     
-    // Sync backend tests
-    if (!skipBackend && isPython) {
+    // Always sync complete backend testing structure (language-agnostic)
+    if (!skipBackend) {
       const backendTestsSource = path.join(__dirname, '..', 'tests', 'backend');
       const backendTestsTarget = path.join(this.projectRoot, 'tests', 'backend');
       
       if (fs.existsSync(backendTestsSource)) {
-        console.log('  🐍 Syncing backend tests (Python/pytest)...');
+        console.log('  📋 Syncing backend testing structure (language-agnostic)...');
         this.copyDirectoryRecursive(backendTestsSource, backendTestsTarget);
         syncCount++;
       }
-    } else if (!skipBackend && !isPython) {
-      console.log('  ⚠️  Backend testing skipped (no Python project detected)');
+      
+      // Also copy conftest.py and helpers regardless of project type
+      const conftestSource = path.join(__dirname, '..', 'tests', 'conftest.py');
+      const conftestTarget = path.join(this.projectRoot, 'tests', 'conftest.py');
+      if (fs.existsSync(conftestSource)) {
+        fs.copyFileSync(conftestSource, conftestTarget);
+        console.log('  ✅ Synced conftest.py (testing configuration)');
+      }
+      
+      const helpersSource = path.join(__dirname, '..', 'tests', 'helpers');
+      const helpersTarget = path.join(this.projectRoot, 'tests', 'helpers');
+      if (fs.existsSync(helpersSource)) {
+        this.copyDirectoryRecursive(helpersSource, helpersTarget);
+        console.log('  ✅ Synced tests/helpers/ (testing utilities)');
+      }
     }
     
-    // Sync frontend tests
-    if (!skipFrontend && isNode) {
+    // Always sync complete frontend testing structure (language-agnostic)
+    if (!skipFrontend) {
       const frontendTestsSource = path.join(__dirname, '..', 'tests', 'frontend');
       const frontendTemplateTarget = path.join(this.projectRoot, 'tests', 'frontend');
       
       if (fs.existsSync(frontendTestsSource)) {
-        console.log('  🎭 Syncing frontend tests (Playwright/TypeScript)...');
+        console.log('  🎭 Syncing frontend testing structure (Playwright/TypeScript)...');
         
         // Copy frontend tests but exclude .github folder (we'll merge it separately)
         this.copyDirectoryRecursiveWithExclusions(frontendTestsSource, frontendTemplateTarget, ['.github']);
