@@ -34,19 +34,19 @@ When you copy this DevOps folder into a new project, create or edit `config/devo
 
 ```toml
 [versioning]
-package = "agentswarm"
-source = "agentswarm/config/agentswarm.toml"
+package = "example_package"
+source = "src/config/package.toml"
 
 [package]
-name = "agentswarm"
-path = "agentswarm"
-test_command = "pytest agentswarm/tests"
+name = "example_package"
+path = "src"
+test_command = "pytest tests/backend"
 
 [package.manifest]
 version = "VERSION"
 requirements = "requirements.txt"
 install = "install.sh"
-cli = "agentswarm"
+cli = "example-cli"
 
 [deploy]
 target = "/abs/path/to/project-sync"
@@ -265,7 +265,7 @@ git push origin main
 
 **🤖 Template System**: This DevOps system is designed as a reusable template. Copy the entire `devops/` folder to new projects and customize for your specific technology stack and deployment requirements.
 
-### Exporting AgentSwarm
+### Exporting Example Package
 After deploying to the staging target, run:
 ```
 ./devops/deploy/deploy export /path/to/multi-agent-template
@@ -277,19 +277,19 @@ When you copy this DevOps folder into a new project, create or edit `config/devo
 
 ```toml
 [versioning]
-package = "agentswarm"
-source = "agentswarm/config/agentswarm.toml"
+package = "example_package"
+source = "src/config/package.toml"
 
 [package]
-name = "agentswarm"
-path = "agentswarm"
-test_command = "pytest agentswarm/tests"
+name = "example_package"
+path = "src"
+test_command = "pytest tests/backend"
 
 [package.manifest]
 version = "VERSION"
 requirements = "requirements.txt"
 install = "install.sh"
-cli = "agentswarm"
+cli = "example-cli"
 
 [deploy]
 target = "/abs/path/to/project-sync"
@@ -298,8 +298,8 @@ subdirectory = "project-sync/agentswarm"
 
 The CLI commands (`ops qa`, `ops release`, `deploy production`) now read this file automatically—no script changes required when moving to a new codebase.
 
-After a staging deploy, export the production bundle with the AgentSwarm version:
+After a staging deploy, export the production bundle with the Example Package version:
 ```
 ./devops/deploy/deploy export /tmp/multi-agent-template
-cat /tmp/multi-agent-template/VERSION  # prints the AgentSwarm version from agentswarm.toml
+cat /tmp/multi-agent-template/VERSION  # prints the Example Package version from agentswarm.toml
 ```
