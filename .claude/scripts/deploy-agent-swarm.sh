@@ -2,11 +2,14 @@
 # Agent Swarm Deployment Script
 #
 # PURPOSE: Deploy parallel AI agent swarm with single command
-# USAGE: ./deploy-agent-swarm.sh [target_directory] [feature_description]
+# USAGE: ./deploy-agent-swarm.sh [target_directory] [feature_description] [--analysis]
 # PART OF: Multi-Agent Claude Code Template - Parallel Agent Swarm Pattern v3.0
 # CONNECTS TO: Gemini, Qwen, Codex CLIs with approval mode flags
 #
 # Deploys all agents simultaneously in background processes for true parallel execution
+# 
+# FLAGS:
+#   --analysis    Deploy agents for comprehensive codebase analysis (each agent analyzes different areas)
 
 set -e
 
@@ -27,9 +30,31 @@ if [ "$1" = "--kill" ]; then
     exit 0
 fi
 
-# Configuration
-TARGET_DIR="${1:-$(pwd)}"
-FEATURE_DESC="${2:-"Analyze and improve codebase"}"
+# Parse arguments
+ANALYSIS_MODE=false
+TARGET_DIR=""
+FEATURE_DESC=""
+
+# Check for analysis flag
+for arg in "$@"; do
+    case $arg in
+        --analysis)
+            ANALYSIS_MODE=true
+            shift
+            ;;
+        *)
+            if [ -z "$TARGET_DIR" ]; then
+                TARGET_DIR="$arg"
+            elif [ -z "$FEATURE_DESC" ]; then
+                FEATURE_DESC="$arg"
+            fi
+            ;;
+    esac
+done
+
+# Set defaults
+TARGET_DIR="${TARGET_DIR:-$(pwd)}"
+FEATURE_DESC="${FEATURE_DESC:-"Analyze and improve codebase"}"
 LOG_DIR="/tmp/agent-swarm-logs"
 
 # Colors for output
@@ -102,17 +127,36 @@ if [ -n "$TASKS_FILE" ]; then
         deploy_agent "codex" "codex exec 'ASSIGNED TASKS: $CODEX_TASKS. Complete these tasks for: $FEATURE_DESC'"
     fi
 else
-    echo -e "${YELLOW}⚠️  No tasks.md found - using generic assignments${NC}"
-    
-    # Gemini Analysis Engine
-    deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'Analyze codebase structure and identify integration points for: $FEATURE_DESC. Focus on architecture, dependencies, and potential improvements.'"
+    if [ "$ANALYSIS_MODE" = true ]; then
+        echo -e "${BLUE}🔍 ANALYSIS MODE: Agents will analyze different codebase areas${NC}"
+        
+        # Gemini: Architecture & Dependencies Analysis
+        deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'CODEBASE ANALYSIS FOCUS: Architecture & Dependencies. Analyze: 1) Overall system architecture, 2) Service dependencies and integration patterns, 3) API design and data flow, 4) Configuration management. Create detailed architecture documentation.'"
+        
+        # Qwen: Performance & Optimization Analysis  
+        deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'CODEBASE ANALYSIS FOCUS: Performance & Optimization. Analyze: 1) Database queries and connection patterns, 2) Algorithm efficiency and bottlenecks, 3) Memory usage and resource allocation, 4) Caching strategies. Create performance optimization report.'"
+        
+        # Codex: Frontend & UI Analysis (if frontend exists)
+        if [ -d "$TARGET_DIR/src" ] || [ -d "$TARGET_DIR/frontend" ] || [ -d "$TARGET_DIR/app" ] || [ -d "$TARGET_DIR/client" ]; then
+            deploy_agent "codex" "codex exec 'CODEBASE ANALYSIS FOCUS: Frontend & UI. Analyze: 1) Component architecture and reusability, 2) State management patterns, 3) Bundle size and build optimization, 4) User experience and accessibility. Create frontend analysis report.'"
+        else
+            # Alternative: Code Quality & Testing Analysis
+            deploy_agent "codex" "codex exec 'CODEBASE ANALYSIS FOCUS: Code Quality & Testing. Analyze: 1) Test coverage and testing patterns, 2) Code quality metrics and maintainability, 3) Documentation completeness, 4) Development workflow efficiency. Create quality analysis report.'"
+        fi
+        
+    else
+        echo -e "${YELLOW}⚠️  No tasks.md found - using generic assignments${NC}"
+        
+        # Gemini Analysis Engine
+        deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'Analyze codebase structure and identify integration points for: $FEATURE_DESC. Focus on architecture, dependencies, and potential improvements.'"
 
-    # Qwen Optimization Engine  
-    deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'Review performance bottlenecks and optimization opportunities for: $FEATURE_DESC. Analyze algorithms, database queries, and resource usage.'"
+        # Qwen Optimization Engine  
+        deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'Review performance bottlenecks and optimization opportunities for: $FEATURE_DESC. Analyze algorithms, database queries, and resource usage.'"
 
-    # Codex Frontend Engine (if frontend directory exists)
-    if [ -d "$TARGET_DIR/src" ] || [ -d "$TARGET_DIR/frontend" ] || [ -d "$TARGET_DIR/app" ]; then
-        deploy_agent "codex" "codex exec 'Analyze frontend components and suggest improvements for: $FEATURE_DESC. Focus on React patterns, state management, and user experience.'"
+        # Codex Frontend Engine (if frontend directory exists)
+        if [ -d "$TARGET_DIR/src" ] || [ -d "$TARGET_DIR/frontend" ] || [ -d "$TARGET_DIR/app" ]; then
+            deploy_agent "codex" "codex exec 'Analyze frontend components and suggest improvements for: $FEATURE_DESC. Focus on React patterns, state management, and user experience.'"
+        fi
     fi
 fi
 
@@ -153,4 +197,11 @@ for log_file in "$LOG_DIR"/*.log; do
 done
 
 echo -e "${GREEN}🎉 SWARM DEPLOYMENT COMPLETE!${NC}"
-echo -e "${BLUE}All agents are working in parallel on: ${FEATURE_DESC}${NC}"
+if [ "$ANALYSIS_MODE" = true ]; then
+    echo -e "${BLUE}All agents are analyzing different codebase areas:${NC}"
+    echo -e "${YELLOW}  @gemini: Architecture & Dependencies${NC}"
+    echo -e "${YELLOW}  @qwen: Performance & Optimization${NC}"
+    echo -e "${YELLOW}  @codex: Frontend/UI or Code Quality${NC}"
+else
+    echo -e "${BLUE}All agents are working in parallel on: ${FEATURE_DESC}${NC}"
+fi

@@ -691,8 +691,12 @@ codex exec "Create responsive user dashboard component with form validation"
 # Or use the short wrapper:
 swarm /path/to/target/project "Add user authentication system"
 
-# Example:
+# ANALYSIS MODE: Comprehensive codebase analysis with focused areas
+swarm /path/to/target/project --analysis
+
+# Examples:
 swarm /tmp/Synergy-New "Optimize database performance and add caching"
+swarm /tmp/MyProject --analysis  # Each agent analyzes different areas
 ```
 
 **🎯 AUTOMATIC TASK ASSIGNMENT DETECTION**
@@ -728,6 +732,27 @@ swarm /target/project "Add authentication"
 # 🤖 Deploying @gemini... (Generic codebase analysis)
 # 🤖 Deploying @qwen... (Generic performance optimization)
 ```
+
+**Option 3: Analysis Mode (Comprehensive Codebase Analysis)**
+```bash
+# Deploy agents for deep codebase analysis with focused areas:
+swarm /target/project --analysis
+
+# Output:
+# 🔍 ANALYSIS MODE: Agents will analyze different codebase areas
+# 🤖 Deploying @gemini... (FOCUS: Architecture & Dependencies)
+# 🤖 Deploying @qwen... (FOCUS: Performance & Optimization)  
+# 🤖 Deploying @codex... (FOCUS: Frontend/UI or Code Quality)
+# All agents are analyzing different codebase areas:
+#   @gemini: Architecture & Dependencies
+#   @qwen: Performance & Optimization
+#   @codex: Frontend/UI or Code Quality
+```
+
+**Analysis Mode Breakdown:**
+- **@gemini**: System architecture, service dependencies, API design, configuration management
+- **@qwen**: Database performance, algorithm efficiency, memory usage, caching strategies  
+- **@codex**: Component architecture, state management, build optimization, or code quality & testing
 
 **What This Single Command Does:**
 - **Scans for tasks.md** with @agent assignments
