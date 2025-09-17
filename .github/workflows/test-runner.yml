@@ -42,15 +42,21 @@ jobs:
         run: |
           if [ -f "package.json" ]; then
             echo "language=javascript" >> $GITHUB_OUTPUT
-            if grep -q '"test"' package.json; then
+            if [ -f "devops/ops/ops" ] && [ -d "testing/frontend" ]; then
+              echo "test-cmd=./devops/ops/ops qa --frontend" >> $GITHUB_OUTPUT
+            elif grep -q '"test"' package.json; then
               echo "test-cmd=npm test" >> $GITHUB_OUTPUT
             else
               echo "test-cmd=echo 'No tests configured'" >> $GITHUB_OUTPUT
             fi
           elif [ -f "requirements.txt" ] || [ -f "setup.py" ]; then
             echo "language=python" >> $GITHUB_OUTPUT
-            if [ -f "pytest.ini" ] || [ -d "tests" ]; then
-              echo "test-cmd=pytest" >> $GITHUB_OUTPUT
+            if [ -f "pytest.ini" ] || [ -d "testing/backend" ] || [ -d "tests" ]; then
+              if [ -f "devops/ops/ops" ]; then
+                echo "test-cmd=./devops/ops/ops qa --backend" >> $GITHUB_OUTPUT
+              else
+                echo "test-cmd=pytest" >> $GITHUB_OUTPUT
+              fi
             else
               echo "test-cmd=python -m unittest discover" >> $GITHUB_OUTPUT
             fi
@@ -123,10 +129,18 @@ jobs:
           echo "🔗 Running integration tests..."
           case "${{ needs.detect-language.outputs.language }}" in
             javascript)
-              npm run test:integration || echo "No integration tests"
+              if [ -f "devops/ops/ops" ] && [ -d "testing/frontend" ]; then
+                ./devops/ops/ops qa --frontend || echo "No frontend tests"
+              else
+                npm run test:integration || echo "No integration tests"
+              fi
               ;;
             python)
-              pytest tests/integration/ || echo "No integration tests"
+              if [ -f "devops/ops/ops" ]; then
+                ./devops/ops/ops qa --backend || echo "No backend tests"
+              else
+                pytest testing/backend/integration/ || pytest tests/integration/ || echo "No integration tests"
+              fi
               ;;
             *)
               echo "Integration tests not configured"

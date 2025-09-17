@@ -134,6 +134,9 @@ grep "@qwen" specs/*/tasks.md
 
 # Check all incomplete tasks for an agent  
 grep -B1 -A1 "\[ \] .*@claude" specs/*/tasks.md
+
+# Run quality checks with new DevOps system
+./devops/ops/ops qa
 ```
 
 **Complete Tasks:**
@@ -493,12 +496,18 @@ agents/
 ```bash
 # Generate tasks from specs automatically
 claude generate-tasks --spec="specs/001-feature/spec.md" --output="specs/001-feature/tasks.md"
+
+# Run DevOps quality checks
+./devops/ops/ops qa --backend --frontend --all
 ```
 
 ### Agent Status Monitoring  
 ```bash
 # Check agent workloads
 ./scripts/agent-status.sh
+
+# Run DevOps system checks
+./devops/ops/ops status
 
 # Output:
 # @claude: 3 active tasks, 1 blocked

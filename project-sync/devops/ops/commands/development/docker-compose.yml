@@ -1,0 +1,84 @@
+# Docker Compose configuration for SignalHire Agent
+# Provides development environment with all dependencies
+
+version: '3.8'
+
+services:
+  signalhire-agent:
+    build: .
+    container_name: signalhire-agent-dev
+    
+    # Environment variables
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+      # Browser automation removed; no GUI needed
+      
+      # API Keys - Set these in your environment or .env file
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MODEL_API_KEY=${MODEL_API_KEY}
+      - BROWSERBASE_API_KEY=${BROWSERBASE_API_KEY}
+      - BROWSERBASE_PROJECT_ID=${BROWSERBASE_PROJECT_ID}
+      
+      # SignalHire credentials - Set these in your environment or .env file
+      - SIGNALHIRE_EMAIL=${SIGNALHIRE_EMAIL}
+      - SIGNALHIRE_PASSWORD=${SIGNALHIRE_PASSWORD}
+      - SIGNALHIRE_API_KEY=${SIGNALHIRE_API_KEY}
+      
+    # Volume mounts for development
+    volumes:
+      - .:/app
+      - ./screenshots:/app/screenshots
+      - ./test_screenshots:/app/test_screenshots  
+      - ./downloads:/app/downloads
+      - ./logs:/app/logs
+      
+    # Network settings
+    ports:
+      - "8000:8000"  # FastAPI callback server
+      - "3000:3000"  # Potential UI server
+      
+    # Working directory
+    working_dir: /app
+    
+    # Keep container running for development
+    tty: true
+    stdin_open: true
+    
+    # Command for interactive development
+    command: /bin/bash
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python3", "-c", "print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional: Redis for caching/session management (future use)
+  redis:
+    image: redis:7-alpine
+    container_name: signalhire-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # Optional: PostgreSQL for data persistence (future use)
+  postgres:
+    image: postgres:15-alpine
+    container_name: signalhire-postgres
+    environment:
+      POSTGRES_DB: signalhire_agent
+      POSTGRES_USER: agent_user
+      POSTGRES_PASSWORD: agent_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  postgres_data:

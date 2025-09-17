@@ -26,16 +26,16 @@ specify init --here --ai copilot
 ```bash
 # From your new project directory, run one of these:
 
-# Full-stack project (backend + frontend testing)
+# Full-stack project (backend + frontend testing + DevOps)
 /home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh
 
-# Backend-only project (Python/pytest)
+# Backend-only project (Python/pytest + DevOps)
 /home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --backend-only
 
-# Frontend-only project (Playwright/TypeScript)
+# Frontend-only project (Playwright/TypeScript + DevOps)
 /home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --frontend-only
 
-# Skip all testing templates
+# Skip all testing templates (DevOps only)
 /home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --no-testing
 
 # That's it! You now have AI agents as your development partners.
@@ -252,19 +252,19 @@ Standardize your local testing with the ops CLI:
 
 ```
 # Backend unit/contract/smoke (fast lane)
-./project-sync/scripts/ops qa --backend
+./project-sync/devops/ops/ops qa --backend
 
 # CLI contract tests (golden JSON outputs, exit codes)
-./project-sync/scripts/ops qa --cli
+./project-sync/devops/ops/ops qa --cli
 
 # MCP server tests (in-memory by default)
-./project-sync/scripts/ops qa --mcp
+./project-sync/devops/ops/ops qa --mcp
 
 # Everything fast (excludes slow/subprocess by default)
-./project-sync/scripts/ops qa --all
+./project-sync/devops/ops/ops qa --all
 
 # Include transport/subprocess MCP tests when needed
-RUN_MCP_TRANSPORT=1 ./project-sync/scripts/ops qa --mcp
+RUN_MCP_TRANSPORT=1 ./project-sync/devops/ops/ops qa --mcp
 ```
 
 Notes:
@@ -327,13 +327,13 @@ This framework provides comprehensive testing templates for both backend and fro
 ### Ops CLI Integration
 ```bash
 # Backend development (Python/API)
-./scripts/ops qa --backend
+./devops/ops/ops qa --backend
 
 # Frontend development (UI/UX)
-./scripts/ops qa --frontend
+./devops/ops/ops qa --frontend
 
 # Full-stack changes
-./scripts/ops qa --all
+./devops/ops/ops qa --all
 ```
 
 ### Smart Testing Strategy

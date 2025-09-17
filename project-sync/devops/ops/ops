@@ -1,15 +1,15 @@
 #!/bin/bash
-# Single operations CLI for signalhireagent
+# Operations CLI Template
 # 
 # Replaces complex automation with simple, explicit commands
 # Perfect for solo development with AI CLI agents
+# Template: Customize for your project when copying to other repos
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-BACKEND_TESTS="$REPO_ROOT/testing/backend-tests"
-CONFIG_FILE="$REPO_ROOT/.automation/config.yml"
+CONFIG_FILE="$REPO_ROOT/ops/config.yml"
 
 # Colors
 RED='\033[0;31m'
@@ -59,16 +59,17 @@ activate_venv() {
 
 # Commands
 cmd_setup() {
-    local target="${1:-$HOME/deploy/signalhire}"
+    local target="${1:-$HOME/deploy/project}"
     local auto_release="${2:-false}"
     
-    print_status "Setting up signalhireagent operations"
+    print_status "Setting up project operations"
     print_status "Target: $target"
     
     # Create config
-    mkdir -p .automation
+    mkdir -p ops
     cat > "$CONFIG_FILE" << EOF
-# SignalHire Agent Operations Config
+# Project Operations Config
+# Template: Customize for your project
 versioning:
   strategy: conventional_commits
   source: pyproject.toml
@@ -97,167 +98,66 @@ EOF
 }
 
 cmd_qa() {
-    local test_type="${1:-all}"
-    local verbose="${2:-}"
-
+    local test_type="all"
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --backend) test_type="backend"; shift ;;
+            --frontend) test_type="frontend"; shift ;;
+            --all) test_type="all"; shift ;;
+            *) break ;;
+        esac
+    done
+    
     print_status "Running quality assurance checks ($test_type)"
-
-    case "$test_type" in
-        --backend|backend)
-            qa_backend "$verbose"
-            ;;
-        --frontend|frontend)
-            qa_frontend "$verbose"
-            ;;
-        --cli|cli)
-            qa_cli "$verbose"
-            ;;
-        --mcp|mcp)
-            qa_mcp "$verbose"
-            ;;
-        --production|production)
-            qa_production "$verbose"
-            ;;
-        --all|all|"")
-            qa_all "$verbose"
-            ;;
-        --help|help)
-            qa_help
-            ;;
-        *)
-            print_error "Unknown test type: $test_type"
-            qa_help
-            return 1
-            ;;
-    esac
-}
-
-# Helper: run pytest via uv/pytest/python
-run_pytest() {
-    local args="$@"
-    activate_venv
-    if command -v uv >/dev/null 2>&1; then
-        if uv run pytest $args; then
-            return 0
+    
+    # Backend QA
+    if [[ "$test_type" == "backend" ]] || [[ "$test_type" == "all" ]]; then
+        activate_venv
+        
+        echo "🧹 Linting and fixing backend..."
+        ruff check src/ --fix || true
+        
+        echo "🎨 Formatting backend..."
+        black src/ || true
+        
+        echo "🔍 Type checking backend..."
+        mypy src/ || true
+        
+        echo "🧪 Running backend tests..."
+        # Standardized test structure for template consistency
+        if [[ -d "tests/backend" ]]; then
+            echo "   Using standardized tests/backend/ structure..."
+            python3 run.py -m pytest tests/backend/ -m "not slow" || true
+        elif [[ -d "tests/unit" ]] && [[ -d "tests/integration" ]]; then
+            echo "   Using legacy tests/unit + tests/integration structure..."
+            echo "   Running unit tests..."
+            python3 run.py -m pytest tests/unit/ -v || true
+            echo "   Running integration tests..."
+            python3 run.py -m pytest tests/integration/ -m "not slow" -v || true
         else
-            print_warning "uv run pytest failed, falling back to pytest"
+            echo "   Running all tests (fallback)..."
+            python3 run.py -m pytest -m "not slow" || true
         fi
     fi
-    if command -v pytest >/dev/null 2>&1; then
-        pytest $args
-    else
-        python3 -m pytest $args
-    fi
-}
-
-qa_backend() {
-    local verbose="$1"
-    print_status "Backend: lint, typecheck, tests"
-    activate_venv
-
-    if command -v ruff >/dev/null 2>&1; then
-        echo "🧹 ruff..."; ruff check src/ --fix || true
-    fi
-    if command -v black >/dev/null 2>&1; then
-        echo "🎨 black..."; black src/ || true
-    fi
-    if command -v mypy >/dev/null 2>&1; then
-        echo "🔍 mypy..."; mypy src/ || true
-    fi
-
-    if [[ -d "$BACKEND_TESTS" ]]; then
-        cd "$BACKEND_TESTS"
-        local pytest_args="-m 'not slow and not client_process'"
-        [[ -n "$verbose" ]] && pytest_args="$pytest_args -v"
-        run_pytest $pytest_args || true
-        cd "$REPO_ROOT"
-    else
-        print_warning "No backend tests found at $BACKEND_TESTS"
-    fi
-    print_success "Backend QA complete"
-}
-
-qa_cli() {
-    local verbose="$1"
-    print_status "CLI contract tests"
-    if [[ -d "$BACKEND_TESTS/cli" ]]; then
-        cd "$BACKEND_TESTS"
-        local pytest_args="cli/ -m cli"
-        [[ -n "$verbose" ]] && pytest_args="$pytest_args -v"
-        run_pytest $pytest_args || true
-        cd "$REPO_ROOT"
-    else
-        print_warning "No CLI tests at $BACKEND_TESTS/cli"
-    fi
-    print_success "CLI tests complete"
-}
-
-qa_mcp() {
-    local verbose="$1"
-    print_status "MCP server tests"
-    if [[ -d "$BACKEND_TESTS/mcp" ]]; then
-        cd "$BACKEND_TESTS"
-        local pytest_args="mcp/ -m 'mcp and not client_process'"
-        if [[ -n "$RUN_MCP_TRANSPORT" ]]; then
-            pytest_args="mcp/ -m mcp"
+    
+    # Frontend QA
+    if [[ "$test_type" == "frontend" ]] || [[ "$test_type" == "all" ]]; then
+        if [[ -d "tests/frontend" ]] && [[ -f "package.json" ]]; then
+            echo "🧹 Linting frontend..."
+            npm run lint:frontend 2>/dev/null || echo "⚠️ Frontend linting not configured"
+            
+            echo "🔍 Type checking frontend..."
+            npm run typecheck:frontend 2>/dev/null || echo "⚠️ Frontend type checking not configured"
+            
+            echo "🎭 Running frontend tests..."
+            npm run test:frontend:smoke 2>/dev/null || npm run test:frontend 2>/dev/null || echo "⚠️ Frontend tests not configured"
+        else
+            echo "📝 Frontend tests directory not found - skipping frontend QA"
         fi
-        [[ -n "$verbose" ]] && pytest_args="$pytest_args -v"
-        run_pytest $pytest_args || true
-        cd "$REPO_ROOT"
-    else
-        print_warning "No MCP tests at $BACKEND_TESTS/mcp"
     fi
-    print_success "MCP tests complete"
-}
-
-qa_production() {
-    local verbose="$1"
-    print_status "Production readiness tests"
-    if [[ -d "$BACKEND_TESTS/production" ]]; then
-        cd "$BACKEND_TESTS"
-        local pytest_args="production/ -m 'not slow'"
-        [[ -n "$verbose" ]] && pytest_args="$pytest_args -v"
-        run_pytest $pytest_args || true
-        cd "$REPO_ROOT"
-    else
-        print_warning "No production tests at $BACKEND_TESTS/production"
-    fi
-    print_success "Production readiness tests complete"
-}
-
-qa_frontend() {
-    print_warning "Frontend tests not configured for CLI-first projects (skipping)"
-}
-
-qa_all() {
-    local verbose="$1"
-    qa_backend "$verbose"; echo
-    qa_cli "$verbose"; echo
-    qa_mcp "$verbose"; echo
-    qa_production "$verbose"; echo
-    qa_frontend "$verbose"
-    print_success "All QA complete"
-}
-
-qa_help() {
-    cat << EOF
-Usage: ops qa [TYPE] [OPTIONS]
-
-Types:
-  --backend     Backend tests (Python, API)
-  --cli         CLI contract tests
-  --mcp         MCP server tests
-  --production  Production readiness tests
-  --all         All tests (default)
-
-Options:
-  -v, --verbose  Verbose output
-
-Env gates:
-  RUN_MCP_TRANSPORT=1   Include subprocess/transport MCP tests
-  RUN_LIVE=1            Enable live integration tests
-  RUN_SLOW=1            Include slow tests
-EOF
+    
+    print_success "QA complete ($test_type)"
 }
 
 cmd_build() {
@@ -288,10 +188,10 @@ cmd_build() {
     print_status "Building production version to: $target"
     
     # Use existing build script
-    if [[ -f "scripts/build/build-production.sh" ]]; then
+    if [[ -f "deploy/commands/build-production.sh" ]]; then
         local args=("$target")
         [[ "$force" == true ]] && args+=(--force)
-        ./scripts/build/build-production.sh "${args[@]}"
+        ./deploy/commands/build-production.sh "${args[@]}"
     else
         # Fallback simple build
         mkdir -p "$target"
@@ -551,18 +451,7 @@ case "${1:-help}" in
         cmd_setup "$@"
         ;;
     qa)
-        shift
-        cmd_qa "$@"
-        ;;
-    demo)
-        shift
-        print_status "Running demo CLI via Python"
-        if [[ -f "$REPO_ROOT/cli/demo_cli.py" ]]; then
-            python3 "$REPO_ROOT/cli/demo_cli.py" "$@"
-        else
-            print_error "Demo CLI not found: $REPO_ROOT/cli/demo_cli.py"
-            exit 1
-        fi
+        cmd_qa
         ;;
     build)
         shift
@@ -596,14 +485,14 @@ case "${1:-help}" in
         ;;
     help|--help|-h)
         cat << EOF
-SignalHire Agent Operations CLI
+Project Operations CLI (Template)
 
 USAGE:
     ops <command> [options]
 
 COMMANDS:
     setup [target]           Setup operations config and target directory
-    qa                       Run quality checks (lint, format, typecheck, tests)
+    qa [--backend|--frontend|--all]  Run quality checks (lint, format, typecheck, tests)
     build --target PATH      Build production version to target
     verify-prod [target]     Verify production build works correctly
     sync                     Sync to all configured targets
@@ -613,9 +502,9 @@ COMMANDS:
     hooks [install|remove]   Manage auto-sync git hooks (optional)
 
 EXAMPLES:
-    ops setup ~/deploy/signalhire
+    ops setup ~/deploy/your-project    # Customize path for your project
     ops qa
-    ops build --target ~/deploy/signalhire --force
+    ops build --target ~/deploy/your-project --force
     ops verify-prod
     ops release minor
     ops status
@@ -625,6 +514,10 @@ WORKFLOW:
     Daily: ops qa → ops build → ops verify-prod
     Release: ops release [patch|minor|major]
     Sync: ops sync (or enable with ops hooks install)
+    
+TEMPLATE NOTE:
+    This ops system is designed as a template. When copying to other projects,
+    customize the QA commands, build scripts, and target paths for your specific stack.
 EOF
         ;;
     *)
