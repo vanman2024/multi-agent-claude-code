@@ -910,8 +910,8 @@ class ProjectSync {
     
     // Sync backend tests
     if (!skipBackend && isPython) {
-      const backendTestsSource = path.join(__dirname, '..', 'testing', 'backend-tests');
-      const backendTestsTarget = path.join(this.projectRoot, 'backend-tests');
+      const backendTestsSource = path.join(__dirname, '..', 'tests', 'backend');
+      const backendTestsTarget = path.join(this.projectRoot, 'tests', 'backend');
       
       if (fs.existsSync(backendTestsSource)) {
         console.log('  🐍 Syncing backend tests (Python/pytest)...');
@@ -924,8 +924,8 @@ class ProjectSync {
     
     // Sync frontend tests
     if (!skipFrontend && isNode) {
-      const frontendTestsSource = path.join(__dirname, '..', 'testing', 'frontend-tests-template');
-      const frontendTemplateTarget = path.join(this.projectRoot, 'frontend-tests-template');
+      const frontendTestsSource = path.join(__dirname, '..', 'tests', 'frontend');
+      const frontendTemplateTarget = path.join(this.projectRoot, 'tests', 'frontend');
       
       if (fs.existsSync(frontendTestsSource)) {
         console.log('  🎭 Syncing frontend tests (Playwright/TypeScript)...');
@@ -951,7 +951,7 @@ class ProjectSync {
           }
         }
         
-        console.log('  📋 Frontend testing template ready - run ./frontend-tests-template/setup-testing.sh to activate');
+        console.log('  📋 Frontend testing ready - tests/frontend/ configured');
         syncCount++;
       }
     } else if (!skipFrontend && !isNode) {
@@ -971,25 +971,24 @@ class ProjectSync {
       console.log('  📁 Created dual testing architecture:');
       
       if (!skipBackend && isPython) {
-        console.log('     • backend-tests/ - Python/pytest backend testing');
-        console.log('       • backend-tests/smoke/ - Quick validation tests');
-        console.log('       • backend-tests/unit/ - Individual component tests');
-        console.log('       • backend-tests/integration/ - External service tests');
-        console.log('       • backend-tests/contract/ - API contract tests');
-        console.log('       • backend-tests/performance/ - Performance benchmarks');
-        console.log('       • Run: ./scripts/ops qa --backend');
+        console.log('     • tests/backend/ - Python/pytest backend testing');
+        console.log('       • tests/backend/smoke/ - Quick validation tests');
+        console.log('       • tests/backend/unit/ - Individual component tests');
+        console.log('       • tests/backend/integration/ - External service tests');
+        console.log('       • tests/backend/contract/ - API contract tests');
+        console.log('       • tests/backend/performance/ - Performance benchmarks');
+        console.log('       • Run: ./devops/ops/ops qa --backend');
       }
       
       if (!skipFrontend && isNode) {
-        console.log('     • frontend-tests-template/ - Playwright/TypeScript frontend testing');
+        console.log('     • tests/frontend/ - Playwright/TypeScript frontend testing');
         console.log('       • Smart E2E strategy (5-10% critical journeys)');
         console.log('       • Visual regression, accessibility, API testing');
-        console.log('       • Run: ./frontend-tests-template/setup-testing.sh to activate');
-        console.log('       • Then: ./scripts/ops qa --frontend');
+        console.log('       • Run: ./devops/ops/ops qa --frontend');
       }
       
       if (!skipBackend && !skipFrontend && isPython && isNode) {
-        console.log('     • Full-stack testing: ./scripts/ops qa --all');
+        console.log('     • Full-stack testing: ./devops/ops/ops qa --all');
       }
     } else if (process.argv.includes('--no-testing')) {
       console.log('  ⏭️  Testing setup skipped (--no-testing flag)');
