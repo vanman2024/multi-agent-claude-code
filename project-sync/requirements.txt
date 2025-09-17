@@ -1,5 +1,5 @@
 # AgentSwarm Production Dependencies
-# Generated on 2025-09-17T22:35:19Z
+# Generated on 2025-09-17T22:32:13Z
 
 click>=8.1.0
 pyyaml>=6.0
