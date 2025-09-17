@@ -683,35 +683,79 @@ codex exec "Create responsive user dashboard component with form validation"
 
 #### Real-World Deployment Strategy
 
-**Phase 1: Swarm Initialization (2-3 minutes)**
+**🚀 SINGLE COMMAND DEPLOYMENT (30 seconds)**
 ```bash
-# Terminal 1: Claude coordinates from main project
-claude /work
+# Deploy entire swarm with one command!
+/tmp/multi-agent-claude-code/.claude/scripts/swarm /path/to/target/project "Feature description"
 
-# Terminal 2: Deploy Gemini analysis engine
-cd /target/project
-gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p "Analyze codebase structure and identify integration points for [feature]"
+# Or use the short wrapper:
+swarm /path/to/target/project "Add user authentication system"
 
-# Terminal 3: Deploy Qwen optimization engine  
-cd /target/project
-qwen --approval-mode=auto_edit -p "Review performance bottlenecks and optimize for [feature] requirements"
+# Example:
+swarm /tmp/Synergy-New "Optimize database performance and add caching"
+```
 
-# Terminal 4: Deploy Codex frontend engine
-cd /target/project/frontend
-codex exec "Create [component] with [requirements]"
+**What This Single Command Does:**
+- Deploys Gemini analysis engine with approval mode
+- Deploys Qwen optimization engine with approval mode  
+- Deploys Codex frontend engine (if frontend detected)
+- All agents run in parallel background processes
+- Creates monitoring logs for each agent
+- Provides real-time monitoring commands
+
+**Phase 1: Instant Swarm Deployment (30 seconds)**
+```bash
+# One command deploys everything:
+swarm /target/project "Feature name"
+
+# Output:
+# 🚀 DEPLOYING PARALLEL AGENT SWARM
+# 🤖 Deploying @gemini...
+# ✅ @gemini deployed (PID: 12345)
+# 🤖 Deploying @qwen...  
+# ✅ @qwen deployed (PID: 12346)
+# 🤖 Deploying @codex...
+# ✅ @codex deployed (PID: 12347)
+# 🎉 SWARM DEPLOYMENT COMPLETE!
 ```
 
 **Phase 2: Parallel Execution Monitoring**
-- Each agent works independently in their specialization
-- Claude monitors progress and resolves conflicts
-- Real-time coordination through shared documentation
-- Automatic conflict detection and resolution
+```bash
+# Monitor all agents in real-time:
+tail -f /tmp/agent-swarm-logs/*.log
+
+# Monitor specific agents:
+tail -f /tmp/agent-swarm-logs/gemini.log
+tail -f /tmp/agent-swarm-logs/qwen.log
+tail -f /tmp/agent-swarm-logs/codex.log
+
+# Check agent status:
+ps aux | grep -E '(gemini|qwen|codex)'
+
+# Kill all agents if needed:
+swarm --kill
+```
 
 **Phase 3: Integration & Quality Gates**
-- Claude merges all agent outputs
-- Automated testing and validation
-- Quality assurance checks
+- Claude coordinates and merges all agent outputs
+- Automated testing and validation through ops system
+- Quality assurance checks via `./ops/ops qa`
 - Deployment readiness assessment
+
+**Complete Workflow Example:**
+```bash
+# 1. Deploy swarm (30 seconds)
+swarm /path/to/project "Add payment system"
+
+# 2. Monitor progress (ongoing)  
+tail -f /tmp/agent-swarm-logs/*.log
+
+# 3. Claude coordinates integration (when agents complete)
+claude /work "Review and integrate swarm outputs for payment system"
+
+# 4. Quality validation
+cd /path/to/project && ./ops/ops qa
+```
 
 #### Success Metrics from Testing
 

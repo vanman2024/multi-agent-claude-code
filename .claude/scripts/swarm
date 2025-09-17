@@ -1,0 +1,12 @@
+#!/bin/bash
+# Agent Swarm Quick Deploy
+#
+# PURPOSE: Single command to deploy parallel AI agent swarm
+# USAGE: swarm [target_directory] [feature_description]
+# PART OF: Multi-Agent Claude Code Template
+# CONNECTS TO: deploy-agent-swarm.sh main deployment script
+#
+# Quick wrapper for agent swarm deployment
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$SCRIPT_DIR/deploy-agent-swarm.sh" "$@"
