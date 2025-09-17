@@ -117,7 +117,7 @@ if [ -n "$TASKS_FILE" ]; then
     QWEN_TASKS=$(grep -E "\[ \].*@qwen" "$TASKS_FILE" | head -3 | sed 's/^.*@qwen //' || echo "No specific tasks found")
     CODEX_TASKS=$(grep -E "\[ \].*@codex" "$TASKS_FILE" | head -3 | sed 's/^.*@codex //' || echo "No specific tasks found")
     
-    # Deploy with specific task assignments
+    # Deploy with specific task assignments (approval mode enabled for external codebase work)
     deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'ASSIGNED TASKS from $TASKS_FILE: $GEMINI_TASKS. Focus on: $FEATURE_DESC. Complete your assigned tasks and mark them as [x] when done.'"
     
     deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'ASSIGNED TASKS from $TASKS_FILE: $QWEN_TASKS. Focus on: $FEATURE_DESC. Complete your assigned tasks and mark them as [x] when done.'"
@@ -130,10 +130,10 @@ else
     if [ "$ANALYSIS_MODE" = true ]; then
         echo -e "${BLUE}🔍 ANALYSIS MODE: Agents will analyze different codebase areas${NC}"
         
-        # Gemini: Architecture & Dependencies Analysis
+        # Gemini: Architecture & Dependencies Analysis (approval mode for external codebase work)
         deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'CODEBASE ANALYSIS FOCUS: Architecture & Dependencies. Analyze: 1) Overall system architecture, 2) Service dependencies and integration patterns, 3) API design and data flow, 4) Configuration management. Create detailed architecture documentation.'"
         
-        # Qwen: Performance & Optimization Analysis  
+        # Qwen: Performance & Optimization Analysis (approval mode for external codebase work)
         deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'CODEBASE ANALYSIS FOCUS: Performance & Optimization. Analyze: 1) Database queries and connection patterns, 2) Algorithm efficiency and bottlenecks, 3) Memory usage and resource allocation, 4) Caching strategies. Create performance optimization report.'"
         
         # Codex: Frontend & UI Analysis (if frontend exists)
@@ -147,10 +147,10 @@ else
     else
         echo -e "${YELLOW}⚠️  No tasks.md found - using generic assignments${NC}"
         
-        # Gemini Analysis Engine
+        # Gemini Analysis Engine (approval mode for external codebase work)
         deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'Analyze codebase structure and identify integration points for: $FEATURE_DESC. Focus on architecture, dependencies, and potential improvements.'"
 
-        # Qwen Optimization Engine  
+        # Qwen Optimization Engine (approval mode for external codebase work)
         deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'Review performance bottlenecks and optimization opportunities for: $FEATURE_DESC. Analyze algorithms, database queries, and resource usage.'"
 
         # Codex Frontend Engine (if frontend directory exists)
