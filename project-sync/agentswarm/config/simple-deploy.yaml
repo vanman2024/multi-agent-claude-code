@@ -1,0 +1,44 @@
+# AgentSwarm Configuration Example
+# Simple deployment with multiple agent types
+
+agents:
+  codex:
+    instances: 3
+    resources:
+      memory: "2GB"
+      timeout: "30m"
+    tasks: ["frontend_development", "testing", "code_review"]
+  
+  claude:
+    instances: 2
+    resources:
+      memory: "1GB"
+      timeout: "30m"
+    tasks: ["architecture_review", "documentation", "planning"]
+  
+  gemini:
+    instances: 1
+    resources:
+      memory: "1GB"
+      timeout: "30m"
+    tasks: ["performance_analysis", "optimization"]
+
+deployment:
+  strategy: "parallel"
+  max_concurrent: 8
+  monitoring:
+    enabled: true
+    dashboard_port: 8080
+    logs:
+      level: "INFO"
+      format: "json"
+  
+  health_checks:
+    enabled: true
+    interval: "30s"
+    timeout: "10s"
+  
+  scaling:
+    auto_scale: false
+    min_instances: 1
+    max_instances: 10
