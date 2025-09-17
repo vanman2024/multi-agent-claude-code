@@ -41,23 +41,22 @@ specify init --here --ai copilot
 # That's it! You now have AI agents as your development partners.
 ```
 
-### Step 3: Initialize Your Development Environment
+### Step 3: You're Ready to Develop!
 ```bash
-# After template sync, the DevOps system will auto-configure your project
-# You can also run the setup manually for customization:
+# The DevOps system was automatically configured during Step 2!
+# Check what was set up:
+cat DEVOPS_SETUP.md
 
-# Auto-setup (recommended)
-./devops/setup-devops.sh --project-name my-awesome-app
+# Start using your development environment:
+./devops/ops/ops qa          # Run quality checks
+./devops/ops/ops build       # Build for production  
+./devops/ops/ops status      # Check project status
 
-# Custom setup options
-./devops/setup-devops.sh --backend-only --python-version 3.12
-./devops/setup-devops.sh --frontend-only --node-version 20
-./devops/setup-devops.sh --no-testing --no-agents
+# Copy environment template and configure:
+cp .env.example .env
+# Edit .env with your API keys and settings
 
-# Preview what will be configured
-./devops/setup-devops.sh --dry-run
-
-# Your project is now ready for development!
+# Your complete development environment is ready!
 ```
 
 ## 📋 Your Personal AI Development Toolkit
