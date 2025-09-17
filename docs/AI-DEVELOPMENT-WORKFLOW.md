@@ -695,13 +695,46 @@ swarm /path/to/target/project "Add user authentication system"
 swarm /tmp/Synergy-New "Optimize database performance and add caching"
 ```
 
+**🎯 AUTOMATIC TASK ASSIGNMENT DETECTION**
+
+The swarm script automatically looks for task assignments:
+
+**Option 1: With tasks.md (Recommended)**
+```bash
+# 1. Create tasks.md with @agent assignments:
+cat > /target/project/tasks.md << 'EOF'
+- [ ] T001 @gemini Analyze authentication architecture
+- [ ] T002 @qwen Optimize login performance  
+- [ ] T003 @codex Create login UI components
+EOF
+
+# 2. Deploy swarm - agents get their specific tasks:
+swarm /target/project "Add authentication"
+
+# Output:
+# 📋 Found task assignments: /target/project/tasks.md
+# 🤖 Deploying @gemini... (ASSIGNED TASKS: Analyze authentication architecture)
+# 🤖 Deploying @qwen... (ASSIGNED TASKS: Optimize login performance)  
+# 🤖 Deploying @codex... (ASSIGNED TASKS: Create login UI components)
+```
+
+**Option 2: Without tasks.md (Generic)**
+```bash
+# Without tasks.md, agents get generic assignments:
+swarm /target/project "Add authentication"
+
+# Output:
+# ⚠️ No tasks.md found - using generic assignments
+# 🤖 Deploying @gemini... (Generic codebase analysis)
+# 🤖 Deploying @qwen... (Generic performance optimization)
+```
+
 **What This Single Command Does:**
-- Deploys Gemini analysis engine with approval mode
-- Deploys Qwen optimization engine with approval mode  
-- Deploys Codex frontend engine (if frontend detected)
-- All agents run in parallel background processes
-- Creates monitoring logs for each agent
-- Provides real-time monitoring commands
+- **Scans for tasks.md** with @agent assignments
+- **Deploys agents with specific tasks** or generic assignments
+- **All agents run in parallel** background processes with approval mode
+- **Creates monitoring logs** for each agent
+- **Agents mark tasks complete** by changing `[ ]` to `[x]`
 
 **Phase 1: Instant Swarm Deployment (30 seconds)**
 ```bash

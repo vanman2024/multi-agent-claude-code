@@ -73,18 +73,47 @@ deploy_agent() {
     return 0
 }
 
+# Check for tasks.md file with agent assignments
+TASKS_FILE=""
+if [ -f "$TARGET_DIR/tasks.md" ]; then
+    TASKS_FILE="$TARGET_DIR/tasks.md"
+elif [ -f "$TARGET_DIR/specs/*/tasks.md" ]; then
+    TASKS_FILE=$(find "$TARGET_DIR/specs" -name "tasks.md" | head -1)
+fi
+
 # Deploy all agents simultaneously
 echo -e "${BLUE}🔄 PARALLEL DEPLOYMENT PHASE${NC}"
 
-# Gemini Analysis Engine
-deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'Analyze codebase structure and identify integration points for: $FEATURE_DESC. Focus on architecture, dependencies, and potential improvements.'"
+if [ -n "$TASKS_FILE" ]; then
+    echo -e "${GREEN}📋 Found task assignments: $TASKS_FILE${NC}"
+    
+    # Extract tasks for each agent
+    GEMINI_TASKS=$(grep -E "\[ \].*@gemini" "$TASKS_FILE" | head -3 | sed 's/^.*@gemini //' || echo "No specific tasks found")
+    QWEN_TASKS=$(grep -E "\[ \].*@qwen" "$TASKS_FILE" | head -3 | sed 's/^.*@qwen //' || echo "No specific tasks found")
+    CODEX_TASKS=$(grep -E "\[ \].*@codex" "$TASKS_FILE" | head -3 | sed 's/^.*@codex //' || echo "No specific tasks found")
+    
+    # Deploy with specific task assignments
+    deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'ASSIGNED TASKS from $TASKS_FILE: $GEMINI_TASKS. Focus on: $FEATURE_DESC. Complete your assigned tasks and mark them as [x] when done.'"
+    
+    deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'ASSIGNED TASKS from $TASKS_FILE: $QWEN_TASKS. Focus on: $FEATURE_DESC. Complete your assigned tasks and mark them as [x] when done.'"
+    
+    # Codex deployment with task check
+    if [ "$CODEX_TASKS" != "No specific tasks found" ]; then
+        deploy_agent "codex" "codex exec 'ASSIGNED TASKS: $CODEX_TASKS. Complete these tasks for: $FEATURE_DESC'"
+    fi
+else
+    echo -e "${YELLOW}⚠️  No tasks.md found - using generic assignments${NC}"
+    
+    # Gemini Analysis Engine
+    deploy_agent "gemini" "gemini -m gemini-2.0-flash-exp --approval-mode=auto_edit -p 'Analyze codebase structure and identify integration points for: $FEATURE_DESC. Focus on architecture, dependencies, and potential improvements.'"
 
-# Qwen Optimization Engine  
-deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'Review performance bottlenecks and optimization opportunities for: $FEATURE_DESC. Analyze algorithms, database queries, and resource usage.'"
+    # Qwen Optimization Engine  
+    deploy_agent "qwen" "qwen --approval-mode=auto_edit -p 'Review performance bottlenecks and optimization opportunities for: $FEATURE_DESC. Analyze algorithms, database queries, and resource usage.'"
 
-# Codex Frontend Engine (if frontend directory exists)
-if [ -d "$TARGET_DIR/src" ] || [ -d "$TARGET_DIR/frontend" ] || [ -d "$TARGET_DIR/app" ]; then
-    deploy_agent "codex" "codex exec 'Analyze frontend components and suggest improvements for: $FEATURE_DESC. Focus on React patterns, state management, and user experience.'"
+    # Codex Frontend Engine (if frontend directory exists)
+    if [ -d "$TARGET_DIR/src" ] || [ -d "$TARGET_DIR/frontend" ] || [ -d "$TARGET_DIR/app" ]; then
+        deploy_agent "codex" "codex exec 'Analyze frontend components and suggest improvements for: $FEATURE_DESC. Focus on React patterns, state management, and user experience.'"
+    fi
 fi
 
 echo ""
