@@ -27,6 +27,9 @@ This DevOps system provides everything needed for modern development workflow:
 
 # LOCAL: Production deployment (you run this)
 ./devops/deploy/deploy production ~/deploy/your-project
+# For the AgentSwarm template target, run the deploy command and then copy the
+# built `src/agentswarm/` subtree into the multi-agent template repository. Only
+# the package and its assets should be synced—SignalHire files remain in place.
 ```
 
 ### **☁️ AUTOMATED WORKFLOW** (Future - Will Trigger Local)
@@ -238,3 +241,42 @@ git push origin main
 ---
 
 **🤖 Template System**: This DevOps system is designed as a reusable template. Copy the entire `devops/` folder to new projects and customize for your specific technology stack and deployment requirements.
+
+### Exporting AgentSwarm
+After deploying to the staging target, run:
+```
+./devops/deploy/deploy export /path/to/multi-agent-template
+```
+This copies only `agentswarm/` (no tests, caches) into the template repository.
+
+### Portable Configuration (`config/devops.toml`)
+When you copy this DevOps folder into a new project, create or edit `config/devops.toml` so the CLI knows which package to manage, how to run tests, and where to deploy:
+
+```toml
+[versioning]
+package = "agentswarm"
+source = "agentswarm/config/agentswarm.toml"
+
+[package]
+name = "agentswarm"
+path = "agentswarm"
+test_command = "pytest agentswarm/tests"
+
+[package.manifest]
+version = "VERSION"
+requirements = "requirements.txt"
+install = "install.sh"
+cli = "agentswarm"
+
+[deploy]
+target = "/abs/path/to/project-sync"
+subdirectory = "project-sync/agentswarm"
+```
+
+The CLI commands (`ops qa`, `ops release`, `deploy production`) now read this file automatically—no script changes required when moving to a new codebase.
+
+After a staging deploy, export the production bundle with the AgentSwarm version:
+```
+./devops/deploy/deploy export /tmp/multi-agent-template
+cat /tmp/multi-agent-template/VERSION  # prints the AgentSwarm version from agentswarm.toml
+```

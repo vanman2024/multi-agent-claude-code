@@ -9,7 +9,9 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CONFIG_FILE="$REPO_ROOT/devops/ops/config.yml"
+DEVOPS_CONFIG="$REPO_ROOT/config/devops.toml"
 
 # Colors
 RED='\033[0;31m'
@@ -25,21 +27,81 @@ print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 cd "$REPO_ROOT"
 
+get_default_target() {
+    if [[ -f "$DEVOPS_CONFIG" ]]; then
+        python3 - "$DEVOPS_CONFIG" <<'PY'
+import sys
+import tomllib
+
+path = sys.argv[1]
+with open(path, 'rb') as fh:
+    cfg = tomllib.load(fh)
+
+deploy = cfg.get('deploy', {})
+target = deploy.get('target')
+if target:
+    print(target)
+PY
+        return
+    fi
+
+    if [[ -f "$CONFIG_FILE" ]]; then
+        python3 - "$CONFIG_FILE" 2>/dev/null <<'PY'
+import pathlib
+import sys
+
+config_path = pathlib.Path(sys.argv[1])
+targets = []
+current = None
+
+for raw_line in config_path.read_text().splitlines():
+    line = raw_line.rstrip()
+    stripped = line.strip()
+
+    if not stripped or stripped.startswith('#'):
+        continue
+
+    if not line.startswith(' '):
+        current = stripped.rstrip(':')
+        continue
+
+    if current == 'targets' and stripped.startswith('- '):
+        targets.append(stripped[2:].strip())
+
+if targets:
+    print(targets[0])
+PY
+    fi
+}
+
 case "${1:-help}" in
     production)
         shift
         print_status "Running production deployment..."
-        ./deploy/commands/deploy-to-production.sh "$@"
+        if [[ $# -eq 0 ]]; then
+            default_target=$(get_default_target)
+            set -- "$default_target"
+        fi
+        ./devops/deploy/commands/deploy-to-production.sh "$@"
         ;;
     simple)
         shift
         print_status "Running simple deployment..."
-        ./deploy/commands/deploy-to-production-simple.sh "$@"
+        ./devops/deploy/commands/deploy-to-production-simple.sh "$@"
         ;;
     build)
         shift
         print_status "Running production build..."
-        ./deploy/commands/build-production.sh "$@"
+        ./devops/deploy/commands/build-production.sh "$@"
+        ;;
+    export)
+        shift
+        if [[ $# -lt 1 ]]; then
+            print_error "export requires target directory argument"
+            exit 1
+        fi
+        print_status "Exporting AgentSwarm package..."
+        ./devops/deploy/commands/export-agentswarm.sh "$@"
         ;;
     help|--help|-h)
         cat << EOF
@@ -52,6 +114,7 @@ COMMANDS:
     production [target]      Deploy to production using main deployment script
     simple [target]          Deploy using simple deployment script  
     build [target]           Build production version only
+    export [dir]             Export AgentSwarm package to directory (no tests)
     
 EXAMPLES:
     deploy production ~/deploy/your-project

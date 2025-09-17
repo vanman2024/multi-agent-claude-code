@@ -161,8 +161,33 @@ print_status "  Commit:  $COMMIT_HASH"
 print_status "  Target:  $TARGET_DIR"
 
 # Check if target directory exists
+# Preserve selected files/directories before overwriting target
+preserve_backup=""
+preserve_paths=(
+  "CLAUDE.md"
+  "AGENTS.md"
+  "MULTI_AGENT_INTEGRATION_SUMMARY.md"
+  "QUICK_DEPLOYMENT_GUIDE.md"
+  "docs"
+  ".claude"
+  ".codex"
+  ".gemini"
+  ".qwen"
+)
+
 if [[ -d "$TARGET_DIR" ]]; then
     if [[ "$FORCE" == "true" ]]; then
+        print_warning "Backing up agent documentation before overwrite"
+        preserve_backup=$(mktemp -d)
+        for path in "${preserve_paths[@]}"; do
+            if [[ -d "$TARGET_DIR/$path" ]]; then
+                rsync -a "$TARGET_DIR/$path/" "$preserve_backup/$path/"
+            elif [[ -f "$TARGET_DIR/$path" ]]; then
+                mkdir -p "$(dirname "$preserve_backup/$path")"
+                cp -a "$TARGET_DIR/$path" "$preserve_backup/$path"
+            fi
+        done
+
         print_warning "Removing existing target directory"
         rm -rf "$TARGET_DIR"
     else
@@ -174,42 +199,95 @@ fi
 # Create target directory
 mkdir -p "$TARGET_DIR"
 
-# Copy essential application files
-print_status "Copying application files..."
+# Determine source directory (src/ for SignalHire, agentswarm/ for AgentSwarm package)
+SOURCE_DIR="src"
+if [[ ! -d "src" && -d "agentswarm" ]]; then
+    SOURCE_DIR="agentswarm"
+fi
+if [[ "$SOURCE_DIR" == "src" ]]; then
+    PACKAGE_MODULE="src"
+else
+    PACKAGE_MODULE="agentswarm"
+fi
+
+print_status "Copying application files from $SOURCE_DIR..."
 
 # Core application code (excluding development metadata)
 print_status "Copying source code (excluding development files)..."
 if command -v rsync >/dev/null 2>&1; then
-    rsync -av --exclude='*.egg-info' --exclude='__pycache__' --exclude='*.pyc' --exclude='*.pyo' src/ "$TARGET_DIR/src/"
+    rsync -av --exclude='tests/' --exclude='*.egg-info' --exclude='__pycache__' --exclude='*.pyc' --exclude='*.pyo' "$SOURCE_DIR"/ "$TARGET_DIR/$SOURCE_DIR/"
 else
     # Fallback to cp if rsync not available
-    cp -r src/ "$TARGET_DIR/"
+    cp -r "$SOURCE_DIR"/ "$TARGET_DIR/$SOURCE_DIR/"
     print_warning "rsync not available, using cp (will clean up development files afterward)"
 fi
 
 # Clean up any development files that might exist in target
 print_status "Cleaning up development files from target..."
-find "$TARGET_DIR/src" -name "*.egg-info" -type d -exec rm -rf {} + 2>/dev/null || true
-find "$TARGET_DIR/src" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-find "$TARGET_DIR/src" -name "*.pyc" -delete 2>/dev/null || true
-find "$TARGET_DIR/src" -name "*.pyo" -delete 2>/dev/null || true
+find "$TARGET_DIR/$SOURCE_DIR" -name "tests" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$TARGET_DIR/$SOURCE_DIR" -name ".pytest_cache" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$TARGET_DIR/$SOURCE_DIR" -name "*.egg-info" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$TARGET_DIR/$SOURCE_DIR" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$TARGET_DIR/$SOURCE_DIR" -name "*.pyc" -delete 2>/dev/null || true
+find "$TARGET_DIR/$SOURCE_DIR" -name "*.pyo" -delete 2>/dev/null || true
 
 # Essential configuration and documentation
 cp README.md "$TARGET_DIR/" 2>/dev/null || true
 cp QUICKSTART.md "$TARGET_DIR/" 2>/dev/null || true
 cp LICENSE "$TARGET_DIR/" 2>/dev/null || true
 
-# AI Agent instruction files (essential for agents to work with CLI)
-# Skip copying CLAUDE.md and AGENTS.md - these are development instruction files
+# AI agent instruction files (required for multi-agent workflows)
+print_status "Copying agent instruction files..."
 mkdir -p "$TARGET_DIR/.github"
 cp -r .github/copilot-instructions.md "$TARGET_DIR/.github/" 2>/dev/null || true
 
-# CLI commands reference (referenced by agent files)
-mkdir -p "$TARGET_DIR/docs"
-cp docs/cli-commands.md "$TARGET_DIR/docs/" 2>/dev/null || true
+agent_files=(
+  "CLAUDE.md"
+  "AGENTS.md"
+  "MULTI_AGENT_INTEGRATION_SUMMARY.md"
+  "QUICK_DEPLOYMENT_GUIDE.md"
+  "docs/cli-commands.md"
+)
+
+agent_directories=(
+  ".claude"
+  ".codex"
+  ".gemini"
+  ".qwen"
+)
+
+for agent_file in "${agent_files[@]}"; do
+    if [[ -e "$agent_file" ]]; then
+        target_path="$TARGET_DIR/$agent_file"
+        mkdir -p "$(dirname "$target_path")"
+        cp "$agent_file" "$target_path"
+    fi
+done
+
+for agent_dir in "${agent_directories[@]}"; do
+    if [[ -d "$agent_dir" ]]; then
+        rsync -a "$agent_dir/" "$TARGET_DIR/$agent_dir/" 2>/dev/null || cp -r "$agent_dir" "$TARGET_DIR/$agent_dir"
+    fi
+done
+
+# Restore preserved files/directories if they existed in the target
+if [[ -n "$preserve_backup" && -d "$preserve_backup" ]]; then
+    print_status "Restoring preserved agent documentation..."
+    for path in "${preserve_paths[@]}"; do
+        if [[ -d "$preserve_backup/$path" ]]; then
+            mkdir -p "$TARGET_DIR/$path"
+            cp -a "$preserve_backup/$path/." "$TARGET_DIR/$path/"
+        elif [[ -f "$preserve_backup/$path" ]]; then
+            mkdir -p "$(dirname "$TARGET_DIR/$path")"
+            cp -a "$preserve_backup/$path" "$TARGET_DIR/$path"
+        fi
+    done
+    rm -rf "$preserve_backup"
+fi
 
 # Create production requirements.txt (without dev dependencies)
 print_status "Creating production requirements.txt..."
+if [[ "$SOURCE_DIR" == "src" ]]; then
 cat > "$TARGET_DIR/requirements.txt" << EOF
 # SignalHire Agent Production Dependencies
 # Generated on $BUILD_DATE
@@ -219,6 +297,7 @@ httpx>=0.25.0
 
 # Data validation and models
 pydantic>=2.0.0
+pydantic-settings>=2.0.0
 
 # Web framework for callback server
 fastapi>=0.100.0
@@ -243,6 +322,19 @@ anyio>=3.6.0
 # Email validation
 email-validator>=2.0.0
 EOF
+else
+cat > "$TARGET_DIR/requirements.txt" << EOF
+# AgentSwarm Production Dependencies
+# Generated on $BUILD_DATE
+
+click>=8.1.0
+pyyaml>=6.0
+psutil>=5.9.0
+rich>=13.0.0
+asyncio-mqtt>=0.11.0
+tomli>=2.0.0
+EOF
+fi
 
 # Create version information file
 print_status "Creating version information..."
@@ -342,6 +434,8 @@ EOF
     rm "$TARGET_DIR/.env.example"
 fi
 
+CLI_MODULE="$PACKAGE_MODULE"
+
 # Create simple deployment script
 print_status "Creating deployment utilities..."
 cat > "$TARGET_DIR/install.sh" << 'EOF'
@@ -413,7 +507,7 @@ else
 fi
 
 # Make CLI executable (if using direct execution)
-chmod +x src/cli/main.py || true
+chmod +x '__SOURCE_DIR__/cli/main.py' || true
 
 echo "Installation complete!"
 echo ""
@@ -421,11 +515,11 @@ echo "Next steps:"
 echo "1. Environment is already configured (.env created from your development settings)"
 if [ -d "venv" ]; then
     echo "2. Activate virtual environment: source venv/bin/activate"
-    echo "3. Run: python3 -m src.cli.main --help"
+    echo "3. Run: python3 -m __MODULE__.cli.main --help"
     echo ""
     echo "Or use the CLI wrapper (automatically handles venv): ./signalhire-agent --help"
 else
-    echo "2. Run: python3 -m src.cli.main --help"
+    echo "2. Run: python3 -m __MODULE__.cli.main --help"
     echo ""
     echo "Or use the CLI wrapper: ./signalhire-agent --help"
 fi
@@ -433,12 +527,14 @@ fi
 EOF
 
 chmod +x "$TARGET_DIR/install.sh"
+sed -i "s|__SOURCE_DIR__|$SOURCE_DIR|g" "$TARGET_DIR/install.sh"
+sed -i "s|__MODULE__|$PACKAGE_MODULE|g" "$TARGET_DIR/install.sh"
 
 # Version information is available via VERSION file (JSON format)
 # No version.py utility needed in production deployment
 
 # Create simple CLI wrapper (optional)
-cat > "$TARGET_DIR/signalhire-agent" << 'EOF'
+cat > "$TARGET_DIR/signalhire-agent" <<'EOF'
 #!/bin/bash
 # SignalHire Agent CLI Wrapper
 
@@ -452,7 +548,12 @@ fi
 
 # Check if virtual environment exists and use it
 if [ -d "$SCRIPT_DIR/venv" ]; then
+    # shellcheck disable=SC1091
     source "$SCRIPT_DIR/venv/bin/activate"
+    # After activation, pick up the venv python
+    if command -v python3 >/dev/null 2>&1; then
+        PYTHON_CMD="$(command -v python3)"
+    fi
 fi
 
 export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
@@ -463,10 +564,23 @@ if [ -f "$SCRIPT_DIR/.env" ]; then
 fi
 
 # Run the CLI with correct Python
-$PYTHON_CMD -m src.cli.main "$@"
+$PYTHON_CMD -m __MODULE__.cli.main "$@"
 EOF
 
 chmod +x "$TARGET_DIR/signalhire-agent"
+sed -i "s|__MODULE__|$PACKAGE_MODULE|g" "$TARGET_DIR/signalhire-agent"
+
+if [[ "$SOURCE_DIR" != "src" ]]; then
+    mkdir -p "$TARGET_DIR/$SOURCE_DIR"
+    for file in VERSION BUILD_INFO.md install.sh requirements.txt; do
+        if [[ -f "$TARGET_DIR/$file" ]]; then
+            mv "$TARGET_DIR/$file" "$TARGET_DIR/$SOURCE_DIR/$file"
+        fi
+    done
+    if [[ -f "$TARGET_DIR/signalhire-agent" ]]; then
+        mv "$TARGET_DIR/signalhire-agent" "$TARGET_DIR/$SOURCE_DIR/agentswarm"
+    fi
+fi
 
 # Generate build manifest
 print_status "Creating build manifest..."
@@ -479,11 +593,11 @@ cat > "$TARGET_DIR/BUILD_INFO.md" << EOF
 **Build Type:** Production
 
 ## Files Included
-- \`src/\` - Core application code
-- \`requirements.txt\` - Production dependencies only
-- \`VERSION\` - Version information (JSON)
-- \`install.sh\` - Installation script
-- \`signalhire-agent\` - CLI wrapper script
+- \`$SOURCE_DIR/\` - Core application code
+- \`$SOURCE_DIR/requirements.txt\` - Production dependencies only
+- \`$SOURCE_DIR/VERSION\` - Version information (JSON)
+- \`$SOURCE_DIR/install.sh\` - Installation script
+- \`$SOURCE_DIR/agentswarm\` - CLI wrapper script
 - \`.env\` - Production environment file (automatically created with your credentials)
 - Essential documentation files only (README, QUICKSTART, etc.)
 - \`.github/copilot-instructions.md\` - GitHub Copilot instructions
@@ -507,20 +621,30 @@ cat > "$TARGET_DIR/BUILD_INFO.md" << EOF
 3. Test: \`./signalhire-agent --help\`
 
 ## Version Check
-Check \`VERSION\` file for build information (JSON format).
+Check \`$SOURCE_DIR/VERSION\` file for build information (JSON format).
 EOF
 
 # Final verification
 print_status "Verifying build..."
 
 # Check that essential files exist
-ESSENTIAL_FILES=(
-    "src/cli/main.py"
-    "src/services/signalhire_client.py" 
-    "requirements.txt"
-    "VERSION"
-    "install.sh"
-)
+if [[ "$SOURCE_DIR" == "src" ]]; then
+    ESSENTIAL_FILES=(
+        "src/cli/main.py"
+        "src/services/signalhire_client.py"
+        "requirements.txt"
+        "VERSION"
+        "install.sh"
+    )
+else
+    ESSENTIAL_FILES=(
+        "$SOURCE_DIR/cli/main.py"
+        "$SOURCE_DIR/core/orchestrator.py"
+        "$SOURCE_DIR/config/agentswarm.toml"
+        "$SOURCE_DIR/VERSION"
+        "$SOURCE_DIR/install.sh"
+    )
+fi
 
 for file in "${ESSENTIAL_FILES[@]}"; do
     if [[ ! -f "$TARGET_DIR/$file" ]]; then

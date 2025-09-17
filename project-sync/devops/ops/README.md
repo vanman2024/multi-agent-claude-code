@@ -10,22 +10,34 @@
 ./ops/ops <command> [options]
 ```
 
-## 📋 **Daily Workflow**
+## 📋 **Available Commands**
 
 ```bash
-# Complete development workflow
-ops qa                    # Quality checks (lint, format, typecheck, tests)
-ops build                 # Build production to configured target
-ops verify-prod          # Verify production build works
-ops release patch         # Create patch release (bug fixes)
-ops release minor         # Create minor release (new features)  
-ops release major         # Create major release (breaking changes)
+# Development & Quality
+ops qa                    # Run quality checks (lint, format, typecheck, tests)
+ops build                 # Build production version
+ops verify-prod           # Verify production build works
+
+# Releases & Versions
+ops release patch         # Create patch release (0.4.9 → 0.4.10)
+ops release minor         # Create minor release (0.4.9 → 0.5.0)
+ops release major         # Create major release (0.4.9 → 1.0.0)
+ops rollback <version>    # Rollback to previous version
+
+# Deployment & Sync
+ops sync                  # Sync to all configured targets
+ops status                # Show current status and configuration
+
+# Environment & Setup
+ops setup <target>        # Setup operations config and target directory
+ops env doctor            # Diagnose environment issues
+ops hooks install         # Install auto-sync git hooks
 ```
 
 ## 🚀 **Setup**
 
 ```bash
-# One-time setup with target directory  
+# One-time setup with target directory
 ops setup ~/deploy/your-project        # Customize path for your project
 
 # Check current status
@@ -48,7 +60,7 @@ ops release major    # 0.4.9 → 1.0.0  (breaking changes)
 # Diagnose environment issues
 ops env doctor
 
-# Check WSL/Windows compatibility  
+# Check WSL/Windows compatibility
 # Check virtual environment setup
 # Check dependency availability
 ```
@@ -80,18 +92,61 @@ targets:
 release:
   changelog: true
   tag_prefix: v
-  
+
 qa:
   lint: true
   typecheck: true
   tests: "not slow"
 ```
 
-## 🔗 **Integration**
+## � **Rollback System**
 
-- **Deploy System**: Use `./deploy/deploy` for deployment-specific tasks
-- **GitHub Actions**: Automatic releases on version tags
-- **Local Development**: Complete local-first workflow
+The ops system includes comprehensive rollback capabilities for production deployments:
+
+### **Quick Rollback**
+```bash
+# Rollback to specific version
+ops rollback v1.2.3
+
+# Rollback with custom target directory
+ops rollback v1.2.3 ~/deploy/signalhire-prod
+```
+
+### **Standalone Rollback Script**
+```bash
+# Use the dedicated rollback script
+./devops/deploy/commands/rollback.sh v1.2.3 ~/deploy/signalhire
+
+# Show available versions
+./devops/deploy/commands/rollback.sh --help
+```
+
+### **Rollback Safety Features**
+- ✅ **Automatic backups** - Creates timestamped backup before rollback
+- ✅ **Stash handling** - Safely stashes uncommitted changes
+- ✅ **Version validation** - Verifies target version exists
+- ✅ **Deployment verification** - Tests deployment after rollback
+- ✅ **Detailed logging** - Shows rollback summary and recovery options
+
+### **Rollback Process**
+1. **Safety Check**: Validates target version and shows impact
+2. **Backup Creation**: Backs up current deployment state
+3. **Git Checkout**: Switches to target version
+4. **Rebuild**: Rebuilds production deployment
+5. **Verification**: Tests the rolled-back deployment
+6. **Summary**: Shows rollback details and recovery options
+
+### **Recovery Options**
+```bash
+# If rollback fails, restore from backup
+cp -r /tmp/signalhire-backup-*/current-deployment/* ~/deploy/signalhire/
+
+# Restore stashed changes
+git stash pop
+
+# Roll forward to newer version
+ops rollback v1.2.4
+```
 
 ## 📋 **Template Customization**
 
@@ -112,6 +167,6 @@ When copying this ops system to a new project:
 
 This creates:
 - Updated `pyproject.toml` version
-- Git tag with proper semantic versioning  
+- Git tag with proper semantic versioning
 - GitHub release (if configured)
 - Changelog from conventional commits

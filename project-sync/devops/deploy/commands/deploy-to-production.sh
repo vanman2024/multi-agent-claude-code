@@ -5,10 +5,50 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+CONFIG_FILE="$PROJECT_ROOT/devops/ops/config.yml"
+
+get_default_target() {
+    if [[ -f "$CONFIG_FILE" ]]; then
+        python3 - "$CONFIG_FILE" 2>/dev/null <<'PY'
+import pathlib
+import sys
+
+config_path = pathlib.Path(sys.argv[1])
+targets = []
+current = None
+
+for raw_line in config_path.read_text().splitlines():
+    line = raw_line.rstrip()
+    stripped = line.strip()
+
+    if not stripped or stripped.startswith('#'):
+        continue
+
+    if not line.startswith(' '):
+        current = stripped.rstrip(':')
+        continue
+
+    if current == 'targets' and stripped.startswith('- '):
+        targets.append(stripped[2:].strip())
+
+if targets:
+    print(targets[0])
+PY
+    fi
+}
 
 # Configuration
-PRODUCTION_DIR="${1:-/home/vanman2025/Projects/signalhireagenttests2/signalhireagent}"
+if [[ -n "$1" ]]; then
+    PRODUCTION_DIR="$1"
+else
+    PRODUCTION_DIR=$(get_default_target)
+fi
+
+if [[ -z "$PRODUCTION_DIR" ]]; then
+    echo "❌ No deployment target configured"
+    exit 1
+fi
 
 echo "🚀 Simple Deployment to Production..."
 echo "📁 Production directory: $PRODUCTION_DIR"
@@ -29,12 +69,13 @@ mkdir -p "$PRODUCTION_DIR"
 
 # Create temporary build
 BUILD_DIR="$(mktemp -d)"
-./scripts/build/build-production.sh "$BUILD_DIR/signalhireagent" --version "v$VERSION" --force
+./devops/deploy/commands/build-production.sh "$BUILD_DIR/signalhireagent" --version "v$VERSION" --force
 
 echo "📦 Updating system files only..."
 
 # Only update these specific files/directories (whitelist approach)
 SYSTEM_FILES=(
+    "agentswarm/"
     "src/"
     "requirements.txt"
     "VERSION"

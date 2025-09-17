@@ -1,0 +1,18 @@
+[versioning]
+package = "agentswarm"
+source = "agentswarm/config/agentswarm.toml"
+
+[package]
+name = "agentswarm"
+path = "agentswarm"
+test_command = "pytest agentswarm/tests"
+
+[package.manifest]
+version = "VERSION"
+requirements = "requirements.txt"
+install = "install.sh"
+cli = "agentswarm"
+
+[deploy]
+target = "/tmp/multi-agent-claude-code/project-sync"
+subdirectory = "agentswarm"
