@@ -27,10 +27,33 @@ This DevOps system provides everything needed for modern development workflow:
 
 # LOCAL: Production deployment (you run this)
 ./devops/deploy/deploy production ~/deploy/your-project
-# For the AgentSwarm template target, run the deploy command and then copy the
-# built `src/agentswarm/` subtree into the multi-agent template repository. Only
-# the package and its assets should be synced—SignalHire files remain in place.
 ```
+
+### Portable Configuration (`config/devops.toml`)
+When you copy this DevOps folder into a new project, create or edit `config/devops.toml` so the CLI knows which package to manage, how to run tests, and where to deploy.
+
+```toml
+[versioning]
+package = "agentswarm"
+source = "agentswarm/config/agentswarm.toml"
+
+[package]
+name = "agentswarm"
+path = "agentswarm"
+test_command = "pytest agentswarm/tests"
+
+[package.manifest]
+version = "VERSION"
+requirements = "requirements.txt"
+install = "install.sh"
+cli = "agentswarm"
+
+[deploy]
+target = "/abs/path/to/project-sync"
+subdirectory = "project-sync/agentswarm"
+```
+
+Once this file is set, `./devops/ops/ops qa` and `./devops/deploy/deploy` automatically use the package-specific commands—no script edits required.
 
 ### **☁️ AUTOMATED WORKFLOW** (Future - Will Trigger Local)
 ```bash
