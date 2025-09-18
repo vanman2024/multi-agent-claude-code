@@ -3,9 +3,15 @@ requires = ["setuptools>=45", "wheel", "setuptools-scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
+<<<<<<< HEAD:devops/pyproject.toml.template
 name = "{{PROJECT_NAME}}"
 version = "0.1.0"
 description = "{{PROJECT_DESCRIPTION}}"
+=======
+name = "multi-agent-devops"
+version = "1.4.0"
+description = "DevOps CLI system for multi-agent development workflows"
+>>>>>>> 414f461adefacad7182c73dcf8c29f9c8aeae5ee:devops/pyproject.toml
 authors = [
     {name = "{{AUTHOR_NAME}}", email = "{{AUTHOR_EMAIL}}"},
 ]
