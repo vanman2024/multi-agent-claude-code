@@ -1,5 +1,7 @@
 # Solo Developer Framework with Agentic CLIs
 
+> **⚠️ TEMPLATE REPOSITORY NOTICE**: This is a template framework, not a deployable application. Vercel deployments will fail because there's no app code to deploy. Use this template to create new projects with `sync-project-template.sh`.
+
 **Perfect for solo founders and independent developers** who want AI agents as intelligent development partners. This framework transforms your development workflow by providing specialized AI agents that work alongside you, not replace large development teams.
 
 ## 🚀 Quick Start: Your Personal Development Team
@@ -62,6 +64,29 @@ cp .env.example .env
 # Edit .env with your API keys and settings
 
 # Your complete development environment is ready!
+```
+
+## 🚀 Deployment Strategy
+
+### For Template Repository (This Repo)
+- **DO NOT DEPLOY**: This template has no deployable application code
+- **Vercel Integration**: Should be removed or ignored via `.vercelignore`
+- **Purpose**: Framework for creating new projects, not hosting applications
+
+### For Projects Created from Template
+When you use this template to create a new project:
+
+1. **Add Application Code**: Create actual app files (React, Next.js, etc.)
+2. **Configure Deployment**: Set up Vercel/Netlify for the actual application
+3. **Update Workflows**: Customize deployment workflows for your specific stack
+4. **Remove Template Notices**: Delete template-specific warnings from README
+
+Example deployment setup for created projects:
+```bash
+# In your NEW project (not this template):
+npm create next-app .          # Add actual application
+vercel init                   # Configure deployment
+# Now deployments will work because you have an app to deploy
 ```
 
 ## 📋 Your Personal AI Development Toolkit
@@ -425,6 +450,31 @@ The template includes a complete DevOps system that handles all your development
 - **Deployment**: Production-ready deployment scripts with environment management
 - **Environment Setup**: Automatic Python virtual environment and Node.js dependency management
 - **CI/CD Integration**: GitHub Actions workflows that use the DevOps system
+
+### 🔄 Three-Repository Versioning Framework
+
+This template uses a **revolutionary three-repository semantic versioning architecture** that automatically synchronizes components across multiple repositories:
+
+- **[vanman2024/devops](https://github.com/vanman2024/devops)** - DevOps CLI and automation tools
+- **[vanman2024/agentswarm](https://github.com/vanman2024/agentswarm)** - Multi-agent orchestration system  
+- **[vanman2024/multi-agent-claude-code](https://github.com/vanman2024/multi-agent-claude-code)** - Template repository (this repo)
+
+**How it works:**
+1. **Source repositories** (devops, agentswarm) use conventional commits (`feat:`, `fix:`, `BREAKING CHANGE:`)
+2. **Semantic versioning** automatically bumps versions based on commit types
+3. **Cross-repository deployment** pushes production-ready code to this template
+4. **Version synchronization** ensures all components work together
+
+Your projects inherit this battle-tested versioning system automatically. See [VERSIONING.md](./VERSIONING.md) for complete details.
+
+**Quick commands:**
+```bash
+# Configure git to use commit template
+git config commit.template .gitmessage
+
+# Use conventional commits for automatic versioning
+git commit  # Opens template with examples
+```
 
 ## 🐳 Docker for Python Development (No More WSL Issues!)
 
