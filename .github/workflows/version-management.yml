@@ -76,6 +76,51 @@ jobs:
         npx semantic-release
       continue-on-error: true
 
+    - name: Sync component versions in template VERSION file
+      if: always()
+      run: |
+        # Read current component versions and update template VERSION file
+        CURRENT_VERSION=$(cat VERSION | jq -r .version 2>/dev/null || echo "v3.8.0")
+        CURRENT_COMMIT=$(git rev-parse HEAD)
+        CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+        
+        # Read actual component versions
+        DEVOPS_VERSION=$(cat devops/VERSION | jq -r .version 2>/dev/null || echo "unknown")
+        AGENTSWARM_VERSION=$(cat agentswarm/VERSION | jq -r .version 2>/dev/null || echo "unknown")
+        
+        echo "🔍 Current template VERSION component versions:"
+        echo "   DevOps: $(cat VERSION | jq -r .components.devops 2>/dev/null || echo 'unknown')"
+        echo "   AgentSwarm: $(cat VERSION | jq -r .components.agentswarm 2>/dev/null || echo 'unknown')"
+        echo "🆕 Actual component versions found:"
+        echo "   DevOps: $DEVOPS_VERSION"
+        echo "   AgentSwarm: $AGENTSWARM_VERSION"
+        
+        # Create updated VERSION file with current component versions
+        cat > VERSION << EOF
+{
+  "version": "$CURRENT_VERSION",
+  "commit": "$CURRENT_COMMIT",
+  "build_date": "$CURRENT_DATE",
+  "build_type": "production",
+  "components": {
+    "devops": "$DEVOPS_VERSION",
+    "agentswarm": "$AGENTSWARM_VERSION"
+  }
+}
+EOF
+        
+        # Check if VERSION file changed and commit if needed
+        if ! git diff --exit-code VERSION > /dev/null; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add VERSION
+          git commit -m "chore: sync component versions - devops:$DEVOPS_VERSION agentswarm:$AGENTSWARM_VERSION [skip ci]"
+          git push
+          echo "✅ Component versions synced and committed"
+        else
+          echo "✅ Component versions already in sync"
+        fi
+
     - name: Template version management complete
       if: always()
       run: |
