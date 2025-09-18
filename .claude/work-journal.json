@@ -1,6 +1,13 @@
 {
   "entries": [
     {
+      "timestamp": "2025-09-18T05:11:02Z",
+      "branch": "main",
+      "uncommitted": 0,
+      "unpushed": 4,
+      "last_commit": "cd73c8c fix: Remove duplicate .github/templates that reappeared from stash"
+    },
+    {
       "timestamp": "2025-09-18T05:08:39Z",
       "branch": "main",
       "uncommitted": 0,
@@ -716,13 +723,6 @@
     },
     {
       "timestamp": "2025-09-11T04:41:42Z",
-      "branch": "main",
-      "uncommitted": 4,
-      "unpushed": 0,
-      "last_commit": "2dd7a25 feat: Integrate spec-kit with test generation and implement commands"
-    },
-    {
-      "timestamp": "2025-09-11T04:41:20Z",
       "branch": "main",
       "uncommitted": 4,
       "unpushed": 0,
