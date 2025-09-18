@@ -162,6 +162,12 @@ class RedisContactCache(ContactCache):
         """
         self._validate_uid(uid)
 
+        # Check local cache first for performance
+        self._ensure_loaded()
+        if uid in self._data:
+            return self._data[uid]
+
+        # If not in local cache, check Redis
         if self._redis_available and self._redis_client:
             try:
                 key = self._make_key(uid)
@@ -169,14 +175,12 @@ class RedisContactCache(ContactCache):
                 if data_json:
                     data = json.loads(data_json)
                     contact = CachedContact.from_dict(uid, data)
-                    self._data[uid] = contact
+                    self._data[uid] = contact  # Cache locally for faster subsequent access
                     return contact
             except _RECOVERABLE_ERRORS:
                 pass
 
-        # Fall back to local cache
-        self._ensure_loaded()
-        return self._data.get(uid)
+        return None
 
     def upsert(
         self,
