@@ -23,3 +23,15 @@
 # [optional body]
 #
 # [optional footer(s)]
+#
+# Multi-Agent Signatures (when working with AI agents):
+#
+# 🤖 Generated with [Claude Code](https://claude.ai/code)
+#
+# Co-Authored-By: Claude <noreply@anthropic.com>
+#
+# For specific AI agents, you can also use:
+# Co-Authored-By: @qwen <noreply@anthropic.com>
+# Co-Authored-By: @gemini <noreply@anthropic.com>  
+# Co-Authored-By: @codex <noreply@anthropic.com>
+# Co-Authored-By: @copilot <noreply@anthropic.com>

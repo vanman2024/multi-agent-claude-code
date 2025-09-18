@@ -175,6 +175,127 @@ When you use this template in projects, use the ops CLI for releases:
 
 **Important**: The ops CLI manages **project versions**, not template versions.
 
+## Template Update System for Existing Projects
+
+### 🚨 The Missing Piece: Reverse Synchronization
+
+While components (DevOps, AgentSwarm) automatically update the template, **existing projects created from the template** need a way to receive these updates. This was the gap that's now solved.
+
+### 🔄 How Template Updates Work
+
+**Problem**: When DevOps or AgentSwarm get updated in the template, existing projects don't automatically receive those updates.
+
+**Solution**: Template Update System
+
+### ⚙️ Template Update Components
+
+**1. Version Tracking (`.template-version`)**
+Every project gets automatic version tracking:
+```bash
+TEMPLATE_VERSION=v3.7.2
+TEMPLATE_REPO=https://github.com/vanman2024/multi-agent-claude-code
+SYNC_DATE=2025-09-18
+
+# Template Update Commands:
+# /update-from-template --check     # Check for updates
+# /update-from-template --preview   # Preview changes  
+# /update-from-template             # Apply updates
+```
+
+**2. Update Script (`setup/update-from-template.js`)**
+Intelligent update system that:
+- ✅ Updates safe components (devops/, agentswarm/, agents/, automation/)
+- 🛡️ Preserves user code (src/, app/, package.json, .env files)
+- 📋 Shows preview before applying changes
+- 🏷️ Tracks version history
+
+**3. Slash Command Integration (`/update-from-template`)**
+```bash
+/update-from-template --check    # Check if updates available
+/update-from-template --preview  # Show what would change
+/update-from-template            # Apply updates safely
+/update-from-template --force    # Force update even if same version
+```
+
+### 🔄 Complete Update Flow
+
+**Template Evolution**:
+```
+1. DevOps repo changes → Auto-deploy to template → v3.7.2 → v3.8.0
+2. AgentSwarm changes → Auto-deploy to template → v3.8.0 → v3.8.1  
+3. Template improvements → Template versioning → v3.8.1 → v3.9.0
+```
+
+**Project Updates**:
+```
+1. Project checks: /update-from-template --check
+   "Current: v3.7.2, Latest: v3.9.0 - Updates available!"
+
+2. Preview changes: /update-from-template --preview
+   "Will update: devops/, agentswarm/, agents/, .gitmessage"
+   "Protected: src/, package.json, README.md (your code safe)"
+
+3. Apply updates: /update-from-template
+   "✅ Updated to v3.9.0 - Applied 8 changes"
+```
+
+### 🛡️ Safety Features
+
+**Safe Update Paths** (automatically updated):
+- `devops/` - DevOps automation scripts
+- `agentswarm/` - Agent swarm components  
+- `agents/` - Agent instruction files
+- `.github/workflows/version-management.yml` - Versioning workflow
+- `scripts/ops` - Operations CLI
+- `automation/` - Automation configurations
+- `.gitmessage` - Git commit template
+- `VERSIONING.md` - This documentation
+
+**Protected Paths** (never touched):
+- `src/`, `app/`, `components/`, `pages/`, `api/`, `lib/` - Your application code
+- `.env*` - Environment files  
+- `package.json`, `pyproject.toml`, `requirements.txt` - Your dependencies
+- `README.md` - Your project documentation
+
+### 📋 Automatic Deployment
+
+**New Projects**: Template update system automatically included
+```bash
+./sync-project-template.sh
+
+# Automatically creates:
+# ✅ .template-version (tracks current version)
+# ✅ setup/update-from-template.js (update script)  
+# ✅ /update-from-template slash command
+```
+
+**Existing Projects**: Can add update system manually
+```bash
+# Copy from template:
+cp template/setup/update-from-template.js setup/
+cp template/templates/slash-commands/update-from-template.md templates/slash-commands/
+
+# Create version tracking:
+echo "TEMPLATE_VERSION=v3.7.2" > .template-version
+```
+
+### 🔄 Integration with Component Updates
+
+**Complete Automation Chain**:
+```
+External Repo → Template → Existing Projects
+     ↓              ↓            ↓
+DevOps v1.4.0 → Auto-merge → /update-from-template
+AgentSwarm → Auto-merge → Project gets latest
+```
+
+**Timeline Example**:
+- 9:00 AM: DevOps repo releases v1.4.0
+- 9:01 AM: Auto-deploy creates PR in template  
+- 9:02 AM: PR auto-merges to template
+- 9:03 AM: Project developer runs `/update-from-template --check`
+- 9:04 AM: Project updated with latest DevOps automation
+
 ## Component Synchronization
 
 ### How Components Get Updated (FULLY AUTOMATED)
@@ -251,11 +372,30 @@ BREAKING CHANGE: This is a beta feature"
 
 ### For Project Developers
 - Start new projects at v0.1.0
-- Use ops CLI for project versioning
+- Use ops CLI for project versioning (`./scripts/ops release patch`)
 - Don't modify template versioning files
 - Follow project-specific versioning strategy
+- **Use template update system regularly**: 
+  - Check for updates weekly: `/update-from-template --check`
+  - Preview before applying: `/update-from-template --preview` 
+  - Keep projects synchronized with latest DevOps/AgentSwarm improvements
 
-This versioning system ensures clean separation between template evolution and project development while maintaining component synchronization and avoiding workflow conflicts.
+### For Template Updates
+- **Never modify user code paths** when updating template
+- **Test update system** before releasing template changes
+- **Document breaking changes** that might affect existing projects
+- **Coordinate with DevOps/AgentSwarm teams** on component updates
+
+This complete versioning system ensures:
+- ✅ **Clean separation** between template evolution and project development
+- ✅ **Component synchronization** via automated DevOps/AgentSwarm deployment
+- ✅ **Project updates** via template update system
+- ✅ **Workflow conflict prevention** with proper path ignoring
+- ✅ **Bidirectional flow**: Template ↔ Components ↔ Projects
+- ✅ **Zero manual intervention** for component updates
+- ✅ **Safe project updates** that preserve user code
+
+**The system is now complete with full automation for both template evolution and project synchronization.**
 
 ---
-*Last updated: September 18, 2025 - Template versioning test*
+*Last updated: September 18, 2025 - Template update system implementation*

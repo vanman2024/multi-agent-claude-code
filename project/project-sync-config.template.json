@@ -55,18 +55,30 @@
   },
   "agentFiles": {
     "required": [
-      "agents/CLAUDE.md",
-      "agents/AGENTS.md",
-      "agents/README.md",
+      "template-agents/CLAUDE.md",
+      "template-agents/AGENTS.md",
+      "template-agents/README.md",
       ".github/copilot-instructions.md",
       "scripts/ops",
       "automation/config.yml.template",
       "VERSIONING.md"
     ],
     "optional": [
-      "agents/QWEN.md",
-      "agents/GEMINI.md"
+      "template-agents/QWEN.md",
+      "template-agents/GEMINI.md"
+    ],
+    "agentSwarm": [
+      "agentswarm/"
     ]
+  },
+  "templateUpdateSystem": {
+    "enabled": true,
+    "commands": ["update-from-template"],
+    "files": [
+      "setup/update-from-template.js",
+      "templates/slash-commands/update-from-template.md"
+    ],
+    "versionTracking": ".template-version"
   },
   "testingStructure": {
     "enabled": true,
@@ -100,11 +112,9 @@
   },
   "githubWorkflows": {
     "essential": [
-      ".github/workflows/ci-cd-pipeline.yml",
-      ".github/workflows/production-deployment.yml",
-      ".github/workflows/preview-deployment.yml"
+      ".github/workflows/version-management.yml"
     ],
-    "description": "Essential GitHub Actions for deployment and CI/CD"
+    "description": "Essential GitHub Actions for versioning (CI/CD workflows added as needed)"
   },
   "mcpConfiguration": {
     "standardFile": "mcp.json - Standard MCP server configuration",

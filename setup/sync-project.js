@@ -107,12 +107,12 @@ class ProjectSync {
       if (agentFile.startsWith('.github/')) {
         sourcePath = path.join(__dirname, '..', agentFile);
         targetPath = path.join(this.projectRoot, agentFile);
-      } else if (agentFile.startsWith('agents/')) {
-        // Agent files are in project-sync/agents/ but go to project root
+      } else if (agentFile.startsWith('template-agents/')) {
+        // Agent template files are in project-sync/template-agents/ but go to agents/ in project
         sourcePath = path.join(__dirname, '..', agentFile);
-        // Extract just the filename and place in project root
+        // Extract just the filename and place in agents/ directory
         const fileName = path.basename(agentFile);
-        targetPath = path.join(this.projectRoot, fileName);
+        targetPath = path.join(this.projectRoot, 'agents', fileName);
       } else if (agentFile.startsWith('scripts/')) {
         // Scripts are in project-sync/scripts/
         sourcePath = path.join(__dirname, '..', agentFile);
@@ -150,7 +150,7 @@ class ProjectSync {
         }
         
         syncCount++;
-        const displayPath = agentFile.startsWith('agents/') ? path.basename(agentFile) + ' (to root)' : agentFile;
+        const displayPath = agentFile.startsWith('template-agents/') ? 'agents/' + path.basename(agentFile) : agentFile;
         console.log(`  ✅ Synced ${displayPath}`);
       } else {
         console.log(`  ⚠️  Source not found: ${agentFile}`);
@@ -162,11 +162,11 @@ class ProjectSync {
       let sourcePath;
       let targetPath;
 
-      if (agentFile.startsWith('agents/')) {
+      if (agentFile.startsWith('template-agents/')) {
         sourcePath = path.join(__dirname, '..', agentFile);
-        // Extract just the filename and place in project root
+        // Extract just the filename and place in agents/ directory
         const fileName = path.basename(agentFile);
-        targetPath = path.join(this.projectRoot, fileName);
+        targetPath = path.join(this.projectRoot, 'agents', fileName);
       } else {
         sourcePath = path.join(__dirname, '..', '..', agentFile);
         targetPath = path.join(this.projectRoot, agentFile);
@@ -176,25 +176,29 @@ class ProjectSync {
         this.ensureDirectoryExists(path.dirname(targetPath));
         fs.copyFileSync(sourcePath, targetPath);
         syncCount++;
-        const displayPath = agentFile.startsWith('agents/') ? path.basename(agentFile) + ' (to root)' : agentFile;
+        const displayPath = agentFile.startsWith('template-agents/') ? 'agents/' + path.basename(agentFile) : agentFile;
         console.log(`  ✅ Synced optional ${displayPath}`);
+      }
+    }
+
+    // Sync agentswarm directory if it exists
+    for (const agentSwarmDir of agentFiles.agentSwarm || []) {
+      const sourcePath = path.join(__dirname, '..', agentSwarmDir);
+      const targetPath = path.join(this.projectRoot, agentSwarmDir);
+      
+      if (fs.existsSync(sourcePath)) {
+        this.copyDirectoryRecursively(sourcePath, targetPath, false);
+        syncCount++;
+        console.log(`  ✅ Synced ${agentSwarmDir} directory`);
       }
     }
 
     console.log(`📁 Synced ${syncCount} agent files`);
 
-    // Clean up: Remove agents/ subdirectory if it exists (files are now in root)
+    // Ensure agents directory exists
     const agentsDir = path.join(this.projectRoot, 'agents');
-    if (fs.existsSync(agentsDir)) {
-      // Remove all files in agents/ directory
-      const files = fs.readdirSync(agentsDir);
-      for (const file of files) {
-        fs.unlinkSync(path.join(agentsDir, file));
-      }
-      // Remove the empty directory
-      fs.rmdirSync(agentsDir);
-      console.log('  🧹 Cleaned up agents/ subdirectory (files now in root)');
-    }
+    this.ensureDirectoryExists(agentsDir);
+    console.log('  📁 Agent files synced to agents/ directory');
   }
 
   syncGitHubWorkflows() {
@@ -251,6 +255,70 @@ class ProjectSync {
     
     if (templateCount > 0) {
       console.log(`📋 Synced ${templateCount} issue templates`);
+    }
+  }
+
+  syncVersioningSystem() {
+    console.log('🏷️  Syncing versioning system...');
+    
+    const versioningSource = path.join(__dirname, '..', 'templates', 'versioning');
+    
+    if (!fs.existsSync(versioningSource)) {
+      console.log('  ⚠️  Versioning templates not found');
+      return;
+    }
+    
+    let syncCount = 0;
+    
+    // Copy .gitmessage to project root
+    const gitmessageSource = path.join(versioningSource, '.gitmessage');
+    const gitmessageTarget = path.join(this.projectRoot, '.gitmessage');
+    
+    if (fs.existsSync(gitmessageSource)) {
+      if (!fs.existsSync(gitmessageTarget)) {
+        fs.copyFileSync(gitmessageSource, gitmessageTarget);
+        syncCount++;
+        console.log('  ✅ Synced .gitmessage template');
+      } else {
+        console.log('  ℹ️  .gitmessage already exists, skipping');
+      }
+    }
+    
+    
+    // Configure git to use the commit template
+    try {
+      execSync(`cd "${this.projectRoot}" && git config commit.template .gitmessage`, {
+        stdio: 'pipe',
+        cwd: this.projectRoot
+      });
+      console.log('  ✅ Configured git commit template');
+    } catch (error) {
+      console.log('  ⚠️  Could not configure git commit template:', error.message);
+    }
+    
+    // Create initial VERSION file if it doesn't exist
+    const versionFile = path.join(this.projectRoot, 'VERSION');
+    if (!fs.existsSync(versionFile)) {
+      const initialVersion = {
+        version: 'v0.1.0',
+        commit: 'initial',
+        build_date: new Date().toISOString(),
+        build_type: 'production'
+      };
+      fs.writeFileSync(versionFile, JSON.stringify(initialVersion, null, 2));
+      console.log('  ✅ Created initial VERSION file');
+      syncCount++;
+    }
+    
+    if (syncCount > 0) {
+      console.log(`  ✅ Synced ${syncCount} versioning components`);
+      console.log('  📋 Versioning system configured:');
+      console.log('     • .gitmessage - Conventional commit template with multi-agent signatures');
+      console.log('     • VERSION file - Tracks project version and build metadata');
+      console.log('     • Git commit template configured for conventional commits');
+      console.log('     • Workflow: version-management.yml synced via GitHub workflows');
+    } else {
+      console.log('  ℹ️  Versioning system already configured');
     }
   }
 
@@ -1364,6 +1432,65 @@ Generated by sync-project.js v1.0
     console.log('  ✅ Created DevOps setup summary');
   }
 
+  createTemplateVersionTracking() {
+    console.log('🏷️  Setting up template version tracking...');
+    
+    try {
+      // Read current template version from VERSION file
+      const versionFile = path.join(__dirname, '..', 'VERSION');
+      let templateVersion = 'unknown';
+      
+      if (fs.existsSync(versionFile)) {
+        const versionContent = fs.readFileSync(versionFile, 'utf8');
+        const match = versionContent.match(/version:\s*(.+)/);
+        templateVersion = match ? match[1].trim() : 'unknown';
+      }
+      
+      // Create .template-version file in project
+      const templateVersionFile = path.join(this.projectRoot, '.template-version');
+      const versionInfo = `TEMPLATE_VERSION=${templateVersion}
+TEMPLATE_REPO=https://github.com/vanman2024/multi-agent-claude-code
+SYNC_DATE=${new Date().toISOString().split('T')[0]}
+
+# Template Update Commands:
+# /update-from-template --check     # Check for updates
+# /update-from-template --preview   # Preview changes  
+# /update-from-template             # Apply updates
+`;
+      
+      fs.writeFileSync(templateVersionFile, versionInfo);
+      console.log(`  ✅ Created .template-version (${templateVersion})`);
+      
+      // Copy update script to project
+      const updateScriptSource = path.join(__dirname, 'update-from-template.js');
+      const updateScriptTarget = path.join(this.projectRoot, 'setup', 'update-from-template.js');
+      
+      this.ensureDirectoryExists(path.dirname(updateScriptTarget));
+      fs.copyFileSync(updateScriptSource, updateScriptTarget);
+      console.log('  ✅ Copied template update script');
+      
+      // Copy slash command template
+      const slashCommandSource = path.join(__dirname, '..', 'templates', 'slash-commands', 'update-from-template.md');
+      const slashCommandTarget = path.join(this.projectRoot, 'templates', 'slash-commands', 'update-from-template.md');
+      
+      this.ensureDirectoryExists(path.dirname(slashCommandTarget));
+      if (fs.existsSync(slashCommandSource)) {
+        fs.copyFileSync(slashCommandSource, slashCommandTarget);
+        console.log('  ✅ Copied template update slash command');
+      }
+      
+      // Add update commands to next steps
+      this.updateCommands = [
+        'Check for template updates: /update-from-template --check',
+        'Preview template updates: /update-from-template --preview', 
+        'Apply template updates: /update-from-template'
+      ];
+      
+    } catch (error) {
+      console.log(`  ⚠️  Failed to set up template version tracking: ${error.message}`);
+    }
+  }
+
   async run() {
     console.log('🚀 Starting comprehensive project sync...\n');
     
@@ -1397,6 +1524,8 @@ Generated by sync-project.js v1.0
       this.syncDevOpsSystem();  // Sync DevOps system files
       this.syncProjectEssentials();
       this.syncGitHubIssueTemplates();  // Sync GitHub issue templates
+      this.syncVersioningSystem();  // Sync versioning system (templates/versioning)
+      this.createTemplateVersionTracking();  // Track template version for future updates
       this.runDevOpsSetup();  // Run DevOps setup after all syncing
 
       console.log('\n✅ Project sync completed successfully!');
@@ -1405,6 +1534,13 @@ Generated by sync-project.js v1.0
       console.log('  2. Add MCP servers: /add-mcp all');
       console.log('  3. Review .env file and update API keys as needed');
       console.log('  4. Run testing commands to verify setup');
+      
+      if (this.updateCommands && this.updateCommands.length > 0) {
+        console.log('\n🔄 Template update commands:');
+        this.updateCommands.forEach((cmd, i) => {
+          console.log(`  ${i + 5}. ${cmd}`);
+        });
+      }
       
       if (this.detectedTechStack) {
         const testKey = this.getTestingKey(this.detectedTechStack);
