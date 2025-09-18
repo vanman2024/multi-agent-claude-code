@@ -38,8 +38,13 @@ specify init --here --ai copilot
 # Skip all testing templates (DevOps only)
 /home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --no-testing
 
+# Include VS Code Dev Container configuration (optional)
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --devcontainer
+
 # That's it! You now have AI agents as your development partners.
 ```
+
+> 💡 You can combine `--devcontainer` with the testing flags if you want a dev container alongside a backend-only or frontend-only setup.
 
 ### Step 3: You're Ready to Develop!
 ```bash
@@ -427,6 +432,7 @@ If you're using Python, Docker eliminates all WSL path issues, version conflicts
 
 ```bash
 # After running sync-project-template.sh, you'll have Docker files ready
+# (add --devcontainer when running the sync if you want a VS Code dev container)
 # Start the development environment:
 ./docker-scripts.sh dev-up
 
@@ -638,6 +644,7 @@ Just mention deployment-related keywords and the system automatically:
 - **For**: New projects that haven't been configured yet  
 - **What it does**: Safety checks, then automatically calls sync-project.js
 - **Safety**: Won't overwrite existing configurations
+- **Flags**: `--backend-only`, `--frontend-only`, `--no-testing`, `--devcontainer`
 
 ### 2. sync-project.js (File Sync Engine)
 - **For**: Existing projects that need updates or missing files added
