@@ -1,0 +1,118 @@
+name: Automatic Version Management
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  version-management:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install semantic-release dependencies
+      run: |
+        npm install --no-save \
+          semantic-release \
+          @semantic-release/changelog \
+          @semantic-release/git \
+          @semantic-release/github
+
+    - name: Update VERSION file and create release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Create semantic-release config
+        cat > .releaserc.json << 'EOF'
+        {
+          "branches": ["main"],
+          "plugins": [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            [
+              "@semantic-release/exec",
+              {
+                "prepareCmd": "echo '{\"version\": \"v${nextRelease.version}\", \"commit\": \"'$GITHUB_SHA'\", \"build_date\": \"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'\", \"build_type\": \"production\"}' > VERSION"
+              }
+            ],
+            [
+              "@semantic-release/git",
+              {
+                "assets": ["VERSION"],
+                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+              }
+            ],
+            "@semantic-release/github"
+          ]
+        }
+        EOF
+        
+        # Run semantic-release
+        npx semantic-release
+
+    - name: Update component versions
+      if: success()
+      run: |
+        # Read current versions from deployed components
+        DEVOPS_VERSION=""
+        AGENTSWARM_VERSION=""
+        
+        if [ -f "devops/VERSION" ]; then
+          DEVOPS_VERSION=$(cat devops/VERSION | tr -d '\n')
+        fi
+        
+        if [ -f "agentswarm/VERSION" ]; then
+          AGENTSWARM_VERSION=$(cat agentswarm/VERSION | tr -d '\n')
+        fi
+        
+        # Update VERSION file with component versions if they exist
+        if [ -f "VERSION" ] && [ -n "$DEVOPS_VERSION" ] || [ -n "$AGENTSWARM_VERSION" ]; then
+          # Create temporary file with component versions
+          python3 -c "
+import json
+import sys
+
+try:
+    with open('VERSION', 'r') as f:
+        data = json.load(f)
+except:
+    data = {}
+
+if 'components' not in data:
+    data['components'] = {}
+
+devops_version = '$DEVOPS_VERSION'.strip()
+agentswarm_version = '$AGENTSWARM_VERSION'.strip()
+
+if devops_version:
+    data['components']['devops'] = devops_version
+if agentswarm_version:
+    data['components']['agentswarm'] = agentswarm_version
+
+with open('VERSION', 'w') as f:
+    json.dump(data, f, indent=2)
+"
+          
+          # Commit component version updates if changes were made
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if ! git diff --quiet VERSION; then
+            git add VERSION
+            git commit -m "chore: update component versions [skip ci]"
+            git push
+          fi
+        fi
