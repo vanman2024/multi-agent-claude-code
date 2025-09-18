@@ -44,3 +44,4 @@ and `ops/commands/testing/run_tests.py` to add categories or change defaults.
 # Fixed auto-deploy: no deploy scripts in template, auto-merge enabled
 # Test semantic-release versioning
 # Git tag conflict resolved - testing v1.6.0 bump
+# Semantic-release properly detecting v1.5.0 as base version
