@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentswarm"
+version = "0.1.1"
+description = "Enterprise-ready multi-agent orchestration and deployment system"
+authors = [
+    {name = "AgentSwarm Team", email = "team@agentswarm.dev"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "click>=8.0.0",
+    "pyyaml>=6.0",
+    "psutil>=5.9.0",
+    "rich>=13.0.0",
+    "asyncio-mqtt>=0.11.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "mypy>=1.0.0",
+    "flake8>=6.0.0",
+]
+web = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.23.0",
+    "websockets>=11.0.0",
+]
+monitoring = [
+    "prometheus-client>=0.17.0",
+    "grafana-api>=1.0.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/agentswarm/agentswarm"
+Documentation = "https://docs.agentswarm.dev"
+Repository = "https://github.com/agentswarm/agentswarm"
+"Bug Tracker" = "https://github.com/agentswarm/agentswarm/issues"
+
+[project.scripts]
+agentswarm = "agentswarm.cli.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agentswarm*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--cov=agentswarm --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["agentswarm"]
+omit = ["tests/*", "examples/*"]
