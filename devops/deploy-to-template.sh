@@ -46,6 +46,7 @@ rsync -a \
   --exclude '__pycache__/' \
   --exclude '.pytest_cache/' \
   --exclude '.git/' \
+  --exclude '.github/' \
   --exclude '*.pyc' \
   --exclude '*.pyo' \
   --exclude 'deploy-to-template.sh' \
@@ -57,20 +58,13 @@ if [[ -f "$DEVOPS_SRC/pyproject.toml.template" ]]; then
     echo "✅ Copied pyproject.toml.template for new projects"
 fi
 
-# Update VERSION file from our pyproject.toml
-if [[ -f "$DEVOPS_SRC/pyproject.toml" ]]; then
-    DEVOPS_VERSION=$(python3 - "$DEVOPS_SRC/pyproject.toml" 2>/dev/null <<'PY'
-import sys
-import tomllib
-
-with open(sys.argv[1], 'rb') as f:
-    data = tomllib.load(f)
-
-print(data.get('project', {}).get('version', '0.1.0'))
-PY
-    )
-    echo "$DEVOPS_VERSION" > "$TEMPLATE_DEVOPS/VERSION"
+# Copy VERSION file (contains the official semantic version)
+if [[ -f "$DEVOPS_SRC/VERSION" ]]; then
+    cp "$DEVOPS_SRC/VERSION" "$TEMPLATE_DEVOPS/VERSION"
+    DEVOPS_VERSION=$(jq -r '.version' "$DEVOPS_SRC/VERSION" 2>/dev/null || cat "$DEVOPS_SRC/VERSION" | tr -d '\n')
     echo "✅ Updated VERSION to $DEVOPS_VERSION"
+else
+    echo "⚠️ No VERSION file found, template will use previous version"
 fi
 
 echo ""
