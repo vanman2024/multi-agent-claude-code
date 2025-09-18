@@ -100,8 +100,8 @@ case "${1:-help}" in
             print_error "export requires target directory argument"
             exit 1
         fi
-        print_status "Exporting AgentSwarm package..."
-        ./devops/deploy/commands/export-agentswarm.sh "$@"
+        print_status "Exporting production bundle..."
+        ./devops/deploy/commands/export-package.sh "$@"
         ;;
     help|--help|-h)
         cat << EOF
@@ -113,8 +113,8 @@ USAGE:
 COMMANDS:
     production [target]      Deploy to production using main deployment script
     simple [target]          Deploy using simple deployment script  
-    build [target]           Build production version only
-    export [dir]             Export AgentSwarm package to directory (no tests)
+    build [target]           Build production bundle only
+    export [dir]             Export production bundle to directory
     
 EXAMPLES:
     deploy production ~/deploy/your-project
