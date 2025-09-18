@@ -680,21 +680,6 @@ class ProjectSync {
       }
     }
     
-    // Create .devcontainer directory if it doesn't exist
-    const devcontainerDir = path.join(this.projectRoot, '.devcontainer');
-    if (!fs.existsSync(devcontainerDir)) {
-      fs.mkdirSync(devcontainerDir, { recursive: true });
-      
-      // Copy devcontainer.json
-      const devcontainerSrc = path.join(sourceDockerDir, 'devcontainer.json.template');
-      const devcontainerDest = path.join(devcontainerDir, 'devcontainer.json');
-      
-      if (fs.existsSync(devcontainerSrc)) {
-        fs.copyFileSync(devcontainerSrc, devcontainerDest);
-        console.log('  ✅ Created .devcontainer/devcontainer.json for VS Code');
-      }
-    }
-    
     if (copiedCount > 0) {
       console.log(`  ✅ Docker development environment ready!`);
       console.log(`     Run: ./docker-scripts.sh dev-up`);
