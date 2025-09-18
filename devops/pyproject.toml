@@ -3,17 +3,17 @@ requires = ["setuptools>=45", "wheel", "setuptools-scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "{{PROJECT_NAME}}"
+name = "multi-agent-devops"
 version = "0.1.0"
-description = "{{PROJECT_DESCRIPTION}}"
+description = "DevOps CLI system for multi-agent development workflows"
 authors = [
-    {name = "{{AUTHOR_NAME}}", email = "{{AUTHOR_EMAIL}}"},
+    {name = "vanman2025", email = "noreply@example.com"},
 ]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -23,7 +23,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    # Add project dependencies here
+    "pyyaml>=6.0",
+    "toml>=0.10.2",
 ]
 
 [project.optional-dependencies]
@@ -34,6 +35,13 @@ dev = [
     "flake8>=5.0",
     "mypy>=1.0",
 ]
+
+[project.scripts]
+ops = "devops.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ops*", "deploy*", "ci*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -55,13 +63,10 @@ disallow_untyped_defs = true
 strategy = "conventional_commits"
 source = "pyproject.toml"
 
-# DevOps CLI Configuration (template - gets customized for each project)
+# DevOps CLI Configuration (real config for DevOps development)
 [deploy]
-target = "/tmp/{{PROJECT_NAME}}-staging"
-
-[versioning]
-strategy = "conventional_commits"
-source = "pyproject.toml"
+target = "/home/vanman2025/multi-agent-claude-code"
+staging = "/tmp/devops-staging"
 
 [qa]
 lint = true
@@ -70,7 +75,7 @@ tests = "not slow"
 
 [release]
 changelog = true
-tag_prefix = "v"
+tag_prefix = "devops-v"
 
 [env]
 wsl_check = true
