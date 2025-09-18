@@ -1,10 +1,8 @@
-# Backend Testing Strategy & Protocol
+# Standardized Testing Protocol
 
 ## Overview
 
-This document defines the **backend testing strategy and protocol** for the Multi-Agent Development Framework. This focuses on Python/pytest testing patterns, API testing, and @claude agent responsibilities.
-
-> **Note**: For frontend testing strategy, see `project-sync/testing/frontend-tests-template/docs/TESTING_STRATEGY.md`
+This document defines the **standardized testing protocol** for the Multi-Agent Development Framework. All agents must follow these standards to prevent testing chaos and ensure consistent behavior across projects.
 
 ## 🚨 CRITICAL: Standardized Testing Commands
 
@@ -31,11 +29,13 @@ npm run deploy              # Standard deployment (if available)
 
 The `/test` command automatically detects your project type and runs appropriate commands:
 
-**Full-Stack Projects:**
+**React/Next.js Projects:**
 ```bash
-./scripts/ops qa --backend  # Backend tests (Python/pytest)
-./scripts/ops qa --frontend # Frontend tests (Playwright)
-./scripts/ops qa --all      # Both test suites
+npm test                     # or jest
+npm run test:unit           # unit tests only  
+npm run test:e2e            # playwright tests
+npm run lint                # eslint
+npm run typecheck           # tsc --noEmit
 ```
 
 **Python Projects:**
@@ -47,14 +47,12 @@ ruff check .                # linting
 mypy .                      # type checking
 ```
 
-**Backend Focus (Python/API):**
+**Node.js Backend:**
 ```bash
-pytest                      # Run all backend tests
-pytest backend-tests/unit/  # Unit tests only
-pytest backend-tests/integration/ # Integration tests
-pytest backend-tests/contract/     # API contract tests
-ruff check .                # Python linting  
-mypy .                      # Type checking
+npm test                    # jest tests
+npm run test:integration    # API tests
+npm run lint               # eslint
+npm run typecheck          # tsc --noEmit
 ```
 
 ### Agent Compliance Requirements
@@ -63,22 +61,19 @@ mypy .                      # Type checking
 - ✅ `/test` - Universal testing slash command
 - ✅ `/deploy` - Universal deployment slash command
 
-**@claude BACKEND AGENT must use:**
+**ALL OTHER AGENTS must use:**
+- ✅ `npm test` - Standard Node.js testing
 - ✅ `pytest` - Standard Python testing
-- ✅ `./scripts/ops qa --backend` - Dual architecture backend testing
-- ✅ `ruff check` - Python linting
-- ✅ `mypy` - Type checking
-- ✅ Newman/Postman - API contract testing (via MCP server)
+- ✅ `npm run lint` - Standard linting
+- ✅ `npm run build` - Standard building
+- ✅ `npm run deploy` - Standard deployment (if script exists)
 
-**FRONTEND TESTING:**
-- ✅ **@copilot handles all frontend testing** - See `frontend-tests-template/docs/TESTING_STRATEGY.md`
-- ✅ Playwright/TypeScript, visual regression, accessibility, smart E2E strategy
-
-**FORBIDDEN - Backend agents may NOT:**
-- ❌ Create custom test frameworks  
-- ❌ Handle frontend testing (that's @copilot's domain)
-- ❌ Bypass the pytest/backend-tests structure
-- ❌ Use non-standard Python testing commands
+**FORBIDDEN - All agents may NOT:**
+- ❌ Create custom test frameworks
+- ❌ Use non-standard testing commands
+- ❌ Bypass the standardized protocol
+- ❌ Create project-specific test scripts
+- ❌ Use slash commands (only Claude Code has access)
 
 ## Why Testing is Mission-Critical
 

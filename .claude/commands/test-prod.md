@@ -13,7 +13,7 @@ Run comprehensive production readiness tests using the integrated testing framew
 Run the production readiness tests that are now integrated into our backend testing structure:
 
 ```bash
-!cd project-sync && ./scripts/ops qa --production --verbose
+!./scripts/ops qa --production --verbose
 ```
 
 ## Additional Options
@@ -21,7 +21,7 @@ Run the production readiness tests that are now integrated into our backend test
 If `--fix` argument is provided, also run the mock detector and suggest fixes:
 
 ```bash
-!python .claude/scripts/mock_detector.py --target project-sync/testing/backend-tests/production --format json
+!python ../.claude/scripts/mock_detector.py --target testing/backend-tests/production --format json
 ```
 
 ## What This Tests
@@ -34,4 +34,4 @@ The production readiness tests validate:
 - API endpoints use real implementations
 - Integration with mock detector script
 
-All tests are located in `project-sync/testing/backend-tests/production/` and run via pytest as part of our standard testing pipeline.
+All tests are located in `testing/backend-tests/production/` and run via pytest as part of our standard testing pipeline.

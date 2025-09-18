@@ -12,12 +12,12 @@ Run comprehensive production readiness analysis using integrated testing and moc
 
 ### Step 1: Run Integrated Production Tests
 ```bash
-!cd project-sync && ./scripts/ops qa --production --verbose
+!./scripts/ops qa --production --verbose
 ```
 
 ### Step 2: Run Mock Detection Script
 ```bash
-!python .claude/scripts/mock_detector.py --verbose --format markdown
+!python ../.claude/scripts/mock_detector.py --verbose --format markdown
 ```
 
 ### Step 3: Analyze Results

@@ -22,18 +22,18 @@ echo "📍 Location: $PROJECT_DIR"
 echo ""
 
 # Check if already set up
-if [ -f "agents/CLAUDE.md" ] && [ -f ".vscode/settings.json" ]; then
+if [ -f "devops/ops/ops" ] && [ -f "pyproject.toml" ]; then
   echo "⚠️  Project template already synced!"
   echo ""
   echo "To re-sync or update, run:"
-  echo "  node $(dirname "$0")/project-sync/setup/sync-project.js"
+  echo "  node $(dirname "$0")/setup/sync-project.js"
   exit 0
 fi
 
 # Run the project sync
 echo "🚀 Running project sync..."
-if [ -f "$(dirname "$0")/project-sync/setup/sync-project.js" ]; then
-  node "$(dirname "$0")/project-sync/setup/sync-project.js" "$PROJECT_DIR" "$@"
+if [ -f "$(dirname "$0")/setup/sync-project.js" ]; then
+  node "$(dirname "$0")/setup/sync-project.js" "$PROJECT_DIR" "$@"
 else
   echo "❌ Project sync script not found!"
   echo "Make sure you're running this from the template directory"
