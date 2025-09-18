@@ -9,6 +9,8 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_NAME="$(basename "$REPO_ROOT")"
+CONFIG_FILE="$REPO_ROOT/devops/ops/config.yml"
 
 # Use pyproject.toml as the primary config
 PYPROJECT_CONFIG="$REPO_ROOT/pyproject.toml"
@@ -118,22 +120,39 @@ PY
     elif [[ -n "$parsed_targets" ]]; then
         echo "$parsed_targets"
     else
-        echo "$HOME/deploy/signalhire"
+        echo "$HOME/deploy/$PROJECT_NAME"
     fi
 }
 
 # Activate virtual environment
 activate_venv() {
+    local auto_bootstrap
+    auto_bootstrap=$(config_get "env.auto_bootstrap")
+    [[ -z "$auto_bootstrap" ]] && auto_bootstrap="true"
+
     if [[ -f ".venv/bin/activate" ]]; then
         source .venv/bin/activate
+        return 0
     elif [[ -f "venv/bin/activate" ]]; then
         source venv/bin/activate
-    else
-        print_warning "No virtual environment found - creating .venv..."
+        return 0
+    fi
+
+    if [[ "$auto_bootstrap" =~ ^(true|1|yes)$ ]]; then
+        print_warning "No virtual environment found - creating .venv (disable via env.auto_bootstrap=false)"
         python3 -m venv .venv
         source .venv/bin/activate
-        pip install -e .[dev] >/dev/null 2>&1
+        if [[ -f requirements-dev.txt ]]; then
+            pip install -r requirements-dev.txt >/dev/null 2>&1 || true
+        fi
+        if [[ -f requirements.txt ]]; then
+            pip install -r requirements.txt >/dev/null 2>&1 || true
+        fi
+        return 0
     fi
+
+    print_warning "No virtual environment found. Install dependencies manually or enable env.auto_bootstrap in config/devops.toml"
+    return 1
 }
 
 # Commands
@@ -279,34 +298,27 @@ cmd_build() {
     else
         # Fallback simple build
         mkdir -p "$target"
-        activate_venv
+        activate_venv || true
 
-        # Copy source
-        cp -r src/ "$target/"
-        cp pyproject.toml "$target/"
-        cp README.md "$target/"
-        [[ -f .env ]] && cp .env "$target/"
+        rsync -a src/ "$target/src/"
+        [[ -d docs ]] && rsync -a docs/ "$target/docs/"
+        [[ -f README.md ]] && cp README.md "$target/"
+        [[ -f VERSION ]] && cp VERSION "$target/"
+        [[ -f requirements.txt ]] && cp requirements.txt "$target/"
+        [[ -f install.sh ]] && cp install.sh "$target/"
 
-        # Create simple install script
-        cat > "$target/install.sh" << 'EOF'
-#!/bin/bash
-echo "Installing signalhire-agent..."
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e .
-echo "✅ Installation complete!"
-echo "Run: ./signalhire-agent --help"
-EOF
-        chmod +x "$target/install.sh"
+        local cli_name
+        cli_name=$(config_get "package.manifest.cli")
+        [[ -z "$cli_name" ]] && cli_name="$PROJECT_NAME"
 
-        # Create CLI wrapper
-        cat > "$target/signalhire-agent" << 'EOF'
-#!/bin/bash
-cd "$(dirname "$0")"
-[[ -f .venv/bin/activate ]] && source .venv/bin/activate
-python3 run.py "$@"
-EOF
-        chmod +x "$target/signalhire-agent"
+        if [[ -f "$cli_name" ]]; then
+            cp "$cli_name" "$target/$cli_name"
+        elif [[ -f "$PROJECT_NAME" ]]; then
+            cp "$PROJECT_NAME" "$target/$PROJECT_NAME"
+            cli_name="$PROJECT_NAME"
+        fi
+
+        chmod +x "$target/install.sh" "$target/$cli_name" 2>/dev/null || true
     fi
 
     print_success "Build complete: $target"
@@ -327,11 +339,15 @@ cmd_verify_prod() {
     echo "1️⃣ Testing install script..."
     test -x install.sh || { print_error "install.sh not executable"; return 1; }
 
+    local cli_name
+    cli_name=$(config_get "package.manifest.cli")
+    [[ -z "$cli_name" ]] && cli_name="$PROJECT_NAME"
+
     echo "2️⃣ Testing CLI wrapper..."
-    test -x signalhire-agent || { print_error "signalhire-agent not executable"; return 1; }
+    test -x "$cli_name" || { print_error "$cli_name not executable"; return 1; }
 
     echo "3️⃣ Testing help command..."
-    ./signalhire-agent --help >/dev/null || { print_error "CLI help failed"; return 1; }
+    ./"$cli_name" --help >/dev/null || { print_error "CLI help failed"; return 1; }
 
     echo "4️⃣ Testing source structure..."
     test -d src/ || { print_error "src/ directory missing"; return 1; }
@@ -339,6 +355,8 @@ cmd_verify_prod() {
     echo "5️⃣ Running basic tests..."
     if [[ -f ".venv/bin/activate" ]]; then
         source .venv/bin/activate
+        python3 -c "import importlib, sys; sys.path.append('src'); importlib.import_module('$PROJECT_NAME')" 2>/dev/null || \
+        python3 -c "import sys; sys.path.append('src'); import agentswarm.cli.main" 2>/dev/null || \
         python3 -c "import sys; sys.path.append('src'); import cli.main" || { print_error "Import test failed"; return 1; }
     fi
 
