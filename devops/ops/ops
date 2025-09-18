@@ -28,6 +28,7 @@ NC='\033[0m'
 
 print_status() { echo -e "${BLUE}[OPS]${NC} $1"; }
 print_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+print_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
