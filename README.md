@@ -43,7 +43,17 @@ specify init --here --ai copilot
 # Include VS Code Dev Container configuration (optional)
 /home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --devcontainer
 
-# That's it! You now have AI agents as your development partners.
+# 🆕 NEW: Automatic GitHub Repository Creation
+# Create project AND GitHub repository in one command:
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --create-repo
+
+# Create private repository with custom name:
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --github --private --repo-name "my-awesome-project"
+
+# Full customization with description:
+/home/gotime2022/Projects/multi-agent-claude-code/sync-project-template.sh --create-repo --repo-name "custom-name" --description "My multi-agent project"
+
+# That's it! You now have AI agents as your development partners AND a GitHub repository!
 ```
 
 > 💡 You can combine `--devcontainer` with the testing flags if you want a dev container alongside a backend-only or frontend-only setup.
@@ -64,6 +74,71 @@ cp .env.example .env
 # Edit .env with your API keys and settings
 
 # Your complete development environment is ready!
+```
+
+## 🐙 GitHub Integration & Automatic Repository Creation
+
+### One-Command Project Setup with GitHub
+Create a complete development environment AND GitHub repository in a single command:
+
+```bash
+# Basic: Create public repository with directory name
+./sync-project-template.sh --create-repo
+
+# Private repository with custom name
+./sync-project-template.sh --github --private --repo-name "my-project"
+
+# Full customization
+./sync-project-template.sh --create-repo \
+  --repo-name "awesome-project" \
+  --description "My multi-agent development project" \
+  --private
+```
+
+### What Happens Automatically
+✅ **Project Setup**: Complete template sync with DevOps v1.6.0 + AgentSwarm v1.4.1  
+✅ **Repository Creation**: GitHub repository created via `gh` CLI  
+✅ **Git Initialization**: Local repository initialized with proper remote  
+✅ **Initial Commit**: Professional commit with component version tracking  
+✅ **Code Push**: All template files pushed to GitHub  
+✅ **Version Management**: Ready for semantic versioning and automated releases  
+
+### Requirements
+- **GitHub CLI**: Must be installed and authenticated (`gh auth login`)
+- **Git**: Available in system PATH
+- **Internet**: For repository creation and code push
+
+### Generated Commit Message
+```
+feat: initial project setup from multi-agent template
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Components included:
+- DevOps automation system (v1.6.0)
+- AgentSwarm orchestration (v1.4.1)
+- Multi-agent coordination framework
+- GitHub workflows and automation
+- Testing infrastructure
+- MCP server configurations
+```
+
+### Available Options
+| Flag | Description | Example |
+|------|-------------|---------|
+| `--create-repo` | Create GitHub repository and push code | Basic setup |
+| `--github` | Same as --create-repo | Alternative syntax |
+| `--repo-name NAME` | Custom repository name | `--repo-name "my-app"` |
+| `--private` | Create private repository | Default: public |
+| `--description "..."` | Custom repository description | Professional description |
+
+Combine with other flags:
+```bash
+# Backend-only private repository
+./sync-project-template.sh --backend-only --github --private
+
+# Full-stack with dev container and GitHub repo
+./sync-project-template.sh --devcontainer --create-repo
 ```
 
 ## 🚀 Deployment Strategy
