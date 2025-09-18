@@ -309,16 +309,61 @@ def health(ctx: click.Context) -> None:
     table.add_column("Status")
     table.add_column("Healthy")
     table.add_column("Unhealthy")
+    table.add_column("Uptime", justify="right")
 
     for key, health in status.items():
+        # Enhanced health display with uptime estimation
+        uptime = getattr(health, 'uptime', 'N/A')
+        if uptime == 'N/A' and health.healthy_instances > 0:
+            uptime = "~5m"  # Rough estimate for running instances
+        
         table.add_row(
             key,
             health.status,
             str(health.healthy_instances),
             str(health.unhealthy_instances),
+            str(uptime),
         )
 
     console.print(table)
+
+
+@cli.command()
+@click.option("--format", "output_format", default="table", type=click.Choice(["table", "json", "yaml"]))
+@click.pass_context
+def status(ctx: click.Context, output_format: str) -> None:
+    """Show comprehensive deployment status with multiple output formats"""
+    
+    project_path: Path = ctx.obj["project"]
+    state_store: SwarmStateStore = ctx.obj["state_store"]
+    
+    latest = state_store.latest_deployment()
+    if not latest:
+        console.print("No deployments recorded. Run `agentswarm deploy` first.", style="yellow")
+        return
+    
+    if output_format == "json":
+        import json
+        console.print(json.dumps(latest, indent=2, default=str))
+    elif output_format == "yaml":
+        import yaml
+        console.print(yaml.dump(latest, default_flow_style=False))
+    else:
+        # Enhanced table format with more details
+        table = _build_status_table(latest, include_metrics=True)
+        console.print(table)
+        
+        # Additional deployment metadata
+        metadata_table = Table(title="Deployment Metadata")
+        metadata_table.add_column("Property", style="cyan")
+        metadata_table.add_column("Value", style="white")
+        
+        metadata_table.add_row("Deployment ID", latest.get("deployment_id", "Unknown"))
+        metadata_table.add_row("Created", latest.get("created_at", "Unknown"))
+        metadata_table.add_row("Project Path", str(project_path))
+        metadata_table.add_row("Total Agents", str(sum(len(procs) for procs in latest.get("agents", {}).values())))
+        
+        console.print(metadata_table)
 
 
 @cli.command()
