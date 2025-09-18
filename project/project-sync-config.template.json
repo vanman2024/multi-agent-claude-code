@@ -61,7 +61,7 @@
       ".github/copilot-instructions.md",
       "scripts/ops",
       "automation/config.yml.template",
-      "docs/RELEASE_SYSTEM.md"
+      "VERSIONING.md"
     ],
     "optional": [
       "agents/QWEN.md",

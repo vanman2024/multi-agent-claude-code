@@ -3,6 +3,11 @@ name: Automatic Version Management
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'devops/**'           # Ignore DevOps component changes
+      - 'agentswarm/**'       # Ignore AgentSwarm component changes
+      - 'devops-VERSION'      # Ignore legacy version files
+      - 'agentswarm-VERSION'  # Ignore legacy version files
   pull_request:
     branches: [ main ]
 
@@ -42,7 +47,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Create semantic-release config
+        # Create semantic-release config that includes component versions
         cat > .releaserc.json << 'EOF'
         {
           "branches": ["main"],
@@ -52,7 +57,7 @@ jobs:
             [
               "@semantic-release/exec",
               {
-                "prepareCmd": "echo '{\"version\": \"v${nextRelease.version}\", \"commit\": \"'$GITHUB_SHA'\", \"build_date\": \"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'\", \"build_type\": \"production\"}' > VERSION"
+                "prepareCmd": "node -e \"const fs = require('fs'); const devopsVersion = fs.existsSync('devops/VERSION') ? JSON.parse(fs.readFileSync('devops/VERSION', 'utf8')).version || 'unknown' : 'unknown'; const agentswarmVersion = fs.existsSync('agentswarm/VERSION') ? JSON.parse(fs.readFileSync('agentswarm/VERSION', 'utf8')).version || 'unknown' : 'unknown'; const versionData = { version: 'v${nextRelease.version}', commit: process.env.GITHUB_SHA, build_date: new Date().toISOString(), build_type: 'production', components: { devops: devopsVersion, agentswarm: agentswarmVersion } }; fs.writeFileSync('VERSION', JSON.stringify(versionData, null, 2));\""
               }
             ],
             [
