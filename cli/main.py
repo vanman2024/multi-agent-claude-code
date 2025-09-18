@@ -24,6 +24,7 @@ from ..core.config import (
     create_default_config,
     create_example_config,
 )
+from ..core.models import AgentProcess
 from ..core.orchestrator import AgentOrchestrator
 from ..core.state import STATE_DIRECTORY_NAME, SwarmStateStore
 from ..workflows.orchestrator import WorkflowManager, WorkflowOrchestrator
@@ -422,9 +423,10 @@ def run(ctx: click.Context, name: str, context: Optional[str]):
     for agent_type, processes in latest.get("agents", {}).items():
         agent_processes[agent_type] = [
             AgentProcess(
-                instance_id=proc.get("instance_id", ""),
+                pid=proc.get("pid", 0),
                 agent_type=agent_type,
-                pid=proc.get("pid"),
+                instance_id=proc.get("instance_id", 0),
+                command=proc.get("command", f"agent-{agent_type}"),
                 status="running" if proc.get("pid") else "stopped"
             )
             for proc in processes
@@ -700,9 +702,10 @@ def monitor(ctx: click.Context, execution_id: str):
     for agent_type, processes in latest.get("agents", {}).items():
         agent_processes[agent_type] = [
             AgentProcess(
-                instance_id=proc.get("instance_id", ""),
+                pid=proc.get("pid", 0),
                 agent_type=agent_type,
-                pid=proc.get("pid"),
+                instance_id=proc.get("instance_id", 0),
+                command=proc.get("command", f"agent-{agent_type}"),
                 status="running" if proc.get("pid") else "stopped"
             )
             for proc in processes
@@ -737,9 +740,10 @@ def dashboard(ctx: click.Context):
     for agent_type, processes in latest.get("agents", {}).items():
         agent_processes[agent_type] = [
             AgentProcess(
-                instance_id=proc.get("instance_id", ""),
+                pid=proc.get("pid", 0),
                 agent_type=agent_type,
-                pid=proc.get("pid"),
+                instance_id=proc.get("instance_id", 0),
+                command=proc.get("command", f"agent-{agent_type}"),
                 status="running" if proc.get("pid") else "stopped"
             )
             for proc in processes

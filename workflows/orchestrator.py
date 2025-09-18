@@ -37,6 +37,9 @@ class WorkflowOrchestrator:
         self.state_dir = state_dir or Path.cwd() / "workflow_state"
         self.state_dir.mkdir(exist_ok=True)
         self.logger = logging.getLogger(__name__)
+        
+        # Initialize state store
+        self.state_store = WorkflowStateStore(self.state_dir)
 
         # In-memory state (could be persisted to disk/database)
         self.active_executions: Dict[str, WorkflowExecution] = {}
