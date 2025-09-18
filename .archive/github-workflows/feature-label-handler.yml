@@ -1,0 +1,39 @@
+name: Feature Label Handler
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-feature-label:
+    name: Add Label Based on Type
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.issue.title, '[FEATURE]')
+    steps:
+      - name: Parse issue body and add label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueBody = context.payload.issue.body;
+            
+            // Look for the Type field in the issue body
+            let label = '';
+            
+            if (issueBody.includes('New Feature')) {
+              label = 'feature';
+            } else if (issueBody.includes('Enhancement')) {
+              label = 'enhancement';
+            } else if (issueBody.includes('Refactor')) {
+              label = 'refactor';
+            }
+            
+            if (label) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: [label]
+              });
+              
+              console.log(`Added label: ${label}`);
+            }

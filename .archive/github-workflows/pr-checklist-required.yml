@@ -1,0 +1,200 @@
+name: Enforce Issue Checkboxes
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+  push:
+    branches-ignore:
+      - main
+      - master
+
+permissions:
+  pull-requests: read
+  issues: read
+  checks: write
+  statuses: write
+
+jobs:
+  require-issue-checkboxes:
+    name: Require Issue Checkboxes Complete
+    runs-on: ubuntu-latest
+    # Skip for hotfix and Copilot PRs
+    if: |
+      !contains(github.ref, 'hotfix') &&
+      !startsWith(github.head_ref, 'copilot/') && 
+      github.actor != 'Copilot'
+    steps:
+      - name: Check Issue Checkboxes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let pr;
+            let prNumber;
+            
+            // Handle both push and pull_request events
+            if (context.eventName === 'pull_request') {
+              pr = context.payload.pull_request;
+              prNumber = pr.number;
+            } else if (context.eventName === 'push') {
+              // For push events, find associated PR
+              const branch = context.ref.replace('refs/heads/', '');
+              const { data: prs } = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head: `${context.repo.owner}:${branch}`,
+                state: 'open'
+              });
+              
+              if (prs.length === 0) {
+                console.log('No PR found for this branch - skipping check');
+                return;
+              }
+              
+              pr = prs[0];
+              prNumber = pr.number;
+            } else {
+              console.log(`Unexpected event type: ${context.eventName}`);
+              return;
+            }
+            
+            // Find linked issue from PR body (Closes #123)
+            const issueMatch = pr.body?.match(/(?:Closes|Fixes|Resolves)\s+#(\d+)/i);
+            
+            if (!issueMatch) {
+              core.setFailed('❌ PR must be linked to an issue using "Closes #XXX"');
+              
+              // Create status check
+              await github.rest.repos.createCommitStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha: context.sha,
+                state: 'failure',
+                context: 'Issue Checkboxes',
+                description: 'PR must be linked to an issue'
+              });
+              return;
+            }
+            
+            const issueNumber = issueMatch[1];
+            console.log(`Found linked issue: #${issueNumber}`);
+            
+            // Get the issue
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt(issueNumber)
+            });
+            
+            // Check for unchecked checkboxes in issue body
+            const uncheckedBoxes = (issue.body?.match(/- \[ \]/g) || []).length;
+            const checkedBoxes = (issue.body?.match(/- \[x\]/gi) || []).length;
+            const totalBoxes = uncheckedBoxes + checkedBoxes;
+            
+            console.log(`Issue #${issueNumber}: ${checkedBoxes}/${totalBoxes} checkboxes complete`);
+            
+            if (totalBoxes === 0) {
+              console.log('⚠️ No checkboxes found in issue - skipping check');
+              return;
+            }
+            
+            if (uncheckedBoxes > 0) {
+              core.setFailed(`❌ Issue #${issueNumber} has ${uncheckedBoxes} unchecked requirements. Complete all checkboxes before merging.`);
+              
+              // Create failing status check
+              await github.rest.repos.createCommitStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha: context.sha,
+                state: 'failure',
+                context: 'Issue Checkboxes',
+                description: `${uncheckedBoxes} unchecked requirements in issue #${issueNumber}`,
+                target_url: issue.html_url
+              });
+              
+              // Add comment to PR (only if we have PR number)
+              if (prNumber) {
+                // Check if we already commented
+                const { data: comments } = await github.rest.issues.listComments({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber
+                });
+                
+                const existingComment = comments.find(c => 
+                  c.user.type === 'Bot' && 
+                  c.body.includes('Cannot merge: Issue requirements incomplete')
+                );
+                
+                const commentBody = [
+                  '## ❌ Cannot merge: Issue requirements incomplete',
+                  '',
+                  `**Issue #${issueNumber}** has **${uncheckedBoxes}** unchecked requirements.`,
+                  '',
+                  `**Progress:** ${checkedBoxes}/${totalBoxes} checkboxes complete (${Math.round(checkedBoxes/totalBoxes * 100)}%)`,
+                  '',
+                  'Please complete all requirements in the linked issue before this PR can be merged.',
+                  '',
+                  `[View Issue #${issueNumber}](${issue.html_url})`
+                ].join('\n');
+                
+                if (existingComment) {
+                  // Update existing comment
+                  await github.rest.issues.updateComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    comment_id: existingComment.id,
+                    body: commentBody
+                  });
+                } else {
+                  // Create new comment
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: prNumber,
+                    body: commentBody
+                  });
+                }
+              }
+            } else {
+              console.log(`✅ All ${totalBoxes} requirements complete in issue #${issueNumber}`);
+              
+              // Create passing status check
+              await github.rest.repos.createCommitStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha: context.sha,
+                state: 'success',
+                context: 'Issue Checkboxes',
+                description: `All ${totalBoxes} requirements complete`,
+                target_url: issue.html_url
+              });
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
+  hotfix-bypass:
+    name: Hotfix Bypass
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'hotfix')
+    steps:
+      - name: Auto-pass for hotfix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('🚨 HOTFIX DETECTED - Bypassing checkbox requirements');
+            console.log(`Branch: ${context.ref}`);
+            
+            // Create passing status check for hotfix
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'success',
+              context: 'Issue Checkboxes',
+              description: 'Hotfix - checkbox requirements bypassed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+            
+            console.log('✅ Hotfix bypass complete');
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

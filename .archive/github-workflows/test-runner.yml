@@ -1,0 +1,211 @@
+name: Test Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - unit
+          - integration
+          - e2e
+          - smoke
+  pull_request:
+    paths:
+      - '**.js'
+      - '**.ts'
+      - '**.jsx'
+      - '**.tsx'
+      - '**.py'
+      - '**.go'
+      - 'package.json'
+      - 'requirements.txt'
+      - 'go.mod'
+
+jobs:
+  detect-language:
+    name: Detect Project Type
+    runs-on: ubuntu-latest
+    outputs:
+      language: ${{ steps.detect.outputs.language }}
+      test-cmd: ${{ steps.detect.outputs.test-cmd }}
+      
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Detect Language and Test Command
+        id: detect
+        run: |
+          if [ -f "package.json" ]; then
+            echo "language=javascript" >> $GITHUB_OUTPUT
+            if [ -f "devops/ops/ops" ] && [ -d "testing/frontend" ]; then
+              echo "test-cmd=./devops/ops/ops qa --frontend" >> $GITHUB_OUTPUT
+            elif grep -q '"test"' package.json; then
+              echo "test-cmd=npm test" >> $GITHUB_OUTPUT
+            else
+              echo "test-cmd=echo 'No tests configured'" >> $GITHUB_OUTPUT
+            fi
+          elif [ -f "requirements.txt" ] || [ -f "setup.py" ]; then
+            echo "language=python" >> $GITHUB_OUTPUT
+            if [ -f "pytest.ini" ] || [ -d "testing/backend" ] || [ -d "tests" ]; then
+              if [ -f "devops/ops/ops" ]; then
+                echo "test-cmd=./devops/ops/ops qa --backend" >> $GITHUB_OUTPUT
+              else
+                echo "test-cmd=pytest" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "test-cmd=python -m unittest discover" >> $GITHUB_OUTPUT
+            fi
+          elif [ -f "go.mod" ]; then
+            echo "language=go" >> $GITHUB_OUTPUT
+            echo "test-cmd=go test ./..." >> $GITHUB_OUTPUT
+          elif [ -f "Cargo.toml" ]; then
+            echo "language=rust" >> $GITHUB_OUTPUT
+            echo "test-cmd=cargo test" >> $GITHUB_OUTPUT
+          else
+            echo "language=unknown" >> $GITHUB_OUTPUT
+            echo "test-cmd=echo 'Could not detect test framework'" >> $GITHUB_OUTPUT
+          fi
+
+  run-tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: detect-language
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup JavaScript Environment
+        if: needs.detect-language.outputs.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Setup Python Environment
+        if: needs.detect-language.outputs.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Setup Go Environment
+        if: needs.detect-language.outputs.language == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      
+      - name: Install Dependencies
+        run: |
+          case "${{ needs.detect-language.outputs.language }}" in
+            javascript)
+              npm ci || npm install
+              ;;
+            python)
+              pip install -r requirements.txt || pip install pytest
+              ;;
+            go)
+              go mod download
+              ;;
+            rust)
+              cargo fetch
+              ;;
+          esac
+      
+      - name: Run Unit Tests
+        if: github.event.inputs.test-type == 'unit' || github.event.inputs.test-type == 'all' || github.event.inputs.test-type == ''
+        run: |
+          echo "🧪 Running unit tests..."
+          ${{ needs.detect-language.outputs.test-cmd }}
+        continue-on-error: ${{ github.event.inputs.test-type == 'all' }}
+      
+      - name: Run Integration Tests
+        if: github.event.inputs.test-type == 'integration' || github.event.inputs.test-type == 'all'
+        run: |
+          echo "🔗 Running integration tests..."
+          case "${{ needs.detect-language.outputs.language }}" in
+            javascript)
+              if [ -f "devops/ops/ops" ] && [ -d "testing/frontend" ]; then
+                ./devops/ops/ops qa --frontend || echo "No frontend tests"
+              else
+                npm run test:integration || echo "No integration tests"
+              fi
+              ;;
+            python)
+              if [ -f "devops/ops/ops" ]; then
+                ./devops/ops/ops qa --backend || echo "No backend tests"
+              else
+                pytest testing/backend/integration/ || pytest tests/integration/ || echo "No integration tests"
+              fi
+              ;;
+            *)
+              echo "Integration tests not configured"
+              ;;
+          esac
+        continue-on-error: true
+      
+      - name: Generate Test Report
+        if: always()
+        run: |
+          echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Language: ${{ needs.detect-language.outputs.language }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Test Command: \`${{ needs.detect-language.outputs.test-cmd }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Test Type: ${{ github.event.inputs.test-type || 'all' }}" >> $GITHUB_STEP_SUMMARY
+
+  test-coverage:
+    name: Test Coverage Report
+    runs-on: ubuntu-latest
+    needs: detect-language
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        if: needs.detect-language.outputs.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Setup Python
+        if: needs.detect-language.outputs.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Dependencies
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci || npm install
+          elif [ -f "requirements.txt" ]; then
+            pip install -r requirements.txt
+            pip install pytest-cov coverage
+          fi
+      
+      - name: Run Tests with Coverage
+        run: |
+          if [ -f "package.json" ]; then
+            npm test -- --coverage || npm test
+          elif [ -f "requirements.txt" ]; then
+            pytest --cov=. --cov-report=term --cov-report=html
+          else
+            echo "Coverage not configured"
+          fi
+        continue-on-error: true
+      
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage/
+            htmlcov/
+            .coverage
+          if-no-files-found: warn
