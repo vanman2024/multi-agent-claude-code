@@ -1,0 +1,36 @@
+# 🚨 TEMPLATE REPOSITORY - NOT DEPLOYABLE 🚨
+# This is a template framework for creating new projects
+# Vercel should NOT deploy this repository
+# Use sync-project-template.sh to create deployable projects
+
+# BLOCK ALL DEPLOYMENTS - Ignore everything except documentation
+*
+!README.md
+!docs/
+!templates/guides/
+
+# Explicitly ignore all template files
+templates/
+agents/
+.claude/
+.archive/
+setup/
+scripts/
+devops/
+tests/
+cli/
+automation/
+agentswarm/
+spec-kit/
+project/
+backups/
+config/
+examples/
+docker/
+
+# Ignore all code files that are templates
+*.template.*
+*.sh
+*.py
+sync-project-template.sh
+install.sh

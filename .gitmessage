@@ -1,0 +1,25 @@
+# Conventional Commit Template
+# 
+# Format: <type>[optional scope]: <description>
+#
+# Examples:
+#   feat: add new template sync feature
+#   fix: resolve DevOps deployment issue  
+#   docs: update README with new architecture
+#   chore: update dependencies
+#   refactor: restructure template system
+#   test: add integration tests for sync
+#
+# Types that trigger version bumps:
+#   feat: new feature (minor version bump)
+#   fix: bug fix (patch version bump)  
+#   BREAKING CHANGE: in body (major version bump)
+#
+# Other types (no version bump):
+#   docs, style, refactor, test, chore, ci, build, perf
+#
+# <type>[optional scope]: <description>
+#
+# [optional body]
+#
+# [optional footer(s)]
