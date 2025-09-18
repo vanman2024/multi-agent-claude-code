@@ -1,0 +1,18 @@
+[versioning]
+package = "agentswarm"
+source = "VERSION"
+
+[package]
+name = "agentswarm"
+path = "src"
+test_command = "pytest tests/backend -m 'not slow'"
+
+[package.manifest]
+version = "VERSION"
+requirements = "requirements.txt"
+install = "install.sh"
+cli = "agentswarm"
+
+[deploy]
+target = "~/deploy/agentswarm"
+subdirectory = "agentswarm"
