@@ -1491,6 +1491,92 @@ SYNC_DATE=${new Date().toISOString().split('T')[0]}
     }
   }
 
+  /**
+   * Auto-register project for template update notifications
+   */
+  async registerForTemplateUpdates() {
+    try {
+      console.log('\n📡 Registering project for template update notifications...');
+      
+      // Check if git repo exists
+      if (!fs.existsSync(path.join(this.projectRoot, '.git'))) {
+        console.log('  ⚠️  No git repository detected - skipping auto-registration');
+        return;
+      }
+      
+      // Detect GitHub repo info
+      let remoteUrl;
+      try {
+        remoteUrl = execSync('git remote get-url origin', { 
+          cwd: this.projectRoot,
+          encoding: 'utf8' 
+        }).trim();
+      } catch (error) {
+        console.log('  ⚠️  No GitHub remote detected - skipping auto-registration');
+        return;
+      }
+      
+      const repoMatch = remoteUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)/);
+      
+      if (!repoMatch) {
+        console.log('  ⚠️  No GitHub remote detected - skipping auto-registration');
+        return;
+      }
+      
+      const [, owner, repo] = repoMatch;
+      
+      // Get current template version
+      let templateVersion = 'unknown';
+      try {
+        const versionFile = path.join(__dirname, '..', 'VERSION');
+        if (fs.existsSync(versionFile)) {
+          const versionData = JSON.parse(fs.readFileSync(versionFile, 'utf8'));
+          templateVersion = versionData.version || 'unknown';
+        }
+      } catch (error) {
+        console.log('  ⚠️  Could not determine template version');
+      }
+      
+      // Create registration config
+      const config = {
+        name: `${owner}/${repo}`,
+        webhookUrl: `https://api.github.com/repos/${owner}/${repo}/dispatches`,
+        owner: owner,
+        repo: repo,
+        deployedVersion: templateVersion,
+        autoUpdate: false,
+        criticalUpdatesOnly: true  // Only DevOps/AgentSwarm updates
+      };
+      
+      // Register with webhook notifier
+      const notifierPath = path.join(__dirname, 'webhook-update-notifier.js');
+      if (!fs.existsSync(notifierPath)) {
+        console.log('  ⚠️  Webhook notifier not found - skipping registration');
+        return;
+      }
+      
+      try {
+        const result = execSync(`node "${notifierPath}" register '${JSON.stringify(config)}'`, { 
+          cwd: __dirname,
+          encoding: 'utf8' 
+        });
+        
+        console.log('  ✅ Registered for DevOps/AgentSwarm update notifications');
+        console.log('  📬 Will notify when critical component updates are available');
+        console.log(`  🔖 Project: ${owner}/${repo} (template v${templateVersion})`);
+        
+      } catch (registrationError) {
+        console.log(`  ⚠️  Registration failed: ${registrationError.message}`);
+        console.log('  💡 You can manually register later with:');
+        console.log(`      node setup/webhook-update-notifier.js register '${JSON.stringify(config, null, 2)}'`);
+      }
+      
+    } catch (error) {
+      console.log(`  ⚠️  Auto-registration failed: ${error.message}`);
+      console.log('  💡 You can manually register later with: node setup/webhook-update-notifier.js register');
+    }
+  }
+
   async run() {
     console.log('🚀 Starting comprehensive project sync...\n');
     
@@ -1527,6 +1613,7 @@ SYNC_DATE=${new Date().toISOString().split('T')[0]}
       this.syncVersioningSystem();  // Sync versioning system (templates/versioning)
       this.createTemplateVersionTracking();  // Track template version for future updates
       this.runDevOpsSetup();  // Run DevOps setup after all syncing
+      await this.registerForTemplateUpdates();  // Auto-register for template update notifications
 
       console.log('\n✅ Project sync completed successfully!');
       console.log('\n📋 Next steps:');
@@ -1564,7 +1651,10 @@ SYNC_DATE=${new Date().toISOString().split('T')[0]}
 if (require.main === module) {
   const projectRoot = process.argv[2] || process.cwd();
   const sync = new ProjectSync(projectRoot);
-  sync.run();
+  sync.run().catch(error => {
+    console.error('❌ Project sync failed:', error.message);
+    process.exit(1);
+  });
 }
 
 module.exports = ProjectSync;
