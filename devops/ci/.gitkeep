@@ -1,0 +1,5 @@
+# Cross-Platform CI/CD Infrastructure (Future)
+
+This directory is reserved for future cross-platform testing and CI/CD workflows.
+
+Current working system: ../ops/ and ../deploy/

@@ -154,6 +154,8 @@ eval rsync -av \
 echo "📝 Updating VERSION file..."
 if [ -f "$SOURCE_DIR/VERSION" ]; then
     cp "$SOURCE_DIR/VERSION" devops/VERSION
+    # Create legacy version file for backwards compatibility
+    cp "$SOURCE_DIR/VERSION" devops-VERSION
     echo "   ✅ VERSION file updated"
 else
     echo "   ⚠️  No VERSION file found in source"

@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "multi-agent-devops"
+version = "1.4.0"
+description = "DevOps CLI system for multi-agent development workflows"
+authors = [
+    {name = "vanman2025", email = "noreply@example.com"},
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "pyyaml>=6.0",
+    "toml>=0.10.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=22.0",
+    "flake8>=5.0",
+    "mypy>=1.0",
+]
+
+[project.scripts]
+ops = "devops.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ops*", "deploy*", "ci*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.versioning]
+strategy = "conventional_commits"
+source = "pyproject.toml"
+
+# DevOps CLI Configuration (real config for DevOps development)
+[deploy]
+target = "/home/vanman2025/multi-agent-claude-code"
+staging = "/tmp/devops-staging"
+
+[qa]
+lint = true
+typecheck = true
+tests = "not slow"
+
+[release]
+changelog = true
+tag_prefix = "devops-v"
+
+[env]
+wsl_check = true
+
+[hooks]
+auto_sync = false
