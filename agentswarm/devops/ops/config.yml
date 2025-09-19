@@ -1,0 +1,22 @@
+# Project Operations Config (Agentswarm)
+versioning:
+  strategy: semantic_version
+  source: VERSION
+
+targets:
+  - ~/deploy/agentswarm
+
+release:
+  changelog: false
+  tag_prefix: v
+
+qa:
+  lint: true
+  typecheck: true
+  tests: "not slow"
+
+env:
+  wsl_check: true
+
+hooks:
+  auto_sync: false

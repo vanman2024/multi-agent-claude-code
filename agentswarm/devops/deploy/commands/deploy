@@ -1,0 +1,13 @@
+#!/bin/bash
+# Quick deployment helper
+# Usage: ./deploy [target_directory]
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ -n "$1" ]]; then
+    # Deploy to specific target
+    "$SCRIPT_DIR/scripts/build/build-production.sh" "$1" --latest --force
+else
+    # Use continuous deployment system
+    "$SCRIPT_DIR/scripts/build/continuous-deployment.sh" deploy
+fi
