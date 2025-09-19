@@ -129,6 +129,11 @@ EXCLUDE_PATTERNS=(
     "devops"
     "devops/"
     "__init__.py"
+    "pytest.ini"
+    "install.sh"
+    "agentswarm.sh"
+    ".github"
+    ".github/"
     
     # Workflow-generated directories
     "template-repo"
