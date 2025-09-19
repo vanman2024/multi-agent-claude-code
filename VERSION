@@ -1,7 +1,7 @@
 {
-  "version": "v3.16.0",
-  "commit": "274452c87e27a4ea8329550efacf4fdd505691da",
-  "build_date": "2025-09-19T06:47:48.341Z",
+  "version": "v3.17.0",
+  "commit": "f2ccc829854e940f5d0dbb0d076cd4fd2f61f8fe",
+  "build_date": "2025-09-19T17:52:19.594Z",
   "build_type": "production",
   "components": {
     "devops": "v1.7.5",
