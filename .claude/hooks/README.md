@@ -27,9 +27,9 @@ Strategic hooks that enhance your workflow at key points without overwhelming th
 
 ### 4. save-work-state.sh
 - **Event**: SessionEnd
-- **Purpose**: Saves session state to work journal
-- **Benefit**: Resume exactly where you left off
-- **Output**: Creates .claude/work-journal.json
+- **Purpose**: Emergency stash for large uncommitted work
+- **Benefit**: Safety net for significant uncommitted changes
+- **Output**: Creates emergency stash if >30 uncommitted files
 
 ## Hook Output Visibility
 
@@ -52,7 +52,7 @@ To see if hooks are working:
 1. Start a new session - should see context loaded
 2. Type a message with @claude - should see sync warning if needed
 3. Let Claude finish responding - may see work checkpoint reminder
-4. End session - saves state to work journal
+4. End session - creates emergency stash if needed
 
 ## Philosophy
 

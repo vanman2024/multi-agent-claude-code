@@ -1,117 +1,74 @@
 #!/bin/bash
 
-# work-checkpoint.sh - Runs after Claude finishes responding (Stop event)
-# Provides gentle reminders about uncommitted work at natural pause points
+# work-checkpoint.sh - Runs when Claude Code session stops (Stop event)
+# Provides work continuation safety and state preservation
 
 set -euo pipefail
 
-# Get the directory where this script is located
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-WORK_JOURNAL="$PROJECT_ROOT/.claude/work-journal.json"
-
-# Update work journal with append
-update_work_journal() {
+# Auto-stash functionality for large uncommitted work
+auto_stash_if_needed() {
     # Check if we're in a git repository
     if ! git rev-parse --git-dir > /dev/null 2>&1; then
         return 0
     fi
     
-    # Get current state
-    branch=$(git branch --show-current 2>/dev/null || echo "unknown")
-    changes=$(git status --porcelain 2>/dev/null | wc -l 2>/dev/null | tr -d ' \n')
-    unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l 2>/dev/null | tr -d ' \n' || echo "0")
-    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    last_commit=$(git log -1 --oneline 2>/dev/null || echo "no commits")
-    
-    # Initialize journal if it doesn't exist
-    if [ ! -f "$WORK_JOURNAL" ]; then
-        echo '{"entries": []}' > "$WORK_JOURNAL"
-    fi
-    
-    # Check if journal has old format and convert it
-    if grep -q '"last_session"' "$WORK_JOURNAL" 2>/dev/null; then
-        echo '{"entries": []}' > "$WORK_JOURNAL"
-    fi
-    
-    # Create new entry
-    new_entry=$(cat <<EOF
-{
-    "timestamp": "$timestamp",
-    "branch": "$branch",
-    "uncommitted": $changes,
-    "unpushed": $unpushed,
-    "last_commit": "$last_commit"
-}
-EOF
-    )
-    
-    # Append to journal (keep last 100 entries)
-    cat "$WORK_JOURNAL" | jq --argjson entry "$new_entry" '.entries = ([$entry] + .entries)[0:100]' > "$WORK_JOURNAL.tmp"
-    mv -f "$WORK_JOURNAL.tmp" "$WORK_JOURNAL" 2>/dev/null || true
-}
-
-# Only show reminders if we have significant changes
-check_and_remind() {
-    # Check if we're in a git repository
-    if ! git rev-parse --git-dir > /dev/null 2>&1; then
-        exit 0
-    fi
-    
     # Count uncommitted changes
-    changes=$(git status --porcelain 2>/dev/null | wc -l 2>/dev/null | tr -d ' \n')
+    changes=$(git status --porcelain 2>/dev/null | wc -l)
     
-    # Get last commit time
-    last_commit=$(git log -1 --format="%cr" 2>/dev/null || echo "never")
-    
-    # Get current branch
-    branch=$(git branch --show-current 2>/dev/null || echo "unknown")
-    
-    # Build reminder message
-    MESSAGE=""
-    
-    # Only remind if there are changes
+    # Only create stash if significant uncommitted work exists (>15 files) and no recent stash
     if [ "$changes" -gt 15 ]; then
-        MESSAGE="📝 Reminder: You have $changes uncommitted changes on branch '$branch'
-   Last commit: $last_commit
-   Consider: git add -A && git commit -m 'your message'"
-    elif [ "$changes" -gt 5 ]; then
-        MESSAGE="📝 Note: $changes uncommitted changes on '$branch'"
-    fi
-    
-    # Check for unpushed commits
-    unpushed=$(git log @{u}.. --oneline 2>/dev/null | wc -l 2>/dev/null | tr -d ' \n' || echo "0")
-    if [ "$unpushed" -gt 3 ]; then
-        if [ -n "$MESSAGE" ]; then
-            MESSAGE="$MESSAGE
-⬆️ You have $unpushed unpushed commits. Consider: git push"
-        else
-            MESSAGE="⬆️ You have $unpushed unpushed commits. Consider: git push"
+        # Check if there's a recent stash (within last 10 minutes)
+        recent_stash=$(git stash list --since="10 minutes ago" 2>/dev/null | head -1)
+        
+        if [ -z "$recent_stash" ]; then
+            echo ""
+            echo "💾 Auto-stashing large uncommitted work for safety..."
+            echo "   Uncommitted files: $changes"
+            
+            # Create descriptive stash message
+            current_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
+            stash_msg="Auto-checkpoint: $current_branch - $(date +%Y%m%d-%H%M%S)"
+            
+            if git stash push -m "$stash_msg" 2>/dev/null; then
+                echo "   ✅ Work stashed successfully"
+                echo "   To restore: git stash pop"
+            else
+                echo "   ⚠️ Could not stash work"
+            fi
+            echo ""
         fi
     fi
-    
-    # Update work journal every time
-    update_work_journal
-    
-    # Output as JSON for Claude Code if we have a message
-    if [ -n "$MESSAGE" ]; then
-        # Escape the message for JSON
-        ESCAPED_MESSAGE=$(echo "$MESSAGE" | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
-        cat <<EOF
-{
-  "continue": true,
-  "systemMessage": "$ESCAPED_MESSAGE"
 }
-EOF
-    else
-        # Must output valid JSON even when there's no message
-        echo '{}'
+
+# Show current status for continuity
+show_status() {
+    if git rev-parse --git-dir > /dev/null 2>&1; then
+        current_branch=$(git branch --show-current 2>/dev/null || echo "unknown")
+        uncommitted=$(git status --porcelain 2>/dev/null | wc -l)
+        
+        if [ "$uncommitted" -gt 0 ] || [ "$(git stash list 2>/dev/null | wc -l)" -gt 0 ]; then
+            echo ""
+            echo "📋 Work Status Checkpoint"
+            echo "   Branch: $current_branch"
+            [ "$uncommitted" -gt 0 ] && echo "   Uncommitted: $uncommitted files"
+            
+            stash_count=$(git stash list 2>/dev/null | wc -l)
+            [ "$stash_count" -gt 0 ] && echo "   Stashes: $stash_count available"
+            echo ""
+        fi
     fi
 }
 
 # Main execution
 main() {
-    check_and_remind
+    # Perform auto-stash if needed
+    auto_stash_if_needed
+    
+    # Show status for next session
+    show_status
+    
+    # Output empty JSON for Claude Code (hooks must output valid JSON)
+    echo '{}'
 }
 
 # Run main function
