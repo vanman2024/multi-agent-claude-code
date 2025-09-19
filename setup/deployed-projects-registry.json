@@ -1,0 +1,24 @@
+[
+  {
+    "id": "011822d52fd2bfab",
+    "name": "testuser/test-auto-registration-project",
+    "webhookUrl": "https://api.github.com/repos/testuser/test-auto-registration-project/dispatches",
+    "owner": "testuser",
+    "repo": "test-auto-registration-project",
+    "deployedVersion": "v3.12.0",
+    "criticalUpdatesOnly": true,
+    "autoUpdate": false,
+    "lastNotified": null
+  },
+  {
+    "id": "17cc1b96da69dcf3",
+    "name": "vanman2024/test-github-creation",
+    "webhookUrl": "https://api.github.com/repos/vanman2024/test-github-creation/dispatches",
+    "owner": "vanman2024",
+    "repo": "test-github-creation",
+    "deployedVersion": "v3.12.0",
+    "criticalUpdatesOnly": true,
+    "autoUpdate": false,
+    "lastNotified": null
+  }
+]

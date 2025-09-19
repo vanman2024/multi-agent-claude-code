@@ -1029,6 +1029,64 @@ Tag naming convention:
 - Reference issue: "Related to #123" or "Closes #123"
 - Use "Closes #123" only once per issue (in final commit/PR)
 
+### CRITICAL: Professional Commit Strategy for Rich Release Notes
+
+**THE RULE: Accumulate commits locally, push batches for comprehensive releases**
+
+#### ❌ WRONG - Immediate Push Pattern (Creates Sparse Releases):
+```bash
+# Do work, commit everything at once, push immediately
+git add -A
+git commit -m "fix: Restore DevOps system and fix AgentSwarm workflow issues"
+git push  # ← CREATES SPARSE RELEASE WITH 1 BULLET POINT
+```
+
+#### ✅ CORRECT - Professional Accumulation Pattern (Creates Rich Releases):
+```bash
+# Make focused commits as you work (LOCALLY)
+git commit -m "fix(devops): restore complete DevOps directory from source"
+git commit -m "fix(agentswarm): remove duplicate agentswarm.sh file"  
+git commit -m "fix(agentswarm): add exclusions for pytest.ini pollution"
+git commit -m "fix(agentswarm): prevent .github directory sync"
+git commit -m "feat(template): improve exclusion patterns"
+git commit -m "docs(template): update sync documentation"
+
+# Work for days/weeks building up commits locally...
+# THEN push all accumulated work together
+git push  # ← CREATES RICH RELEASE WITH 6+ ORGANIZED BULLET POINTS
+```
+
+#### Benefits of Accumulation Strategy:
+- **Rich Release Notes**: 6+ detailed bullet points instead of 1
+- **Professional Appearance**: Like Google, Microsoft, Meta releases
+- **Better Organization**: Semantic-release groups by type (Features, Bug Fixes, etc.)
+- **Easier Debugging**: Granular commit history for troubleshooting
+- **Team Standards**: Follows industry best practices
+
+#### When to Push:
+- **Feature Complete**: All related work is done and tested
+- **Sprint End**: Weekly/bi-weekly release cycles
+- **Milestone Reached**: Major functionality implemented
+- **Emergency**: Only for critical hotfixes
+
+#### Example Professional Release Result:
+```markdown
+## Features
+• improve exclusion patterns (abc123)
+• add GitHub repository auto-creation (def456)
+
+## Bug Fixes  
+• restore complete DevOps directory from source (ghi789)
+• remove duplicate agentswarm.sh file (jkl012)
+• add exclusions for pytest.ini pollution (mno345)
+• prevent .github directory sync (pqr678)
+
+## Documentation
+• update sync documentation (stu901)
+```
+
+**Remember**: Commits are LOCAL until pushed - accumulate significant work for professional releases!
+
 ### NEVER Commit:
 - node_modules/, venv/, __pycache__/
 - .env, .env.local, .env.*.local
@@ -1121,10 +1179,14 @@ Tag naming convention:
 2. Use TodoWrite to plan if multiple steps
 3. Search/read relevant files first
 4. Understand existing patterns
-5. Implement solution
+5. Implement solution using **Professional Commit Strategy**:
+   - Make focused commits as work progresses
+   - Don't bundle everything into one commit
+   - Accumulate commits locally before pushing
 6. Run lint/typecheck
 7. Remove debug code
 8. Verify solution works
+9. **ONLY PUSH when feature/milestone is complete** (not after every commit)
 
 ### When Task is Complete:
 - Just stop after completing
