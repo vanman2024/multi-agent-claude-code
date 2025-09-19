@@ -6,10 +6,11 @@ on:
     paths-ignore:
       - 'devops/**'           # Ignore DevOps component changes
       - 'agentswarm/**'       # Ignore AgentSwarm component changes
-      - 'devops-VERSION'      # Ignore legacy version files
-      - 'agentswarm-VERSION'  # Ignore legacy version files
   pull_request:
     branches: [ main ]
+  workflow_run:
+    workflows: ["*"]          # Trigger when any workflow completes
+    types: [ completed ]
 
 permissions:
   contents: write
@@ -20,7 +21,7 @@ permissions:
 jobs:
   version-management:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_run'
     
     steps:
     - name: Checkout code
@@ -44,6 +45,7 @@ jobs:
           @semantic-release/exec
 
     - name: Update VERSION file and create release
+      if: github.event_name == 'push'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
