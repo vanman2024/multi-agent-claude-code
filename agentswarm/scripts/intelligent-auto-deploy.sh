@@ -46,6 +46,8 @@ EXCLUDE_PATTERNS=(
     "*.spec.ts"
     
     # Development directories
+    ".pytest_cache"
+    ".pytest_cache/"
     "*/.pytest_cache/*"
     "*/node_modules/*"
     "node_modules"
@@ -54,6 +56,8 @@ EXCLUDE_PATTERNS=(
     "*/.venv/*"
     "*/env/*"
     "*/.env/*"
+    "__pycache__"
+    "__pycache__/"
     "*/__pycache__/*"
     "*/coverage/*"
     "*/.coverage"
@@ -124,6 +128,7 @@ EXCLUDE_PATTERNS=(
     "AGENTS.md"
     "devops"
     "devops/"
+    "__init__.py"
     
     # Workflow-generated directories
     "template-repo"
