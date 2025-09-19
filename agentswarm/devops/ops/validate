@@ -1,0 +1,126 @@
+#!/bin/bash
+# Ops System Validation Script
+# Template: Validates that ops system is properly configured
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+print_check() { echo -e "${GREEN}✅${NC} $1"; }
+print_warn() { echo -e "${YELLOW}⚠️${NC} $1"; }
+print_error() { echo -e "${RED}❌${NC} $1"; }
+
+echo "🔍 Validating ops system configuration..."
+echo
+
+# Check required files
+echo "📁 Checking required files..."
+
+if [[ -f "$SCRIPT_DIR/ops" ]]; then
+    print_check "ops command exists"
+else
+    print_error "ops command missing"
+    exit 1
+fi
+
+if [[ -f "$SCRIPT_DIR/config.yml" ]]; then
+    print_check "config.yml exists"
+else
+    print_warn "config.yml missing - run 'ops setup' to create"
+fi
+
+if [[ -f "$SCRIPT_DIR/README.md" ]]; then
+    print_check "README.md exists"
+else
+    print_warn "README.md missing"
+fi
+
+echo
+
+# Check project structure
+echo "🏗️ Checking project structure..."
+
+if [[ -f "$REPO_ROOT/pyproject.toml" ]]; then
+    print_check "pyproject.toml found (Python project)"
+elif [[ -f "$REPO_ROOT/package.json" ]]; then
+    print_check "package.json found (Node.js project)"
+elif [[ -f "$REPO_ROOT/Cargo.toml" ]]; then
+    print_check "Cargo.toml found (Rust project)"
+else
+    print_warn "No standard project file found (pyproject.toml, package.json, Cargo.toml)"
+fi
+
+if [[ -d "$REPO_ROOT/src" ]]; then
+    print_check "src/ directory found"
+else
+    print_warn "src/ directory not found"
+fi
+
+if [[ -d "$REPO_ROOT/tests" ]]; then
+    print_check "tests/ directory found"
+else
+    print_warn "tests/ directory not found"
+fi
+
+echo
+
+# Check deploy system
+echo "🚀 Checking deploy system integration..."
+
+if [[ -f "$REPO_ROOT/deploy/deploy" ]]; then
+    print_check "deploy system found"
+else
+    print_warn "deploy system not found"
+fi
+
+echo
+
+# Check virtual environment
+echo "🐍 Checking Python environment..."
+
+if [[ -d "$REPO_ROOT/.venv" ]]; then
+    print_check ".venv virtual environment found"
+elif [[ -d "$REPO_ROOT/venv" ]]; then
+    print_check "venv virtual environment found"
+else
+    print_warn "No virtual environment found"
+fi
+
+echo
+
+# Check dependencies
+echo "🔧 Checking development dependencies..."
+
+if command -v ruff >/dev/null 2>&1; then
+    print_check "ruff (linter) available"
+else
+    print_warn "ruff not found - install with: pip install ruff"
+fi
+
+if command -v mypy >/dev/null 2>&1; then
+    print_check "mypy (type checker) available"
+else
+    print_warn "mypy not found - install with: pip install mypy"
+fi
+
+if command -v black >/dev/null 2>&1; then
+    print_check "black (formatter) available"
+else
+    print_warn "black not found - install with: pip install black"
+fi
+
+echo
+
+echo "✨ Ops system validation complete!"
+echo
+echo "💡 Tips:"
+echo "  - Run 'ops setup <target>' to configure deployment target"
+echo "  - Run 'ops qa' to check code quality"
+echo "  - Run 'ops help' for all available commands"

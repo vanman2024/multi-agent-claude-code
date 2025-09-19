@@ -1,0 +1,132 @@
+# Future GitHub Actions Workflow - Automated Deployment
+# 
+# STATUS: 🚧 FUTURE INFRASTRUCTURE - Not yet active
+# BUILDS ON: ../../ops/ and ../../deploy/ systems
+#
+# This workflow demonstrates how automated CD would leverage
+# your current working ops/deploy commands
+
+name: Automated Deployment (Future)
+
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [ published ]
+  workflow_dispatch:  # Manual trigger
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  # Environment-specific deployment targets
+  STAGING_TARGET: ~/deploy/staging
+  PRODUCTION_TARGET: ~/deploy/production
+
+jobs:
+  deploy-staging:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Environment
+      run: |
+        echo "🔧 Setting up deployment environment"
+        # Setup would mirror your current local environment
+        
+    - name: Quality Assurance (Uses Current Ops)
+      run: |
+        echo "🧪 Running QA using existing ops system"
+        ./devops/ops/ops qa
+        
+    - name: Build Production (Uses Current Ops)  
+      run: |
+        echo "🏗️ Building using existing ops system"
+        ./devops/ops/ops build --target $STAGING_TARGET
+        
+    - name: Verify Build (Uses Current Ops)
+      run: |
+        echo "✅ Verifying using existing ops system"  
+        ./devops/ops/ops verify-prod
+        
+    - name: Deploy to Staging (Uses Current Deploy)
+      run: |
+        echo "🚀 Deploying using existing deploy system"
+        ./devops/deploy/deploy production $STAGING_TARGET
+        
+    - name: Post-Deploy Health Check
+      run: |
+        echo "🏥 Running health checks"
+        # Add staging-specific health checks
+        
+  deploy-production:
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    runs-on: ubuntu-latest
+    environment: production  # Requires manual approval
+    needs: []  # No dependencies - can run standalone
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Environment
+      run: |
+        echo "🔧 Setting up production deployment environment"
+        
+    - name: Quality Assurance (Uses Current Ops)
+      run: |
+        echo "🧪 Running production QA using existing ops system"
+        ./devops/ops/ops qa
+        
+    - name: Build Production (Uses Current Ops)
+      run: |
+        echo "🏗️ Building production using existing ops system" 
+        ./devops/ops/ops build --target $PRODUCTION_TARGET
+        
+    - name: Verify Build (Uses Current Ops)
+      run: |
+        echo "✅ Verifying production build using existing ops system"
+        ./devops/ops/ops verify-prod
+        
+    - name: Deploy to Production (Uses Current Deploy)
+      run: |
+        echo "🚀 Deploying to production using existing deploy system"
+        ./devops/deploy/deploy production $PRODUCTION_TARGET
+        
+    - name: Create Release Tag (Uses Current Ops)
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        echo "🏷️ Creating release using existing ops system"
+        ./devops/ops/ops release patch
+        
+    - name: Post-Deploy Verification
+      run: |
+        echo "🔍 Running production verification"
+        # Add production-specific verification
+        
+    - name: Notification
+      run: |
+        echo "📢 Production deployment complete!"
+        # Add Slack/email notifications
+
+  rollback:
+    if: failure()
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Rollback Deployment
+      run: |
+        echo "🔄 Rolling back deployment"
+        # Future: Implement rollback using ops/deploy system
+        ./devops/ci/automation/scripts/rollback.sh
