@@ -31,4 +31,4 @@ Update the current project with the latest changes from the multi-agent template
 - `package.json`, `pyproject.toml` - Your dependencies
 - `README.md` - Your project documentation
 
-Run: !node setup/template-update-system.js $ARGUMENTS
+Run: !node setup/update-from-template.js $ARGUMENTS

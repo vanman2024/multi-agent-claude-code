@@ -1492,6 +1492,83 @@ SYNC_DATE=${new Date().toISOString().split('T')[0]}
   }
 
   /**
+   * Create GitHub repository if needed
+   */
+  async createGitHubRepository() {
+    try {
+      console.log('\n🐙 Checking GitHub repository setup...');
+      
+      // Check if git repo exists
+      if (!fs.existsSync(path.join(this.projectRoot, '.git'))) {
+        console.log('  📁 Initializing git repository...');
+        execSync('git init', { cwd: this.projectRoot, stdio: 'pipe' });
+        execSync('git branch -M main', { cwd: this.projectRoot, stdio: 'pipe' });
+        console.log('  ✅ Git repository initialized');
+      }
+      
+      // Check if remote origin exists
+      let hasRemote = false;
+      try {
+        execSync('git remote get-url origin', { 
+          cwd: this.projectRoot,
+          stdio: 'pipe' 
+        });
+        hasRemote = true;
+        console.log('  ✅ GitHub remote already configured');
+      } catch (error) {
+        // No remote exists
+      }
+      
+      if (!hasRemote) {
+        // Determine project name from directory
+        const projectName = path.basename(this.projectRoot);
+        console.log(`  🚀 Creating GitHub repository: ${projectName}`);
+        
+        try {
+          // Create private repository
+          const createCommand = `gh repo create ${projectName} --private --description "Multi-agent development project built with the Claude Code template"`;
+          execSync(createCommand, { cwd: this.projectRoot, stdio: 'pipe' });
+          
+          // Add remote origin
+          execSync(`git remote add origin https://github.com/$(gh api user --jq .login)/${projectName}.git`, { 
+            cwd: this.projectRoot, 
+            stdio: 'pipe' 
+          });
+          
+          console.log(`  ✅ GitHub repository created: ${projectName}`);
+          console.log(`  🔗 Repository URL: https://github.com/$(gh api user --jq .login)/${projectName}`);
+          
+          // Make initial commit if no commits exist
+          try {
+            execSync('git rev-parse HEAD', { cwd: this.projectRoot, stdio: 'pipe' });
+          } catch (error) {
+            // No commits exist, create initial commit
+            console.log('  📝 Creating initial commit...');
+            execSync('git add .', { cwd: this.projectRoot, stdio: 'pipe' });
+            execSync('git commit -m "feat: Initial project setup with multi-agent template\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"', { 
+              cwd: this.projectRoot, 
+              stdio: 'pipe' 
+            });
+            execSync('git push -u origin main', { cwd: this.projectRoot, stdio: 'pipe' });
+            console.log('  ✅ Initial commit pushed to GitHub');
+          }
+          
+        } catch (error) {
+          console.log('  ⚠️  GitHub repository creation failed:', error.message);
+          console.log('  💡 You can manually create the repository later with:');
+          console.log(`      gh repo create ${projectName} --private`);
+          console.log(`      git remote add origin https://github.com/YOUR_USERNAME/${projectName}.git`);
+        }
+      }
+      
+    } catch (error) {
+      console.log('  ⚠️  GitHub setup failed:', error.message);
+      console.log('  💡 Make sure GitHub CLI is installed and authenticated:');
+      console.log('      gh auth login');
+    }
+  }
+
+  /**
    * Auto-register project for template update notifications
    */
   async registerForTemplateUpdates() {
@@ -1613,6 +1690,7 @@ SYNC_DATE=${new Date().toISOString().split('T')[0]}
       this.syncVersioningSystem();  // Sync versioning system (templates/versioning)
       this.createTemplateVersionTracking();  // Track template version for future updates
       this.runDevOpsSetup();  // Run DevOps setup after all syncing
+      await this.createGitHubRepository();  // Create GitHub repository if needed
       await this.registerForTemplateUpdates();  // Auto-register for template update notifications
 
       console.log('\n✅ Project sync completed successfully!');
