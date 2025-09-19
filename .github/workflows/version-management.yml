@@ -3,14 +3,8 @@ name: Automatic Version Management
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'devops/**'           # Ignore DevOps component changes
-      - 'agentswarm/**'       # Ignore AgentSwarm component changes
   pull_request:
     branches: [ main ]
-  workflow_run:
-    workflows: ["*"]          # Trigger when any workflow completes
-    types: [ completed ]
 
 permissions:
   contents: write
@@ -21,7 +15,7 @@ permissions:
 jobs:
   version-management:
     runs-on: ubuntu-latest
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_run'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout code
@@ -45,7 +39,6 @@ jobs:
           @semantic-release/exec
 
     - name: Update VERSION file and create release
-      if: github.event_name == 'push'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
@@ -98,18 +91,22 @@ jobs:
         echo "   AgentSwarm: $AGENTSWARM_VERSION"
         
         # Create updated VERSION file with current component versions
-        cat > VERSION << EOF
-{
-  "version": "$CURRENT_VERSION",
-  "commit": "$CURRENT_COMMIT",
-  "build_date": "$CURRENT_DATE",
-  "build_type": "production",
-  "components": {
-    "devops": "$DEVOPS_VERSION",
-    "agentswarm": "$AGENTSWARM_VERSION"
-  }
-}
-EOF
+        jq -n \
+          --arg version "$CURRENT_VERSION" \
+          --arg commit "$CURRENT_COMMIT" \
+          --arg build_date "$CURRENT_DATE" \
+          --arg devops "$DEVOPS_VERSION" \
+          --arg agentswarm "$AGENTSWARM_VERSION" \
+          '{
+            version: $version,
+            commit: $commit,
+            build_date: $build_date,
+            build_type: "production",
+            components: {
+              devops: $devops,
+              agentswarm: $agentswarm
+            }
+          }' > VERSION
         
         # Check if VERSION file changed and commit if needed
         if ! git diff --exit-code VERSION > /dev/null; then
