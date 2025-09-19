@@ -612,13 +612,13 @@ git push --no-verify          # Standard git bypass
 ## Project-Specific Context
 
 ### Tech Stack
-- **Frontend**: Next.js, React, TypeScript, Tailwind
-- **Backend**: Next.js API Routes
-- **Database**: [Configure per project]
-- **Auth**: [Configure per project]
-- **Deployment**: Vercel
-- **CI/CD**: GitHub Actions
-- **Testing**: Jest, React Testing Library
+- **Framework**: Multi-Agent Development Template
+- **Components**: DevOps automation, AgentSwarm orchestration
+- **Languages**: Python, Bash, TypeScript, YAML
+- **Automation**: GitHub Actions, semantic-release
+- **Testing**: pytest (backend), Playwright (frontend)
+- **CLI**: ops automation system
+- **Deployment**: Component-based auto-deploy system
 
 ### Key Patterns
 <!-- Add as discovered -->

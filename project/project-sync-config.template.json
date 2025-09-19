@@ -55,17 +55,18 @@
   },
   "agentFiles": {
     "required": [
+      "CONSTITUTION.md",
       "template-agents/CLAUDE.md",
       "template-agents/AGENTS.md",
       "template-agents/README.md",
+      "template-agents/QWEN.md",
+      "template-agents/GEMINI.md",
       ".github/copilot-instructions.md",
       "scripts/ops",
       "automation/config.yml.template",
       "VERSIONING.md"
     ],
     "optional": [
-      "template-agents/QWEN.md",
-      "template-agents/GEMINI.md"
     ],
     "agentSwarm": [
       "agentswarm/"

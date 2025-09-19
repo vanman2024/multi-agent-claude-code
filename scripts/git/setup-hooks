@@ -12,44 +12,23 @@ echo "🔧 Setting up Git hooks for professional workflow..."
 # Ensure .git/hooks directory exists
 mkdir -p .git/hooks
 
-# Copy pre-push hook from templates
-if [ -f "$TEMPLATE_DIR/templates/git/hooks/pre-push" ]; then
-    cp "$TEMPLATE_DIR/templates/git/hooks/pre-push" .git/hooks/
+# Use Git's sample hooks as the base and add our customizations
+if [ -f "$TEMPLATE_DIR/templates/git/hooks/pre-push.template" ]; then
+    cp "$TEMPLATE_DIR/templates/git/hooks/pre-push.template" .git/hooks/pre-push
     chmod +x .git/hooks/pre-push
-    echo "✅ Pre-push hook installed"
-else
-    echo "⚠️  Pre-push hook template not found, creating basic version..."
+    echo "✅ Professional pre-push hook installed (based on Git sample)"
+elif [ -f ".git/hooks/pre-push.sample" ]; then
+    echo "⚠️  Using local Git sample hook..."
+    # Use local Git sample and add minimal guidance
+    cp .git/hooks/pre-push.sample .git/hooks/pre-push
     
-    # Create basic hook if template not available
-    cat > .git/hooks/pre-push << 'EOF'
-#!/bin/bash
-# Smart Pre-Push Hook: Professional Commit Accumulation Guidance
-
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
-# Skip for non-main branches
-if [ "$BRANCH" != "main" ]; then
-    exit 0
-fi
-
-UNPUSHED_COUNT=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo 0)
-
-if [ "$UNPUSHED_COUNT" -le 1 ]; then
-    echo "🤖 Professional Commit Strategy Guidance"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📊 Commits to push: $UNPUSHED_COUNT"
-    echo ""
-    echo "💡 For richer release notes, consider accumulating 3-6 commits first"
-    echo "🚀 Continue anyway? Proceeding in 3 seconds..."
-    read -t 3 -p "" || true
-    echo ""
-fi
-
-echo "✅ Proceeding with push..."
-exit 0
-EOF
+    # Add our guidance to the existing sample
+    sed -i '/^exit 0$/i\\n# Professional Commit Strategy Guidance\nBRANCH=$(git rev-parse --abbrev-ref HEAD)\nif [ "$BRANCH" = "main" ]; then\n    UNPUSHED_COUNT=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo 0)\n    if [ "$UNPUSHED_COUNT" -le 1 ]; then\n        echo "💡 Consider accumulating 3-6 commits for richer release notes"\n        read -t 2 -p "Continue? " || true\n        echo ""\n    fi\nfi\n' .git/hooks/pre-push
+    
     chmod +x .git/hooks/pre-push
-    echo "✅ Basic pre-push hook created"
+    echo "✅ Git sample hook customized with commit guidance"
+else
+    echo "⚠️  No hook templates found, skipping hook installation"
 fi
 
 # Verify hook is working
