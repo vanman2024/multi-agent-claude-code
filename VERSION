@@ -1,10 +1,10 @@
 {
-  "version": "v3.14.1",
-  "commit": "1f3aee0d532d334ce7aaffa1fafefbbc9a79639a",
-  "build_date": "2025-09-19T05:08:40.856Z",
+  "version": "v3.15.0",
+  "commit": "d57c469e300625a6ff7a7310a85cf2fa67d6e39f",
+  "build_date": "2025-09-19T05:09:44.151Z",
   "build_type": "production",
   "components": {
     "devops": "v1.7.5",
-    "agentswarm": "v1.5.2"
+    "agentswarm": "v1.5.3"
   }
 }
