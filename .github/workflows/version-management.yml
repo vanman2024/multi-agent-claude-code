@@ -3,8 +3,18 @@ name: Automatic Version Management
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'devops/**'           # Ignore DevOps component changes
+      - 'agentswarm/**'       # Ignore AgentSwarm component changes
+      - 'devops-VERSION'      # Ignore legacy version files
+      - 'agentswarm-VERSION'  # Ignore legacy version files
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'devops/**'
+      - 'agentswarm/**'
+      - 'devops-VERSION'
+      - 'agentswarm-VERSION'
 
 permissions:
   contents: write
