@@ -1,0 +1,18 @@
+#!/bin/bash
+# Quick push bypass for testing scenarios
+# Usage: ./scripts/push-bypass [branch]
+
+BRANCH=${1:-$(git rev-parse --abbrev-ref HEAD)}
+
+echo "🚀 Quick Push (Bypassing Accumulation Guidance)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📍 Branch: $BRANCH"
+echo "🔧 Use case: Testing, emergency fixes, or simple changes"
+echo ""
+
+# Push with --no-verify to skip the pre-push hook
+git push --no-verify origin "$BRANCH"
+
+echo ""
+echo "✅ Pushed without accumulation guidance"
+echo "💡 For production releases, use regular 'git push' with accumulation"

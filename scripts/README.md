@@ -1,67 +1,59 @@
-# Scripts Directory Organization
+# Scripts Directory - Template Framework
 
-All project scripts organized by purpose, independent of their execution context.
+This directory contains development automation scripts that transfer with the template to new projects.
 
 ## Structure
 
 ```
 scripts/
-├── deployment/          # Deployment and CI/CD scripts
-│   └── vercel-ignore-build.sh    # Controls Vercel deployments based on checkboxes
-│
-├── testing/            # Test execution and simulation scripts
-│   ├── test-mimic.sh              # Simulates /test command behavior
-│   └── test-frontend-agent-mimic.sh  # Shows frontend agent browser testing
-│
-└── utilities/          # General purpose utilities
-    └── create-checkbox-status.sh  # Manually creates GitHub commit status
+├── development/          # Environment setup
+│   └── wsl-setup.sh     # WSL optimization for development
+├── git/                 # Git automation (transferred via template)
+│   └── push-bypass      # Bypass git hook guidance for testing  
+├── utilities/           # Core development utilities
+│   ├── git-helpers.sh   # Git helper functions
+│   └── cleanup-branches.sh  # Branch maintenance
+└── README.md           # This file
 ```
 
-## Usage
+## What Transfers with Template
 
-### From GitHub Actions
-```yaml
-- name: Check checkboxes
-  run: ./scripts/utilities/create-checkbox-status.sh
-```
+**Core Development Scripts (ALWAYS transfer):**
+- `development/wsl-setup.sh` - Environment optimization
+- `git/push-bypass` - Git hook bypass for testing
+- `utilities/git-helpers.sh` - Git utility functions
+- `utilities/cleanup-branches.sh` - Git maintenance
+- Git hooks (`.git/hooks/pre-push`) - Professional commit guidance
 
-### From Vercel Settings
-Configure in Vercel Dashboard → Project Settings → Git → Ignored Build Step Command:
+**Template Management Only (NEVER transfer):**
+- Template sync scripts
+- Project creation utilities
+- MCP sync scripts (obsolete - CLI tools auto-configure)
+
+## Key Principles
+
+1. **CLI Tools Auto-Configure MCP** - Qwen/Gemini have built-in MCP configs
+2. **Git Hooks for Professional Workflow** - Guidance for commit accumulation
+3. **WSL Optimization** - Essential for Windows development
+4. **Core Utilities Only** - No project-specific scripts
+
+## Usage After Template Sync
+
 ```bash
-./scripts/deployment/vercel-ignore-build.sh
+# Environment setup (run once)
+./scripts/development/wsl-setup.sh
+
+# Git workflow helpers
+source scripts/utilities/git-helpers.sh
+cleanup_old_branches
+
+# Testing bypass (when needed)
+./scripts/git/push-bypass
 ```
 
-### From Command Line (Testing)
-```bash
-# Test what /test command should do
-./scripts/testing/test-mimic.sh
+## Automation Integration
 
-# Test frontend agent behavior
-./scripts/testing/test-frontend-agent-mimic.sh
-
-# Manually create checkbox status
-./scripts/utilities/create-checkbox-status.sh
-```
-
-## Important Notes
-
-- Scripts are independent of their location
-- GitHub Actions can call scripts from anywhere
-- Claude hooks reference scripts via full path
-- All scripts should be executable (`chmod +x`)
-
-## Moving Scripts Here
-
-When moving a script to this directory:
-1. Move the file to appropriate subdirectory
-2. Update all references (workflows, hooks, docs)
-3. Test that it still works from new location
-4. Remove old location
-
-## Script Standards
-
-- All scripts must have shebang (`#!/bin/bash`)
-- All scripts must be executable
-- Include usage comments at top
-- Use error handling (`set -e`)
-- Validate inputs
+- **Git Hooks**: Auto-installed during template sync
+- **Ops CLI**: Available via `./scripts/ops` after sync
+- **MCP Servers**: Auto-configured by CLI tools (Qwen, Gemini, etc.)
+- **Professional Commits**: Guided by pre-push hook

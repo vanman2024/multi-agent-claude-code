@@ -1,0 +1,49 @@
+#!/bin/bash
+# Smart Pre-Push Hook: Professional Commit Accumulation Guidance
+# 
+# Provides guidance on professional commit practices while allowing flexibility
+# for solo development and testing scenarios.
+
+# Get current branch
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Skip for non-main branches (allow feature branch pushes)
+if [ "$BRANCH" != "main" ]; then
+    exit 0
+fi
+
+# Count unpushed commits
+UNPUSHED_COUNT=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo 0)
+
+# If no commits or just 1, provide guidance
+if [ "$UNPUSHED_COUNT" -le 1 ]; then
+    echo "🤖 Professional Commit Strategy Guidance"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📊 Commits to push: $UNPUSHED_COUNT"
+    echo ""
+    echo "💡 For richer release notes, consider:"
+    echo "   • Making focused commits locally first"
+    echo "   • Accumulate 3-6 commits per push"
+    echo "   • Each commit = one logical change"
+    echo ""
+    echo "✅ Rich Release Pattern:"
+    echo "   git commit -m 'fix(api): resolve auth endpoint issue'"
+    echo "   git commit -m 'feat(ui): add loading states'"
+    echo "   git commit -m 'docs: update API documentation'"
+    echo "   git push  # ← Creates detailed release notes"
+    echo ""
+    echo "⚠️  Current Pattern (single commit/immediate push):"
+    echo "   Creates sparse release notes with minimal detail"
+    echo ""
+    echo "🚀 Continue anyway? This push will proceed in 3 seconds..."
+    echo "   Press Ctrl+C to cancel and accumulate more commits"
+    echo "   Or press Enter to push now"
+    
+    # Give user 3 seconds to cancel or continue immediately
+    read -t 3 -p "" || true
+    echo ""
+fi
+
+# Always allow the push (guidance only, no blocking)
+echo "✅ Proceeding with push..."
+exit 0

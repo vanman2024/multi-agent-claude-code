@@ -1,0 +1,66 @@
+#!/bin/bash
+# Setup Git Hooks for Professional Commit Strategy
+# Installs the pre-push hook for commit accumulation guidance
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TEMPLATE_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
+
+echo "🔧 Setting up Git hooks for professional workflow..."
+
+# Ensure .git/hooks directory exists
+mkdir -p .git/hooks
+
+# Copy pre-push hook from templates
+if [ -f "$TEMPLATE_DIR/templates/git/hooks/pre-push" ]; then
+    cp "$TEMPLATE_DIR/templates/git/hooks/pre-push" .git/hooks/
+    chmod +x .git/hooks/pre-push
+    echo "✅ Pre-push hook installed"
+else
+    echo "⚠️  Pre-push hook template not found, creating basic version..."
+    
+    # Create basic hook if template not available
+    cat > .git/hooks/pre-push << 'EOF'
+#!/bin/bash
+# Smart Pre-Push Hook: Professional Commit Accumulation Guidance
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Skip for non-main branches
+if [ "$BRANCH" != "main" ]; then
+    exit 0
+fi
+
+UNPUSHED_COUNT=$(git rev-list --count @{upstream}..HEAD 2>/dev/null || echo 0)
+
+if [ "$UNPUSHED_COUNT" -le 1 ]; then
+    echo "🤖 Professional Commit Strategy Guidance"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📊 Commits to push: $UNPUSHED_COUNT"
+    echo ""
+    echo "💡 For richer release notes, consider accumulating 3-6 commits first"
+    echo "🚀 Continue anyway? Proceeding in 3 seconds..."
+    read -t 3 -p "" || true
+    echo ""
+fi
+
+echo "✅ Proceeding with push..."
+exit 0
+EOF
+    chmod +x .git/hooks/pre-push
+    echo "✅ Basic pre-push hook created"
+fi
+
+# Verify hook is working
+if [ -x .git/hooks/pre-push ]; then
+    echo "✅ Git hooks setup complete!"
+    echo ""
+    echo "📋 Professional commit workflow enabled:"
+    echo "  • Guidance for commit accumulation on main branch"
+    echo "  • Use './scripts/git/push-bypass' for quick testing"
+    echo "  • Use 'git push --no-verify' to bypass hook"
+else
+    echo "❌ Failed to setup git hooks"
+    exit 1
+fi
