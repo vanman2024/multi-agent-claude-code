@@ -122,6 +122,8 @@ EXCLUDE_PATTERNS=(
     # AgentSwarm-specific exclusions
     "pyproject.toml"
     "AGENTS.md"
+    "devops"
+    "devops/"
     
     # Workflow-generated directories
     "template-repo"
