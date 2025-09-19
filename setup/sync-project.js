@@ -1491,6 +1491,169 @@ SYNC_DATE=${new Date().toISOString().split('T')[0]}
     }
   }
 
+  /**
+   * Create GitHub repository if needed
+   */
+  async createGitHubRepository() {
+    try {
+      console.log('\n🐙 Checking GitHub repository setup...');
+      
+      // Check if git repo exists
+      if (!fs.existsSync(path.join(this.projectRoot, '.git'))) {
+        console.log('  📁 Initializing git repository...');
+        execSync('git init', { cwd: this.projectRoot, stdio: 'pipe' });
+        execSync('git branch -M main', { cwd: this.projectRoot, stdio: 'pipe' });
+        console.log('  ✅ Git repository initialized');
+      }
+      
+      // Check if remote origin exists
+      let hasRemote = false;
+      try {
+        execSync('git remote get-url origin', { 
+          cwd: this.projectRoot,
+          stdio: 'pipe' 
+        });
+        hasRemote = true;
+        console.log('  ✅ GitHub remote already configured');
+      } catch (error) {
+        // No remote exists
+      }
+      
+      if (!hasRemote) {
+        // Determine project name from directory
+        const projectName = path.basename(this.projectRoot);
+        console.log(`  🚀 Creating GitHub repository: ${projectName}`);
+        
+        try {
+          // Create private repository
+          const createCommand = `gh repo create ${projectName} --private --description "Multi-agent development project built with the Claude Code template"`;
+          execSync(createCommand, { cwd: this.projectRoot, stdio: 'pipe' });
+          
+          // Add remote origin
+          execSync(`git remote add origin https://github.com/$(gh api user --jq .login)/${projectName}.git`, { 
+            cwd: this.projectRoot, 
+            stdio: 'pipe' 
+          });
+          
+          console.log(`  ✅ GitHub repository created: ${projectName}`);
+          console.log(`  🔗 Repository URL: https://github.com/$(gh api user --jq .login)/${projectName}`);
+          
+          // Make initial commit if no commits exist
+          try {
+            execSync('git rev-parse HEAD', { cwd: this.projectRoot, stdio: 'pipe' });
+          } catch (error) {
+            // No commits exist, create initial commit
+            console.log('  📝 Creating initial commit...');
+            execSync('git add .', { cwd: this.projectRoot, stdio: 'pipe' });
+            execSync('git commit -m "feat: Initial project setup with multi-agent template\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>"', { 
+              cwd: this.projectRoot, 
+              stdio: 'pipe' 
+            });
+            execSync('git push -u origin main', { cwd: this.projectRoot, stdio: 'pipe' });
+            console.log('  ✅ Initial commit pushed to GitHub');
+          }
+          
+        } catch (error) {
+          console.log('  ⚠️  GitHub repository creation failed:', error.message);
+          console.log('  💡 You can manually create the repository later with:');
+          console.log(`      gh repo create ${projectName} --private`);
+          console.log(`      git remote add origin https://github.com/YOUR_USERNAME/${projectName}.git`);
+        }
+      }
+      
+    } catch (error) {
+      console.log('  ⚠️  GitHub setup failed:', error.message);
+      console.log('  💡 Make sure GitHub CLI is installed and authenticated:');
+      console.log('      gh auth login');
+    }
+  }
+
+  /**
+   * Auto-register project for template update notifications
+   */
+  async registerForTemplateUpdates() {
+    try {
+      console.log('\n📡 Registering project for template update notifications...');
+      
+      // Check if git repo exists
+      if (!fs.existsSync(path.join(this.projectRoot, '.git'))) {
+        console.log('  ⚠️  No git repository detected - skipping auto-registration');
+        return;
+      }
+      
+      // Detect GitHub repo info
+      let remoteUrl;
+      try {
+        remoteUrl = execSync('git remote get-url origin', { 
+          cwd: this.projectRoot,
+          encoding: 'utf8' 
+        }).trim();
+      } catch (error) {
+        console.log('  ⚠️  No GitHub remote detected - skipping auto-registration');
+        return;
+      }
+      
+      const repoMatch = remoteUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)/);
+      
+      if (!repoMatch) {
+        console.log('  ⚠️  No GitHub remote detected - skipping auto-registration');
+        return;
+      }
+      
+      const [, owner, repo] = repoMatch;
+      
+      // Get current template version
+      let templateVersion = 'unknown';
+      try {
+        const versionFile = path.join(__dirname, '..', 'VERSION');
+        if (fs.existsSync(versionFile)) {
+          const versionData = JSON.parse(fs.readFileSync(versionFile, 'utf8'));
+          templateVersion = versionData.version || 'unknown';
+        }
+      } catch (error) {
+        console.log('  ⚠️  Could not determine template version');
+      }
+      
+      // Create registration config
+      const config = {
+        name: `${owner}/${repo}`,
+        webhookUrl: `https://api.github.com/repos/${owner}/${repo}/dispatches`,
+        owner: owner,
+        repo: repo,
+        deployedVersion: templateVersion,
+        autoUpdate: false,
+        criticalUpdatesOnly: true  // Only DevOps/AgentSwarm updates
+      };
+      
+      // Register with webhook notifier
+      const notifierPath = path.join(__dirname, 'webhook-update-notifier.js');
+      if (!fs.existsSync(notifierPath)) {
+        console.log('  ⚠️  Webhook notifier not found - skipping registration');
+        return;
+      }
+      
+      try {
+        const result = execSync(`node "${notifierPath}" register '${JSON.stringify(config)}'`, { 
+          cwd: __dirname,
+          encoding: 'utf8' 
+        });
+        
+        console.log('  ✅ Registered for DevOps/AgentSwarm update notifications');
+        console.log('  📬 Will notify when critical component updates are available');
+        console.log(`  🔖 Project: ${owner}/${repo} (template v${templateVersion})`);
+        
+      } catch (registrationError) {
+        console.log(`  ⚠️  Registration failed: ${registrationError.message}`);
+        console.log('  💡 You can manually register later with:');
+        console.log(`      node setup/webhook-update-notifier.js register '${JSON.stringify(config, null, 2)}'`);
+      }
+      
+    } catch (error) {
+      console.log(`  ⚠️  Auto-registration failed: ${error.message}`);
+      console.log('  💡 You can manually register later with: node setup/webhook-update-notifier.js register');
+    }
+  }
+
   async run() {
     console.log('🚀 Starting comprehensive project sync...\n');
     
@@ -1527,6 +1690,8 @@ SYNC_DATE=${new Date().toISOString().split('T')[0]}
       this.syncVersioningSystem();  // Sync versioning system (templates/versioning)
       this.createTemplateVersionTracking();  // Track template version for future updates
       this.runDevOpsSetup();  // Run DevOps setup after all syncing
+      await this.createGitHubRepository();  // Create GitHub repository if needed
+      await this.registerForTemplateUpdates();  // Auto-register for template update notifications
 
       console.log('\n✅ Project sync completed successfully!');
       console.log('\n📋 Next steps:');
@@ -1564,7 +1729,10 @@ SYNC_DATE=${new Date().toISOString().split('T')[0]}
 if (require.main === module) {
   const projectRoot = process.argv[2] || process.cwd();
   const sync = new ProjectSync(projectRoot);
-  sync.run();
+  sync.run().catch(error => {
+    console.error('❌ Project sync failed:', error.message);
+    process.exit(1);
+  });
 }
 
 module.exports = ProjectSync;
